@@ -1,0 +1,91 @@
+
+/**
+ * utility.js
+ * 
+ * A random collection of useful functions that don't really fit anywhere else
+ */
+
+import { PATH, TILE_SIZE, WORLD_WIDTH } from "./game/const.js";
+
+
+/**
+ * Return a random number between the two points
+ * @param {int}     min     Minimum value
+ * @param {int}     max     Maximum value
+ * @returns {int}
+ */
+export function rng(min,max) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+/**
+ * Takes a number. Forces the number to be within the given range, then returns it.
+ * @param {int}     num     The number
+ * @param {int}     min     Minimum value
+ * @param {int}     max     Maximum value
+ * @returns {int}
+ */
+export function clamp(num,min,max) {
+    return Math.min(Math.max(num, min), max);
+}
+
+export function setAttributes(object,attributes) {
+    for(let a in attributes) {
+        object[a] = attributes[a];
+    }
+}
+
+export function swapBool(bool) {
+    if(bool) {
+        return false;
+    }
+    return true;
+}
+
+export const image = (src) => {
+    let img = new Image;
+    try {
+        img.src = PATH + src + ".png";
+    } catch {
+        img.src = "assets/missing_texture.png";
+    } finally {
+        return img;
+    }
+}
+
+export function calculateDistance(obj1,obj2) {
+    let a = Math.max(obj1.centerX,obj2.centerX) - Math.min(obj1.centerX,obj2.centerX);
+    let b = Math.max(obj1.centerY,obj2.centerY) - Math.min(obj1.centerY,obj2.centerY);
+    let dist = Math.sqrt((a**2 + b**2));
+    return dist;
+}
+
+export function mouseOn(object,mouse) {
+    if(mouse.mapX > object.x && mouse.mapX < object.x + object.w &&
+        -mouse.mapY > object.y && -mouse.mapY < object.y + object.h) {
+            return true;
+    } 
+    return false;
+}
+
+/**
+ * Takes an X coordinate and return its grid equivalent
+ * @param {int}     x   canvas X coordinate
+ * @returns {*}         grid X coordinate (false if outside grid)
+ */
+export function gridXfromCoordinate(x) {
+    return Math.floor(x / TILE_SIZE);
+}
+
+/**
+ * Takes an Y coordinate and return its grid equivalent
+ * @param {int}     x   canvas X coordinate
+ * @returns {int}       grid X coordinate (false if outside grid)
+ */
+export function gridYfromCoordinate(y) {
+    return -Math.floor(y / TILE_SIZE);
+}
+
+export function limitCameraX(cameraX) {
+    return clamp(cameraX,0,WORLD_WIDTH * TILE_SIZE - canvas.width)
+}
