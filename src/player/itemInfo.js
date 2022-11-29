@@ -1,6 +1,6 @@
 import { ctx } from "../game/const.js";
 import { mouse } from "../game/controls.js";
-import { clamp, setAttributes } from "../misc.js";
+import { clamp, disableShadow, drawRounded, setAttributes } from "../misc.js";
 import { player } from "./player.js";
 
 
@@ -32,7 +32,10 @@ class ItemInfoDisplay {
         let x = mouse.mapX;
         let y = -mouse.mapY;
 
-        setAttributes(ctx,{lineWidth:3,strokeStyle:"white",fillStyle:"rgba(0,0,0,0.4)",textAlign:"left",font:"24px Font1"});
+        setAttributes(ctx,{
+            lineWidth:3,strokeStyle:"black",fillStyle:"rgba(50,40,75,0.5)",textAlign:"left",font:"24px Font1",
+            shadowOffsetX:0,shadowOffsetY:0,shadowColor:"black",shadowBlur:5
+        });
 
         let textOffsetX = 24;
         let width = ctx.measureText(this.itemName).width + textOffsetX * 2;
@@ -40,9 +43,13 @@ class ItemInfoDisplay {
         //width = clamp(width,this.minimumWidth,Infinity);
 
         ctx.beginPath();
-        ctx.rect(x,y,width,height);
+        drawRounded(x,y,width,height,10,ctx);
         ctx.fill();
+        ctx.stroke();
         ctx.closePath();
+        ctx.restore();
+
+        disableShadow(ctx);
 
         setAttributes(ctx,{font:"24px Font1",fillStyle:this.rarityColor,strokeStyle:"black",lineWidth:5});
         ctx.strokeText(this.itemName,x + textOffsetX, y+32);

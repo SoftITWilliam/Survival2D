@@ -34,7 +34,7 @@ export default class Item {
         switch(rarity) {
             case 0:
                 this.rarityText = "Common";
-                this.textColor = "rgb(255,255,255)"; 
+                this.textColor = "rgb(240,240,240)"; 
                 break;
 
             case 1:
@@ -59,7 +59,7 @@ export default class Item {
 
             case 99:
                 this.rarityText = "Unobtainable";
-                this.textColor = "rgb(200,30,0"; 
+                this.textColor = "rgb(220,0,30)"; 
                 break;
         }
     }

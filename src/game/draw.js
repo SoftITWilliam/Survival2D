@@ -3,7 +3,7 @@ import { wallGrid } from '../world/world.js';
 import { drawStatBar } from './ui.js';
 import { ctx, canvas, WORLD_HEIGHT, WORLD_WIDTH, TILE_SIZE, DRAWDIST, DRAW_LIGHTING, DEBUG_MODE } from './const.js';
 import { mouse } from './controls.js';
-import { calculateDistance, clamp, gridXfromCoordinate, gridYfromCoordinate, limitCameraX, setAttributes } from '../misc.js';
+import { calculateDistance, clamp, disableShadow, gridXfromCoordinate, gridYfromCoordinate, limitCameraX, setAttributes } from '../misc.js';
 import { getTile, getWall } from '../world/tile/tile.js';
 import { itemEntities } from '../world/item/itemEntity.js';
 import { lightGrid } from '../world/lighting.js';
@@ -128,7 +128,7 @@ export default function draw() {
         ctx.fillText("Tile Pos: " + t1,uiX,player.cameraY + 128); 
         ctx.fillText("Tile Type: " + t2,uiX,player.cameraY + 160); 
 
-        setAttributes(ctx,{shadowOffsetX:0,shadowOffsetY:0,shadowColor:0,shadowBlur:0});
+        disableShadow(ctx);
     }
 
     

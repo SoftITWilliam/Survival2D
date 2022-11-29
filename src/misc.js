@@ -89,3 +89,24 @@ export function gridYfromCoordinate(y) {
 export function limitCameraX(cameraX) {
     return clamp(cameraX,0,WORLD_WIDTH * TILE_SIZE - canvas.width)
 }
+
+export function drawRounded(x,y,width,height,radius,ctx) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + width - radius, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+    ctx.lineTo(x + width, y + height - radius);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    ctx.lineTo(x + radius, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+    ctx.clip();
+}
+
+export function disableShadow(ctx) {
+    setAttributes(ctx,{shadowOffsetX:0,shadowOffsetY:0,shadowColor:0,shadowBlur:0});
+}
+
