@@ -17,7 +17,9 @@ export class ItemStack {
         this.amount += count;
 
         if(this.amount > this.item.stackLimit) {
-            return (this.amount - this.item.stackLimit);
+            let remaining = this.amount - this.item.stackLimit
+            this.amount = this.item.stackLimit;
+            return (remaining);
         }
 
         return 0;
@@ -25,6 +27,10 @@ export class ItemStack {
 
     increaseAmount(count) {
         this.amount += count;
+    }
+
+    subtractAmount(count) {
+        this.amount -= count;
     }
 
     draw(x,y) {

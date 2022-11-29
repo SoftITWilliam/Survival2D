@@ -36,36 +36,39 @@ export class Inventory {
     }
 
     close() {
-        if(this.holdingStack && (this.selectedSlot.x === null || this.selectedSlot.y === null)) {
+        if(this.holdingStack) {
             this.addItem(this.holdingStack.item,this.holdingStack.amount);
         }
 
         this.view = false;
         this.holdingStack = null;
         this.hoveredSlot = {x:null,y:null}
-        this.selectedSlot = {x:null,y:null}
     }
 
     updateInteraction() {
         this.hoveredSlot = this.checkHover();
 
-        if(mouse.click) {
-            if(this.holdingStack) {
-                this.insertIntoSlot(this.hoveredSlot,this.selectedSlot,this.holdingStack.amount);
-            } else {
-                this.selectSlot(this.hoveredSlot.x,this.hoveredSlot.y,false);
-            }
-            mouse.click = false;
+        if(!mouse.click && !mouse.rightClick) {
+            return;
         }
 
-        else if(mouse.rightClick) {
-            if(this.holdingStack) {
-                this.insertIntoSlot(this.hoveredSlot,this.selectedSlot,1);
-            } else {
-                this.selectSlot(this.hoveredSlot.x,this.hoveredSlot.y,true);
-            }
-            mouse.rightClick = false;
+        const insertAmount = (
+            mouse.click ? (this.holdingStack ? this.holdingStack.amount : null) : 
+            mouse.rightClick ? 1 : null
+        );
+
+        const split = (
+            mouse.rightClick ? true : false 
+        );
+        
+        if(this.holdingStack) {
+            this.insertIntoSlot(this.hoveredSlot,insertAmount);
+        } else {
+            this.selectSlot(this.hoveredSlot.x,this.hoveredSlot.y,split);
         }
+
+        mouse.click = false;
+        mouse.rightClick = false;
     }
 
     selectSlot(x,y,split) {
@@ -75,38 +78,31 @@ export class Inventory {
         }
 
         // Get slot position
-        let slot = this.grid[this.hoveredSlot.x][this.hoveredSlot.y];
+        let slot = this.grid[x][y];
             
         // Only slots with an item in them are selectable
-        if(slot.stack) {
-            if(split) {
-
-                // If stack only has 1 item in it, pick it up normally
-                if(slot.stack.amount == 1) {
-                    this.selectSlot(x,y,false);
-                    return;
-                }
-
-                // Create new split stack
-                this.holdingStack = new ItemStack(slot.stack.item,Math.ceil(slot.stack.amount / 2));
-
-                // Take away items from old stack
-                slot.stack.amount -= this.holdingStack.amount;
-            } else {
-                this.selectedSlot = {x: slot.ix, y: slot.iy};
-                this.holdingStack = slot.stack;
-            }
-            
+        if(!slot.stack) {
+            return;
         }
+
+        // Calculate amount and subtract it from source stack
+        const a = (split ? Math.ceil(slot.stack.amount / 2) : slot.stack.amount);
+        this.holdingStack = new ItemStack(slot.stack.item,a);
+        slot.stack.subtractAmount(a);
+
+        // Delete source stack if empty
+        if(slot.stack.amount <= 0) {
+            slot.stack = null;
+        } 
     }
 
     /**
-     * Try to insert a selected item into a slot
+     * Try to insert the selected item into a slot
      * 
-     * @param {object}  slot    New slot
-     * @param {object}  source  Already selected slot
+     * @param {object}  slot            New slot
+     * @param {number}  insertAmount    Amount of items to be inserted into slot
      */
-    insertIntoSlot(slot,source,insertAmount) {
+    insertIntoSlot(slot,insertAmount) {
 
         // If player is holding an item and clicks outside the inventory, drop the item.
         if(slot.x === null || slot.y === null) {
@@ -114,65 +110,34 @@ export class Inventory {
             return;
         }
 
-        // If clicked slot is the same as the selected slot, deselect it
-        if(slot.x == source.x && slot.y == source.y) {
-            this.selectedSlot = {x:null,y:null}
-            this.holdingStack = null;
-            return;
-        }
-
-        // Get existing stack in clicked slot
+        // Create a reference to the existing stack in the slot
         let newStack = this.grid[slot.x][slot.y].stack;
 
         if(newStack) {
 
             // If new slot has a different item, insert the held stack and pick up the new one.
             if(newStack.item.id != this.holdingStack.item.id) {
-                let temp = this.grid[slot.x][slot.y].stack;
-                this.selectedSlot = {x:null,y:null}
-
-                if(source.x !== null || source.y !== null) {
-                    this.grid[source.x][source.y].stack = null;
-                }
-
-                this.grid[slot.x][slot.y].stack = this.holdingStack;
-                this.holdingStack = temp;
+                let temp = this.holdingStack;
+                this.selectSlot(slot.x,slot.y,false);
+                this.grid[slot.x][slot.y].stack = temp;
                 return;
             }
 
             // If it has the same item, fill up the stack as much as possible.
             let remaining = newStack.fillStack(insertAmount);
+            this.holdingStack.amount -= insertAmount;
+            this.holdingStack.amount += remaining;
 
-            if(remaining) {
-                this.holdingStack.amount = remaining;
-            } else {
-                this.holdingStack.amount -= insertAmount;
-            }
-
-            if(this.holdingStack.amount == 0) {
-                this.holdingStack = null;
-                this.selectedSlot = {x:null,y:null}
-                if(source.x !== null || source.y !== null) {
-                    this.grid[source.x][source.y].stack = null;
-                }
-            }
-
-            return;
+        } else {
+            // Insert stack and remove old stack
+            this.grid[slot.x][slot.y].stack = new ItemStack(this.holdingStack.item,insertAmount);
+            this.holdingStack.amount -= insertAmount;
         }
 
-        // Insert stack and remove old stack
-        this.grid[slot.x][slot.y].stack = new ItemStack(this.holdingStack.item,insertAmount);
-
-        this.holdingStack.amount -= insertAmount;
+        // If entire held stack has been inserted, delete it
         if(this.holdingStack.amount <= 0) {
             this.holdingStack = null;
         }
-
-        if(source.x !== null || source.y !== null) {
-            this.grid[source.x][source.y].stack = null;
-        }
-
-        this.selectedSlot = {x:null,y:null}
     }
 
     /**
@@ -393,10 +358,6 @@ class InventorySlot {
         return (player.inventory.hoveredSlot.x == this.ix && player.inventory.hoveredSlot.y == this.iy);
     }
 
-    isSelected() {
-        return (player.inventory.selectedSlot.x == this.ix && player.inventory.selectedSlot.y == this.iy);
-    }
-
     // Draw slot
     draw() {
         setAttributes(ctx,{strokeStyle:"rgb(200,200,200)",lineWidth:3})
@@ -418,15 +379,6 @@ class InventorySlot {
         // Item position
         let xPos = limitCameraX(player.cameraX) + this.x;
         let yPos = player.cameraY + this.y;
-
-        if(this.isSelected()) {
-
-            // Draw transparent item
-            ctx.globalAlpha = 0.2;
-            this.stack.draw(xPos + 16,yPos + 16);
-            ctx.globalAlpha = 1;
-            return;
-        }
 
         // Draw item
         this.stack.draw(xPos + 16,yPos + 16);

@@ -12,7 +12,10 @@
 
 
 
-
+<2022-11-29>
+    + Made inventory management slightly more simple, and improved code
+        : 'Selected stack' is no longer stored, instead you simply pick up the stack
+    * Fixed duplication glitch when inserting items into full stack
 
 <2022-11-25>
     + Added inventory interaction
