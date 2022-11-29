@@ -116,7 +116,7 @@ class Player {
         this.updatePosition();
 
         if(this.inventory.view) {
-            this.inventory.updateInteraction();
+            this.inventory.update();
         }
     }
 

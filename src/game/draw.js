@@ -10,6 +10,7 @@ import { lightGrid } from '../world/lighting.js';
 import { fpsDisplay } from '../FPScounter.js';
 import { checkToolInteraction } from '../world/tile/toolInteraction.js';
 import { hotbarText } from '../player/hotbarText.js';
+import { itemInfoDisplay } from '../player/itemInfo.js';
 
 export default function draw() {
     ctx.save();
@@ -90,6 +91,8 @@ export default function draw() {
     player.inventory.drawItems();
     player.inventory.drawSelection();
     hotbarText.draw();
+
+    itemInfoDisplay.draw();
     
     // Debug UI
     if(DEBUG_MODE) {
