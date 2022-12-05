@@ -7,14 +7,13 @@
     
 
 
-
-
-
-
+<2022-12-02>
+    + Picking up an item draw
 
 <2022-11-29>
-    + Made inventory management slightly more simple, and improved code
+    + Made inventory management slightly more simple, and improved its code
         : 'Selected stack' is no longer stored, instead you simply pick up the stack
+    + Hovering on an item in the inventory displays its name and rarity color
     * Fixed duplication glitch when inserting items into full stack
 
 <2022-11-25>

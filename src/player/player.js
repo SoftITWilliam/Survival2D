@@ -10,6 +10,7 @@ import { PlayerStatBar } from './statBar.js';
 import { updateLighting } from '../world/lighting.js';
 import { checkToolInteraction } from '../world/tile/toolInteraction.js';
 import { hotbarText } from './hotbarText.js';
+import { PickupLabelList } from './pickupLabels.js';
 
 
 const P_WIDTH = 36;
@@ -46,6 +47,8 @@ class Player {
         this.hunger = new PlayerStatBar(50,20);
         this.thirst = new PlayerStatBar(50,20);
 
+        this.pickupLabels = new PickupLabelList();
+
         this.walkLeft = false;
         this.walkRight = false;
         this.jump = false;
@@ -64,6 +67,7 @@ class Player {
         this.grounded = false;
         this.getHorizontalMovement();
         this.checkCollision();
+        this.pickupLabels.update();
 
         // Gravity
         if(!this.grounded) {

@@ -91,7 +91,7 @@ export default function draw() {
     player.inventory.drawItems();
     player.inventory.drawSelection();
     hotbarText.draw();
-
+    player.pickupLabels.draw();
     itemInfoDisplay.draw();
     
     // Debug UI

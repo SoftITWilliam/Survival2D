@@ -240,6 +240,7 @@ export class Inventory {
      * @returns 
      */
     addItem(item,amount) {
+        let startAmount = amount;
         let slot = this.findExistingStack(item.id);
 
         // If a stack with the item already exists, fill it up.
@@ -263,6 +264,7 @@ export class Inventory {
 
             // If there are items left after filling the stack, a new stack will be created.
             if(amount == 0) {
+                player.pickupLabels.add(item,startAmount);
                 return;
             }
         }
@@ -272,6 +274,7 @@ export class Inventory {
 
         // If inventory is full, return the amount of items left.
         if(!emptySlot) {
+            player.pickupLabels.add(item,startAmount - amount);
             return amount;
         }
 
@@ -286,6 +289,8 @@ export class Inventory {
         if(y + 1 == this.h && x + 1 == this.selectedHotbarSlot) {
             player.selectItem(x + 1);
         }
+        
+        player.pickupLabels.add(item,startAmount);
     }
 
     draw() {
