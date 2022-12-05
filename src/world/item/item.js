@@ -1,10 +1,11 @@
-import { getDisplayName } from "../../lang.js";
+import { getDescription, getDisplayName } from "../../lang.js";
 import { SPRITES } from "../../loadAssets.js";
 import { image } from "../../misc.js";
 import { getItemID } from "../registry/itemRegistry.js";
 
 export default class Item {
     constructor() {
+        this.setDescription();
         this.itemType = null;
         this.stackSize = 99;
         this.rarity = 0;
@@ -16,8 +17,13 @@ export default class Item {
 
     setRegistryName(name) {
         this.registryName = name;
-        this.setDisplayName();
         this.id = getItemID(name);
+        this.setDisplayName();
+        this.setDescription();
+    }
+
+    setDescription() {
+        this.description = getDescription(this.registryName);
     }
 
     setDisplayName() {
