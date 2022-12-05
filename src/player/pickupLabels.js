@@ -1,4 +1,5 @@
 import { ctx } from "../game/const.js";
+import { rgba } from "../game/rgb.js";
 import { setAttributes } from "../misc.js";
 import { player } from "./player.js";
 
@@ -75,8 +76,8 @@ class PickupLabel {
     
     draw(yPos) {
         let txt = this.itemName + " (" + this.amount + ")";
-        let col = "rgba(255,255,255," + this.alpha + ")";
-        setAttributes(ctx,{font:"24px Font1",fillStyle:col,textAlign:"center"});
+        setAttributes(ctx,{font:"24px Font1",fillStyle:rgba(this.color,this.alpha),strokeStyle:"rgba(0,0,0,"+this.alpha+")",lineWidth:5,textAlign:"center"});
+        ctx.strokeText(txt,player.x + player.w / 2, player.y - yPos);
         ctx.fillText(txt,player.x + player.w / 2,player.y - yPos);
     }
 }

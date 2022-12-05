@@ -1,5 +1,6 @@
 import { ctx } from "../game/const.js";
 import { mouse } from "../game/controls.js";
+import { rgb } from "../game/rgb.js";
 import { clamp, disableShadow, drawRounded, setAttributes } from "../misc.js";
 import { player } from "./player.js";
 
@@ -51,7 +52,7 @@ class ItemInfoDisplay {
 
         disableShadow(ctx);
 
-        setAttributes(ctx,{font:"24px Font1",fillStyle:this.rarityColor,strokeStyle:"black",lineWidth:5});
+        setAttributes(ctx,{font:"24px Font1",fillStyle:rgb(this.rarityColor),strokeStyle:"black",lineWidth:5});
         ctx.strokeText(this.itemName,x + textOffsetX, y+32);
         ctx.fillText(this.itemName,x + textOffsetX, y+32);
     }

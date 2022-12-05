@@ -274,7 +274,9 @@ export class Inventory {
 
         // If inventory is full, return the amount of items left.
         if(!emptySlot) {
-            player.pickupLabels.add(item,startAmount - amount);
+            if(startAmount - amount != 0) {
+                player.pickupLabels.add(item,startAmount - amount);
+            }
             return amount;
         }
 

@@ -34,32 +34,32 @@ export default class Item {
         switch(rarity) {
             case 0:
                 this.rarityText = "Common";
-                this.textColor = "rgb(240,240,240)"; 
+                this.textColor = {r:240,g:240,b:240}; 
                 break;
 
             case 1:
                 this.rarityText = "Uncommon";
-                this.textColor = "rgb(100,200,120)"; 
+                this.textColor = {r:100,g:200,b:120};
                 break;
 
             case 2:
                 this.rarityText = "Rare";
-                this.textColor = "rgb(80,150,220)";
+                this.textColor = {r:80,g:150,b:220};
                 break;
 
             case 3:
                 this.rarityText = "Epic";
-                this.textColor = "rgb(170,110,255)";
+                this.textColor = {r:170,g:110,b:255};
                 break;
 
             case 4:
                 this.rarityText = "Legendary";
-                this.textColor = "rgb(255,180,0)";
+                this.textColor = {r:255,g:180,b:0};
                 break;
 
             case 99:
                 this.rarityText = "Unobtainable";
-                this.textColor = "rgb(220,0,30)"; 
+                this.textColor = {r:220,g:0,b:30};
                 break;
         }
     }
