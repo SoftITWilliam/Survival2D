@@ -1,3 +1,4 @@
+import { sprites } from "../../loadAssets.js";
 import PickaxeBase from "./base/pickaxeItemBase.js";
 
 export class ItemDevPickaxe extends PickaxeBase {
@@ -10,6 +11,6 @@ export class ItemDevPickaxe extends PickaxeBase {
         this.miningSpeed = 5;
         this.reach = 10;
 
-        this.setSprite();
+        this.setSprite(sprites.items.dev_pickaxe);
     }
 }

@@ -1,4 +1,5 @@
 import { ctx, TILE_SIZE } from "../../game/const.js";
+import { sprites } from "../../loadAssets.js";
 import { image } from "../../misc.js";
 import { Tile } from "../../world/tile/tile.js";
 
@@ -6,7 +7,7 @@ export class Grass extends Tile {
     constructor(gridX,gridY) {
         super(gridX,gridY);
         this.setRegistryName("tile_grass");
-        this.setSprite();
+        this.setSprite(sprites.tiles.tile_grass);
 
         this.objectType = "solid";
         this.toolType = "shovel";

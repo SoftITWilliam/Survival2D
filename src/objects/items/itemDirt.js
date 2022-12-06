@@ -1,3 +1,4 @@
+import { sprites } from "../../loadAssets.js";
 import TileItemBase from "./base/tileItemBase.js";
 
 export class ItemDirt extends TileItemBase {
@@ -6,7 +7,7 @@ export class ItemDirt extends TileItemBase {
         this.setRegistryName("dirt");
         this.setRarity(0);
 
-        this.setSprite("tile_dirt");
+        this.setSprite(sprites.tiles.tile_dirt);
         this.setSpriteOffset(192,192);
     }
 }

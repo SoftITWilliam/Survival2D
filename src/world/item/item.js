@@ -1,6 +1,5 @@
 import { getDescription, getDisplayName } from "../../lang.js";
-import { SPRITES } from "../../loadAssets.js";
-import { image } from "../../misc.js";
+import { sprites } from "../../loadAssets.js";
 import { getItemID } from "../registry/itemRegistry.js";
 
 export default class Item {
@@ -70,22 +69,21 @@ export default class Item {
         }
     }
 
-    setSprite(spriteName) {
-
-        this.missingTexture = false;
-
-        if(spriteName) {
-            this.sprite = SPRITES[spriteName];
-        } 
-        // If no sprite name is given, use registry name
-        else {
-            this.sprite = SPRITES[this.registryName];
-        }
+    /**
+     * Set the item sprite. If it doesn't exist, 'missing texture' is used instead.
+     * 
+     * @param {any} sprite  Sprite image object through 'sprites' import. (ex: 'sprites.item.wood')
+     */
+    setSprite(sprite) {
+    
+        this.sprite = sprite;
         
         // If texture is missing, use 'missing texture'
         if(!this.sprite) {
-            this.sprite = SPRITES["missing_texture"];
+            this.sprite = sprites.misc["missing_texture"];
             this.missingTexture = true;
+        } else {
+            this.missingTexture = false;
         }
     }
 
@@ -93,8 +91,8 @@ export default class Item {
      * Set sprite offset position
      * (Used for spritesheets)
      * 
-     * @param {int} offsetX // X offset in pixels
-     * @param {int} offsetY // Y offset in pixels
+     * @param {int} offsetX X offset in pixels
+     * @param {int} offsetY Y offset in pixels
      */
      setSpriteOffset(offsetX,offsetY) {
         

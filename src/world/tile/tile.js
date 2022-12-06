@@ -1,5 +1,5 @@
 import { ctx, TILE_SIZE, WORLD_HEIGHT, WORLD_WIDTH } from "../../game/const.js";
-import { SPRITES } from "../../loadAssets.js";
+import { sprites } from "../../loadAssets.js";
 import { rng } from "../../misc.js";
 import { dropItemFromBlock } from "../item/dropItem.js";
 import { tileGrid, updateNearbyTiles, wallGrid } from "../world.js";
@@ -46,21 +46,15 @@ export class Tile {
     }
 
     // Set the tile sprite.
-    setSprite(spriteName) {
+    setSprite(sprite) {
 
         this.missingTexture = false;
+        this.sprite = sprite;
+        console.log(this.sprite)
 
-        if(spriteName) {
-            this.sprite = SPRITES[spriteName];
-        } 
-        // If no sprite name is given, use registry name
-        else {
-            this.sprite = SPRITES[this.registryName];
-        }
-        
         // If texture is missing, use 'missing texture'
         if(!this.sprite) {
-            this.sprite = SPRITES["missing_texture"];
+            this.sprite = sprites.misc.missing_texture;
             this.missingTexture = true;
         }
     }
