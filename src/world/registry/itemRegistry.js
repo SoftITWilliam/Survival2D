@@ -30,7 +30,7 @@ export const ITEM_REGISTRY = {
 export function validateItems() {
     for (var i in ITEM_REGISTRY) {
         console.log(ITEM_REGISTRY[i]);
-        if(!ITEM_REGISTRY[i].id || !ITEM_REGISTRY[i].registryName || !ITEM_REGISTRY[i].rarity) {
+        if(!ITEM_REGISTRY[i].id || !ITEM_REGISTRY[i].registryName || ITEM_REGISTRY[i].rarity === undefined) {
             throw new Error("One or more items have invalid properties!");
         }
     }
