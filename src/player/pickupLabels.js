@@ -22,7 +22,6 @@ export class PickupLabelList {
 
     // When an item is picked up that doesn't currenty have a label, add a new one to the list.
     add(item,amount) {
-        console.log("Adding to label list");
 
         // Look for already existing label
         for(let i=0;i<this.labels.length;i++) {
@@ -42,7 +41,6 @@ export class PickupLabelList {
     }
 
     draw() {
-        console.log(this.labels);
         for(let i=0;i<this.labels.length;i++) {
             this.labels[i].draw(16 + i * 24);
         }

@@ -50,7 +50,6 @@ export class Tile {
 
         this.missingTexture = false;
         this.sprite = sprite;
-        console.log(this.sprite)
 
         // If texture is missing, use 'missing texture'
         if(!this.sprite) {

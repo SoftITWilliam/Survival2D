@@ -23,6 +23,9 @@ export default class Item {
 
     setDescription() {
         this.description = getDescription(this.registryName);
+        if(!this.description) {
+            this.description = "";
+        }
     }
 
     setDisplayName() {

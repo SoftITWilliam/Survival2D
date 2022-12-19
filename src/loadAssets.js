@@ -20,8 +20,8 @@ export const sprites = {
 
     ui: {
         item_type: {
-            icon_pickaxe: image("ui/icons/item_pickaxe.png"),
-            icon_tile: image("ui/icons/item_tile.png"),
+            icon_pickaxe: image("ui/icons/item_pickaxe"),
+            icon_tile: image("ui/icons/item_tile"),
         }   
     },
 
