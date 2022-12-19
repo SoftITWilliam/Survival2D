@@ -5,7 +5,7 @@
  * A random collection of useful functions that don't really fit anywhere else
  */
 
-import { PATH, TILE_SIZE, WORLD_WIDTH } from "./game/const.js";
+import { ctx, PATH, TILE_SIZE, WORLD_WIDTH } from "./game/const.js";
 
 
 /**
@@ -110,3 +110,35 @@ export function disableShadow(ctx) {
     setAttributes(ctx,{shadowOffsetX:0,shadowOffsetY:0,shadowColor:0,shadowBlur:0});
 }
 
+/**
+ * Splits a string into an array of lines, where no 'line' is longer than the given width.
+ * Used for drawing really long strings (ex. Item descriptions) on multiple lines
+ * 
+ * @param {string}  string      The string which should be split
+ * @param {int}     maxWidth    The maximum length per line (in pixels)
+ * @returns {array}             An array of strings. Every item
+ */
+export function splitIntoLines(string,maxWidth) {
+
+    if(!string || isNaN(maxWidth) || maxWidth < 0) {
+        return [];
+    }
+
+    let lines = [];
+    let thisLine = "";
+    let words = string.split(" ");
+
+    for(let i = 0; i < words.length; i++) {
+
+        if(ctx.measureText(thisLine + words[i]).width > maxWidth) {
+            lines.push(thisLine.substring(0,thisLine.length - 1));
+            thisLine = "";
+        }
+
+        thisLine += words[i] + " ";
+    }
+
+    lines.push(thisLine.substring(0,thisLine.length - 1));
+
+    return lines;
+}

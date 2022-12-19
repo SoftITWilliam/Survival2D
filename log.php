@@ -6,13 +6,27 @@
     // Notes & comments
     
 
+<2022-12-19>
+    + Hovering on an item now also displays its description, rarity and type.
+
+<2022-12-14>
+    * No longer displays item info on hover if the player has selected a stack
+
+<2022-12-06>
+    * Player camera no longer misaligns after colliding with the left world edge
+    * Changed the way sprites are stored and accessed in the code
+
+<2022-12-05>
+    * Colors are now stored as an object, instead of a string.
+    * Pickup labels now show the correct rarity color
 
 <2022-12-02>
-    + Picking up an item draw
+    + Picking up an item draws the item type and amount above the player
 
 <2022-11-29>
     + Made inventory management slightly more simple, and improved its code
         : 'Selected stack' is no longer stored, instead you simply pick up the stack
+        // Most bugs should be fixed now!
     + Hovering on an item in the inventory displays its name and rarity color
     * Fixed duplication glitch when inserting items into full stack
 
