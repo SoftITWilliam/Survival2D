@@ -211,11 +211,10 @@ class Player {
             let distance = this.x;
             this.dx = 0;
             this.x = 0;
-            this.cameraX -= this.x;
+            this.cameraX -= distance;
         }
 
         // Right wall
-
         let rightEdge = WORLD_WIDTH * TILE_SIZE;
         if(this.x + this.w + this.dx > rightEdge) {
             let distance = this.x + this.w - rightEdge;
