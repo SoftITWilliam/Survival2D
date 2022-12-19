@@ -4,11 +4,9 @@ import { getItemID } from "../registry/itemRegistry.js";
 
 export default class Item {
     constructor() {
+        this.setSprite('missing_texture');
         this.itemType = null;
         this.stackSize = 99;
-        this.rarity = 0;
-
-        this.setSprite('missing_texture');
         this.sx = 0;
         this.sy = 0;
     }
