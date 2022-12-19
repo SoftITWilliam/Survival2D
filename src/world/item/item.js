@@ -1,10 +1,9 @@
-import { getDescription, getDisplayName } from "../../lang.js";
+import { getDescription, getDisplayName, getLang } from "../../lang.js";
 import { sprites } from "../../loadAssets.js";
 import { getItemID } from "../registry/itemRegistry.js";
 
 export default class Item {
     constructor() {
-        this.setDescription();
         this.itemType = null;
         this.stackSize = 99;
         this.rarity = 0;
@@ -14,22 +13,19 @@ export default class Item {
         this.sy = 0;
     }
 
+    // Set the registry name of the item
+    // Also gets item ID, display name, and description
     setRegistryName(name) {
         this.registryName = name;
+        this.displayName = getDisplayName(this.registryName);
         this.id = getItemID(name);
-        this.setDisplayName();
         this.setDescription();
     }
 
+    // Get the item description and assign it to the object
+    // Item descriptions are currently stored in lang.js, as "registryname_description"
     setDescription() {
         this.description = getDescription(this.registryName);
-        if(!this.description) {
-            this.description = "";
-        }
-    }
-
-    setDisplayName() {
-        this.displayName = getDisplayName(this.registryName);
     }
 
     /**
@@ -39,36 +35,14 @@ export default class Item {
      */
     setRarity(rarity) {
         this.rarity = rarity;
+        this.rarityText = getLang("rarity_" + rarity);
         switch(rarity) {
-            case 0:
-                this.rarityText = "Common";
-                this.textColor = {r:240,g:240,b:240}; 
-                break;
-
-            case 1:
-                this.rarityText = "Uncommon";
-                this.textColor = {r:100,g:200,b:120};
-                break;
-
-            case 2:
-                this.rarityText = "Rare";
-                this.textColor = {r:80,g:150,b:220};
-                break;
-
-            case 3:
-                this.rarityText = "Epic";
-                this.textColor = {r:170,g:110,b:255};
-                break;
-
-            case 4:
-                this.rarityText = "Legendary";
-                this.textColor = {r:255,g:180,b:0};
-                break;
-
-            case 99:
-                this.rarityText = "Unobtainable";
-                this.textColor = {r:220,g:0,b:30};
-                break;
+            case 0: this.textColor = {r:240,g:240,b:240}; break;
+            case 1: this.textColor = {r:100,g:200,b:120}; break;
+            case 2: this.textColor = {r:80,g:150,b:220}; break;
+            case 3: this.textColor = {r:170,g:110,b:255}; break;
+            case 4: this.textColor = {r:255,g:180,b:0}; break;
+            case 99: this.textColor = {r:220,g:0,b:30}; break;
         }
     }
 

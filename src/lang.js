@@ -1,12 +1,16 @@
 
 export function getDisplayName(regName) {
-    let displayName = LANG[SELECTED_LANGUAGE][regName];
+    let displayName = getLang(regName);
     return displayName ? displayName : "item."+regName;
 }
 
 export function getDescription(regName) {
-    let desc = LANG[SELECTED_LANGUAGE][regName + "_description"];
-    return desc ? desc : "";
+    return getLang(regName + "_description");
+}
+
+export function getLang(text) {
+    let txt = LANG[SELECTED_LANGUAGE][text];
+    return txt ? txt : "";
 }
 
 export const SELECTED_LANGUAGE = "eng";
@@ -36,6 +40,14 @@ export const LANG = {
         wood_description: "A very abundant and useful material",
         branch_description: "A branch from a tree",
         acorn_description: "Plant into dirt and watch it grow into a tree.",
+
+        // Rarities
+        rarity_0: "Common",
+        rarity_1: "Uncommon",
+        rarity_2: "Rare",
+        rarity_3: "Epic",
+        rarity_4: "Legendary",
+        rarity_99: "Unobtainable",
     },
 
     swe: {
@@ -62,5 +74,13 @@ export const LANG = {
         wood_description: "Ett väldigt rikligt och användbart material",
         branch_description: "En gren från ett träd",
         acorn_description: "Plantera i jord och se den växa till ett träd",
+
+        // Rarities
+        rarity_0: "Vanlig",
+        rarity_1: "Ovanlig",
+        rarity_2: "Sällsynt",
+        rarity_3: "Episk",
+        rarity_4: "Legendarisk",
+        rarity_99: "Otillgänglig",
     }
 }
