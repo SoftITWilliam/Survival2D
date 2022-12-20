@@ -6,6 +6,7 @@ export class ItemAcorn extends ItemBase {
         super();
         this.setRegistryName("acorn");
         this.setRarity(0);
+        this.placeable = true;
 
         this.setSprite(sprites.items.acorn);
     }

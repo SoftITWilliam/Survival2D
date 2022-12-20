@@ -57,6 +57,7 @@ class Player {
 
         this.miningEvent = null;
         
+        this.defaultReach = P_REACH;
         this.reach = P_REACH * TILE_SIZE;
 
         this.heldItem = null;
