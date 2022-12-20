@@ -7,7 +7,10 @@
     
 
 <2022-12-19>
-    + Hovering on an item now also displays its description, rarity and type.
+    + Hovering on an item displays several additional properties
+    * Added rarity names to lang system, instead of being hard coded
+    * All the game's items are now validated upon launch
+        : If any have invalid values (ex. no id or registry name) an error is thrown
 
 <2022-12-14>
     * No longer displays item info on hover if the player has selected a stack

@@ -17,6 +17,9 @@ export const SELECTED_LANGUAGE = "eng";
 
 export const LANG = {
     eng: {
+        univ_yes: "Yes",
+        univ_no: "No",
+
         tile_dirt: "Dirt",
         dirt: "Dirt",
 
@@ -48,6 +51,12 @@ export const LANG = {
         rarity_3: "Epic",
         rarity_4: "Legendary",
         rarity_99: "Unobtainable",
+
+        item_info_placeable: "Can be placed",
+        item_info_tier: "Tier",
+        item_info_tool_speed: "Speed",
+        item_info_tool_reach: "Reach",
+        item_info_tiles: "tiles",
     },
 
     swe: {
@@ -82,5 +91,11 @@ export const LANG = {
         rarity_3: "Episk",
         rarity_4: "Legendarisk",
         rarity_99: "Otillgänglig",
+
+        item_info_placeable: "Kan placeras",
+        item_info_tier: "Nivå",
+        item_info_tool_speed: "Hastighet",
+        item_info_tool_reach: "Räckvidd",
+        item_info_tiles: "rutor",
     }
 }
