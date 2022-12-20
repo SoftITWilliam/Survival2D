@@ -21,6 +21,9 @@ export const sprites = {
     ui: {
         item_type: {
             icon_pickaxe: image("ui/icons/item_pickaxe"),
+            icon_axe: image("ui/icons/item_axe"),
+            icon_shovel: image("ui/icons/item_shovel"),
+            icon_hammer: image("ui/icons/item_hammer"),
             icon_tile: image("ui/icons/item_tile"),
         }   
     },

@@ -49,6 +49,12 @@ class ItemInfoDisplay {
                 switch(item.toolType) {
                     case "pickaxe":
                         this.icon = sprites.ui.item_type.icon_pickaxe; break;
+                    case "axe":
+                        this.icon = sprites.ui.item_type.icon_axe; break;
+                    case "shovel":
+                        this.icon = sprites.ui.item_type.icon_shovel; break;
+                    case "hammer":
+                        this.icon = sprites.ui.item_type.icon_hammer; break;
                     default: 
                         this.icon = null;
                 } break;
