@@ -26,6 +26,16 @@ export const ITEM_REGISTRY = {
     acorn: new item.Acorn(),
 }
 
+// Make sure all items have their essential properties. Throw an error if not.
+export function validateItems() {
+    for (var i in ITEM_REGISTRY) {
+        console.log(ITEM_REGISTRY[i]);
+        if(!ITEM_REGISTRY[i].id || !ITEM_REGISTRY[i].registryName || ITEM_REGISTRY[i].rarity === undefined) {
+            throw new Error("One or more items have invalid properties!");
+        }
+    }
+}
+
 export function getItemRegistryName(id) {
     for(let i=0;i<ID_NAME_LINK.length;i++) {
         if(ID_NAME_LINK[i].id == id) {

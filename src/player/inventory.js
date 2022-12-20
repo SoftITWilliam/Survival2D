@@ -2,6 +2,7 @@ import { canvas, ctx, INVENTORY_HEIGHT, INVENTORY_WIDTH } from "../game/const.js
 import { mouse } from "../game/controls.js";
 import { limitCameraX, mouseOn, setAttributes } from "../misc.js";
 import { ItemStack } from "../world/item/itemStack.js";
+import { itemInfoDisplay } from "./itemInfo.js";
 import { player } from "./player.js";
 
 
@@ -43,6 +44,28 @@ export class Inventory {
         this.view = false;
         this.holdingStack = null;
         this.hoveredSlot = {x:null,y:null}
+    }
+
+    update() {
+        this.updateInteraction();
+        this.updateItemInfo();
+    }
+
+    updateItemInfo() {
+
+        // If no slot is hovered, hide item info
+        if(this.hoveredSlot.x === null || this.hoveredSlot.y === null) {
+            itemInfoDisplay.set(null);
+            return;
+        }
+
+        let slot = this.grid[this.hoveredSlot.x][this.hoveredSlot.y];
+        if(slot.stack) {
+            itemInfoDisplay.set(slot.stack.item);
+            return;
+        }
+        
+        itemInfoDisplay.set(null);
     }
 
     updateInteraction() {
@@ -217,6 +240,7 @@ export class Inventory {
      * @returns 
      */
     addItem(item,amount) {
+        let startAmount = amount;
         let slot = this.findExistingStack(item.id);
 
         // If a stack with the item already exists, fill it up.
@@ -240,6 +264,7 @@ export class Inventory {
 
             // If there are items left after filling the stack, a new stack will be created.
             if(amount == 0) {
+                player.pickupLabels.add(item,startAmount);
                 return;
             }
         }
@@ -249,6 +274,9 @@ export class Inventory {
 
         // If inventory is full, return the amount of items left.
         if(!emptySlot) {
+            if(startAmount - amount != 0) {
+                player.pickupLabels.add(item,startAmount - amount);
+            }
             return amount;
         }
 
@@ -263,6 +291,8 @@ export class Inventory {
         if(y + 1 == this.h && x + 1 == this.selectedHotbarSlot) {
             player.selectItem(x + 1);
         }
+        
+        player.pickupLabels.add(item,startAmount);
     }
 
     draw() {
@@ -365,6 +395,7 @@ class InventorySlot {
         ctx.beginPath();
         ctx.rect(this.x + limitCameraX(player.cameraX),this.y + player.cameraY,this.w,this.h);
         ctx.stroke();
+        ctx.closePath();
 
         this.drawHoverEffect();
     }

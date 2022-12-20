@@ -4,6 +4,7 @@ import { player } from "./player/player.js";
 import { canvas } from "./game/const.js";
 import { updateItemEntities } from "./world/item/itemEntity.js";
 import { incrementFPS } from "./FPScounter.js";
+import { validateItems } from "./world/registry/itemRegistry.js";
 
 window.onload = init();
 
@@ -11,6 +12,7 @@ function init() {
     setCanvasSize();
     loadWorld();
     updateTiles();
+    validateItems();
 
     player.spawn();
     window.requestAnimationFrame(gameLoop);

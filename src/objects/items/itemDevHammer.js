@@ -1,3 +1,4 @@
+import { sprites } from "../../loadAssets.js";
 import HammerBase from "./base/hammerItemBase.js";
 
 export class ItemDevHammer extends HammerBase {
@@ -10,6 +11,6 @@ export class ItemDevHammer extends HammerBase {
         this.miningSpeed = 5;
         this.reach = 10;
 
-        this.setSprite();
+        this.setSprite(sprites.items.dev_hammer);
     }
 }

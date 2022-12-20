@@ -1,4 +1,5 @@
 import { ctx, TILE_SIZE } from "../../game/const.js";
+import { sprites } from "../../loadAssets.js";
 import { image, setAttributes } from "../../misc.js";
 import { Tile } from "../../world/tile/tile.js";
 
@@ -6,7 +7,7 @@ export class Dirt extends Tile {
     constructor(gridX,gridY) {
         super(gridX,gridY);
         this.setRegistryName("tile_dirt");
-        this.setSprite();
+        this.setSprite(sprites.tiles.tile_dirt);
         
         this.objectType = "solid";
         this.toolType = "shovel";

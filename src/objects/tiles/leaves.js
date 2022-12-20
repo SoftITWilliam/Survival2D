@@ -1,4 +1,5 @@
 import { ctx } from "../../game/const.js";
+import { sprites } from "../../loadAssets.js";
 import { Tile } from "../../world/tile/tile.js";
 
 

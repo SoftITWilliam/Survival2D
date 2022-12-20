@@ -4,7 +4,7 @@ import Item from "../../../world/item/item.js";
 export default class ItemBase extends Item {
     constructor() {
         super();
-        this.itemType = 'tool';
+        this.itemType = 'default';
         this.toolType = 'axe';
         this.miningLevel;
         this.miningSpeed;

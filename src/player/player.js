@@ -10,6 +10,7 @@ import { PlayerStatBar } from './statBar.js';
 import { updateLighting } from '../world/lighting.js';
 import { checkToolInteraction } from '../world/tile/toolInteraction.js';
 import { hotbarText } from './hotbarText.js';
+import { PickupLabelList } from './pickupLabels.js';
 
 
 const P_WIDTH = 36;
@@ -46,6 +47,8 @@ class Player {
         this.hunger = new PlayerStatBar(50,20);
         this.thirst = new PlayerStatBar(50,20);
 
+        this.pickupLabels = new PickupLabelList();
+
         this.walkLeft = false;
         this.walkRight = false;
         this.jump = false;
@@ -54,6 +57,7 @@ class Player {
 
         this.miningEvent = null;
         
+        this.defaultReach = P_REACH;
         this.reach = P_REACH * TILE_SIZE;
 
         this.heldItem = null;
@@ -64,6 +68,7 @@ class Player {
         this.grounded = false;
         this.getHorizontalMovement();
         this.checkCollision();
+        this.pickupLabels.update();
 
         // Gravity
         if(!this.grounded) {
@@ -116,7 +121,7 @@ class Player {
         this.updatePosition();
 
         if(this.inventory.view) {
-            this.inventory.updateInteraction();
+            this.inventory.update();
         }
     }
 
@@ -207,11 +212,10 @@ class Player {
             let distance = this.x;
             this.dx = 0;
             this.x = 0;
-            this.cameraX -= this.x;
+            this.cameraX -= distance;
         }
 
         // Right wall
-
         let rightEdge = WORLD_WIDTH * TILE_SIZE;
         if(this.x + this.w + this.dx > rightEdge) {
             let distance = this.x + this.w - rightEdge;

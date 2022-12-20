@@ -1,3 +1,4 @@
+import { sprites } from "../../loadAssets.js";
 import AxeBase from "./base/axeItemBase.js";
 
 export class ItemDevAxe extends AxeBase {
@@ -10,6 +11,6 @@ export class ItemDevAxe extends AxeBase {
         this.miningSpeed = 5;
         this.reach = 10;
 
-        this.setSprite();
+        this.setSprite(sprites.items.dev_axe);
     }
 }

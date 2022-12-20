@@ -1,3 +1,4 @@
+import { sprites } from "../../loadAssets.js";
 import ItemBase from "./base/itemBase.js";
 
 export class ItemBranch extends ItemBase {
@@ -6,6 +7,6 @@ export class ItemBranch extends ItemBase {
         this.setRegistryName("branch");
         this.setRarity(0);
 
-        this.setSprite();
+        this.setSprite(sprites.items.branch);
     }
 }

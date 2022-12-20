@@ -4,6 +4,7 @@ import { player } from "../../player/player.js";
 import { gridXfromCoordinate, gridYfromCoordinate, mouseOn, setAttributes } from "../../misc.js";
 import { getTile } from "../tile/tile.js";
 import { mouse } from "../../game/controls.js";
+import { sprites } from "../../loadAssets.js";
 
 export let itemEntities = [];
 
@@ -93,30 +94,29 @@ export class ItemEntity {
     }
 
     draw() {
-        if(this.item.sprite) {
+        if(!this.item.missingTexture) {
             ctx.drawImage(
                 this.item.sprite,this.item.sx,this.item.sy,TILE_SIZE,TILE_SIZE,
                 this.x,this.y,this.w,this.h);
         } else {
-            let img = new Image;
-            img.src = "assets/missing_texture.png";
             ctx.drawImage(
-                img,0,0,TILE_SIZE,TILE_SIZE,
+                sprites.misc.missing_texture,0,0,TILE_SIZE,TILE_SIZE,
                 this.x,this.y,this.w,this.h);
         }
 
         if(mouseOn(this,mouse)) {
-            setAttributes(ctx,{font:"20px Font1",fillStyle:"rgba(0,0,0,0.5)",textAlign:"left"});
-            let offset = 20;
-            let txt = this.item.displayName + " ("+this.stackSize+")";
-            let boxWidth = ctx.measureText(txt).width + offset * 2;
-            ctx.fillRect(mouse.mapX,-mouse.mapY - 28,boxWidth,28);
-            ctx.fillStyle = "white";
-            ctx.fillText(txt,mouse.mapX + offset,-mouse.mapY - 6);
-
-            
-            setAttributes()
+            this.drawLabel();
         }
+    }
+
+    drawLabel() {
+        setAttributes(ctx,{font:"20px Font1",fillStyle:"rgba(0,0,0,0.5)",textAlign:"left"});
+        let offset = 20;
+        let txt = this.item.displayName + " ("+this.stackSize+")";
+        let boxWidth = ctx.measureText(txt).width + offset * 2;
+        ctx.fillRect(mouse.mapX,-mouse.mapY - 28,boxWidth,28);
+        ctx.fillStyle = "white";
+        ctx.fillText(txt,mouse.mapX + offset,-mouse.mapY - 6);
     }
 
     pickUp() {

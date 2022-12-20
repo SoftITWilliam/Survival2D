@@ -1,27 +1,29 @@
-import { getDisplayName } from "../../lang.js";
-import { SPRITES } from "../../loadAssets.js";
-import { image } from "../../misc.js";
+import { getDescription, getDisplayName, getLang } from "../../lang.js";
+import { sprites } from "../../loadAssets.js";
 import { getItemID } from "../registry/itemRegistry.js";
 
 export default class Item {
     constructor() {
+        this.setSprite('missing_texture');
         this.itemType = null;
         this.stackSize = 99;
-        this.rarity = 0;
-
-        this.setSprite('missing_texture');
         this.sx = 0;
         this.sy = 0;
     }
 
+    // Set the registry name of the item
+    // Also gets item ID, display name, and description
     setRegistryName(name) {
         this.registryName = name;
-        this.setDisplayName();
+        this.displayName = getDisplayName(this.registryName);
         this.id = getItemID(name);
+        this.setDescription();
     }
 
-    setDisplayName() {
-        this.displayName = getDisplayName(this.registryName);
+    // Get the item description and assign it to the object
+    // Item descriptions are currently stored in lang.js, as "registryname_description"
+    setDescription() {
+        this.description = getDescription(this.registryName);
     }
 
     /**
@@ -31,55 +33,32 @@ export default class Item {
      */
     setRarity(rarity) {
         this.rarity = rarity;
+        this.rarityText = getLang("rarity_" + rarity);
         switch(rarity) {
-            case 0:
-                this.rarityText = "Common";
-                this.textColor = "rgb(255,255,255)"; 
-                break;
-
-            case 1:
-                this.rarityText = "Uncommon";
-                this.textColor = "rgb(100,200,120)"; 
-                break;
-
-            case 2:
-                this.rarityText = "Rare";
-                this.textColor = "rgb(80,150,220)";
-                break;
-
-            case 3:
-                this.rarityText = "Epic";
-                this.textColor = "rgb(170,110,255)";
-                break;
-
-            case 4:
-                this.rarityText = "Legendary";
-                this.textColor = "rgb(255,180,0)";
-                break;
-
-            case 99:
-                this.rarityText = "Unobtainable";
-                this.textColor = "rgb(200,30,0"; 
-                break;
+            case 0: this.textColor = {r:240,g:240,b:240}; break;
+            case 1: this.textColor = {r:100,g:200,b:120}; break;
+            case 2: this.textColor = {r:80,g:150,b:220}; break;
+            case 3: this.textColor = {r:170,g:110,b:255}; break;
+            case 4: this.textColor = {r:255,g:180,b:0}; break;
+            case 99: this.textColor = {r:220,g:0,b:30}; break;
         }
     }
 
-    setSprite(spriteName) {
-
-        this.missingTexture = false;
-
-        if(spriteName) {
-            this.sprite = SPRITES[spriteName];
-        } 
-        // If no sprite name is given, use registry name
-        else {
-            this.sprite = SPRITES[this.registryName];
-        }
+    /**
+     * Set the item sprite. If it doesn't exist, 'missing texture' is used instead.
+     * 
+     * @param {any} sprite  Sprite image object through 'sprites' import. (ex: 'sprites.item.wood')
+     */
+    setSprite(sprite) {
+    
+        this.sprite = sprite;
         
         // If texture is missing, use 'missing texture'
         if(!this.sprite) {
-            this.sprite = SPRITES["missing_texture"];
+            this.sprite = sprites.misc["missing_texture"];
             this.missingTexture = true;
+        } else {
+            this.missingTexture = false;
         }
     }
 
@@ -87,8 +66,8 @@ export default class Item {
      * Set sprite offset position
      * (Used for spritesheets)
      * 
-     * @param {int} offsetX // X offset in pixels
-     * @param {int} offsetY // Y offset in pixels
+     * @param {int} offsetX X offset in pixels
+     * @param {int} offsetY Y offset in pixels
      */
      setSpriteOffset(offsetX,offsetY) {
         
