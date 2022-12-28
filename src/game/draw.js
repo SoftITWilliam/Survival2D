@@ -86,8 +86,8 @@ export default function draw() {
 
     // UI
     drawStatBar("health",player.health.max,player.health.current,"rgb(220,60,50)",16);
-    drawStatBar("hunger",player.hunger.max,player.hunger.current,"rgb(180,120,100)",72);
-    drawStatBar("thirst",player.thirst.max,player.thirst.current,"rgb(80,160,220)",128);
+    //drawStatBar("hunger",player.hunger.max,player.hunger.current,"rgb(180,120,100)",72);
+    //drawStatBar("thirst",player.thirst.max,player.thirst.current,"rgb(80,160,220)",128);
     
     player.inventory.draw();
     player.inventory.drawItems();
