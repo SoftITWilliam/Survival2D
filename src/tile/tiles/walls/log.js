@@ -1,10 +1,10 @@
-import { ctx } from "../../../game/const.js";
-import { getWall, Tile } from "../../../tile/tile.js";
-import { updateNearbyTiles, wallGrid } from "../../../world/world.js";
+import { ctx } from "../../../game/global.js";
+import { Tile } from "../../../tile/tile.js";
+import { updateNearbyTiles } from "../../../world/world.js";
 
 export class Log extends Tile {
-    constructor(gridX,gridY) {
-        super(gridX,gridY);
+    constructor(world,gridX,gridY) {
+        super(world,gridX,gridY);
         this.setRegistryName("wall_log");
 
         this.transparent = true;
@@ -29,6 +29,7 @@ export class Log extends Tile {
         }
 
         // Remove tile
+        world.clearWall(this.gridX,this.gridY);
         wallGrid[this.gridX][this.gridY] = null;
 
         this.dropItems();

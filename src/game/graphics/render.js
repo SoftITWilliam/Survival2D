@@ -1,12 +1,8 @@
 
 // FIXED IMPORTS:
-import { player } from '../../player/player.js';
-import { wallGrid } from '../../world/world.js';
 import { drawStatBar } from './ui.js';
-import { ctx, canvas, WORLD_HEIGHT, WORLD_WIDTH, TILE_SIZE, DRAWDIST, DRAW_LIGHTING, DEBUG_MODE } from '../const.js';
-import { mouse } from '../controls.js';
+import { ctx, canvas, WORLD_HEIGHT, WORLD_WIDTH, TILE_SIZE, DRAWDIST, DRAW_LIGHTING, DEBUG_MODE } from '../global.js';
 import { calculateDistance, clamp, disableShadow, gridXfromCoordinate, gridYfromCoordinate, limitCameraX, setAttributes } from '../../misc/util.js';
-import { getTile } from '../../tile/tile.js';
 import { itemEntities } from '../../item/itemEntity.js';
 import { lightGrid } from '../../world/lighting.js';
 import { fpsDisplay } from './FPScounter.js';
@@ -14,19 +10,19 @@ import { checkToolInteraction } from '../../tile/toolInteraction.js';
 import { hotbarText } from '../../player/hotbarText.js';
 import { itemInfoDisplay } from '../../player/itemInfo.js';
 
-export default function render() {
+export default function render(game) {
     ctx.save();
-    ctx.translate(-limitCameraX(player.cameraX),-player.cameraY);
-    ctx.clearRect(limitCameraX(player.cameraX),player.cameraY,canvas.width,canvas.height);
+    ctx.translate(-game.player.camera.getLimitedX(),-game.player.camera.y);
+    ctx.clearRect(game.player.camera.getLimitedX(),game.player.camera.y,canvas.width,canvas.height);
 
     // Background
     ctx.fillStyle = "rgb(150,180,250)";
-    ctx.fillRect(limitCameraX(player.cameraX),player.cameraY,canvas.width,canvas.height);
+    ctx.fillRect(game.player.camera.getLimitedX(),game.player.camera.y,canvas.width,canvas.height);
 
     // Wall Tiles
 
-    let gX = clamp(player.gridX, DRAWDIST.x, WORLD_WIDTH - DRAWDIST.x);
-    let gY = clamp(player.gridY, DRAWDIST.y, WORLD_HEIGHT - DRAWDIST.y);
+    let gX = clamp(game.player.gridX, DRAWDIST.x, WORLD_WIDTH - DRAWDIST.x);
+    let gY = clamp(game.player.gridY, DRAWDIST.y, WORLD_HEIGHT - DRAWDIST.y);
 
     // If player is near the edge of the map, render all tiles on screen instead of within a radius.
     // Only tiles on screen are drawn
@@ -37,12 +33,12 @@ export default function render() {
                 continue;
             }
 
-            let wall = wallGrid[x][y];
+            let wall = game.world.wallGrid[x][y];
             if(wall) {
                 wall.draw();
             }
             
-            let tile = getTile(x,y);
+            let tile = game.world.getTile(x,y);
             if(tile) {
                 tile.draw();
             }
@@ -50,15 +46,18 @@ export default function render() {
     }
     
     // Player
-    player.draw();
-    if(player.miningEvent) {
+    game.player.draw();
+    if(game.player.miningEvent) {
         player.miningEvent.drawProgress();
     }
 
     // Item entities
+
+    /*
     for(let i=0;i<itemEntities.length;i++) {
         itemEntities[i].draw();
     }
+    
 
     // Lighting
     if(DRAW_LIGHTING) {  
@@ -81,25 +80,29 @@ export default function render() {
         }
     }
 
-    player.drawPlacementPreview();
+    */
+
+    //player.drawPlacementPreview();
 
     // Tile hover effect
-    drawHoverEffect();
+    //drawHoverEffect();
 
     // UI
-    drawStatBar("health",player.health.max,player.health.current,"rgb(220,60,50)",16);
+    //drawStatBar("health",player.health.max,player.health.current,"rgb(220,60,50)",16);
     //drawStatBar("hunger",player.hunger.max,player.hunger.current,"rgb(180,120,100)",72);
     //drawStatBar("thirst",player.thirst.max,player.thirst.current,"rgb(80,160,220)",128);
     
-    player.inventory.draw();
-    player.inventory.drawItems();
-    player.inventory.drawSelection();
+    //player.inventory.draw();
+    //player.inventory.drawItems();
+    //player.inventory.drawSelection();
     
-    hotbarText.draw();
-    player.pickupLabels.draw();
-    itemInfoDisplay.draw();
+    //hotbarText.draw();
+    //player.pickupLabels.draw();
+    //itemInfoDisplay.draw();
     
     // Debug UI
+
+    /*
     if(DEBUG_MODE) {
         setAttributes(ctx,{fillStyle:"white",font:"20px Font1",textAlign:"left",
         shadowOffsetX:2,shadowOffsetY:2,shadowColor:"black",shadowBlur:5});
@@ -136,7 +139,7 @@ export default function render() {
         disableShadow(ctx);
     }
 
-    
+    */
 
     ctx.restore();
 }

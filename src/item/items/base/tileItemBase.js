@@ -1,4 +1,4 @@
-import { ITEM_SIZE } from "../../../game/const.js";
+import { ITEM_SIZE } from "../../../game/global.js";
 import Item from "../../../item/item.js";
 
 export default class TileItemBase extends Item {

@@ -1,22 +1,22 @@
 
 // FIXED IMPORTS:
 import render from "./graphics/render.js";
-import { player } from "../player/player.js";
-import { canvas } from "./const.js";
-import { loadWorld, updateTiles } from "../world/world.js";
-import { updateItemEntities } from "../item/itemEntity.js";
+import { canvas } from "./global.js";
 import { incrementFPS } from "./graphics/FPScounter.js";
 import { validateItems } from "../item/itemRegistry.js";
+import { Game } from "./game.js";
+
+const game = new Game();
 
 window.onload = init();
 
 function init() {
     setCanvasSize();
-    loadWorld();
-    updateTiles();
+    game.player.spawn();
+
     validateItems();
 
-    player.spawn();
+
     window.requestAnimationFrame(gameLoop);
 }
 
@@ -29,9 +29,9 @@ function setCanvasSize() {
 function gameLoop() {
     incrementFPS();
 
-    player.update();
-    updateItemEntities();
-    render();
+    game.update();
+    //updateItemEntities();
+    render(game);
 
     window.requestAnimationFrame(gameLoop);
 }

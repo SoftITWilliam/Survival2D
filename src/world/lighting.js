@@ -1,8 +1,7 @@
 
 // FIXED IMPORTS:
 import { clamp } from "../misc/util.js";
-import { DRAWDIST, WORLD_HEIGHT, WORLD_WIDTH } from "../game/const.js";
-import { tileGrid, wallGrid } from "./world.js";
+import { DRAWDIST, WORLD_HEIGHT, WORLD_WIDTH } from "../game/global.js";
 
 export const lightGrid = [];
 
@@ -13,7 +12,7 @@ function lightingSpread(x,y,level) {
 
     if(level == 16) {
         lightGrid[x][y] = {level:15}
-    } else if(tileGrid[x][y]) {
+    } else if(getTile(x,y)) {
         lightGrid[x][y] = {level: clamp(level-3,0,15)}
     } else {
         lightGrid[x][y] = {level: clamp(level-1,0,15)}
@@ -28,8 +27,8 @@ function lightingDefault(x,y) {
 }
 
 function checkLightSource(x,y) {
-    if((!tileGrid[x][y] || tileGrid[x][y].transparent) && 
-        (!wallGrid[x][y] ||wallGrid[x][y].transparent)) {
+    if((!getTile(x,y) || getTile(x,y).transparent) && 
+        (!getWall(x,y) || getWall(x,y).transparent)) {
             lightGrid[x][y] = {level:16}
     }
 }

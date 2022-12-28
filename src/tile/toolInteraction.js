@@ -1,5 +1,3 @@
-import { getTile, getWall } from "./tile.js";
-
 
 
 

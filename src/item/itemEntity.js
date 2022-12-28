@@ -2,10 +2,7 @@
 // FIXED IMPORTS:
 import { gridXfromCoordinate, gridYfromCoordinate, mouseOn, setAttributes } from "../misc/util.js";
 import { sprites } from "../game/graphics/loadAssets.js";
-import { player } from "../player/player.js";
-import { getTile } from "../tile/tile.js";
-import { mouse } from "../game/controls.js";
-import { ctx, GRAVITY, TILE_SIZE, WORLD_HEIGHT, WORLD_WIDTH } from "../game/const.js";
+import { ctx, GRAVITY, TILE_SIZE, WORLD_HEIGHT, WORLD_WIDTH } from "../game/global.js";
 import { overlap, surfaceCollision } from "../game/collision.js";
 
 export let itemEntities = [];
@@ -60,7 +57,7 @@ export class ItemEntity {
                     continue;
                 }
 
-                let tile = getTile(x,y);
+                let tile = world.getTile(x,y);
                 if(!tile) {
                     continue;
                 }

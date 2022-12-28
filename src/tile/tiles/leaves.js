@@ -1,11 +1,11 @@
-import { ctx } from "../../game/const.js";
+import { ctx } from "../../game/global.js";
 import { sprites } from "../../game/graphics/loadAssets.js";
 import { Tile } from "../../tile/tile.js";
 
 
 export class Leaves extends Tile {
-    constructor(gridX,gridY) {
-        super(gridX,gridY);
+    constructor(world,gridX,gridY) {
+        super(world,gridX,gridY);
         this.setRegistryName("tile_leaves");
         this.setSprite();
         this.objectType = "solid";

@@ -1,8 +1,7 @@
 
 // FIXED IMPORTS:
-import { ctx } from "../game/const.js";
+import { ctx } from "../game/global.js";
 import { dropItemFromBlock } from "../item/dropItem.js";
-import { getTile, getWall } from "../tile/tile.js";
 import { rng } from "../misc/util.js";
 
 class MiningEvent {

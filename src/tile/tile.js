@@ -2,8 +2,8 @@
 // FIXED IMPORTS:
 import { rng } from "../misc/util.js";
 import { dropItemFromBlock } from "../item/dropItem.js";
-import { tileGrid, updateNearbyTiles, wallGrid } from "../world/world.js";
-import { ctx, TILE_SIZE, WORLD_HEIGHT, WORLD_WIDTH } from "../game/const.js";
+import { updateNearbyTiles } from "../world/world.js";
+import { ctx, TILE_SIZE } from "../game/global.js";
 import { sprites } from "../game/graphics/loadAssets.js";
 
 // Link tile ID and Registry Name
@@ -19,7 +19,8 @@ const ID_NAME_LINK = [
 ]
 
 export class Tile {
-    constructor(gridX,gridY) {
+    constructor(world,gridX,gridY) {
+        this.world = world; // Pointer
         this.gridX = gridX;
         this.gridY = gridY;
         this.x = gridX * TILE_SIZE;
@@ -88,9 +89,9 @@ export class Tile {
     // Remove the tile and drop its items.
     breakTile(toolType,toolLevel) {
         if(this.objectType == "wall") {
-            wallGrid[this.gridX][this.gridY] = null;
+            world.clearWall(this.gridX,this.gridY);
         } else {
-            tileGrid[this.gridX][this.gridY] = null;
+            world.clearTile(this.gridX,this.gridY);
         }
 
         this.dropItems(toolType,toolLevel);
@@ -137,7 +138,7 @@ export class Tile {
 
         let checkTile = (x,y) => {
             try {
-                if(tileGrid[x][y]) {
+                if(this.world.getTile(x,y)) {
                     return true;
                 }
                 return false;
@@ -282,22 +283,6 @@ export class Tile {
             this.sx = 12 + (s[0] * 60);
             this.sy = 12 + (s[1] * 60);
         }
-    }
-}
-
-export function getTile(x,y) {
-    if(x >= 0 && y >= 0 && x < WORLD_WIDTH && y < WORLD_HEIGHT) {
-        return tileGrid[x][y];
-    } else {
-        return null;
-    }
-}
-
-export function getWall(x,y) {
-    if(x >= 0 && y >= 0 && x < WORLD_WIDTH && y < WORLD_HEIGHT) {
-        return wallGrid[x][y];
-    } else {
-        return null;
     }
 }
 

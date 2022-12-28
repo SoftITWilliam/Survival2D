@@ -1,10 +1,8 @@
 
 // FIXED IMPORTS:
-import { player } from "./player.js";
-import { ctx, TILE_SIZE } from "../game/const.js";
+import { ctx, TILE_SIZE } from "../game/global.js";
 import { sprites } from "../game/graphics/loadAssets.js";
 import { calculateDistance } from "../misc/util.js";
-import { getTile, getWall } from "../tile/tile.js";
 
 export default class PlacementPreview {
     constructor(sprite,offsetX,offsetY) {
@@ -73,14 +71,14 @@ export default class PlacementPreview {
 export function validPlacementPosition(gridX,gridY) {
 
     // Check if tile is already occupied
-    if (getTile(gridX,gridY)) {
+    if (world.getTile(gridX,gridY)) {
         return false;
     }
 
     // Check for adjacent tile or wall
-    if (getTile(gridX-1,gridY) || getTile(gridX+1,gridY) ||
-        getTile(gridX,gridY-1) || getTile(gridX,gridY+1) ||
-        getWall(gridX,gridY)) {
+    if (world.getTile(gridX-1,gridY) || world.getTile(gridX+1,gridY) ||
+        world.getTile(gridX,gridY-1) || world.getTile(gridX,gridY+1) ||
+        world.getWall(gridX,gridY)) {
             return true;
     }
     return false;

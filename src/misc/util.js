@@ -5,7 +5,7 @@
  * A random collection of useful functions that don't really fit anywhere else
  */
 
-import { ctx, PATH, TILE_SIZE, WORLD_WIDTH } from "../game/const.js";
+import { ctx, PATH, TILE_SIZE, WORLD_WIDTH } from "../game/global.js";
 
 /**
  * Return a random number between the two points
@@ -86,7 +86,7 @@ export function gridYfromCoordinate(y) {
 }
 
 export function limitCameraX(cameraX) {
-    return clamp(cameraX,0,WORLD_WIDTH * TILE_SIZE - canvas.width)
+    
 }
 
 export function drawRounded(x,y,width,height,radius,ctx) {

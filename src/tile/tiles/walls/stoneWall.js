@@ -1,9 +1,9 @@
-import { ctx } from "../../../game/const.js";
+import { ctx } from "../../../game/global.js";
 import { Tile } from "../../../tile/tile.js";
 
 export class StoneWall extends Tile {
-    constructor(gridX,gridY) {
-        super(gridX,gridY);
+    constructor(world,gridX,gridY) {
+        super(world,gridX,gridY);
         this.setRegistryName("wall_stone");
 
         this.objectType = "wall";

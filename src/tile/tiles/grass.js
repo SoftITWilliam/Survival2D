@@ -1,11 +1,10 @@
 import { sprites } from "../../game/graphics/loadAssets.js";
-import { getTile, Tile } from "../../tile/tile.js";
-import { tileGrid } from "../../world/world.js";
+import { Tile } from "../../tile/tile.js";
 import { Dirt } from "../../tile/tileParent.js";
 
 export class Grass extends Tile {
-    constructor(gridX,gridY) {
-        super(gridX,gridY);
+    constructor(world,gridX,gridY) {
+        super(world,gridX,gridY);
         this.setRegistryName("tile_grass");
         this.setSprite(sprites.tiles.tile_grass);
 
@@ -27,7 +26,7 @@ export class Grass extends Tile {
 
         // If another tile is placed on top of a grass tile, it is converted into a dirt block
         if(getTile(this.gridX,this.gridY + 1)) {
-            tileGrid[this.gridX][this.gridY] = new Dirt(this.gridX,this.gridY);
+            world.setTile(this.gridX,this.gridY,new Dirt(this.gridX,this.gridY));
             getTile(this.gridX,this.gridY).getTilesetSource();
         }
     }

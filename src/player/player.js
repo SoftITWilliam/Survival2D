@@ -1,12 +1,10 @@
 
 // FIXED IMPORTS:
-import { ctx, canvas, TILE_SIZE, WORLD_WIDTH, WORLD_HEIGHT, GRAVITY } from '../game/const.js';
-import { mouse } from '../game/controls.js';
+import { ctx, canvas, TILE_SIZE, WORLD_WIDTH, WORLD_HEIGHT, GRAVITY } from '../game/global.js';
 import { Inventory } from './inventory.js';
 import { MiningEvent } from './mining.js';
 import { calculateDistance, clamp, gridXfromCoordinate, gridYfromCoordinate } from '../misc/util.js';
-import { HEIGHTMAP, tileGrid, updateNearbyTiles } from '../world/world.js';
-import { getTile, getWall } from '../tile/tile.js';
+import { HEIGHTMAP, updateNearbyTiles } from '../world/world.js';
 import { overlap, surfaceCollision } from '../game/collision.js';
 import { PlayerStatBar } from './statBar.js';
 import { updateLighting } from '../world/lighting.js';
@@ -14,6 +12,7 @@ import { checkToolInteraction } from '../tile/toolInteraction.js';
 import { hotbarText } from './hotbarText.js';
 import { PickupLabelList } from './pickupLabels.js';
 import { validPlacementPosition } from './placementPreview.js';
+import { Camera } from '../game/camera.js';
 
 const P_WIDTH = 36;
 const P_HEIGHT = 72;
@@ -23,15 +22,15 @@ const P_FALLSPEED = 12;
 const P_REACH = 3;
 
 class Player {
-    constructor() {
+    constructor(game) {
+        this.game = game;
         this.w = P_WIDTH;
         this.h = P_HEIGHT;
         
         this.x;
         this.y;
 
-        this.cameraX;
-        this.cameraY;
+        this.camera = new Camera(this);
 
         this.centerX;
         this.centerY;
@@ -208,8 +207,8 @@ class Player {
     updatePosition() {
         this.x += Math.round(this.dx);
         this.y += Math.round(this.dy);
-        this.cameraX += Math.round(this.dx);
-        this.cameraY += Math.round(this.dy);
+        this.camera.x += Math.round(this.dx);
+        this.camera.y += Math.round(this.dy);
         this.centerX = this.x + this.w/2;
         this.centerY = this.y + this.w/2;
         this.gridX = gridXfromCoordinate(this.centerX);
@@ -223,7 +222,7 @@ class Player {
             let distance = this.x;
             this.dx = 0;
             this.x = 0;
-            this.cameraX -= distance;
+            this.camera.x -= distance;
         }
 
         // Right wall
@@ -232,7 +231,7 @@ class Player {
             let distance = this.x + this.w - rightEdge;
             this.dx = 0;
             this.x = rightEdge - this.w;
-            this.cameraX -= distance;
+            this.camera.x -= distance;
         }
 
         // Only check collision of blocks within a 2 block radius
@@ -254,14 +253,14 @@ class Player {
                         let distance = this.y + this.h - tile.y;
                         this.dy = 0;
                         this.y = tile.y - this.h;
-                        this.cameraY -= distance;
+                        this.camera.y -= distance;
                     }
 
                     if(surfaceCollision("bottom",this,tile)) {
                         let distance = this.y - (tile.y + tile.h);
                         this.dy = 0;
                         this.y = tile.y + tile.h;
-                        this.cameraY -= distance;
+                        this.camera.y -= distance;
                         this.jumpFrames = false;
                     }
 
@@ -269,14 +268,14 @@ class Player {
                         let distance = this.x + this.w - tile.x;
                         this.dx = 0;
                         this.x = tile.x - this.w;
-                        this.cameraX -= distance;
+                        this.camera.x -= distance;
                     }
 
                     if(surfaceCollision("right",this,tile)) {
                         let distance = this.x - (tile.x + tile.w);
                         this.dx = 0;
                         this.x = tile.x + tile.w;
-                        this.cameraX -= distance;
+                        this.camera.x -= distance;
                     }
                 }
 
@@ -352,8 +351,8 @@ class Player {
     
         // X and Y must be within grid
         if(isNaN(x) || isNaN(y) || 
-            x < 0 || x >= WORLD_WIDTH ||
-            y < 0 || y >= WORLD_HEIGHT) {
+            x < 0 || x >= this.game.world.width ||
+            y < 0 || y >= this.game.world.height) {
                 return;
         }
 
@@ -389,10 +388,10 @@ class Player {
 
     // Put the player in the center of the map
     spawn() {
-        this.x = Math.round(WORLD_WIDTH / 2 * TILE_SIZE - this.w / 2);
+        this.x = Math.round(this.game.world.width / 2 * TILE_SIZE - this.w / 2);
         this.y = Math.round((-HEIGHTMAP[63] - 2) * TILE_SIZE);
-        this.cameraX = Math.round(this.x - canvas.width / 2 + this.w / 2);
-        this.cameraY = Math.round(this.y - canvas.height / 2 + this.h / 2);
+        this.camera.x = Math.round(this.x - canvas.width / 2 + this.w / 2);
+        this.camera.y = Math.round(this.y - canvas.height / 2 + this.h / 2);
         this.centerX = this.x + this.w/2;
         this.centerY = this.y + this.w/2;
         this.gridX = gridXfromCoordinate(this.centerX);
@@ -400,9 +399,4 @@ class Player {
         this.inventory = new Inventory();
     }
 }
-
-
-
-let player = new Player();
-
-export { player, Player }
+export { Player }

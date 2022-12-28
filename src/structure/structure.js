@@ -1,4 +1,4 @@
-import { TILE_SIZE } from '../game/const.js';
+import { TILE_SIZE } from '../game/global.js';
 
 export default class Structure {
     constructor(gridX,gridY) {

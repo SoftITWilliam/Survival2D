@@ -8,6 +8,7 @@
 
 <2022-12-28>
     + Added the ability to place tiles
+    * Begun the painful process of restructuring pretty much the entire code. Fuck me.
 
 <2022-12-20>
     + Holding a placeable item and hovering on an empty tile shows a placement preview

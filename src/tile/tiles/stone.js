@@ -3,8 +3,8 @@ import { Tile } from "../../tile/tile.js";
 
 
 export class Stone extends Tile {
-    constructor(gridX,gridY) {
-        super(gridX,gridY);
+    constructor(world,gridX,gridY) {
+        super(world,gridX,gridY);
         this.setRegistryName("tile_stone");
         this.setSprite(sprites.tiles.tile_stone);
         

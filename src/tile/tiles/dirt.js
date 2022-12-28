@@ -2,8 +2,8 @@ import { sprites } from "../../game/graphics/loadAssets.js";
 import { Tile } from "../../tile/tile.js";
 
 export class Dirt extends Tile {
-    constructor(gridX,gridY) {
-        super(gridX,gridY);
+    constructor(world,gridX,gridY) {
+        super(world,gridX,gridY);
         this.setRegistryName("tile_dirt");
         this.setSprite(sprites.tiles.tile_dirt);
         

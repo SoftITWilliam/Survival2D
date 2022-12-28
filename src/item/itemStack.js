@@ -1,6 +1,6 @@
 
 // FIXED IMPORTS:
-import { ctx, TILE_SIZE } from "../game/const.js";
+import { ctx, TILE_SIZE } from "../game/global.js";
 import { setAttributes } from "../misc/util.js";
 
 export class ItemStack {

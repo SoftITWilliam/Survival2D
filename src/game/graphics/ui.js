@@ -1,6 +1,5 @@
 
-import { canvas, ctx } from '../const.js';
-import { player } from '../../player/player.js';
+import { canvas, ctx } from '../global.js';
 import { limitCameraX, setAttributes } from '../../misc/util.js';
 
 export function drawStatBar(barType,max,current,color,y) {

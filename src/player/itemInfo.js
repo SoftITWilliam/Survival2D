@@ -1,12 +1,10 @@
 
 // FIXED IMPORTS:
-import { ctx } from "../game/const.js";
-import { mouse } from "../game/controls.js";
+import { ctx } from "../game/global.js";
 import { rgb } from "../game/graphics/rgb.js";
 import { getLang } from "../game/lang.js";
 import { sprites } from "../game/graphics/loadAssets.js";
-import { clamp, disableShadow, drawRounded, setAttributes, splitIntoLines } from "../misc/util.js";
-import { player } from "./player.js";
+import { disableShadow, drawRounded, setAttributes, splitIntoLines } from "../misc/util.js";
 
 class ItemInfoDisplay {
     constructor() {
