@@ -50,10 +50,6 @@ class Player {
 
         this.pickupLabels = new PickupLabelList();
 
-        this.walkLeft = false;
-        this.walkRight = false;
-        this.jump = false;
-
         this.inventory = new Inventory();
 
         this.miningEvent = null;
@@ -64,10 +60,15 @@ class Player {
         this.heldItem = null;
     }
 
-    update() {
+    update(input) {
         this.inLiquid = false;
         this.grounded = false;
-        this.getHorizontalMovement();
+
+        let jump = (input.keys.includes("W") || input.keys.includes(" ")) ? true : false;
+        let left = input.keys.includes("A") ? true : false;
+        let right = input.keys.includes("D") ? true : false;
+
+        this.getHorizontalMovement(left,right);
         this.checkCollision();
         this.pickupLabels.update();
 
@@ -94,16 +95,19 @@ class Player {
                 this.dy = P_FALLSPEED;
             }
         } 
+
+        
+        
         
         // Begin Jump
-        if(this.jump && this.grounded && !this.inLiquid) {
+        if(jump && this.grounded && !this.inLiquid) {
             this.dy = -6.5;
             this.jumpFrames = 1;
         }
 
         // Hold jump
         if(this.jumpFrames > 0) {
-            if(this.jumpFrames < 20 && this.jump) {
+            if(this.jumpFrames < 20 && jump) {
                 this.dy = -6.5;
                 this.jumpFrames++;
             } else {
@@ -112,33 +116,33 @@ class Player {
         }
 
         // Swim
-        if(this.jump && this.inLiquid) {
+        if(jump && this.inLiquid) {
             this.dy -= 0.2;
         }
 
         // Tile interaction
-        if(mouse.click && !this.inventory.view) {
+        if(input.mouse.click && !this.inventory.view) {
 
             if(this.heldItem && this.heldItem.placeable) {
-                this.placeTile(this.heldItem,mouse.gridX,mouse.gridY);
+                //this.placeTile(this.heldItem,input.mouse.gridX,input.mouse.gridY);
             } else {
-                this.updateMining();
+                //this.updateMining(input);
             }
         } else {
             this.miningEvent = null;
         }
 
-        this.updatePosition();
+        this.updatePosition(input);
 
         if(this.inventory.view) {
             this.inventory.update();
         }
     }
 
-    updateMining() {
+    updateMining(input) {
 
         // Check if the tool can interact with the tile
-        let obj = checkToolInteraction(mouse.gridX,mouse.gridY,this.heldItem);
+        let obj = checkToolInteraction(input.mouse.gridX,input.mouse.gridY,this.heldItem);
 
         if(!obj) {
             this.miningEvent = null;
@@ -172,18 +176,18 @@ class Player {
     }
         
 
-    getHorizontalMovement() {
+    getHorizontalMovement(walkLeft,walkRight) {
         // If player is holding A, accelerate left.
-        if(this.walkLeft) {
+        if(walkLeft) {
             this.dx -= P_ACCELERATION;
         }
         // If player is holding D, accelerate right.
-        else if(this.walkRight) {
+        else if(walkRight) {
             this.dx += P_ACCELERATION;
         }
 
         // If player is not moving left but has left momentum, slow down.
-        if(!this.walkLeft && this.dx < 0) {
+        if(!walkLeft && this.dx < 0) {
             this.dx += 0.8;
             if(this.dx > 0) {
                 this.dx = 0;
@@ -191,7 +195,7 @@ class Player {
         } 
 
         // If player is not moving right but has right momentum, slow down.
-        if(!this.walkRight && this.dx > 0) {
+        if(!walkRight && this.dx > 0) {
             this.dx -= 0.8;
             if(this.dx < 0) {
                 this.dx = 0;
@@ -204,7 +208,7 @@ class Player {
     }
 
     // Move player and camera by dx and dy
-    updatePosition() {
+    updatePosition(input) {
         this.x += Math.round(this.dx);
         this.y += Math.round(this.dy);
         this.camera.x += Math.round(this.dx);
@@ -213,7 +217,7 @@ class Player {
         this.centerY = this.y + this.w/2;
         this.gridX = gridXfromCoordinate(this.centerX);
         this.gridY = gridYfromCoordinate(this.centerY);
-        mouse.updateGridPos();
+        input.mouse.updateGridPos();
     }
 
     checkCollision() {
@@ -242,7 +246,7 @@ class Player {
                     continue;
                 }
 
-                let tile = tileGrid[x][y];
+                let tile = this.game.world.tileGrid[x][y];
                 if(!tile) {
                     continue;
                 }

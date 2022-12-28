@@ -15,6 +15,6 @@ export class Game {
     }
 
     update() {
-        
+        this.player.update(this.input)
     }
 }
