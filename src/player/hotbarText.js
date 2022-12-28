@@ -1,8 +1,8 @@
+
+// FIXED IMPORTS:
 import { ctx } from "../game/const.js";
-import { limitCameraX, setAttributes } from "../misc.js";
+import { limitCameraX, setAttributes } from "../misc/util.js";
 import { player } from "./player.js";
-
-
 
 class HotbarText {
     constructor() {

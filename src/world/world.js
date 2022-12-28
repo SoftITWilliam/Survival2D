@@ -1,8 +1,11 @@
-import * as tiles from '../objects/parents/tileParent.js';
-import * as structures from '../objects/parents/structureParent.js';
-import { clamp, rng } from '../misc.js';
+
+// FIXED IMPORTS:
+import * as tiles from '../tile/tileParent.js';
+import * as structures from '../structure/structureParent.js';
+import { rng } from '../misc/util.js';
 import { BASE_TERRAIN_HEIGHT, WORLD_HEIGHT, WORLD_WIDTH } from '../game/const.js';
 import { createLightingGrid } from './lighting.js';
+
 
 const HEIGHTMAP = generateTerrainHeight();
 

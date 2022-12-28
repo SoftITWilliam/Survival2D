@@ -1,7 +1,8 @@
-import { DRAWDIST, WORLD_HEIGHT, WORLD_WIDTH } from "../game/const.js";
-import { clamp } from "../misc.js";
-import { tileGrid, wallGrid } from "./world.js";
 
+// FIXED IMPORTS:
+import { clamp } from "../misc/util.js";
+import { DRAWDIST, WORLD_HEIGHT, WORLD_WIDTH } from "../game/const.js";
+import { tileGrid, wallGrid } from "./world.js";
 
 export const lightGrid = [];
 

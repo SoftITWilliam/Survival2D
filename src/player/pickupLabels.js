@@ -1,9 +1,9 @@
+
+// FIXED IMPORTS:
 import { ctx } from "../game/const.js";
-import { rgba } from "../game/rgb.js";
-import { setAttributes } from "../misc.js";
+import { rgba } from "../game/graphics/rgb.js";
+import { setAttributes } from "../misc/util.js";
 import { player } from "./player.js";
-
-
 
 export class PickupLabelList {
     constructor() {

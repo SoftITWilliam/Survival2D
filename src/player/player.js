@@ -1,18 +1,19 @@
+
+// FIXED IMPORTS:
 import { ctx, canvas, TILE_SIZE, WORLD_WIDTH, WORLD_HEIGHT, GRAVITY } from '../game/const.js';
 import { mouse } from '../game/controls.js';
 import { Inventory } from './inventory.js';
 import { MiningEvent } from './mining.js';
-import { calculateDistance, clamp, gridXfromCoordinate, gridYfromCoordinate } from '../misc.js';
+import { calculateDistance, clamp, gridXfromCoordinate, gridYfromCoordinate } from '../misc/util.js';
 import { HEIGHTMAP, tileGrid, updateNearbyTiles } from '../world/world.js';
-import { getTile, getWall } from '../world/tile/tile.js';
+import { getTile, getWall } from '../tile/tile.js';
 import { overlap, surfaceCollision } from '../game/collision.js';
 import { PlayerStatBar } from './statBar.js';
 import { updateLighting } from '../world/lighting.js';
-import { checkToolInteraction } from '../world/tile/toolInteraction.js';
+import { checkToolInteraction } from '../tile/toolInteraction.js';
 import { hotbarText } from './hotbarText.js';
 import { PickupLabelList } from './pickupLabels.js';
 import { validPlacementPosition } from './placementPreview.js';
-
 
 const P_WIDTH = 36;
 const P_HEIGHT = 72;

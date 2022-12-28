@@ -1,8 +1,10 @@
-import { ctx, TILE_SIZE } from "../game/const.js";
-import { sprites } from "../loadAssets.js";
-import { calculateDistance } from "../misc.js";
-import { getTile, getWall } from "../world/tile/tile.js";
+
+// FIXED IMPORTS:
 import { player } from "./player.js";
+import { ctx, TILE_SIZE } from "../game/const.js";
+import { sprites } from "../game/graphics/loadAssets.js";
+import { calculateDistance } from "../misc/util.js";
+import { getTile, getWall } from "../tile/tile.js";
 
 export default class PlacementPreview {
     constructor(sprite,offsetX,offsetY) {

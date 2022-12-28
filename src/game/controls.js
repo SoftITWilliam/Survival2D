@@ -1,7 +1,9 @@
-import { TILE_SIZE, WORLD_HEIGHT } from "./const.js";
+
+// FIXED IMPORTS:
 import { player } from "../player/player.js";
-import { limitCameraX, swapBool } from "../misc.js";
-import { ITEM_REGISTRY } from "../world/registry/itemRegistry.js";
+import { limitCameraX } from "../misc/util.js";
+import { ITEM_REGISTRY } from "../item/itemRegistry.js";
+import { TILE_SIZE, WORLD_HEIGHT } from "./const.js";
 
 export let mouse = {
     click:false,

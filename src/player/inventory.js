@@ -1,10 +1,12 @@
+
+
+// FIXED IMPORTS:
 import { canvas, ctx, INVENTORY_HEIGHT, INVENTORY_WIDTH } from "../game/const.js";
 import { mouse } from "../game/controls.js";
-import { limitCameraX, mouseOn, setAttributes } from "../misc.js";
-import { ItemStack } from "../world/item/itemStack.js";
+import { limitCameraX, mouseOn, setAttributes } from "../misc/util.js";
+import { ItemStack } from "../item/itemStack.js";
 import { itemInfoDisplay } from "./itemInfo.js";
 import { player } from "./player.js";
-
 
 export class Inventory {
     constructor() {
