@@ -321,7 +321,6 @@ class Player {
             return;
         }
 
-        console.log("Drawing preview");
         this.heldItem.placementPreview.draw(mouse.gridX,mouse.gridY);
     }
 
@@ -354,6 +353,14 @@ class Player {
         let tile = this.heldItem.place(x,y);
 
         if(!tile || getTile(x,y)) {
+            return;
+        }
+
+        if(calculateDistance(this,tile) > this.reach) {
+            return;
+        } 
+
+        if(overlap(this,tile)) {
             return;
         }
 
