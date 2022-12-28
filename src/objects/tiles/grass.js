@@ -1,7 +1,9 @@
 import { ctx, TILE_SIZE } from "../../game/const.js";
 import { sprites } from "../../loadAssets.js";
 import { image } from "../../misc.js";
-import { Tile } from "../../world/tile/tile.js";
+import { getTile, Tile } from "../../world/tile/tile.js";
+import { tileGrid } from "../../world/world.js";
+import { Dirt } from "../parents/tileParent.js";
 
 export class Grass extends Tile {
     constructor(gridX,gridY) {
@@ -21,6 +23,15 @@ export class Grass extends Tile {
 
     draw() {
         this.drawSprite();
+    }
+
+    update() {
+
+        // If another tile is placed on top of a grass tile, it is converted into a dirt block
+        if(getTile(this.gridX,this.gridY + 1)) {
+            tileGrid[this.gridX][this.gridY] = new Dirt(this.gridX,this.gridY);
+            getTile(this.gridX,this.gridY).getTilesetSource();
+        }
     }
 
     // Grass uses a different tileset from other tiles

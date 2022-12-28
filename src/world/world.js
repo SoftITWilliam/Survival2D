@@ -231,15 +231,17 @@ function updateNearbyTiles(gx,gy) {
     
     for(let x=gx-1;x<=gx+1;x++) {
         for(let y=gy-1;y<=gy+1;y++) {
-            if(x >= 0 && y >= 0 && x < WORLD_WIDTH && y < WORLD_HEIGHT) {
-                let tile = tileGrid[x][y];
-                if(!tile) {
-                    continue;
-                }
-                tile.getTilesetSource();
+            if(x < 0 || y < 0 || x >= WORLD_WIDTH || y >= WORLD_HEIGHT) {
+                continue;
+            }
+
+            let tile = tileGrid[x][y];
+            if(!tile) {
+                continue;
             }
             
-            
+            tile.getTilesetSource();
+            tile.update();
         }
     }
 }

@@ -124,6 +124,10 @@ export class Tile {
         }
     }
 
+    update() {
+        return;
+    }
+
     getAdjacent() {
         let adjacent = {
             tl:false,tm:false,tr:false,ml:false,mr:false,bl:false,bm:false,br:false

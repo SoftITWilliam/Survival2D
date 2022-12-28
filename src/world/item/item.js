@@ -62,6 +62,13 @@ export default class Item {
         }
     }
 
+    /** 
+     * Return the tile the object is supposed to place.
+    */
+    place(gridX,gridY) {
+        return;
+    }
+
     /**
      * Set sprite offset position
      * (Used for spritesheets)
@@ -69,7 +76,7 @@ export default class Item {
      * @param {int} offsetX X offset in pixels
      * @param {int} offsetY Y offset in pixels
      */
-     setSpriteOffset(offsetX,offsetY) {
+    setSpriteOffset(offsetX,offsetY) {
         
         if(!offsetX || !offsetY || this.missingTexture) {
             this.sx = 0;

@@ -44,7 +44,6 @@ class MiningEvent {
             getTile(this.tile.gridX,this.tile.gridY).breakTile(this.toolType,this.miningLevel);
         }
 
-        // Update sprites of surrounding tiles
         this.finished = true;
     }
 
