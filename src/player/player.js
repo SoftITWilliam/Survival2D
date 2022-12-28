@@ -11,6 +11,7 @@ import { updateLighting } from '../world/lighting.js';
 import { checkToolInteraction } from '../world/tile/toolInteraction.js';
 import { hotbarText } from './hotbarText.js';
 import { PickupLabelList } from './pickupLabels.js';
+import { validPlacementPosition } from './placementPreview.js';
 
 
 const P_WIDTH = 36;
@@ -342,6 +343,11 @@ class Player {
         if(!this.heldItem || !this.heldItem.placeable) {
             return;
         }
+
+        // Must be a valid placement position
+        if(!validPlacementPosition(x,y)) {
+            return;
+        }
     
         // X and Y must be within grid
         if(isNaN(x) || isNaN(y) || 
@@ -365,15 +371,19 @@ class Player {
         }
 
         tileGrid[x][y] = tile;
-        updateNearbyTiles(x,y);
-
+        
+        // Decrease amount in stack by 1
         let heldStack = this.inventory.getSelectedSlot().stack;
         heldStack.subtractAmount(1);
+
+        // Remove stack if amount reaches 0
         if(heldStack.amount == 0) {
             this.inventory.getSelectedSlot().stack = null;
             this.heldItem = null;
         }
-        this.placeDelay = 8;
+
+        updateNearbyTiles(x,y);
+        updateLighting(this.gridX,this.gridY);
     }
 
     // Put the player in the center of the map

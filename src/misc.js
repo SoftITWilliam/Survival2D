@@ -128,6 +128,7 @@ export function splitIntoLines(string,maxWidth) {
     let thisLine = "";
     let words = string.split(" ");
 
+    // Keep adding words until it reaches its max width, then go to the next line.
     for(let i = 0; i < words.length; i++) {
 
         if(ctx.measureText(thisLine + words[i]).width > maxWidth) {
@@ -138,7 +139,12 @@ export function splitIntoLines(string,maxWidth) {
         thisLine += words[i] + " ";
     }
 
+    // Add the final line
     lines.push(thisLine.substring(0,thisLine.length - 1));
 
     return lines;
+}
+
+export function outOfBounds(x,y) {
+    return (x < 0 && x >= WORLD_WIDTH && y < 0 && y >= WORLD_HEIGHT) ? true : false;
 }

@@ -1,6 +1,7 @@
 import { ctx, TILE_SIZE } from "../game/const.js";
 import { sprites } from "../loadAssets.js";
 import { calculateDistance } from "../misc.js";
+import { getTile, getWall } from "../world/tile/tile.js";
 import { player } from "./player.js";
 
 export default class PlacementPreview {
@@ -42,8 +43,9 @@ export default class PlacementPreview {
             centerY:-gridY * TILE_SIZE + TILE_SIZE / 2
         }
 
-        if(calculateDistance(player,pos) > player.reach) {
-            ctx.globalAlpha = 0.05;
+        if(calculateDistance(player,pos) > player.reach || 
+            !validPlacementPosition(gridX,gridY)) {
+                ctx.globalAlpha = 0.05;
         } else {
             ctx.globalAlpha = this.a;
         }
@@ -55,3 +57,29 @@ export default class PlacementPreview {
     }
 }
 
+
+
+/**
+ * If a tile can be placed in the given position return true.
+ * A placement position is valid if it is touching another tile
+ * or if there's a wall behind it
+ * 
+ * @param {number} gridX X position in grid
+ * @param {number} gridY Y position in grid
+ * @returns {boolean}
+ */
+export function validPlacementPosition(gridX,gridY) {
+
+    // Check if tile is already occupied
+    if (getTile(gridX,gridY)) {
+        return false;
+    }
+
+    // Check for adjacent tile or wall
+    if (getTile(gridX-1,gridY) || getTile(gridX+1,gridY) ||
+        getTile(gridX,gridY-1) || getTile(gridX,gridY+1) ||
+        getWall(gridX,gridY)) {
+            return true;
+    }
+    return false;
+}
