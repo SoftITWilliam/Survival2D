@@ -6,6 +6,12 @@
     // Notes & comments
     
 
+<2022-12-28>
+    + Added the ability to place tiles
+
+<2022-12-20>
+    + Holding a placeable item and hovering on an empty tile shows a placement preview
+
 <2022-12-19>
     + Hovering on an item displays several additional properties
     * Added rarity names to lang system, instead of being hard coded
