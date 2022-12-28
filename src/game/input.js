@@ -58,7 +58,6 @@ export class InputHandler {
                 ) && this.keys.indexOf(key) === -1) {
                     this.keys.push(key);
             }
-            console.log(this.keys);
         });
 
         window.addEventListener("keyup", event => {

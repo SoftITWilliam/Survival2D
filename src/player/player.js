@@ -50,8 +50,6 @@ class Player {
 
         this.pickupLabels = new PickupLabelList();
 
-        this.inventory = new Inventory();
-
         this.miningEvent = null;
         
         this.defaultReach = P_REACH;
@@ -64,9 +62,31 @@ class Player {
         this.inLiquid = false;
         this.grounded = false;
 
-        let jump = (input.keys.includes("W") || input.keys.includes(" ")) ? true : false;
-        let left = input.keys.includes("A") ? true : false;
-        let right = input.keys.includes("D") ? true : false;
+        // Handle input
+
+        let jump = (input.keys.includes("W") || input.keys.includes(" "));
+
+        let left = input.keys.includes("A");
+        let right = input.keys.includes("D");
+
+        // Open and Close inventory
+        if(input.keys.includes("E")) {
+            if(this.inventory.view) {
+                this.inventory.close();
+            } else {
+                this.inventory.view = true;
+            }
+            input.keys.splice(input.keys.indexOf("E"),1);
+        }
+
+        // Select inventory slot
+        for(let i=1;i<=6;i++) {
+            if(input.keys.includes(i.toString())) {
+                this.miningEvent = null;
+                this.selectItem(i);
+                input.keys.splice(input.keys.indexOf(i.toString()),1);
+            }
+        }
 
         this.getHorizontalMovement(left,right);
         this.checkCollision();
@@ -96,9 +116,6 @@ class Player {
             }
         } 
 
-        
-        
-        
         // Begin Jump
         if(jump && this.grounded && !this.inLiquid) {
             this.dy = -6.5;
@@ -135,7 +152,7 @@ class Player {
         this.updatePosition(input);
 
         if(this.inventory.view) {
-            this.inventory.update();
+            this.inventory.update(input);
         }
     }
 
@@ -400,7 +417,7 @@ class Player {
         this.centerY = this.y + this.w/2;
         this.gridX = gridXfromCoordinate(this.centerX);
         this.gridY = gridYfromCoordinate(this.centerY);
-        this.inventory = new Inventory();
+        this.inventory = new Inventory(this);
     }
 }
 export { Player }
