@@ -1,4 +1,6 @@
 import { sprites } from "../../loadAssets.js";
+import PlacementPreview from "../../player/placementPreview.js";
+import { Dirt } from "../parents/tileParent.js";
 import TileItemBase from "./base/tileItemBase.js";
 
 export class ItemDirt extends TileItemBase {
@@ -8,6 +10,12 @@ export class ItemDirt extends TileItemBase {
         this.setRarity(0);
 
         this.setSprite(sprites.tiles.tile_dirt);
+        
         this.setSpriteOffset(192,192);
+        this.placementPreview = new PlacementPreview(sprites.tiles.tile_dirt,this.sx,this.sy);
+    }
+
+    place(gridX,gridY) {
+        return new Dirt(gridX,gridY);
     }
 }

@@ -3,7 +3,7 @@ import { mouse } from '../game/controls.js';
 import { Inventory } from './inventory.js';
 import { MiningEvent } from './mining.js';
 import { calculateDistance, clamp, gridXfromCoordinate, gridYfromCoordinate } from '../misc.js';
-import { HEIGHTMAP, tileGrid } from '../world/world.js';
+import { HEIGHTMAP, tileGrid, updateNearbyTiles } from '../world/world.js';
 import { getTile, getWall } from '../world/tile/tile.js';
 import { overlap, surfaceCollision } from '../game/collision.js';
 import { PlayerStatBar } from './statBar.js';
@@ -70,6 +70,10 @@ class Player {
         this.checkCollision();
         this.pickupLabels.update();
 
+        if(this.placeDelay > 0) {
+            this.placeDelay -= 1;
+        }
+
         // Gravity
         if(!this.grounded) {
 
@@ -111,9 +115,14 @@ class Player {
             this.dy -= 0.2;
         }
 
-        // Tile Mining
+        // Tile interaction
         if(mouse.click && !this.inventory.view) {
-            this.updateMining();
+
+            if(this.heldItem && this.heldItem.placeable) {
+                this.placeTile(this.heldItem,mouse.gridX,mouse.gridY);
+            } else {
+                this.updateMining();
+            }
         } else {
             this.miningEvent = null;
         }
@@ -297,9 +306,67 @@ class Player {
         }
     }
 
+    drawPlacementPreview() {
+        // Held item must have a placement preview
+        if(!this.heldItem) {
+            return;
+        }
+        
+        if(!this.heldItem.placementPreview) {
+            return;
+        }
+
+        // Will not draw a preview on top of already existing tile
+        if(getTile(mouse.gridX,mouse.gridY)) {
+            return;
+        }
+
+        console.log("Drawing preview");
+        this.heldItem.placementPreview.draw(mouse.gridX,mouse.gridY);
+    }
+
     draw() {
         ctx.fillStyle = "rgb(220,100,100)";
         ctx.fillRect(this.x,this.y,this.w,this.h);
+    }
+
+    placeTile() {
+        let x = mouse.gridX;
+        let y = mouse.gridY;
+
+        // Placement delay
+        if(this.placeDelay > 0) {
+            return;
+        }
+
+        // Check if item is placeable
+        if(!this.heldItem || !this.heldItem.placeable) {
+            return;
+        }
+    
+        // X and Y must be within grid
+        if(isNaN(x) || isNaN(y) || 
+            x < 0 || x >= WORLD_WIDTH ||
+            y < 0 || y >= WORLD_HEIGHT) {
+                return;
+        }
+
+        let tile = this.heldItem.place(x,y);
+
+        if(!tile || getTile(x,y)) {
+            return;
+        }
+
+        tileGrid[x][y] = tile;
+        updateNearbyTiles(x,y);
+
+        let heldStack = this.inventory.getSelectedSlot().stack;
+        heldStack.subtractAmount(1);
+        if(heldStack.amount == 0) {
+            this.inventory.getSelectedSlot().stack = null;
+            this.heldItem = null;
+        }
+        this.placeDelay = 8;
     }
 
     // Put the player in the center of the map

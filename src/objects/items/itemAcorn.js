@@ -1,4 +1,5 @@
 import { sprites } from "../../loadAssets.js";
+import PlacementPreview from "../../player/placementPreview.js";
 import ItemBase from "./base/itemBase.js";
 
 export class ItemAcorn extends ItemBase {
@@ -9,5 +10,6 @@ export class ItemAcorn extends ItemBase {
         this.placeable = true;
 
         this.setSprite(sprites.items.acorn);
+        this.placementPreview = new PlacementPreview(sprites.items.acorn,0,0);
     }
 }
