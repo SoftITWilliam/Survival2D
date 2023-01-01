@@ -2,7 +2,6 @@
 import * as tiles from '../tile/tileParent.js';
 import { WORLD_HEIGHT, WORLD_WIDTH } from '../game/global.js';
 import { createLightGrid } from './lighting.js';
-import { outOfBounds } from '../misc/util.js';
 import Noise from './noise.js';
 import { generateDirtDepth, generateTerrainHeight, generateTerrainTile, generateTerrainWall } from './generation.js';
 
@@ -27,12 +26,12 @@ export class World {
 
     // Return the tile at the given position
     getTile(x,y) {
-        return outOfBounds(x,y) ? null : this.tileGrid[x][y];
+        return this.outOfBounds(x,y) ? null : this.tileGrid[x][y];
     }
 
     // Return the wall at the given position
     getWall(x,y) {
-        return outOfBounds(x,y) ? null : this.wallGrid[x][y];
+        return this.outOfBounds(x,y) ? null : this.wallGrid[x][y];
     }
 
     // Clear the given tile

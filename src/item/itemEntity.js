@@ -1,6 +1,6 @@
 
 // FIXED IMPORTS:
-import { gridXfromCoordinate, gridYfromCoordinate, mouseOn, outOfBounds, setAttributes } from "../misc/util.js";
+import { gridXfromCoordinate, gridYfromCoordinate, mouseOn, setAttributes } from "../misc/util.js";
 import { sprites } from "../game/graphics/loadAssets.js";
 import { ctx, GRAVITY, TILE_SIZE, WORLD_HEIGHT, WORLD_WIDTH } from "../game/global.js";
 import { surfaceCollision } from "../game/collision.js";
@@ -53,7 +53,7 @@ export class ItemEntity {
     checkCollision() {
         for(let x=this.gridX - 2;x<this.gridX + 2;x++) {
             for(let y=this.gridY - 2;y<this.gridY + 2;y++) {
-                if(outOfBounds(x,y)) {
+                if(this.game.world.outOfBounds(x,y)) {
                     continue;
                 }
 

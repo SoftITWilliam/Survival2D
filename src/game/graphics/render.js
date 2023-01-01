@@ -4,7 +4,6 @@ import { drawStatBar } from './ui.js';
 import { ctx, canvas, TILE_SIZE, DRAWDIST, DRAW_LIGHTING, DEBUG_MODE } from '../global.js';
 import { calculateDistance, clamp, disableShadow, gridXfromCoordinate, gridYfromCoordinate, setAttributes } from '../../misc/util.js';
 import { checkToolInteraction } from '../../tile/toolInteraction.js';
-import { outOfBounds } from '../../misc/util.js';
 
 export default function render(game,player) {
     ctx.save();
@@ -25,7 +24,7 @@ export default function render(game,player) {
     // This is a *very* major optimization!
     for(let x = gX - DRAWDIST.x ; x < gX + DRAWDIST.x + 1 ; x++) {
         for(let y = gY - DRAWDIST.y ; y < gY + DRAWDIST.y + 1 ; y++) {
-            if(outOfBounds(x,y)) {
+            if(game.world.outOfBounds(x,y)) {
                 continue;
             }
 
@@ -56,7 +55,7 @@ export default function render(game,player) {
             for(let y = gY - DRAWDIST.y ; y < gY + DRAWDIST.y + 1 ; y++) {
 
                 // Cannot draw outside map
-                if(outOfBounds(x,y)) {
+                if(game.world.outOfBounds(x,y)) {
                     continue;
                 }
 

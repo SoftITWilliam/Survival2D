@@ -3,7 +3,7 @@
 import { ctx, canvas, TILE_SIZE, WORLD_WIDTH, WORLD_HEIGHT, GRAVITY } from '../game/global.js';
 import { Inventory } from './inventory.js';
 import { MiningEvent } from './mining.js';
-import { calculateDistance, clamp, gridXfromCoordinate, gridYfromCoordinate, outOfBounds } from '../misc/util.js';
+import { calculateDistance, clamp, gridXfromCoordinate, gridYfromCoordinate } from '../misc/util.js';
 import { HEIGHTMAP } from '../world/world.js';
 import { overlap, surfaceCollision } from '../game/collision.js';
 import { PlayerStatBar } from './statBar.js';
@@ -382,7 +382,7 @@ class Player {
         }
     
         // X and Y must be within grid
-        if(isNaN(x) || isNaN(y) || outOfBounds(x,y)) {
+        if(isNaN(x) || isNaN(y) || this.game.world.outOfBounds(x,y)) {
             console.log("4")
             return;
         }

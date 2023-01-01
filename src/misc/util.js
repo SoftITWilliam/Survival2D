@@ -139,11 +139,3 @@ export function splitIntoLines(string,maxWidth) {
 
     return lines;
 }
-
-export function outOfBounds(x,y) {
-    if(isNaN(x) || isNaN(y)) {
-        return true;
-    }
-        
-    return (x < 0 || x >= WORLD_WIDTH || y < 0 || y >= WORLD_HEIGHT);
-}

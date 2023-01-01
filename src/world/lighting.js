@@ -1,9 +1,9 @@
 
 import { DRAWDIST } from "../game/global.js";
-import { clamp, outOfBounds } from "../misc/util.js";
+import { clamp } from "../misc/util.js";
 
 function lightingSpread(x,y,level,world) {
-    if(outOfBounds(x,y)) {
+    if(world.outOfBounds(x,y)) {
         return;
     } 
     
