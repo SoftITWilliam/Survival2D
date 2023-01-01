@@ -2,8 +2,8 @@ import { ctx } from "../../../game/global.js";
 import { Tile } from "../../../tile/tile.js";
 
 export class DirtWall extends Tile {
-    constructor(world,gridX,gridY) {
-        super(world,gridX,gridY);
+    constructor(gridX,gridY,world) {
+        super(gridX,gridY,world);
         this.setRegistryName("wall_dirt");
         
         this.objectType = "wall";

@@ -36,10 +36,10 @@ export const LANG = {
         acorn: "Acorn",
 
         // Item descriptions
-        dev_pickaxe_description: "This pickaxe is for testing purposes only",
-        dev_axe_description: "This axe is for testing purposes only",
-        dev_shovel_description: "This shovel is for testing purposes only",
-        dev_hammer_description: "This hammer is for testing purposes only",
+        dev_pickaxe_description: "This item is for testing purposes only",
+        dev_axe_description: "This item is for testing purposes only",
+        dev_shovel_description: "This item is for testing purposes only",
+        dev_hammer_description: "This item is for testing purposes only",
         wood_description: "A very abundant and useful material",
         branch_description: "A branch from a tree",
         acorn_description: "Plant into dirt and watch it grow into a tree.",
@@ -76,10 +76,10 @@ export const LANG = {
         acorn: "Ekollon",
 
         // Item descriptions
-        dev_pickaxe_description: "Den här hackan är enbart för teständamål",
-        dev_axe_description: "Den här yxan är enbart för teständamål",
-        dev_shovel_description: "Den här spaden är enbart för teständamål",
-        dev_hammer_description: "Den här hammaren är enbart för teständamål",
+        dev_pickaxe_description: "Det här föremålet är enbart för teständamål",
+        dev_axe_description: "Det här föremålet är enbart för teständamål",
+        dev_shovel_description: "Det här föremålet är enbart för teständamål",
+        dev_hammer_description: "Det här föremålet är enbart för teständamål",
         wood_description: "Ett väldigt rikligt och användbart material",
         branch_description: "En gren från ett träd",
         acorn_description: "Plantera i jord och se den växa till ett träd",

@@ -6,8 +6,9 @@ import { getLang } from "../game/lang.js";
 import { sprites } from "../game/graphics/loadAssets.js";
 import { disableShadow, drawRounded, setAttributes, splitIntoLines } from "../misc/util.js";
 
-class ItemInfoDisplay {
-    constructor() {
+export default class ItemInfoDisplay {
+    constructor(player) {
+        this.player = player // Pointer
         this.minimumWidth = 240;
         this.minimumHeight = 50;
         this.w;
@@ -109,7 +110,7 @@ class ItemInfoDisplay {
             case "toolReach":
                 a = {
                     label: getLang("item_info_tool_reach"),
-                    value: "+" + (value - player.defaultReach) + " " + getLang("item_info_tiles"),
+                    value: "+" + (value - this.player.defaultReach) + " " + getLang("item_info_tiles"),
                     icon:null,
                 }; 
                 break;
@@ -118,14 +119,14 @@ class ItemInfoDisplay {
         this.attributes.push(a);
     }
 
-    draw() {
-
-        if(!this.displaying || !player.inventory.view || player.inventory.holdingStack) {
+    draw(input) {
+        
+        if(!this.displaying || !this.player.inventory.view || this.player.inventory.holdingStack) {
             return;
         }
         
-        this.x = mouse.mapX;
-        this.y = -mouse.mapY;
+        this.x = input.mouse.mapX;
+        this.y = -input.mouse.mapY;
         
         // =====================================
         //   Pre-rendering
@@ -153,8 +154,8 @@ class ItemInfoDisplay {
         this.boxHeight += this.footerHeight;
 
         // Box must be contained within screen
-        if(this.y + this.boxHeight > player.cameraY + canvas.height) {
-            this.y = player.cameraY + canvas.height - this.boxHeight;
+        if(this.y + this.boxHeight > this.player.camera.y + canvas.height) {
+            this.y = this.player.camera.y + canvas.height - this.boxHeight;
         }
 
         // =====================================
@@ -237,5 +238,3 @@ class ItemInfoDisplay {
         }
     }
 }
-
-export const itemInfoDisplay = new ItemInfoDisplay();

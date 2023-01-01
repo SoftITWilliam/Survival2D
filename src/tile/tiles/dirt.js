@@ -2,8 +2,8 @@ import { sprites } from "../../game/graphics/loadAssets.js";
 import { Tile } from "../../tile/tile.js";
 
 export class Dirt extends Tile {
-    constructor(world,gridX,gridY) {
-        super(world,gridX,gridY);
+    constructor(gridX,gridY,world) {
+        super(gridX,gridY,world);
         this.setRegistryName("tile_dirt");
         this.setSprite(sprites.tiles.tile_dirt);
         
@@ -13,7 +13,7 @@ export class Dirt extends Tile {
         this.miningTime = 1.0;
 
         this.tileDrops = [
-            {id:1,rate:100,amount:1,requireTool:false}
+            {id:0,rate:100,amount:1,requireTool:false}
         ];
     }
 

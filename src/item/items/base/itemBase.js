@@ -1,8 +1,8 @@
 import Item from "../../../item/item.js";
 
 export default class ItemBase extends Item {
-    constructor() {
-        super();
+    constructor(game) {
+        super(game);
         this.itemType = 'default';
         this.toolType = 'axe';
         this.miningLevel;

@@ -3,8 +3,8 @@ import { Tile } from "../../tile/tile.js";
 
 
 export class Stone extends Tile {
-    constructor(world,gridX,gridY) {
-        super(world,gridX,gridY);
+    constructor(gridX,gridY,world) {
+        super(gridX,gridY,world);
         this.setRegistryName("tile_stone");
         this.setSprite(sprites.tiles.tile_stone);
         
@@ -16,7 +16,7 @@ export class Stone extends Tile {
         this.requireTool = true;
 
         this.tileDrops = [
-            {id:2,rate:100,amount:1,requireTool:true}
+            {id:1,rate:100,amount:1,requireTool:true}
         ]
     }
 

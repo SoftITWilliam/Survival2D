@@ -1,17 +1,22 @@
 
 
+export default class FPSCounter {
+    constructor(game) {
+        this.game = game; // Pointer
+        this.counter = 0;
+        this.display = 0;
+        let updateInterval = setInterval(this.updateDisplay.bind(this),1000);
+    }
 
-let fpsCounter = 0;
+    increment() {
+        this.counter += 1;
+    }
 
-export let fpsDisplay = 0;
-
-export function incrementFPS() {
-    fpsCounter += 1;
+    updateDisplay() {
+        this.display = this.counter;
+        this.counter = 0;
+    }
 }
 
-function updateFPSdisplay() {
-    fpsDisplay = fpsCounter;
-    fpsCounter = 0;
-}
 
-let fpsInterval = setInterval(updateFPSdisplay,1000);
+

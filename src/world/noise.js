@@ -1,49 +1,70 @@
 import { WORLD_HEIGHT, WORLD_WIDTH } from "../game/global.js";
 import { rng } from "../misc/util.js";
 
-export function generateNoiseGrid(width,height) {
-    let noiseGrid = []
-    for(let x = 0;x<width;x++) {
-        let row = [];
-        for(let y = 0;y<height;y++) {
-            row.push(rng(0,100));
-        }
-        noiseGrid.push(row);
+export default class Noise {
+    constructor(min,max,world) {
+        this.world = world; // Pointer
+        this.width = world.width;
+        this.height = world.height;
+        this.minValue = min;
+        this.maxValue = max;
+        this.grid = this.generate();
+        console.log(this.grid);
     }
 
-    return noiseGrid;
-}
-
-export function blurNoiseGrid(noiseGrid,blurDist) {
-    let blurredNoiseGrid = [];
-    for(let x = 0;x<WORLD_WIDTH;x++) {
-        let row = [];
-        for(let y=0;y<WORLD_HEIGHT;y++) {
-            row.push(getBlurredNoise(noiseGrid,x,y,blurDist));
+    get(x,y) {
+        try {
+            return this.grid[x][y];
+        } catch {
+            return false;
         }
-        blurredNoiseGrid.push(row);
     }
-    return blurredNoiseGrid;
-}
 
-function getBlurredNoise(noise,gridX,gridY,blurDist) {
-    let source = [];
+    generate() {
+        let noiseGrid = [];
+        for(let x = 0;x<this.width;x++) {
+            let row = [];
+            for(let y = 0;y<this.height;y++) {
+                let noise = rng(this.minValue,this.maxValue);
+                row.push(noise);
+            }
+            noiseGrid.push(row);
+        }
+        return noiseGrid;
+    }
 
-    // Get all values in a grid around the coordinate
-    for(let x = -blurDist ; x <= blurDist ; x++) {
-        for(let y = -blurDist ; y<= blurDist ; y++) {
-            if(gridX+x >= 0 && gridY+y >= 0 && gridX+x < WORLD_WIDTH && gridY+y < WORLD_HEIGHT) {
-                source.push(noise[gridX+x][gridY+y]);
+    blur(range) {
+        let blurredNoiseGrid = [];
+        for(let x = 0;x<this.width;x++) {
+            let row = [];
+            for(let y=0;y<this.height;y++) {
+                row.push(this.getBlurredNoise(x,y,range));
+            }
+            blurredNoiseGrid.push(row);
+        }
+        this.grid = blurredNoiseGrid;
+        console.log(this.grid);
+    }
+
+    getBlurredNoise(gridX,gridY,range) {
+        let source = [];
+
+        // Get all values in a grid around the coordinate
+        for(let x = -range ; x <= range ; x++) {
+            for(let y = -range ; y<= range ; y++) {
+                if(!this.world.outOfBounds(gridX+x,gridY+y)) {
+                    source.push(this.get(gridX+x,gridY+y));
+                }
             }
         }
-    }
 
-    // Get the average of the source values
-    let l = source.length;
-    let sum = 0;
-    for(let i=0;i<l;i++) {
-        sum += source[i];
-    }
+        // Get the average of the source values
+        let l = source.length;
+        let sum = 0;
+        for(let i=0;i<l;i++) {
+            sum += source[i];
+        }
 
-    return sum / l;
+        return sum / l;
+    }
 }

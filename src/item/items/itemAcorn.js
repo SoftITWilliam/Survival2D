@@ -3,8 +3,8 @@ import PlacementPreview from "../../player/placementPreview.js";
 import ItemBase from "./base/itemBase.js";
 
 export class ItemAcorn extends ItemBase {
-    constructor() {
-        super();
+    constructor(game) {
+        super(game);
         this.setRegistryName("acorn");
         this.setRarity(0);
         this.placeable = true;

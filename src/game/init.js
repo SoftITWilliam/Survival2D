@@ -2,8 +2,6 @@
 // FIXED IMPORTS:
 import render from "./graphics/render.js";
 import { canvas } from "./global.js";
-import { incrementFPS } from "./graphics/FPScounter.js";
-import { validateItems } from "../item/itemRegistry.js";
 import { Game } from "./game.js";
 
 const game = new Game();
@@ -13,10 +11,6 @@ window.onload = init();
 function init() {
     setCanvasSize();
     game.player.spawn();
-
-    validateItems();
-
-
     window.requestAnimationFrame(gameLoop);
 }
 
@@ -27,11 +21,7 @@ function setCanvasSize() {
 }
 
 function gameLoop() {
-    incrementFPS();
-
     game.update();
-    //updateItemEntities();
-    render(game);
-
+    render(game,game.player);
     window.requestAnimationFrame(gameLoop);
 }

@@ -8,7 +8,7 @@ export class Camera {
         this.y;
     }
 
-    getLimitedX() {
+    limX() {
         return clamp(this.x,0,this.player.game.world.width * TILE_SIZE - canvas.width);
     }
 }

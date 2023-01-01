@@ -1,10 +1,10 @@
 
 // FIXED IMPORTS:
-import { limitCameraX } from "../misc/util.js";
 import { TILE_SIZE } from "./global.js";
 
 export class InputHandler {
-    constructor() {
+    constructor(game) {
+        this.game = game;
         this.mouse = {
             click:false,
             rightClick:false,
@@ -16,10 +16,10 @@ export class InputHandler {
             gridY:0,
 
             updateGridPos: function() {
-                //this.gridX = Math.floor((limitCameraX(game.player.cameraX) + this.x) / TILE_SIZE);
-                //this.gridY = Math.floor((-player.cameraY - this.y) / TILE_SIZE) + 1;
-                //this.mapX = limitCameraX(player.cameraX) + this.x;
-                //this.mapY = -player.cameraY - this.y;
+                this.gridX = Math.floor((game.player.camera.limX() + this.x) / TILE_SIZE);
+                this.gridY = Math.floor((-game.player.camera.y - this.y) / TILE_SIZE) + 1;
+                this.mapX = game.player.camera.limX() + this.x;
+                this.mapY = -game.player.camera.y - this.y;
             },
         
             on: function(obj) {
@@ -62,7 +62,7 @@ export class InputHandler {
 
         window.addEventListener("keyup", event => {
             let key = event.key.toUpperCase();
-            if(key === "A" ||
+            if((key === "A" ||
                 key === "D" ||
                 key === "W" ||
                 key === " " ||
@@ -74,7 +74,7 @@ export class InputHandler {
                 key === "5" ||
                 key === "6" ||
                 key === "X"
-                ) {
+                ) && this.keys.includes(key)) {
                     this.keys.splice(this.keys.indexOf(key),1);
             }
         });
@@ -102,81 +102,6 @@ export class InputHandler {
         })
     }
 }
-
-/*
-
-document.addEventListener("keydown",function(event) {
-    switch(event.key.toUpperCase()) {
-
-        // ============================
-        //      Movement controls
-        // ============================
-        
-        case "A":
-            player.walkLeft = true;
-            break;
-
-        case "D":
-            player.walkRight = true;
-            break;
-        
-        case "W":
-        case " ":
-            player.jump = true;
-            break;
-
-        // ============================
-        //      Other controls
-        // ============================
-
-        // Open inventory
-        case "E":
-            if(player.inventory.view) {
-                player.inventory.close();
-            } else {
-                player.inventory.view = true;
-            }
-            break;
-
-        // Switch hotbar slot
-        case "1":
-        case "2":
-        case "3":
-        case "4":
-        case "5":
-        case "6":
-            player.miningEvent = null;
-            player.selectItem(parseInt(event.key));
-            break;
-
-        // Spawn dev toolset
-        case "X":
-            player.inventory.addItem(ITEM_REGISTRY['dev_pickaxe'],1);
-            player.inventory.addItem(ITEM_REGISTRY['dev_axe'],1);
-            player.inventory.addItem(ITEM_REGISTRY['dev_hammer'],1);
-            player.inventory.addItem(ITEM_REGISTRY['dev_shovel'],1);
-            break;
-    }
-});
-
-document.addEventListener("keyup",function(event) {
-    switch(event.key.toUpperCase()) {
-        case "A":
-            player.walkLeft = false;
-            break;
-
-        case "D":
-            player.walkRight = false;
-            break;
-        
-        case "W":
-        case " ":
-            player.jump = false;
-            break;
-    }
-});
-
-*/
 
 // Prevent right click menu from opening
 canvas.oncontextmenu = function(e) { e.preventDefault(); e.stopPropagation(); }

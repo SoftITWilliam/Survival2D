@@ -1,55 +1,58 @@
 import * as item from './itemParent.js';
 
-// Link item ID and Registry Name
-const ID_NAME_LINK = [
-    {id:1,registryName:"dirt"},
-    {id:2,registryName:"stone"},
-    {id:3,registryName:"dev_pickaxe"},
-    {id:4,registryName:"dev_shovel"},
-    {id:5,registryName:"dev_axe"},
-    {id:6,registryName:"dev_hammer"},
-    {id:7,registryName:"wood"},
-    {id:8,registryName:"branch"},
-    {id:9,registryName:"acorn"},
-]
+export default class ItemRegistry {
+    constructor(game) {
+        console.log(game);
+        this.game = game;
 
-// List of all items in the game
-export const ITEM_REGISTRY = {
-    dirt: new item.Dirt(),
-    stone: new item.Stone(),
-    dev_pickaxe: new item.DevPickaxe(),
-    dev_axe: new item.DevAxe(),
-    dev_shovel: new item.DevShovel(),
-    dev_hammer: new item.DevHammer(),
-    wood: new item.Wood(),
-    branch: new item.Branch(),
-    acorn: new item.Acorn(),
-}
+        this.enum = {
+            dirt:0,
+            stone:1,
+            dev_pickaxe:2,
+            dev_shovel:3,
+            dev_axe:4,
+            dev_hammer:5,
+            wood:6,
+            branch:7,
+            acorn:8,
+        };
 
-// Make sure all items have their essential properties. Throw an error if not.
-export function validateItems() {
-    for (var i in ITEM_REGISTRY) {
-        console.log(ITEM_REGISTRY[i]);
-        if(!ITEM_REGISTRY[i].id || !ITEM_REGISTRY[i].registryName || ITEM_REGISTRY[i].rarity === undefined) {
-            throw new Error("One or more items have invalid properties!");
-        }
+        this.items = [
+            new item.Dirt(game), // ID 0
+            new item.Stone(game), // ID 1
+            new item.DevPickaxe(game), // ID 2
+            new item.DevAxe(game), // ID 3
+            new item.DevShovel(game), // ID 4
+            new item.DevHammer(game), // ID 5
+            new item.Wood(game), // ID 6
+            new item.Branch(game), // ID 7
+            new item.Acorn(game), // ID 8
+        ];
+
+        this.items.forEach(item => {
+            item.id = this.enum[item.registryName];
+        });
+
+        this.validateItems();
     }
-}
 
-export function getItemRegistryName(id) {
-    for(let i=0;i<ID_NAME_LINK.length;i++) {
-        if(ID_NAME_LINK[i].id == id) {
-            return ID_NAME_LINK[i].registryName;
-        }
+    get(itemName) {
+        let item = this.items[this.enum[itemName]];
+        return item ? item : null;
     }
-    return false;
-}
 
-export function getItemID(registryName) {
-    for(let i=0;i<ID_NAME_LINK.length;i++) {
-        if(ID_NAME_LINK[i].registryName == registryName) {
-            return ID_NAME_LINK[i].id;
-        }
+    getFromID(id) {
+        let item = this.items[id];
+        return item ? item : null;
     }
-    return false;
+
+    // Make sure all items have their essential properties. Throw an error if not.
+    validateItems() {
+        this.items.forEach(item => {
+            console.log(item);
+            if(item.id === undefined || item.registryName === undefined || item.rarity === undefined) {
+                throw new Error("One or more items have invalid properties!");
+            }
+        })
+    }
 }

@@ -2,8 +2,8 @@ import { sprites } from "../../game/graphics/loadAssets.js";
 import HammerBase from "./base/hammerItemBase.js";
 
 export class ItemDevHammer extends HammerBase {
-    constructor() {
-        super();
+    constructor(game) {
+        super(game);
         this.setRegistryName("dev_hammer");
         this.setRarity(99);
 

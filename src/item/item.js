@@ -5,10 +5,11 @@
 // FIXED IMPORTS:
 import { getDescription, getDisplayName, getLang } from "../game/lang.js";
 import { sprites } from "../game/graphics/loadAssets.js";
-import { getItemID } from "./itemRegistry.js";
 
 export default class Item {
-    constructor() {
+    constructor(game) {
+        this.game = game; // Pointer
+        console.log(this.game);
         this.setSprite('missing_texture');
         this.itemType = null;
         this.stackSize = 99;
@@ -20,8 +21,7 @@ export default class Item {
     // Also gets item ID, display name, and description
     setRegistryName(name) {
         this.registryName = name;
-        this.displayName = getDisplayName(this.registryName);
-        this.id = getItemID(name);
+        this.displayName = getDisplayName(name);
         this.setDescription();
     }
 

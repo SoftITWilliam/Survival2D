@@ -1,35 +1,31 @@
 
 // FIXED IMPORTS:
 import { drawStatBar } from './ui.js';
-import { ctx, canvas, WORLD_HEIGHT, WORLD_WIDTH, TILE_SIZE, DRAWDIST, DRAW_LIGHTING, DEBUG_MODE } from '../global.js';
-import { calculateDistance, clamp, disableShadow, gridXfromCoordinate, gridYfromCoordinate, limitCameraX, setAttributes } from '../../misc/util.js';
-import { itemEntities } from '../../item/itemEntity.js';
-import { lightGrid } from '../../world/lighting.js';
-import { fpsDisplay } from './FPScounter.js';
+import { ctx, canvas, TILE_SIZE, DRAWDIST, DRAW_LIGHTING, DEBUG_MODE } from '../global.js';
+import { calculateDistance, clamp, disableShadow, gridXfromCoordinate, gridYfromCoordinate, setAttributes } from '../../misc/util.js';
 import { checkToolInteraction } from '../../tile/toolInteraction.js';
-import { hotbarText } from '../../player/hotbarText.js';
-import { itemInfoDisplay } from '../../player/itemInfo.js';
+import { outOfBounds } from '../../misc/util.js';
 
-export default function render(game) {
+export default function render(game,player) {
     ctx.save();
-    ctx.translate(-game.player.camera.getLimitedX(),-game.player.camera.y);
-    ctx.clearRect(game.player.camera.getLimitedX(),game.player.camera.y,canvas.width,canvas.height);
+    ctx.translate(-player.camera.limX(),-player.camera.y);
+    ctx.clearRect(player.camera.limX(),player.camera.y,canvas.width,canvas.height);
 
     // Background
     ctx.fillStyle = "rgb(150,180,250)";
-    ctx.fillRect(game.player.camera.getLimitedX(),game.player.camera.y,canvas.width,canvas.height);
+    ctx.fillRect(player.camera.limX(),player.camera.y,canvas.width,canvas.height);
 
     // Wall Tiles
 
-    let gX = clamp(game.player.gridX, DRAWDIST.x, WORLD_WIDTH - DRAWDIST.x);
-    let gY = clamp(game.player.gridY, DRAWDIST.y, WORLD_HEIGHT - DRAWDIST.y);
+    let gX = clamp(player.gridX, DRAWDIST.x, game.world.width - DRAWDIST.x);
+    let gY = clamp(player.gridY, DRAWDIST.y, game.world.height - DRAWDIST.y);
 
     // If player is near the edge of the map, render all tiles on screen instead of within a radius.
     // Only tiles on screen are drawn
     // This is a *very* major optimization!
     for(let x = gX - DRAWDIST.x ; x < gX + DRAWDIST.x + 1 ; x++) {
         for(let y = gY - DRAWDIST.y ; y < gY + DRAWDIST.y + 1 ; y++) {
-            if(x < 0 || y < 0 || x >= WORLD_WIDTH || y >= WORLD_HEIGHT) {
+            if(outOfBounds(x,y)) {
                 continue;
             }
 
@@ -46,18 +42,13 @@ export default function render(game) {
     }
     
     // Player
-    game.player.draw();
-    if(game.player.miningEvent) {
+    player.draw();
+    if(player.miningEvent) {
         player.miningEvent.drawProgress();
     }
 
     // Item entities
-
-    /*
-    for(let i=0;i<itemEntities.length;i++) {
-        itemEntities[i].draw();
-    }
-    
+    game.itemEntities.drawAll();
 
     // Lighting
     if(DRAW_LIGHTING) {  
@@ -65,12 +56,12 @@ export default function render(game) {
             for(let y = gY - DRAWDIST.y ; y < gY + DRAWDIST.y + 1 ; y++) {
 
                 // Cannot draw outside map
-                if(x < 0 || y < 0 || x >= WORLD_WIDTH || y >= WORLD_HEIGHT) {
+                if(outOfBounds(x,y)) {
                     continue;
                 }
 
                 // Calculate opacity based on light level
-                let light = lightGrid[x][y];
+                let light = game.world.lightGrid[x][y];
                 let a = clamp(1 - light.level / 15, 0, 1);
 
                 ctx.fillStyle = "rgba(0,0,0,"+a+")";
@@ -80,48 +71,44 @@ export default function render(game) {
         }
     }
 
-    */
-
-    //player.drawPlacementPreview();
+    player.drawPlacementPreview(game.input);
 
     // Tile hover effect
-    //drawHoverEffect();
+    drawHoverEffect(game,game.input);
 
     // UI
-    //drawStatBar("health",player.health.max,player.health.current,"rgb(220,60,50)",16);
+    drawStatBar("health",player.health.max,player.health.current,"rgb(220,60,50)",16,player);
     //drawStatBar("hunger",player.hunger.max,player.hunger.current,"rgb(180,120,100)",72);
     //drawStatBar("thirst",player.thirst.max,player.thirst.current,"rgb(80,160,220)",128);
     
-    game.player.inventory.draw();
-    game.player.inventory.drawItems();
-    game.player.inventory.drawSelection();
+    player.inventory.draw();
+    player.inventory.drawItems(game.input);
+    player.inventory.drawSelection(game.input);
     
-    //hotbarText.draw();
-    //player.pickupLabels.draw();
-    //itemInfoDisplay.draw();
+    player.hotbarText.draw();
+    player.pickupLabels.draw();
+    player.itemInfoDisplay.draw(game.input);
     
     // Debug UI
-
-    /*
     if(DEBUG_MODE) {
         setAttributes(ctx,{fillStyle:"white",font:"20px Font1",textAlign:"left",
         shadowOffsetX:2,shadowOffsetY:2,shadowColor:"black",shadowBlur:5});
 
-        let uiX = limitCameraX(player.cameraX) + canvas.width - 256;
+        let uiX = player.camera.limX() + canvas.width - 256;
 
         // FPS counter
-        ctx.fillText("FPS: " + fpsDisplay,uiX,player.cameraY + 32);
+        ctx.fillText("FPS: " + game.fpsCounter.display,uiX,player.camera.y + 32);
 
         // Entity Count
-        ctx.fillText("Entity Count: " + itemEntities.length,uiX,player.cameraY + 64);
+        ctx.fillText("Entity Count: " + game.itemEntities.entities.length,uiX,player.camera.y + 64);
 
         // Player info
-        ctx.fillText("Player Pos: " + "X: " + gridXfromCoordinate(player.centerX) + ", Y: " + (gridYfromCoordinate(player.centerY)-1),uiX,player.cameraY + 96); 
+        ctx.fillText("Player Pos: " + "X: " + gridXfromCoordinate(player.centerX) + ", Y: " + (gridYfromCoordinate(player.centerY)-1),uiX,player.camera.y + 96); 
 
         
 
         // Tile info
-        let tile = getTile(mouse.gridX,mouse.gridY);
+        let tile = game.world.getTile(game.input.mouse.gridX,game.input.mouse.gridY);
 
         let t1,t2;
 
@@ -133,35 +120,32 @@ export default function render(game) {
             t2 = null;
         }
 
-        ctx.fillText("Tile Pos: " + t1,uiX,player.cameraY + 128); 
-        ctx.fillText("Tile Type: " + t2,uiX,player.cameraY + 160); 
+        ctx.fillText("Tile Pos: " + t1,uiX,player.camera.y + 128); 
+        ctx.fillText("Tile Type: " + t2,uiX,player.camera.y + 160); 
 
         disableShadow(ctx);
     }
-
-    */
-
     ctx.restore();
 }
 
-function drawHoverEffect() {
+function drawHoverEffect(game,input) {
 
 
-    let obj = checkToolInteraction(mouse.gridX,mouse.gridY,player.heldItem);
+    let obj = checkToolInteraction(input.mouse.gridX,input.mouse.gridY,game.player.heldItem,game.world);
 
     if(!obj) {
         return;
     }
 
     // Cannot interact with tiles while inventory is open
-    if(player.inventory.view) {
+    if(game.player.inventory.view) {
         return;
     }
 
     ctx.beginPath();
 
     // Different look depending on if tile is in range or not
-    if(calculateDistance(player,obj) > player.reach) {
+    if(calculateDistance(game.player,obj) > game.player.reach) {
         setAttributes(ctx,{lineWidth:1,strokeStyle:"rgba(255,255,255,0.25)",fillStyle:"rgba(0,0,0,0)"});
     } else {
         setAttributes(ctx,{lineWidth:3,strokeStyle:"rgba(255,255,255,0.5)",fillStyle:"rgba(255,255,255,0.05)"});

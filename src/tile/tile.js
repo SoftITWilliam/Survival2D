@@ -2,7 +2,6 @@
 // FIXED IMPORTS:
 import { rng } from "../misc/util.js";
 import { dropItemFromBlock } from "../item/dropItem.js";
-import { updateNearbyTiles } from "../world/world.js";
 import { ctx, TILE_SIZE } from "../game/global.js";
 import { sprites } from "../game/graphics/loadAssets.js";
 
@@ -19,7 +18,7 @@ const ID_NAME_LINK = [
 ]
 
 export class Tile {
-    constructor(world,gridX,gridY) {
+    constructor(gridX,gridY,world) {
         this.world = world; // Pointer
         this.gridX = gridX;
         this.gridY = gridY;
@@ -89,13 +88,13 @@ export class Tile {
     // Remove the tile and drop its items.
     breakTile(toolType,toolLevel) {
         if(this.objectType == "wall") {
-            world.clearWall(this.gridX,this.gridY);
+            this.world.clearWall(this.gridX,this.gridY);
         } else {
-            world.clearTile(this.gridX,this.gridY);
+            this.world.clearTile(this.gridX,this.gridY);
         }
 
         this.dropItems(toolType,toolLevel);
-        updateNearbyTiles(this.gridX,this.gridY);
+        this.world.updateNearbyTiles(this.gridX,this.gridY);
     }
 
     // Loop through this tile's drops. Runs when the tile is broken.
@@ -123,7 +122,7 @@ export class Tile {
             } else {
                 itemAmount = drop.amount;
             }
-            dropItemFromBlock(this,drop.id,itemAmount);
+            dropItemFromBlock(this,drop.id,itemAmount,this.world.game);
         }
     }
 

@@ -1,10 +1,11 @@
 
 // FIXED IMPORTS:
 import { ctx } from "../game/global.js";
-import { limitCameraX, setAttributes } from "../misc/util.js";
+import { setAttributes } from "../misc/util.js";
 
-class HotbarText {
-    constructor() {
+export default class HotbarText {
+    constructor(player) {
+        this.player = player;
         this.text = "";
         this.opacity = 0;
         this.frameCounter = 0;
@@ -35,17 +36,15 @@ class HotbarText {
     draw() {
         this.incrementFrames();
 
-        if(player.inventory.view) {
+        if(this.player.inventory.view) {
             return;
         }
 
         setAttributes(ctx,{font:"24px Font1",textAlign:"center",fillStyle:"rgba(255,255,255," + this.opacity + ")",
             shadowOffsetX:2,shadowOffsetY:2,shadowColor:"black",shadowBlur:4});
-        let x = limitCameraX(player.cameraX) + canvas.width / 2;
-        let y = player.cameraY + canvas.height - 144;
+        let x = this.player.camera.limX() + canvas.width / 2;
+        let y = this.player.camera.y + canvas.height - 144;
         ctx.fillText(this.text,x,y);
         setAttributes(ctx,{shadowOffsetX:0,shadowOffsetY:0,shadowColor:0,shadowBlur:0});
     }
 }
-
-export const hotbarText = new HotbarText();

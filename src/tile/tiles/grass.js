@@ -3,8 +3,8 @@ import { Tile } from "../../tile/tile.js";
 import { Dirt } from "../../tile/tileParent.js";
 
 export class Grass extends Tile {
-    constructor(world,gridX,gridY) {
-        super(world,gridX,gridY);
+    constructor(gridX,gridY,world) {
+        super(gridX,gridY,world);
         this.setRegistryName("tile_grass");
         this.setSprite(sprites.tiles.tile_grass);
 
@@ -14,7 +14,7 @@ export class Grass extends Tile {
         this.miningTime = 1.5;
 
         this.tileDrops = [
-            {id:1,rate:100,amount:1,requireTool:false}
+            {id:0,rate:100,amount:1,requireTool:false}
         ]
     }
 
@@ -25,9 +25,9 @@ export class Grass extends Tile {
     update() {
 
         // If another tile is placed on top of a grass tile, it is converted into a dirt block
-        if(getTile(this.gridX,this.gridY + 1)) {
-            world.setTile(this.gridX,this.gridY,new Dirt(this.gridX,this.gridY));
-            getTile(this.gridX,this.gridY).getTilesetSource();
+        if(this.world.getTile(this.gridX,this.gridY + 1)) {
+            this.world.setTile(this.gridX,this.gridY,new Dirt(this.gridX,this.gridY,this.world));
+            this.world.getTile(this.gridX,this.gridY).getTilesetSource();
         }
     }
 

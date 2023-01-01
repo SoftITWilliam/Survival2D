@@ -1,8 +1,8 @@
 import Item from "../../../item/item.js";
 
 export default class ShovelBase extends Item {
-    constructor() {
-        super();
+    constructor(game) {
+        super(game);
         this.itemType = 'tool';
         this.toolType = 'shovel';
         this.miningLevel;

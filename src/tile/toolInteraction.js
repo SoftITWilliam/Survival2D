@@ -2,14 +2,14 @@
 
 
 // If the interaction between the tile/wall and the tool is valid, return the tile/wall. Else return false.
-export function checkToolInteraction(x,y,item) {
+export function checkToolInteraction(x,y,item,world) {
 
-    let tile = getTile(x,y);
-    let wall = getWall(x,y);
+    let tile = world.getTile(x,y);
+    let wall = world.getWall(x,y);
 
     if(!item) {
         return tile;
-    } 
+    }
 
     switch(item.toolType) {
         // Axe can only mine tiles with a tool type of "axe" (logs, leaves, and solid wooden blocks)

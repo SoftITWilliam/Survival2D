@@ -2,8 +2,8 @@ import { sprites } from "../../game/graphics/loadAssets.js";
 import PickaxeBase from "./base/pickaxeItemBase.js";
 
 export class ItemDevPickaxe extends PickaxeBase {
-    constructor() {
-        super();
+    constructor(game) {
+        super(game);
         this.setRegistryName("dev_pickaxe");
         this.setRarity(99);
 

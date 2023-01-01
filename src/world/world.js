@@ -1,12 +1,9 @@
 
-// FIXED IMPORTS:
 import * as tiles from '../tile/tileParent.js';
-import * as structures from '../structure/structureParent.js';
-import { rng } from '../misc/util.js';
-import { BASE_TERRAIN_HEIGHT, WORLD_HEIGHT, WORLD_WIDTH } from '../game/global.js';
-import { createLightingGrid } from './lighting.js';
+import { WORLD_HEIGHT, WORLD_WIDTH } from '../game/global.js';
+import { createLightGrid } from './lighting.js';
 import { outOfBounds } from '../misc/util.js';
-import { blurNoiseGrid, generateNoiseGrid } from './noise.js';
+import Noise from './noise.js';
 import { generateDirtDepth, generateTerrainHeight, generateTerrainTile, generateTerrainWall } from './generation.js';
 
 export const HEIGHTMAP = generateTerrainHeight();
@@ -24,6 +21,8 @@ export class World {
             this.tileGrid.push([]);
             this.wallGrid.push([]);
         }
+
+        this.structures = [];
     }
 
     // Return the tile at the given position
@@ -38,36 +37,65 @@ export class World {
 
     // Clear the given tile
     clearTile(x,y) {
-        this.tileGrid[x][y] = null;
+        if(!this.outOfBounds(x,y)) {
+            this.tileGrid[x][y] = null;
+        }
     }
 
     // Clear the given wall
     clearWall(x,y) {
-        this.wallGrid[x][y] = null;
+        if(!this.outOfBounds(x,y)) {
+            this.wallGrid[x][y] = null;
+        }
     }
 
     // Set the tile at the given position to the given tile
     setTile(x,y,tile) {
-        this.tileGrid[x][y] = tile;
+        if(!this.outOfBounds(x,y)) {
+            this.tileGrid[x][y] = tile;
+        }
+        
+    }
+
+    // Set the wall at the given position to the given wall
+    setWall(x,y,wall) {
+        if(!this.outOfBounds(x,y)) {
+            this.wallGrid[x][y] = wall;
+        }
+    }
+
+    // If the given coordinates are outside of the map (ex. an X coordinate of -1), return true
+    outOfBounds(x,y) {
+        if(isNaN(x) || isNaN(y)) {
+            return true;
+        }
+            
+        return (x < 0 || x >= this.width || y < 0 || y >= this.height);
     }
 
     generate() {
-        let noiseGrid = generateNoiseGrid(this.width,this.height);
-        let dirtDepth = generateDirtDepth();
-        noiseGrid = blurNoiseGrid();
+        let noise = new Noise(0,100,this);
+        noise.blur(3);
+        let dirtDepth = generateDirtDepth(this);
 
         // Place tiles based on noise
-        for(let x=0;x<WORLD_WIDTH;x++) {
-            for(let y=0;y<WORLD_HEIGHT;y++) {
-                let threshold = 55;
-                
+        for(let x=0;x<this.width;x++) {
+            for(let y=0;y<this.height;y++) {
+                let threshold = 53;
 
-                this.tileGrid[x].push(generateTerrainTile(x,y,threshold,dirtDepth,noiseGrid[x][y],this));
-                this.wallGrid[x].push(generateTerrainWall(x,y,dirtDepth,this));
+                this.tileGrid[x].push(generateTerrainTile(x,y,threshold,dirtDepth[x],noise.get(x,y),this));
+                this.wallGrid[x].push(generateTerrainWall(x,y,dirtDepth[x],this));
             }
         }
 
-        //createLightingGrid();
+        // Convert all generated 'structures' into actual tiles
+        this.structures.forEach(structure => {
+            structure.generate();
+        })
+
+        this.lightGrid = [];
+        createLightGrid(this);
+
         this.updateAllTiles();
     }    
 
@@ -82,62 +110,43 @@ export class World {
             }
         }
     }
-}
 
-export let levelStructures = [];
-
-export function loadWorld() {
-    //generateWorld();
-    //loadStructures();
-}
-
-// Convert all generated 'structures' into actual tiles
-export function loadStructures() {
-    for(let i=0;i<levelStructures.length;i++) {
-        levelStructures[i].generate();
-    }
-}
-
-// Adds a block for a structure.
-// If "Override" is enabled, the structure will replace existing blocks.
-// If "Override" is disabled, the structure will not replace existing blocks.
-export function structureBlock(block,x,y,overwrite) {
-
-    if(x < 0 || y < 0 || x >= WORLD_WIDTH || y >= WORLD_HEIGHT) {
-        return;
-    }
-
+    updateNearbyTiles(gridX,gridY) {
+        for(let x=gridX-1;x<=gridX+1;x++) {
+            for(let y=gridY-1;y<=gridY+1;y++) {
+                if(this.outOfBounds(x,y)) {
+                    continue;
+                }
     
-
-    switch(block) {
-        case "Log":
-            wallGrid[x][y] = new tiles.Log(x,y);
-            break;
-        case "Leaves":
-            if(!overwrite && tileGrid[x][y]) {return;}
-            tileGrid[x][y] = new tiles.Leaves(x,y);
-            break;
+                let tile = this.tileGrid[x][y];
+                if(!tile) {
+                    continue;
+                }
+                
+                tile.getTilesetSource();
+                tile.update();
+            }
+        }
     }
-}
 
+    // Adds a block for a structure.
+    // If "Override" is enabled, the structure will replace existing blocks.
+    // If "Override" is disabled, the structure will not replace existing blocks.
 
+    addStructureTile(tileName,gridX,gridY,override) {
+        
+        if(this.outOfBounds(gridX,gridY)) {
+            return;
+        }
 
-export function updateNearbyTiles(gx,gy) {
-    
-    for(let x=gx-1;x<=gx+1;x++) {
-        for(let y=gy-1;y<=gy+1;y++) {
-            if(x < 0 || y < 0 || x >= WORLD_WIDTH || y >= WORLD_HEIGHT) {
-                continue;
-            }
-
-            let tile = tileGrid[x][y];
-            if(!tile) {
-                continue;
-            }
-            
-            tile.getTilesetSource();
-            tile.update();
+        switch(tileName) {
+            case "Log":
+                this.setWall(gridX,gridY,new tiles.Log(gridX,gridY,this));
+                break;
+            case "Leaves":
+                if(!override && this.getTile(gridX,gridY)) {return}
+                this.setTile(gridX,gridY,new tiles.Leaves(gridX,gridY,this));
+                break;
         }
     }
 }
-

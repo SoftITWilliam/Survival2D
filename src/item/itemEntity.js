@@ -1,14 +1,14 @@
 
 // FIXED IMPORTS:
-import { gridXfromCoordinate, gridYfromCoordinate, mouseOn, setAttributes } from "../misc/util.js";
+import { gridXfromCoordinate, gridYfromCoordinate, mouseOn, outOfBounds, setAttributes } from "../misc/util.js";
 import { sprites } from "../game/graphics/loadAssets.js";
 import { ctx, GRAVITY, TILE_SIZE, WORLD_HEIGHT, WORLD_WIDTH } from "../game/global.js";
-import { overlap, surfaceCollision } from "../game/collision.js";
+import { surfaceCollision } from "../game/collision.js";
 
-export let itemEntities = [];
 
 export class ItemEntity {
-    constructor(x,y,dx,dy,stackSize,item) {
+    constructor(x,y,dx,dy,stackSize,item,game) {
+        this.game = game; // Pointer
         this.item = item;
         this.w = this.h = this.item.entitySize;
         this.dx = dx;
@@ -53,11 +53,11 @@ export class ItemEntity {
     checkCollision() {
         for(let x=this.gridX - 2;x<this.gridX + 2;x++) {
             for(let y=this.gridY - 2;y<this.gridY + 2;y++) {
-                if(x < 0 || y < 0 || x >= WORLD_WIDTH || y >= WORLD_HEIGHT) {
+                if(outOfBounds(x,y)) {
                     continue;
                 }
 
-                let tile = world.getTile(x,y);
+                let tile = this.game.world.getTile(x,y);
                 if(!tile) {
                     continue;
                 }
@@ -92,7 +92,7 @@ export class ItemEntity {
         this.y += this.dy;
     }
 
-    draw() {
+    draw(input) {
         if(!this.item.missingTexture) {
             ctx.drawImage(
                 this.item.sprite,this.item.sx,this.item.sy,TILE_SIZE,TILE_SIZE,
@@ -103,22 +103,22 @@ export class ItemEntity {
                 this.x,this.y,this.w,this.h);
         }
 
-        if(mouseOn(this,mouse)) {
-            this.drawLabel();
+        if(mouseOn(this,input.mouse)) {
+            this.drawLabel(input);
         }
     }
 
-    drawLabel() {
+    drawLabel(input) {
         setAttributes(ctx,{font:"20px Font1",fillStyle:"rgba(0,0,0,0.5)",textAlign:"left"});
         let offset = 20;
         let txt = this.item.displayName + " ("+this.stackSize+")";
         let boxWidth = ctx.measureText(txt).width + offset * 2;
-        ctx.fillRect(mouse.mapX,-mouse.mapY - 28,boxWidth,28);
+        ctx.fillRect(input.mouse.mapX,-input.mouse.mapY - 28,boxWidth,28);
         ctx.fillStyle = "white";
-        ctx.fillText(txt,mouse.mapX + offset,-mouse.mapY - 6);
+        ctx.fillText(txt,input.mouse.mapX + offset,-input.mouse.mapY - 6);
     }
 
-    pickUp() {
+    pickUp(player) {
         let remaining = player.inventory.addItem(this.item,this.stackSize);
 
         // If inventory is full, set stack size to remaining amount
@@ -131,21 +131,10 @@ export class ItemEntity {
         else {
             return 1;
         }
-        
     }
 }
 
 export function updateItemEntities() {
-    for(let i=0;i<itemEntities.length;i++) {
-        itemEntities[i].update();
-
-        if(overlap(itemEntities[i],player)) {
-            let removed = itemEntities[i].pickUp();
-            if(removed) {
-                itemEntities.splice(i,1);
-                break;
-            }
-        }
-    }
+    
 }
 

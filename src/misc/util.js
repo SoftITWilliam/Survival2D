@@ -5,7 +5,7 @@
  * A random collection of useful functions that don't really fit anywhere else
  */
 
-import { ctx, PATH, TILE_SIZE, WORLD_WIDTH } from "../game/global.js";
+import { ctx, PATH, TILE_SIZE, WORLD_HEIGHT, WORLD_WIDTH } from "../game/global.js";
 
 /**
  * Return a random number between the two points
@@ -85,10 +85,6 @@ export function gridYfromCoordinate(y) {
     return -Math.floor(y / TILE_SIZE);
 }
 
-export function limitCameraX(cameraX) {
-    
-}
-
 export function drawRounded(x,y,width,height,radius,ctx) {
     ctx.save();
     ctx.beginPath();
@@ -145,5 +141,9 @@ export function splitIntoLines(string,maxWidth) {
 }
 
 export function outOfBounds(x,y) {
-    return (x < 0 && x >= WORLD_WIDTH && y < 0 && y >= WORLD_HEIGHT) ? true : false;
+    if(isNaN(x) || isNaN(y)) {
+        return true;
+    }
+        
+    return (x < 0 || x >= WORLD_WIDTH || y < 0 || y >= WORLD_HEIGHT);
 }

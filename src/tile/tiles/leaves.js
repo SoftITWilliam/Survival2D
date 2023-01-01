@@ -4,8 +4,8 @@ import { Tile } from "../../tile/tile.js";
 
 
 export class Leaves extends Tile {
-    constructor(world,gridX,gridY) {
-        super(world,gridX,gridY);
+    constructor(gridX,gridY,world) {
+        super(gridX,gridY,world);
         this.setRegistryName("tile_leaves");
         this.setSprite();
         this.objectType = "solid";
@@ -16,8 +16,8 @@ export class Leaves extends Tile {
         this.miningTime = 0.6;
 
         this.tileDrops = [
-            {id:8,rate:16,amount:1,requireTool:false},
-            {id:9,rate:8,amount:1,requireTool:false}
+            {id:7,rate:16,amount:1,requireTool:false},
+            {id:8,rate:8,amount:1,requireTool:false}
         ]
     }
 

@@ -1,11 +1,12 @@
 import * as tiles from '../tile/tileParent.js';
+import * as structures from '../structure/structureParent.js';
 import { BASE_TERRAIN_HEIGHT, WORLD_WIDTH } from "../game/global.js";
 import { rng } from "../misc/util.js";
-import { HEIGHTMAP, levelStructures } from "./world.js";
+import { HEIGHTMAP } from "./world.js";
 
 
 
-export function generateTerrainTile(x,y,threshold,dirtDepth,noiseValue,pointer) {
+export function generateTerrainTile(x,y,threshold,dirtDepth,noiseValue,world) {
     // No blocks or walls are generated above surface height
     if(y > HEIGHTMAP[x] || noiseValue >= threshold) {
         return null;
@@ -14,22 +15,22 @@ export function generateTerrainTile(x,y,threshold,dirtDepth,noiseValue,pointer) 
     // Grass
     if(HEIGHTMAP[x] == y) {
         // Try to generate a tree
-        generateTree(x,y+1);
-        return new tiles.Grass(pointer,x,y);
+        generateTree(x,y+1,world);
+        return new tiles.Grass(x,y,world);
     } 
     
     // Dirt
-    else if(HEIGHTMAP[x] - dirtDepth[x] < y) {
-        return new tiles.Dirt(pointer,x,y);
+    else if(HEIGHTMAP[x] - dirtDepth < y) {
+        return new tiles.Dirt(x,y,world);
     } 
     
     // Stone
     else {
-        return new tiles.Stone(pointer,x,y);
+        return new tiles.Stone(x,y,world);
     }
 }
 
-export function generateTerrainWall(x,y,dirtDepth,pointer) {
+export function generateTerrainWall(x,y,dirtDepth,world) {
     // No wall
     if(y > HEIGHTMAP[x]) {
         return null;
@@ -37,12 +38,12 @@ export function generateTerrainWall(x,y,dirtDepth,pointer) {
 
     // Dirt walls
     if(HEIGHTMAP[x] - dirtDepth[x] <= y) {
-        return new tiles.DirtWall(pointer,x,y);
+        return new tiles.DirtWall(x,y,world);
     } 
     
     // Stone walls
     else {
-        return new tiles.StoneWall(pointer,x,y);
+        return new tiles.StoneWall(x,y,world);
     }
 }
 
@@ -86,18 +87,18 @@ export function generateTerrainHeight() {
     return heightMap;
 }
 
-export function generateDirtDepth() {
+export function generateDirtDepth(world) {
     let dirtDepth = [];
-    for(let i=0;i<WORLD_WIDTH;i++) {
+    for(let i=0;i<world.width;i++) {
         dirtDepth.push(rng(3,5));
     }
     return dirtDepth;
 }
 
 // Has a chance of placing a Tree structure.
-export function generateTree(x,y) {
+export function generateTree(x,y,world) {
     let n = rng(0,20);
     if(n == 20) {
-        //levelStructures.push(new structures.BasicTree(x,y));
+        world.structures.push(new structures.BasicTree(x,y,world));
     }
 }

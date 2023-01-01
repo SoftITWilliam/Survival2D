@@ -2,8 +2,8 @@ import { sprites } from "../../game/graphics/loadAssets.js";
 import { Tile } from "../../tile/tile.js";
 
 export class Water extends Tile {
-    constructor(world,gridX,gridY) {
-        super(world,gridX,gridY);
+    constructor(gridX,gridY,world) {
+        super(gridX,gridY,world);
         this.setRegistryName("liquid_water");
         
         this.objectType = "liquid";
