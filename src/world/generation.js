@@ -37,7 +37,7 @@ export function generateTerrainWall(x,y,dirtDepth,world) {
     }
 
     // Dirt walls
-    if(HEIGHTMAP[x] - dirtDepth[x] <= y) {
+    if(HEIGHTMAP[x] - dirtDepth <= y) {
         return new tiles.DirtWall(x,y,world);
     } 
     
