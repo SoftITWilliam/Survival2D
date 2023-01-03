@@ -1,98 +1,103 @@
-import { DRAWDIST, WORLD_HEIGHT, WORLD_WIDTH } from "../game/const.js";
-import { clamp } from "../misc.js";
-import { tileGrid, wallGrid } from "./world.js";
 
+import { DRAWDIST } from "../game/global.js";
+import { clamp } from "../misc/util.js";
 
-export const lightGrid = [];
-
-function lightingSpread(x,y,level) {
-    if(x < 0 || x >= WORLD_WIDTH || y < 0 || y >= WORLD_HEIGHT || lightGrid[x][y]) {
+function lightingSpread(x,y,level,world) {
+    if(world.outOfBounds(x,y)) {
+        return;
+    } 
+    
+    if(world.lightGrid[x][y]) {
         return;
     }
 
     if(level == 16) {
-        lightGrid[x][y] = {level:15}
-    } else if(tileGrid[x][y]) {
-        lightGrid[x][y] = {level: clamp(level-3,0,15)}
+        world.lightGrid[x][y] = {level:15}
+    } else if(world.getTile(x,y)) {
+        world.lightGrid[x][y] = {level: clamp(level-3,0,15)}
     } else {
-        lightGrid[x][y] = {level: clamp(level-1,0,15)}
+        world.lightGrid[x][y] = {level: clamp(level-1,0,15)}
     }
 }
 
-// If lighting is null, it's set to 0.
-function lightingDefault(x,y) {
-    if(!lightGrid[x][y]) {
-        lightGrid[x][y] = {level:0}
+function checkLightSource(x,y,world) {
+    if((!world.getTile(x,y) || world.getTile(x,y).transparent) && 
+        (!world.getWall(x,y) || world.getWall(x,y).transparent)) {
+            return true;
+            
     }
 }
 
-function checkLightSource(x,y) {
-    if((!tileGrid[x][y] || tileGrid[x][y].transparent) && 
-        (!wallGrid[x][y] ||wallGrid[x][y].transparent)) {
-            lightGrid[x][y] = {level:16}
+function lightingDefault(x,y,world) {
+    if(!world.lightGrid[x][y]) {
+        world.lightGrid[x][y] = {level:0}
     }
 }
 
-export function createLightingGrid() {
+export function createLightGrid(world) {
 
     // Create grid
-    for(let x=0;x<WORLD_WIDTH;x++) {
+    for(let x=0;x<world.width;x++) {
         let row = [];
-        for(let y=0;y<WORLD_WIDTH;y++) {
+        for(let y=0;y<world.height;y++) {
             row.push(null)
         }
-        lightGrid.push(row);
+        world.lightGrid.push(row);
     }
 
-    // Create light sources
-    for(let x=0;x<WORLD_WIDTH;x++) {
-        for(let y=0;y<WORLD_WIDTH;y++) {
-            checkLightSource(x,y);
+    // Set light sources
+    for(let x=0;x<world.width;x++) {
+        for(let y=0;y<world.height;y++) {
+            if(checkLightSource(x,y,world)) {
+                world.lightGrid[x][y] = {level:16}
+            };
         }
     }
 
-    // Cycle through all 15 light levels.
+    // Cycle through all light levels.
     // If a tile has the light level, all surrounding tiles *that are unassigned* are assigned a lower light level
     // (-1 for walls, -2 for solid tiles)
     for(let l = 16; l > 0; l-- ) {
-        for(let x=0;x<WORLD_WIDTH;x++) {
-            for(let y=0;y<WORLD_WIDTH;y++) {
-                if(!lightGrid[x][y] || lightGrid[x][y].level != l) {
+        for(let x=0;x<world.width;x++) {
+            for(let y=0;y<world.height;y++) {
+                if(!world.lightGrid[x][y] || world.lightGrid[x][y].level != l) {
                     continue;
                 }
                 // Spread lighting to surrounding blocks
-                lightingSpread(x-1,y,l); // Left
-                lightingSpread(x+1,y,l); // Right
-                lightingSpread(x,y+1,l); // Top
-                lightingSpread(x,y-1,l); // Bottom uwu :3
+                lightingSpread(x-1,y,l,world); // Left
+                lightingSpread(x+1,y,l,world); // Right
+                lightingSpread(x,y+1,l,world); // Top
+                lightingSpread(x,y-1,l,world); // Bottom uwu :3
             }
         }
     }
     
     // If no light level is assigned, it is 0.
-    for(let x=0;x<WORLD_WIDTH;x++) {
-        for(let y=0;y<WORLD_WIDTH;y++) {
-            lightingDefault(x,y);
+    for(let x=0;x<world.width;x++) {
+        for(let y=0;y<world.height;y++) {
+            lightingDefault(x,y,world);
         }
     }
 }
 
-export function updateLighting(gX,gY) {
+export function updateLighting(gX,gY,world) {
 
-    gX = clamp(gX, DRAWDIST.x, WORLD_WIDTH - DRAWDIST.x);
-    gY = clamp(gY, DRAWDIST.y, WORLD_HEIGHT - DRAWDIST.y);
+    gX = clamp(gX, DRAWDIST.x, world.width - DRAWDIST.x);
+    gY = clamp(gY, DRAWDIST.y, world.height - DRAWDIST.y);
 
     // Reset grid on screen
     for(let x = gX - DRAWDIST.x ; x < gX + DRAWDIST.x ; x++) {
         for(let y = gY - DRAWDIST.y ; y < gY + DRAWDIST.y ; y++) {
-            lightGrid[x][y] = null;
+            world.lightGrid[x][y] = null;
         }
     }
 
     // Create light sources
     for(let x = gX - DRAWDIST.x ; x < gX + DRAWDIST.x ; x++) {
         for(let y = gY - DRAWDIST.y ; y < gY + DRAWDIST.y ; y++) {
-            checkLightSource(x,y);
+            if(checkLightSource(x,y,world)) {
+                world.lightGrid[x][y] = {level:16}
+            };
         }
     }
 
@@ -102,24 +107,23 @@ export function updateLighting(gX,gY) {
     for(let l = 16; l > 0; l-- ) {
         for(let x = gX - DRAWDIST.x ; x < gX + DRAWDIST.x ; x++) {
             for(let y = gY - DRAWDIST.y ; y < gY + DRAWDIST.y ; y++) {
-                if(!lightGrid[x][y] || lightGrid[x][y].level != l) {
+                if(!world.lightGrid[x][y] || world.lightGrid[x][y].level != l) {
                     continue;
                 }
                 
                 // Spread lighting to surrounding blocks
-                lightingSpread(x-1,y,l); // Left
-                lightingSpread(x+1,y,l); // Right
-                lightingSpread(x,y+1,l); // Top
-                lightingSpread(x,y-1,l); // Bottom uwu :3
+                lightingSpread(x-1,y,l,world); // Left
+                lightingSpread(x+1,y,l,world); // Right
+                lightingSpread(x,y+1,l,world); // Top
+                lightingSpread(x,y-1,l,world); // Bottom uwu :3
             }
         }
     }
     
     // If no light level is assigned, it is 0.
-    for(let x=0;x<WORLD_WIDTH;x++) {
-        for(let y=0;y<WORLD_WIDTH;y++) {
-            lightingDefault(x,y);
+    for(let x=0;x<world.width;x++) {
+        for(let y=0;y<world.height;y++) {
+            lightingDefault(x,y,world);
         }
     }
-
 }

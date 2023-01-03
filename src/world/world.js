@@ -1,249 +1,151 @@
-import * as tiles from '../objects/parents/tileParent.js';
-import * as structures from '../objects/parents/structureParent.js';
-import { clamp, rng } from '../misc.js';
-import { BASE_TERRAIN_HEIGHT, WORLD_HEIGHT, WORLD_WIDTH } from '../game/const.js';
-import { createLightingGrid } from './lighting.js';
 
-const HEIGHTMAP = generateTerrainHeight();
+import * as tiles from '../tile/tileParent.js';
+import { WORLD_HEIGHT, WORLD_WIDTH } from '../game/global.js';
+import { createLightGrid } from './lighting.js';
+import Noise from './noise.js';
+import { generateDirtDepth, generateTerrainHeight, generateTerrainTile, generateTerrainWall } from './generation.js';
 
+export const HEIGHTMAP = generateTerrainHeight();
 
-let levelStructures = [
+export class World {
+    constructor(game,height,width) {
+        this.game = game; // Pointer to Game object
+        this.height = height; // World height in tiles
+        this.width = width; // World width in tiles
 
-];
+        this.tileGrid = [];
+        this.wallGrid = [];
 
-export let tileGrid = [];
-export let wallGrid = [];
+        for(let x=0;x<this.width;x++) {
+            this.tileGrid.push([]);
+            this.wallGrid.push([]);
+        }
 
-function loadWorld() {
-    generateWorld();
-    loadStructures();
-}
-
-// Convert all generated 'structures' into actual tiles
-function loadStructures() {
-    for(let i=0;i<levelStructures.length;i++) {
-        levelStructures[i].generate();
-    }
-}
-
-function generateWorld() {
-    let noiseGrid = generateNoiseGrid();
-    noiseGrid = blurNoiseGrid(noiseGrid,2);
-
-    for(let x=0;x<WORLD_WIDTH;x++) {
-        tileGrid.push([]);
-        wallGrid.push([]);
+        this.structures = [];
     }
 
-    // Generate terrain
-    for(let x=0;x<WORLD_WIDTH;x++) {
-        for(let y=0;y<WORLD_HEIGHT;y++) {
-            let threshold = 55;
-            let dirtDepth = generateDirtDepth();
+    // Return the tile at the given position
+    getTile(x,y) {
+        return this.outOfBounds(x,y) ? null : this.tileGrid[x][y];
+    }
 
-            generateTerrainTile(x,y,threshold,dirtDepth,noiseGrid[x][y]);
-            generateTerrainWall(x,y,dirtDepth);
+    // Return the wall at the given position
+    getWall(x,y) {
+        return this.outOfBounds(x,y) ? null : this.wallGrid[x][y];
+    }
+
+    // Clear the given tile
+    clearTile(x,y) {
+        if(!this.outOfBounds(x,y)) {
+            this.tileGrid[x][y] = null;
         }
     }
 
-    createLightingGrid();
-}
-
-function generateTerrainTile(x,y,threshold,dirtDepth,noiseValue) {
-    // No blocks or walls are generated above surface height
-    if(y > HEIGHTMAP[x] || noiseValue >= threshold) {
-        tileGrid[x].push(null);
-        return;
-    }
-
-    // Grass
-    if(HEIGHTMAP[x] == y) {
-        tileGrid[x].push(new tiles.Grass(x,y));
-        // Try to generate a tree
-        generateTree(x,y+1);
-    } 
-    
-    // Dirt
-    else if(HEIGHTMAP[x] - dirtDepth[x] < y) {
-        tileGrid[x].push(new tiles.Dirt(x,y));
-    } 
-    
-    // Stone
-    else {
-        tileGrid[x].push(new tiles.Stone(x,y));
-    }
-}
-
-function generateTerrainWall(x,y,dirtDepth) {
-    // No wall
-    if(y > HEIGHTMAP[x]) {
-        wallGrid[x].push(null);
-        return;
-    }
-
-    // Dirt walls
-    if(HEIGHTMAP[x] - dirtDepth[x] <= y) {
-        wallGrid[x].push(new tiles.DirtWall(x,y));
-    } 
-    
-    // Stone walls
-    else {
-        wallGrid[x].push(new tiles.StoneWall(x,y));
-    }
-}
-
-function generateNoiseGrid() {
-    let noiseGrid = []
-    for(let x = 0;x<WORLD_WIDTH;x++) {
-        let row = [];
-        for(let y = 0;y<WORLD_HEIGHT;y++) {
-            row.push(rng(0,100));
-        }
-        noiseGrid.push(row);
-    }
-
-    return noiseGrid;
-}
-
-function blurNoiseGrid(noiseGrid,blurDist) {
-    let blurredNoiseGrid = [];
-    for(let x = 0;x<WORLD_WIDTH;x++) {
-        let row = [];
-        for(let y=0;y<WORLD_HEIGHT;y++) {
-            row.push(getBlurredNoise(noiseGrid,x,y,blurDist));
-        }
-        blurredNoiseGrid.push(row);
-    }
-    return blurredNoiseGrid;
-}
-
-function getBlurredNoise(noise,gridX,gridY,blurDist) {
-    let source = [];
-
-    // Get all values in a grid around the coordinate
-    for(let x = -blurDist ; x <= blurDist ; x++) {
-        for(let y = -blurDist ; y<= blurDist ; y++) {
-            if(gridX+x >= 0 && gridY+y >= 0 && gridX+x < WORLD_WIDTH && gridY+y < WORLD_HEIGHT) {
-                source.push(noise[gridX+x][gridY+y]);
-            }
+    // Clear the given wall
+    clearWall(x,y) {
+        if(!this.outOfBounds(x,y)) {
+            this.wallGrid[x][y] = null;
         }
     }
 
-    // Get the average of the source values
-    let l = source.length;
-    let sum = 0;
-    for(let i=0;i<l;i++) {
-        sum += source[i];
-    }
-
-    return sum / l;
-}
-
-function generateTerrainHeight() {
-    let heightMap = [];
-    heightMap.push(BASE_TERRAIN_HEIGHT + 6);
-
-    for(let x=0 ; x<WORLD_WIDTH ; x++) {
-        let pHeight = heightMap[x];
-
-        let rand = rng(1,100);
-
-        //let highThreshold = [5,10,20,40,16,7,2];
-
-        // Down 3: 1%; Down 2: 5%, Down 1: 19%, Equal: 50%, Up 1: 19%, Up 2: 5%, Up 3: 1%
-        //let t = [3,10,26,76,92,99];
-        let t = [2,7,26,76,95,100];
-
-        let c;
-        if(rand >= 1 && rand < t[0]) {
-            c = -3;
-        } else if(rand >= t[0] && rand < t[1]) {
-            c = -2
-        } else if(rand >= t[1] && rand < t[2]) {
-            c = -1
-        } else if(rand >= t[2] && rand < t[3]) {
-            c = 0;
-        } else if(rand >= t[3] && rand < t[4]) {
-            c = 1;
-        } else if(rand >= t[4] && rand < t[5]) {
-            c = 2;
-        } else if(rand >= t[5] && rand <= 100) {
-            c = 3;
+    // Set the tile at the given position to the given tile
+    setTile(x,y,tile) {
+        if(!this.outOfBounds(x,y)) {
+            this.tileGrid[x][y] = tile;
         }
-
-        heightMap[x+1] = pHeight + c;
+        
     }
 
-    return heightMap;
-}
-
-function generateDirtDepth() {
-    let dirtDepth = [];
-    for(let i=0;i<WORLD_WIDTH;i++) {
-        dirtDepth.push(rng(3,5));
-    }
-    return dirtDepth;
-}
-
-// Has a chance of placing a Tree structure.
-function generateTree(x,y) {
-    let n = rng(0,20);
-    if(n == 20) {
-        levelStructures.push(new structures.BasicTree(x,y));
-    }
-}
-
-// Adds a block for a structure.
-// If "Override" is enabled, the structure will replace existing blocks.
-// If "Override" is disabled, the structure will not replace existing blocks.
-function structureBlock(block,x,y,overwrite) {
-
-    if(x < 0 || y < 0 || x >= WORLD_WIDTH || y >= WORLD_HEIGHT) {
-        return;
-    }
-
-    
-
-    switch(block) {
-        case "Log":
-            wallGrid[x][y] = new tiles.Log(x,y);
-            break;
-        case "Leaves":
-            if(!overwrite && tileGrid[x][y]) {return;}
-            tileGrid[x][y] = new tiles.Leaves(x,y);
-            break;
-    }
-}
-
-function updateTiles() {
-    for(let x=0;x<WORLD_WIDTH;x++) {
-        for(let y=0;y<WORLD_WIDTH;y++) {
-            let tile = tileGrid[x][y];
-            if(!tile) {
-                continue;
-            }
-            tile.getTilesetSource();
+    // Set the wall at the given position to the given wall
+    setWall(x,y,wall) {
+        if(!this.outOfBounds(x,y)) {
+            this.wallGrid[x][y] = wall;
         }
     }
-}
 
-function updateNearbyTiles(gx,gy) {
-    
-    for(let x=gx-1;x<=gx+1;x++) {
-        for(let y=gy-1;y<=gy+1;y++) {
-            if(x < 0 || y < 0 || x >= WORLD_WIDTH || y >= WORLD_HEIGHT) {
-                continue;
-            }
-
-            let tile = tileGrid[x][y];
-            if(!tile) {
-                continue;
-            }
+    // If the given coordinates are outside of the map (ex. an X coordinate of -1), return true
+    outOfBounds(x,y) {
+        if(isNaN(x) || isNaN(y)) {
+            return true;
+        }
             
-            tile.getTilesetSource();
-            tile.update();
+        return (x < 0 || x >= this.width || y < 0 || y >= this.height);
+    }
+
+    generate() {
+        let noise = new Noise(0,100,this);
+        noise.blur(3);
+        let dirtDepth = generateDirtDepth(this);
+
+        // Place tiles based on noise
+        for(let x=0;x<this.width;x++) {
+            for(let y=0;y<this.height;y++) {
+                let threshold = 53;
+
+                this.tileGrid[x].push(generateTerrainTile(x,y,threshold,dirtDepth[x],noise.get(x,y),this));
+                this.wallGrid[x].push(generateTerrainWall(x,y,dirtDepth[x],this));
+            }
+        }
+
+        // Convert all generated 'structures' into actual tiles
+        this.structures.forEach(structure => {
+            structure.generate();
+        })
+
+        this.lightGrid = [];
+        createLightGrid(this);
+
+        this.updateAllTiles();
+    }    
+
+    updateAllTiles() {
+        for(let x=0;x<this.width;x++) {
+            for(let y=0;y<this.height;y++) {
+                let tile = this.tileGrid[x][y];
+                if(!tile) {
+                    continue;
+                }
+                tile.getTilesetSource();
+            }
+        }
+    }
+
+    updateNearbyTiles(gridX,gridY) {
+        for(let x=gridX-1;x<=gridX+1;x++) {
+            for(let y=gridY-1;y<=gridY+1;y++) {
+                if(this.outOfBounds(x,y)) {
+                    continue;
+                }
+    
+                let tile = this.tileGrid[x][y];
+                if(!tile) {
+                    continue;
+                }
+                
+                tile.getTilesetSource();
+                tile.update();
+            }
+        }
+    }
+
+    // Adds a block for a structure.
+    // If "Override" is enabled, the structure will replace existing blocks.
+    // If "Override" is disabled, the structure will not replace existing blocks.
+
+    addStructureTile(tileName,gridX,gridY,override) {
+        
+        if(this.outOfBounds(gridX,gridY)) {
+            return;
+        }
+
+        switch(tileName) {
+            case "Log":
+                this.setWall(gridX,gridY,new tiles.Log(gridX,gridY,this));
+                break;
+            case "Leaves":
+                if(!override && this.getTile(gridX,gridY)) {return}
+                this.setTile(gridX,gridY,new tiles.Leaves(gridX,gridY,this));
+                break;
         }
     }
 }
-
-export {levelStructures, loadWorld, loadStructures, structureBlock, updateTiles, updateNearbyTiles, HEIGHTMAP }

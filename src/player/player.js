@@ -1,18 +1,19 @@
-import { ctx, canvas, TILE_SIZE, WORLD_WIDTH, WORLD_HEIGHT, GRAVITY } from '../game/const.js';
-import { mouse } from '../game/controls.js';
+
+// FIXED IMPORTS:
+import { ctx, canvas, TILE_SIZE, WORLD_WIDTH, WORLD_HEIGHT, GRAVITY } from '../game/global.js';
 import { Inventory } from './inventory.js';
 import { MiningEvent } from './mining.js';
-import { calculateDistance, clamp, gridXfromCoordinate, gridYfromCoordinate } from '../misc.js';
-import { HEIGHTMAP, tileGrid, updateNearbyTiles } from '../world/world.js';
-import { getTile, getWall } from '../world/tile/tile.js';
+import { calculateDistance, clamp, gridXfromCoordinate, gridYfromCoordinate } from '../misc/util.js';
+import { HEIGHTMAP } from '../world/world.js';
 import { overlap, surfaceCollision } from '../game/collision.js';
 import { PlayerStatBar } from './statBar.js';
-import { updateLighting } from '../world/lighting.js';
-import { checkToolInteraction } from '../world/tile/toolInteraction.js';
-import { hotbarText } from './hotbarText.js';
-import { PickupLabelList } from './pickupLabels.js';
+import { checkToolInteraction } from '../tile/toolInteraction.js';
+import HotbarText from './hotbarText.js';
+import { PickupLabelHandler } from './pickupLabels.js';
 import { validPlacementPosition } from './placementPreview.js';
-
+import { Camera } from '../game/camera.js';
+import { updateLighting } from '../world/lighting.js';
+import ItemInfoDisplay from './itemInfo.js';
 
 const P_WIDTH = 36;
 const P_HEIGHT = 72;
@@ -22,15 +23,15 @@ const P_FALLSPEED = 12;
 const P_REACH = 3;
 
 class Player {
-    constructor() {
+    constructor(game) {
+        this.game = game;
         this.w = P_WIDTH;
         this.h = P_HEIGHT;
         
         this.x;
         this.y;
 
-        this.cameraX;
-        this.cameraY;
+        this.camera = new Camera(this);
 
         this.centerX;
         this.centerY;
@@ -44,17 +45,13 @@ class Player {
         
         this.jumpFrames = false;
 
-        this.health = new PlayerStatBar(50,35);
+        this.health = new PlayerStatBar(50,45);
         this.hunger = new PlayerStatBar(50,20);
         this.thirst = new PlayerStatBar(50,20);
 
-        this.pickupLabels = new PickupLabelList();
-
-        this.walkLeft = false;
-        this.walkRight = false;
-        this.jump = false;
-
-        this.inventory = new Inventory();
+        this.pickupLabels = new PickupLabelHandler(this);
+        this.hotbarText = new HotbarText(this);
+        this.itemInfoDisplay = new ItemInfoDisplay(this);
 
         this.miningEvent = null;
         
@@ -64,10 +61,44 @@ class Player {
         this.heldItem = null;
     }
 
-    update() {
+    update(input) {
         this.inLiquid = false;
         this.grounded = false;
-        this.getHorizontalMovement();
+
+        // Handle input
+        if(input.keys.includes("X")) {
+            this.inventory.addItem(this.game.itemRegistry.get("dev_pickaxe"),1);
+            this.inventory.addItem(this.game.itemRegistry.get("dev_axe"),1);
+            this.inventory.addItem(this.game.itemRegistry.get("dev_hammer"),1);
+            this.inventory.addItem(this.game.itemRegistry.get("dev_shovel"),1);
+            input.keys.splice(input.keys.indexOf("X"),1);
+        }
+
+        let jump = (input.keys.includes("W") || input.keys.includes(" "));
+
+        let left = input.keys.includes("A");
+        let right = input.keys.includes("D");
+
+        // Open and Close inventory
+        if(input.keys.includes("E")) {
+            if(this.inventory.view) {
+                this.inventory.close();
+            } else {
+                this.inventory.view = true;
+            }
+            input.keys.splice(input.keys.indexOf("E"),1);
+        }
+
+        // Select inventory slot
+        for(let i=1;i<=6;i++) {
+            if(input.keys.includes(i.toString())) {
+                this.miningEvent = null;
+                this.selectItem(i);
+                input.keys.splice(input.keys.indexOf(i.toString()),1);
+            }
+        }
+
+        this.getHorizontalMovement(left,right);
         this.checkCollision();
         this.pickupLabels.update();
 
@@ -94,16 +125,16 @@ class Player {
                 this.dy = P_FALLSPEED;
             }
         } 
-        
+
         // Begin Jump
-        if(this.jump && this.grounded && !this.inLiquid) {
+        if(jump && this.grounded && !this.inLiquid) {
             this.dy = -6.5;
             this.jumpFrames = 1;
         }
 
         // Hold jump
         if(this.jumpFrames > 0) {
-            if(this.jumpFrames < 20 && this.jump) {
+            if(this.jumpFrames < 20 && jump) {
                 this.dy = -6.5;
                 this.jumpFrames++;
             } else {
@@ -112,33 +143,33 @@ class Player {
         }
 
         // Swim
-        if(this.jump && this.inLiquid) {
+        if(jump && this.inLiquid) {
             this.dy -= 0.2;
         }
 
         // Tile interaction
-        if(mouse.click && !this.inventory.view) {
+        if(input.mouse.click && !this.inventory.view) {
 
             if(this.heldItem && this.heldItem.placeable) {
-                this.placeTile(this.heldItem,mouse.gridX,mouse.gridY);
+                this.placeTile(this.heldItem,input.mouse.gridX,input.mouse.gridY);
             } else {
-                this.updateMining();
+                this.updateMining(input);
             }
         } else {
             this.miningEvent = null;
         }
 
-        this.updatePosition();
+        this.updatePosition(input);
 
         if(this.inventory.view) {
-            this.inventory.update();
+            this.inventory.update(input);
         }
     }
 
-    updateMining() {
+    updateMining(input) {
 
         // Check if the tool can interact with the tile
-        let obj = checkToolInteraction(mouse.gridX,mouse.gridY,this.heldItem);
+        let obj = checkToolInteraction(input.mouse.gridX,input.mouse.gridY,this.heldItem,this.game.world);
 
         if(!obj) {
             this.miningEvent = null;
@@ -147,7 +178,7 @@ class Player {
 
         // If not currently mining the block, create a new Mining event
         if(!this.miningEvent) {
-            this.miningEvent = new MiningEvent(obj,this.heldItem);
+            this.miningEvent = new MiningEvent(obj,this.heldItem,this.game);
         }
 
         // If not in range of the block, cancel Mining event
@@ -157,33 +188,33 @@ class Player {
         }
 
         // If mouse has moved outside the previous block being mined, create new Event
-        if(this.miningEvent.tile.gridX != mouse.gridX || 
-            this.miningEvent.tile.gridY != mouse.gridY) {
-                this.miningEvent = new MiningEvent(obj,this.heldItem);
+        if(this.miningEvent.tile.gridX != input.mouse.gridX || 
+            this.miningEvent.tile.gridY != input.mouse.gridY) {
+                this.miningEvent = new MiningEvent(obj,this.heldItem,this.game);
         }
 
         // Increase mining progress.
         this.miningEvent.increaseProgress();
 
         if(this.miningEvent.finished) {
-            updateLighting(this.gridX,this.gridY);
+            updateLighting(this.gridX,this.gridY,this.game.world);
             this.miningEvent = null;
         }
     }
         
 
-    getHorizontalMovement() {
+    getHorizontalMovement(walkLeft,walkRight) {
         // If player is holding A, accelerate left.
-        if(this.walkLeft) {
+        if(walkLeft) {
             this.dx -= P_ACCELERATION;
         }
         // If player is holding D, accelerate right.
-        else if(this.walkRight) {
+        else if(walkRight) {
             this.dx += P_ACCELERATION;
         }
 
         // If player is not moving left but has left momentum, slow down.
-        if(!this.walkLeft && this.dx < 0) {
+        if(!walkLeft && this.dx < 0) {
             this.dx += 0.8;
             if(this.dx > 0) {
                 this.dx = 0;
@@ -191,7 +222,7 @@ class Player {
         } 
 
         // If player is not moving right but has right momentum, slow down.
-        if(!this.walkRight && this.dx > 0) {
+        if(!walkRight && this.dx > 0) {
             this.dx -= 0.8;
             if(this.dx < 0) {
                 this.dx = 0;
@@ -204,16 +235,16 @@ class Player {
     }
 
     // Move player and camera by dx and dy
-    updatePosition() {
+    updatePosition(input) {
         this.x += Math.round(this.dx);
         this.y += Math.round(this.dy);
-        this.cameraX += Math.round(this.dx);
-        this.cameraY += Math.round(this.dy);
+        this.camera.x += Math.round(this.dx);
+        this.camera.y += Math.round(this.dy);
         this.centerX = this.x + this.w/2;
         this.centerY = this.y + this.w/2;
         this.gridX = gridXfromCoordinate(this.centerX);
         this.gridY = gridYfromCoordinate(this.centerY);
-        mouse.updateGridPos();
+        input.mouse.updateGridPos();
     }
 
     checkCollision() {
@@ -222,7 +253,7 @@ class Player {
             let distance = this.x;
             this.dx = 0;
             this.x = 0;
-            this.cameraX -= distance;
+            this.camera.x -= distance;
         }
 
         // Right wall
@@ -231,7 +262,7 @@ class Player {
             let distance = this.x + this.w - rightEdge;
             this.dx = 0;
             this.x = rightEdge - this.w;
-            this.cameraX -= distance;
+            this.camera.x -= distance;
         }
 
         // Only check collision of blocks within a 2 block radius
@@ -242,7 +273,7 @@ class Player {
                     continue;
                 }
 
-                let tile = tileGrid[x][y];
+                let tile = this.game.world.tileGrid[x][y];
                 if(!tile) {
                     continue;
                 }
@@ -253,14 +284,14 @@ class Player {
                         let distance = this.y + this.h - tile.y;
                         this.dy = 0;
                         this.y = tile.y - this.h;
-                        this.cameraY -= distance;
+                        this.camera.y -= distance;
                     }
 
                     if(surfaceCollision("bottom",this,tile)) {
                         let distance = this.y - (tile.y + tile.h);
                         this.dy = 0;
                         this.y = tile.y + tile.h;
-                        this.cameraY -= distance;
+                        this.camera.y -= distance;
                         this.jumpFrames = false;
                     }
 
@@ -268,14 +299,14 @@ class Player {
                         let distance = this.x + this.w - tile.x;
                         this.dx = 0;
                         this.x = tile.x - this.w;
-                        this.cameraX -= distance;
+                        this.camera.x -= distance;
                     }
 
                     if(surfaceCollision("right",this,tile)) {
                         let distance = this.x - (tile.x + tile.w);
                         this.dx = 0;
                         this.x = tile.x + tile.w;
-                        this.cameraX -= distance;
+                        this.camera.x -= distance;
                     }
                 }
 
@@ -292,7 +323,7 @@ class Player {
         this.inventory.selectedHotbarSlot = slot;
         let selected = this.inventory.getSelectedSlot();
         if(selected.stack) {
-            hotbarText.set(selected.stack.item.displayName);
+            this.hotbarText.set(selected.stack.item.displayName);
 
             if(selected.stack.item.reach) {
                 this.reach = selected.stack.item.reach * TILE_SIZE;
@@ -307,7 +338,7 @@ class Player {
         }
     }
 
-    drawPlacementPreview() {
+    drawPlacementPreview(input) {
         // Held item must have a placement preview
         if(!this.heldItem) {
             return;
@@ -318,11 +349,11 @@ class Player {
         }
 
         // Will not draw a preview on top of already existing tile
-        if(getTile(mouse.gridX,mouse.gridY)) {
+        if(this.game.world.getTile(input.mouse.gridX,input.mouse.gridY)) {
             return;
         }
 
-        this.heldItem.placementPreview.draw(mouse.gridX,mouse.gridY);
+        this.heldItem.placementPreview.draw(input.mouse.gridX,input.mouse.gridY);
     }
 
     draw() {
@@ -330,47 +361,50 @@ class Player {
         ctx.fillRect(this.x,this.y,this.w,this.h);
     }
 
-    placeTile() {
-        let x = mouse.gridX;
-        let y = mouse.gridY;
+    placeTile(item,x,y) {
 
         // Placement delay
         if(this.placeDelay > 0) {
+            console.log("1")
             return;
         }
 
         // Check if item is placeable
-        if(!this.heldItem || !this.heldItem.placeable) {
+        if(!item || !item.placeable) {
+            console.log("2")
             return;
         }
 
         // Must be a valid placement position
-        if(!validPlacementPosition(x,y)) {
+        if(!validPlacementPosition(x,y,this.game.world)) {
+            console.log("3")
             return;
         }
     
         // X and Y must be within grid
-        if(isNaN(x) || isNaN(y) || 
-            x < 0 || x >= WORLD_WIDTH ||
-            y < 0 || y >= WORLD_HEIGHT) {
-                return;
+        if(isNaN(x) || isNaN(y) || this.game.world.outOfBounds(x,y)) {
+            console.log("4")
+            return;
         }
 
-        let tile = this.heldItem.place(x,y);
+        let tile = item.place(x,y);
 
-        if(!tile || getTile(x,y)) {
+        if(!tile || this.game.world.getTile(x,y)) {
+            console.log("5")
             return;
         }
 
         if(calculateDistance(this,tile) > this.reach) {
+            console.log("6")
             return;
         } 
 
         if(overlap(this,tile)) {
+            console.log("7")
             return;
         }
 
-        tileGrid[x][y] = tile;
+        this.game.world.setTile(x,y,tile);
         
         // Decrease amount in stack by 1
         let heldStack = this.inventory.getSelectedSlot().stack;
@@ -382,26 +416,21 @@ class Player {
             this.heldItem = null;
         }
 
-        updateNearbyTiles(x,y);
-        updateLighting(this.gridX,this.gridY);
+        this.game.world.updateNearbyTiles(x,y);
+        updateLighting(this.gridX,this.gridY,this.game.world);
     }
 
     // Put the player in the center of the map
     spawn() {
-        this.x = Math.round(WORLD_WIDTH / 2 * TILE_SIZE - this.w / 2);
+        this.x = Math.round(this.game.world.width / 2 * TILE_SIZE - this.w / 2);
         this.y = Math.round((-HEIGHTMAP[63] - 2) * TILE_SIZE);
-        this.cameraX = Math.round(this.x - canvas.width / 2 + this.w / 2);
-        this.cameraY = Math.round(this.y - canvas.height / 2 + this.h / 2);
+        this.camera.x = Math.round(this.x - canvas.width / 2 + this.w / 2);
+        this.camera.y = Math.round(this.y - canvas.height / 2 + this.h / 2);
         this.centerX = this.x + this.w/2;
         this.centerY = this.y + this.w/2;
         this.gridX = gridXfromCoordinate(this.centerX);
         this.gridY = gridYfromCoordinate(this.centerY);
-        this.inventory = new Inventory();
+        this.inventory = new Inventory(this);
     }
 }
-
-
-
-let player = new Player();
-
-export { player, Player }
+export { Player }

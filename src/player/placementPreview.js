@@ -1,11 +1,12 @@
-import { ctx, TILE_SIZE } from "../game/const.js";
-import { sprites } from "../loadAssets.js";
-import { calculateDistance } from "../misc.js";
-import { getTile, getWall } from "../world/tile/tile.js";
-import { player } from "./player.js";
+
+// FIXED IMPORTS:
+import { ctx, TILE_SIZE } from "../game/global.js";
+import { sprites } from "../game/graphics/loadAssets.js";
+import { calculateDistance } from "../misc/util.js";
 
 export default class PlacementPreview {
-    constructor(sprite,offsetX,offsetY) {
+    constructor(sprite,offsetX,offsetY,game) {
+        this.game = game;
         this.sx = offsetX;
         this.sy = offsetY;
 
@@ -43,8 +44,8 @@ export default class PlacementPreview {
             centerY:-gridY * TILE_SIZE + TILE_SIZE / 2
         }
 
-        if(calculateDistance(player,pos) > player.reach || 
-            !validPlacementPosition(gridX,gridY)) {
+        if(calculateDistance(this.game.player,pos) > this.game.player.reach || 
+            !validPlacementPosition(gridX,gridY,this.game.world)) {
                 ctx.globalAlpha = 0.05;
         } else {
             ctx.globalAlpha = this.a;
@@ -68,17 +69,17 @@ export default class PlacementPreview {
  * @param {number} gridY Y position in grid
  * @returns {boolean}
  */
-export function validPlacementPosition(gridX,gridY) {
+export function validPlacementPosition(gridX,gridY,world) {
 
     // Check if tile is already occupied
-    if (getTile(gridX,gridY)) {
+    if (world.getTile(gridX,gridY)) {
         return false;
     }
 
     // Check for adjacent tile or wall
-    if (getTile(gridX-1,gridY) || getTile(gridX+1,gridY) ||
-        getTile(gridX,gridY-1) || getTile(gridX,gridY+1) ||
-        getWall(gridX,gridY)) {
+    if (world.getTile(gridX-1,gridY) || world.getTile(gridX+1,gridY) ||
+        world.getTile(gridX,gridY-1) || world.getTile(gridX,gridY+1) ||
+        world.getWall(gridX,gridY)) {
             return true;
     }
     return false;

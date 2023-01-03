@@ -4,10 +4,16 @@
 
     : Additional info
     // Notes & comments
+
+<2023-01-01>
+    * All current game functions and mechanics have been made functional again.
     
+<2022-12-29>
+    * Continued restructuring and rewriting code. Most features are functional again.
 
 <2022-12-28>
     + Added the ability to place tiles
+    * Begun the painful process of restructuring pretty much the entire code. Fuck me.
 
 <2022-12-20>
     + Holding a placeable item and hovering on an empty tile shows a placement preview

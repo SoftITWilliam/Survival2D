@@ -1,13 +1,11 @@
-import { canvas, ctx, INVENTORY_HEIGHT, INVENTORY_WIDTH } from "../game/const.js";
-import { mouse } from "../game/controls.js";
-import { limitCameraX, mouseOn, setAttributes } from "../misc.js";
-import { ItemStack } from "../world/item/itemStack.js";
-import { itemInfoDisplay } from "./itemInfo.js";
-import { player } from "./player.js";
 
+import { canvas, ctx, INVENTORY_HEIGHT, INVENTORY_WIDTH } from "../game/global.js";
+import { setAttributes } from "../misc/util.js";
+import { ItemStack } from "../item/itemStack.js";
 
 export class Inventory {
-    constructor() {
+    constructor(player) {
+        this.player = player; // Pointer
         this.selectedHotbarSlot = 1;
 
         // Grid size
@@ -27,9 +25,9 @@ export class Inventory {
             let row = [];
             for(let y=0;y<this.h;y++) {
                 if(y == this.h - 1) {
-                    row.push(new InventorySlot(this.leftEdge + this.slotSize*x,this.topEdge + this.slotSize*y,x,y));
+                    row.push(new InventorySlot(this.leftEdge + this.slotSize*x,this.topEdge + this.slotSize*y,x,y,this.player));
                 } else {
-                    row.push(new InventorySlot(this.leftEdge + this.slotSize*x,this.topEdge + this.slotSize*y - 24,x,y));
+                    row.push(new InventorySlot(this.leftEdge + this.slotSize*x,this.topEdge + this.slotSize*y - 24,x,y,this.player));
                 }
             }
             this.grid.push(row);
@@ -46,8 +44,8 @@ export class Inventory {
         this.hoveredSlot = {x:null,y:null}
     }
 
-    update() {
-        this.updateInteraction();
+    update(input) {
+        this.updateInteraction(input);
         this.updateItemInfo();
     }
 
@@ -55,33 +53,33 @@ export class Inventory {
 
         // If no slot is hovered, hide item info
         if(this.hoveredSlot.x === null || this.hoveredSlot.y === null) {
-            itemInfoDisplay.set(null);
+            this.player.itemInfoDisplay.set(null);
             return;
         }
 
         let slot = this.grid[this.hoveredSlot.x][this.hoveredSlot.y];
         if(slot.stack) {
-            itemInfoDisplay.set(slot.stack.item);
+            this.player.itemInfoDisplay.set(slot.stack.item);
             return;
         }
         
-        itemInfoDisplay.set(null);
+        this.player.itemInfoDisplay.set(null);
     }
 
-    updateInteraction() {
-        this.hoveredSlot = this.checkHover();
+    updateInteraction(input) {
+        this.hoveredSlot = this.checkHover(input);
 
-        if(!mouse.click && !mouse.rightClick) {
+        if(!input.mouse.click && !input.mouse.rightClick) {
             return;
         }
 
         const insertAmount = (
-            mouse.click ? (this.holdingStack ? this.holdingStack.amount : null) : 
-            mouse.rightClick ? 1 : null
+            input.mouse.click ? (this.holdingStack ? this.holdingStack.amount : null) : 
+            input.mouse.rightClick ? 1 : null
         );
 
         const split = (
-            mouse.rightClick ? true : false 
+            input.mouse.rightClick ? true : false 
         );
         
         if(this.holdingStack) {
@@ -90,8 +88,8 @@ export class Inventory {
             this.selectSlot(this.hoveredSlot.x,this.hoveredSlot.y,split);
         }
 
-        mouse.click = false;
-        mouse.rightClick = false;
+        input.mouse.click = false;
+        input.mouse.rightClick = false;
     }
 
     selectSlot(x,y,split) {
@@ -166,11 +164,11 @@ export class Inventory {
     /**
      * Calculate which inventory slot is being hovered,
      */
-    checkHover() {
+    checkHover(input) {
 
         // Get currently hovered inventory grid coordinates
-        let slotX = Math.floor((mouse.x - this.leftEdge) / this.slotSize);
-        let slotY = Math.floor((mouse.y - this.topEdge + 24) / this.slotSize);
+        let slotX = Math.floor((input.mouse.x - this.leftEdge) / this.slotSize);
+        let slotY = Math.floor((input.mouse.y - this.topEdge + 24) / this.slotSize);
 
         // Invalid X value
         if(slotX < 0 || slotX >= this.w) {
@@ -183,7 +181,7 @@ export class Inventory {
         }
 
         // Check if hotbar row is hovered
-        if(Math.floor((mouse.y - this.topEdge) / this.slotSize) == this.h - 1) {
+        if(Math.floor((input.mouse.y - this.topEdge) / this.slotSize) == this.h - 1) {
             slotY = this.h - 1;
         }
 
@@ -264,7 +262,7 @@ export class Inventory {
 
             // If there are items left after filling the stack, a new stack will be created.
             if(amount == 0) {
-                player.pickupLabels.add(item,startAmount);
+                this.player.pickupLabels.add(item,startAmount);
                 return;
             }
         }
@@ -275,7 +273,7 @@ export class Inventory {
         // If inventory is full, return the amount of items left.
         if(!emptySlot) {
             if(startAmount - amount != 0) {
-                player.pickupLabels.add(item,startAmount - amount);
+                this.player.pickupLabels.add(item,startAmount - amount);
             }
             return amount;
         }
@@ -289,10 +287,10 @@ export class Inventory {
 
         // If new stack is placed in the selected hotbar slot, the selection is refreshed.
         if(y + 1 == this.h && x + 1 == this.selectedHotbarSlot) {
-            player.selectItem(x + 1);
+            this.player.selectItem(x + 1);
         }
         
-        player.pickupLabels.add(item,startAmount);
+        this.player.pickupLabels.add(item,startAmount);
     }
 
     draw() {
@@ -307,7 +305,7 @@ export class Inventory {
 
         ctx.beginPath();
         setAttributes(ctx,{strokeStyle:"rgba(0,0,0,0.5)",fillStyle:"rgba(0,0,0,0.25)",lineWidth:3});
-        ctx.rect(limitCameraX(player.cameraX) + this.leftEdge-3,player.cameraY + this.topEdge-27,this.fullWidth+6,this.slotSize*(this.h-1) +6);
+        ctx.rect(this.player.camera.limX() + this.leftEdge-3,this.player.camera.y + this.topEdge-27,this.fullWidth+6,this.slotSize*(this.h-1) +6);
         ctx.fill();
         ctx.stroke();
         ctx.closePath();
@@ -324,7 +322,7 @@ export class Inventory {
 
         ctx.beginPath();
         setAttributes(ctx,{strokeStyle:"rgba(0,0,0,0.5)",fillStyle:"rgba(0,0,0,0.25)",lineWidth:3});
-        ctx.rect(limitCameraX(player.cameraX) + this.leftEdge-3,player.cameraY + this.topEdge-3 + this.slotSize * 3,this.fullWidth+6,this.slotSize+6);
+        ctx.rect(this.player.camera.limX() + this.leftEdge-3,this.player.camera.y + this.topEdge-3 + this.slotSize * 3,this.fullWidth+6,this.slotSize+6);
         ctx.fill();
         ctx.stroke();
 
@@ -339,17 +337,18 @@ export class Inventory {
         let slot = this.getSelectedSlot();
 
         ctx.beginPath();
-        ctx.rect(limitCameraX(player.cameraX) + slot.x,player.cameraY + slot.y,this.slotSize,this.slotSize);
+        ctx.rect(this.player.camera.limX() + slot.x,this.player.camera.y + slot.y,this.slotSize,this.slotSize);
         ctx.stroke();
         ctx.closePath();
     }
 
-    drawSelectedStack() {
-        this.holdingStack.draw(mouse.mapX,-mouse.mapY);
-        this.holdingStack.drawAmount(mouse.mapX - 16, -mouse.mapY - 16);
+    drawSelectedStack(input) {
+        console.log(input);
+        this.holdingStack.draw(input.mouse.mapX,-input.mouse.mapY);
+        this.holdingStack.drawAmount(input.mouse.mapX - 16, -input.mouse.mapY - 16);
     }
 
-    drawItems() {
+    drawItems(input) {
 
         // Draw items in hotbar
         for(let x=0;x<this.w;x++) {
@@ -368,13 +367,14 @@ export class Inventory {
         }
 
         if(this.holdingStack) {
-            this.drawSelectedStack();
+            this.drawSelectedStack(input);
         }
     }
 }
 
 class InventorySlot {
-    constructor(x,y,ix,iy) {
+    constructor(x,y,ix,iy,player) {
+        this.player = player; // Pointer
         this.stack = null;
         this.ix = ix,
         this.iy = iy,
@@ -385,7 +385,7 @@ class InventorySlot {
     }
 
     isHovered() {
-        return (player.inventory.hoveredSlot.x == this.ix && player.inventory.hoveredSlot.y == this.iy);
+        return (this.player.inventory.hoveredSlot.x == this.ix && this.player.inventory.hoveredSlot.y == this.iy);
     }
 
     // Draw slot
@@ -393,7 +393,7 @@ class InventorySlot {
         setAttributes(ctx,{strokeStyle:"rgb(200,200,200)",lineWidth:3})
 
         ctx.beginPath();
-        ctx.rect(this.x + limitCameraX(player.cameraX),this.y + player.cameraY,this.w,this.h);
+        ctx.rect(this.x + this.player.camera.limX(),this.y + this.player.camera.y,this.w,this.h);
         ctx.stroke();
         ctx.closePath();
 
@@ -408,8 +408,8 @@ class InventorySlot {
         }
 
         // Item position
-        let xPos = limitCameraX(player.cameraX) + this.x;
-        let yPos = player.cameraY + this.y;
+        let xPos = this.player.camera.limX() + this.x;
+        let yPos = this.player.camera.y + this.y;
 
         // Draw item
         this.stack.draw(xPos + 16,yPos + 16);
@@ -418,11 +418,11 @@ class InventorySlot {
     // Draw hover overlay
     drawHoverEffect() {
 
-        if(!this.isHovered() || !player.inventory.view) {
+        if(!this.isHovered() || !this.player.inventory.view) {
             return;
         }
 
         ctx.fillStyle = "rgba(255,255,255,0.25)";
-        ctx.fillRect(limitCameraX(player.cameraX) + this.x,player.cameraY + this.y,this.w,this.h)
+        ctx.fillRect(this.player.camera.limX() + this.x,this.player.camera.y + this.y,this.w,this.h)
     }
 }

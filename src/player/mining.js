@@ -1,11 +1,12 @@
-import { ctx } from "../game/const.js";
-import { updateNearbyTiles } from "../world/world.js";
-import { dropItemFromBlock } from "../world/item/dropItem.js";
-import { getTile, getWall } from "../world/tile/tile.js";
-import { rng } from "../misc.js";
+
+// FIXED IMPORTS:
+import { ctx } from "../game/global.js";
+import { dropItemFromBlock } from "../item/dropItem.js";
+import { rng } from "../misc/util.js";
 
 class MiningEvent {
-    constructor(tile,tool) {
+    constructor(tile,tool,game) {
+        this.game = game;
         this.tile = tile;
         this.finished = false;
 
@@ -39,9 +40,9 @@ class MiningEvent {
 
         // Break tile
         if(this.tile.objectType == "wall") {
-            getWall(this.tile.gridX,this.tile.gridY).breakTile(this.toolType,this.miningLevel);
+            this.game.world.getWall(this.tile.gridX,this.tile.gridY).breakTile(this.toolType,this.miningLevel);
         } else {
-            getTile(this.tile.gridX,this.tile.gridY).breakTile(this.toolType,this.miningLevel);
+            this.game.world.getTile(this.tile.gridX,this.tile.gridY).breakTile(this.toolType,this.miningLevel);
         }
 
         this.finished = true;

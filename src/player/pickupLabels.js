@@ -1,12 +1,12 @@
-import { ctx } from "../game/const.js";
-import { rgba } from "../game/rgb.js";
-import { setAttributes } from "../misc.js";
-import { player } from "./player.js";
 
+// FIXED IMPORTS:
+import { ctx } from "../game/global.js";
+import { rgba } from "../game/graphics/rgb.js";
+import { setAttributes } from "../misc/util.js";
 
-
-export class PickupLabelList {
-    constructor() {
+export class PickupLabelHandler {
+    constructor(player) {
+        this.player = player // Pointer
         this.labels = [];
     }   
 
@@ -36,7 +36,7 @@ export class PickupLabelList {
         }
 
         // If no existing label is found, add a new one.
-        this.labels.unshift(new PickupLabel(item,amount))
+        this.labels.unshift(new PickupLabel(item,amount,this.player));
 
     }
 
@@ -48,7 +48,8 @@ export class PickupLabelList {
 }
 
 class PickupLabel {
-    constructor(item,amount) {
+    constructor(item,amount,player) {
+        this.player = player; // Pointer
         this.itemName = item.displayName;
         this.color = item.textColor;
         this.amount = amount;
@@ -75,7 +76,7 @@ class PickupLabel {
     draw(yPos) {
         let txt = this.itemName + " (" + this.amount + ")";
         setAttributes(ctx,{font:"24px Font1",fillStyle:rgba(this.color,this.alpha),strokeStyle:"rgba(0,0,0,"+this.alpha+")",lineWidth:5,textAlign:"center"});
-        ctx.strokeText(txt,player.x + player.w / 2, player.y - yPos);
-        ctx.fillText(txt,player.x + player.w / 2,player.y - yPos);
+        ctx.strokeText(txt,this.player.x + this.player.w / 2, this.player.y - yPos);
+        ctx.fillText(txt,this.player.x + this.player.w / 2,this.player.y - yPos);
     }
 }
