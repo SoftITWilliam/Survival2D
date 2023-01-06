@@ -1,6 +1,6 @@
 
 // FIXED IMPORTS:
-import { ctx, canvas, TILE_SIZE, WORLD_WIDTH, WORLD_HEIGHT, GRAVITY } from '../game/global.js';
+import { ctx, canvas, TILE_SIZE, GRAVITY } from '../game/global.js';
 import { Inventory } from './inventory.js';
 import { MiningEvent } from './mining.js';
 import { calculateDistance, clamp, gridXfromCoordinate, gridYfromCoordinate } from '../misc/util.js';
@@ -15,6 +15,7 @@ import { Camera } from '../game/camera.js';
 import { updateLighting } from '../world/lighting.js';
 import ItemInfoDisplay from './itemInfo.js';
 import { PlayerFalling, PlayerJumping, PlayerRunning, PlayerStanding, PlayerSwimming, stateEnum } from './playerStates.js';
+import { sprites } from '../game/graphics/loadAssets.js';
 
 const P_WIDTH = 36;
 const P_HEIGHT = 72;
@@ -65,11 +66,30 @@ class Player {
         this.heldItem = null;
 
         this.cheetahFrames = 0;
+
+        this.sprite
+
+        this.spriteSheet = sprites.entities.player;
+        this.frameX = 0;
+        this.frameY = 0;
+        this.frameDelay;
+        this.frameAmount;
+        this.frameWidth = 96;
+        this.frameCounter = 0;
+
     }
 
     setState(state) {
+        this.frameCounter = 0;
         this.state = this.stateList[stateEnum[state]];
         this.state.enter();
+    }
+
+    addDevKit() {
+        this.inventory.addItem(this.game.itemRegistry.get("dev_pickaxe"),1);
+        this.inventory.addItem(this.game.itemRegistry.get("dev_axe"),1);
+        this.inventory.addItem(this.game.itemRegistry.get("dev_hammer"),1);
+        this.inventory.addItem(this.game.itemRegistry.get("dev_shovel"),1);
     }
 
     update(input) {
@@ -78,10 +98,7 @@ class Player {
 
         // Handle input
         if(input.keys.includes("X")) {
-            this.inventory.addItem(this.game.itemRegistry.get("dev_pickaxe"),1);
-            this.inventory.addItem(this.game.itemRegistry.get("dev_axe"),1);
-            this.inventory.addItem(this.game.itemRegistry.get("dev_hammer"),1);
-            this.inventory.addItem(this.game.itemRegistry.get("dev_shovel"),1);
+            this.addDevKit();
             input.keys.splice(input.keys.indexOf("X"),1);
         }
 
@@ -89,6 +106,14 @@ class Player {
 
         let left = input.keys.includes("A");
         let right = input.keys.includes("D");
+
+        if(left) {
+            this.facing = "left";
+        }
+
+        if(right) {
+            this.facing = "right";
+        }
 
         // Open and Close inventory
         if(input.keys.includes("E")) {
@@ -109,11 +134,14 @@ class Player {
             }
         }
 
+
+
         this.getHorizontalMovement(left,right);
         this.checkCollision();
         this.pickupLabels.update();
 
         this.state.handleInput(this.game.input);
+        this.state.update();
 
         if(this.placeDelay > 0) {
             this.placeDelay -= 1;
@@ -270,7 +298,7 @@ class Player {
         }
 
         // Right wall
-        let rightEdge = WORLD_WIDTH * TILE_SIZE;
+        let rightEdge = this.game.world.width * TILE_SIZE;
         if(this.x + this.w + this.dx > rightEdge) {
             let distance = this.x + this.w - rightEdge;
             this.dx = 0;
@@ -282,7 +310,7 @@ class Player {
         // This is a *very* major optimization!
         for(let x=this.gridX - 2;x<this.gridX + 2;x++) {
             for(let y=this.gridY - 2;y<this.gridY + 2;y++) {
-                if(x < 0 || y < 0 || x >= WORLD_WIDTH || y >= WORLD_HEIGHT) {
+                if(this.game.world.outOfBounds(x,y)) {
                     continue;
                 }
 
@@ -370,8 +398,21 @@ class Player {
     }
 
     draw() {
-        ctx.fillStyle = "rgb(220,100,100)";
-        ctx.fillRect(this.x,this.y,this.w,this.h);
+        this.frameCounter += 1;
+        if(this.frameCounter >= this.frameDelay) {
+            this.frameCounter = 0;
+            if(this.frameX < this.frameAmount - 1) {
+                this.frameX++;
+            } else {
+                this.frameX = 0;
+            }
+        }
+
+        let frameSize = 96;
+        let x = this.x - (frameSize - this.w) / 2;
+        let y = this.y + this.h - frameSize;
+        ctx.drawImage(this.spriteSheet, frameSize * this.frameX, frameSize * this.frameY, frameSize, frameSize,
+            x, y, frameSize, frameSize);
     }
 
     placeTile(item,x,y) {

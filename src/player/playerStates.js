@@ -21,20 +21,24 @@ export class PlayerStanding extends State {
     }
     
     enter() {
+        this.player.frameX = 0;
+        this.player.frameAmount = 2;
+        this.player.frameDelay = 30; // 2 FPS
+    }
 
+    update() {
+        switch(this.player.facing) {
+            case "right": this.player.frameY = 0; break;
+            case "left": this.player.frameY = 1; break;
+        }
     }
 
     handleInput(input) {
         if(input.keys.includes("W") || input.keys.includes(" ")) {
             this.player.setState("JUMPING");
         }
-        if(input.keys.includes("A")) {
+        if(input.keys.includes("A") || input.keys.includes("D")) {
             this.player.setState("RUNNING");
-            this.player.facing == "left";
-        }
-        if(input.keys.includes("D")) {
-            this.player.setState("RUNNING");
-            this.player.facing == "right";
         }
         if(!this.player.grounded) {
             this.player.cheetahFrames = 3;
@@ -49,7 +53,16 @@ export class PlayerRunning extends State {
     }
     
     enter() {
+        this.player.frameX = 3;
+        this.player.frameAmount = 8;
+        this.player.frameDelay = 4; // 15 FPS
+    }
 
+    update() {
+        switch(this.player.facing) {
+            case "right": this.player.frameY = 2; break;
+            case "left": this.player.frameY = 3; break;
+        }
     }
 
     handleInput(input) {
@@ -76,6 +89,16 @@ export class PlayerJumping extends State {
     enter() {
         this.player.dy = -6.5;
         this.player.jumpFrames = 1;
+        this.player.frameX = 0;
+        this.player.frameAmount = 2;
+        this.player.frameDelay = 4;
+    }
+
+    update() {
+        switch(this.player.facing) {
+            case "right": this.player.frameY = 0; break;
+            case "left": this.player.frameY = 1; break;
+        }
     }
 
     handleInput(input) {
@@ -91,7 +114,16 @@ export class PlayerFalling extends State {
     }
     
     enter() {
+        this.player.frameX = 0;
+        this.player.frameAmount = 2;
+        this.player.frameDelay = 4;
+    }
 
+    update() {
+        switch(this.player.facing) {
+            case "right": this.player.frameY = 0; break;
+            case "left": this.player.frameY = 1; break;
+        }
     }
 
     handleInput(input) {
