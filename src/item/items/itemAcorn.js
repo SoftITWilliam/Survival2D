@@ -7,9 +7,9 @@ export class ItemAcorn extends ItemBase {
         super(game);
         this.setRegistryName("acorn");
         this.setRarity(0);
-        this.placeable = true;
+        this.placeable = false;
 
         this.setSprite(sprites.items.acorn);
-        this.placementPreview = new PlacementPreview(sprites.items.acorn,0,0);
+        //this.placementPreview = new PlacementPreview(sprites.items.acorn,0,0);
     }
 }

@@ -9,7 +9,6 @@ import { sprites } from "../game/graphics/loadAssets.js";
 export default class Item {
     constructor(game) {
         this.game = game; // Pointer
-        console.log(this.game);
         this.setSprite('missing_texture');
         this.itemType = null;
         this.stackSize = 99;

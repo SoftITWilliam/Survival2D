@@ -9,7 +9,6 @@ export default class Noise {
         this.minValue = min;
         this.maxValue = max;
         this.grid = this.generate();
-        console.log(this.grid);
     }
 
     get(x,y) {
@@ -43,7 +42,6 @@ export default class Noise {
             blurredNoiseGrid.push(row);
         }
         this.grid = blurredNoiseGrid;
-        console.log(this.grid);
     }
 
     getBlurredNoise(gridX,gridY,range) {
