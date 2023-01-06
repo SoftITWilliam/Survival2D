@@ -14,6 +14,7 @@ import { validPlacementPosition } from './placementPreview.js';
 import { Camera } from '../game/camera.js';
 import { updateLighting } from '../world/lighting.js';
 import ItemInfoDisplay from './itemInfo.js';
+import { PlayerFalling, PlayerJumping, PlayerRunning, PlayerStanding, PlayerSwimming, stateEnum } from './playerStates.js';
 
 const P_WIDTH = 36;
 const P_HEIGHT = 72;
@@ -27,6 +28,9 @@ class Player {
         this.game = game;
         this.w = P_WIDTH;
         this.h = P_HEIGHT;
+
+        this.stateList = [new PlayerStanding(this), new PlayerRunning(this), new PlayerJumping(this),
+            new PlayerFalling(this), new PlayerSwimming(this)];
         
         this.x;
         this.y;
@@ -59,6 +63,13 @@ class Player {
         this.reach = P_REACH * TILE_SIZE;
 
         this.heldItem = null;
+
+        this.cheetahFrames = 0;
+    }
+
+    setState(state) {
+        this.state = this.stateList[stateEnum[state]];
+        this.state.enter();
     }
 
     update(input) {
@@ -102,9 +113,13 @@ class Player {
         this.checkCollision();
         this.pickupLabels.update();
 
+        this.state.handleInput(this.game.input);
+
         if(this.placeDelay > 0) {
             this.placeDelay -= 1;
         }
+
+        if(this.state.name == "JUMPING" || this.state.name == "FALLING")
 
         // Gravity
         if(!this.grounded) {
@@ -125,12 +140,6 @@ class Player {
                 this.dy = P_FALLSPEED;
             }
         } 
-
-        // Begin Jump
-        if(jump && this.grounded && !this.inLiquid) {
-            this.dy = -6.5;
-            this.jumpFrames = 1;
-        }
 
         // Hold jump
         if(this.jumpFrames > 0) {
@@ -163,6 +172,10 @@ class Player {
 
         if(this.inventory.view) {
             this.inventory.update(input);
+        }
+
+        if(this.cheetahFrames > 0) {
+            this.cheetahFrames -= 1;
         }
     }
 
@@ -431,6 +444,7 @@ class Player {
         this.gridX = gridXfromCoordinate(this.centerX);
         this.gridY = gridYfromCoordinate(this.centerY);
         this.inventory = new Inventory(this);
+        this.setState("FALLING");
     }
 }
 export { Player }
