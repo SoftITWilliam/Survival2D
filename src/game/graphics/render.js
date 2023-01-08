@@ -4,6 +4,7 @@ import { drawStatBar } from './ui.js';
 import { ctx, canvas, TILE_SIZE, DRAWDIST, DRAW_LIGHTING, DEBUG_MODE } from '../global.js';
 import { calculateDistance, clamp, disableShadow, gridXfromCoordinate, gridYfromCoordinate, setAttributes } from '../../misc/util.js';
 import { checkToolInteraction } from '../../tile/toolInteraction.js';
+import { drawDebugUI } from './debug.js';
 
 export default function render(game,player) {
     ctx.save();
@@ -90,39 +91,7 @@ export default function render(game,player) {
     
     // Debug UI
     if(DEBUG_MODE) {
-        setAttributes(ctx,{fillStyle:"white",font:"20px Font1",textAlign:"left",
-        shadowOffsetX:2,shadowOffsetY:2,shadowColor:"black",shadowBlur:5});
-
-        let uiX = player.camera.limX() + canvas.width - 256;
-
-        // FPS counter
-        ctx.fillText("FPS: " + game.fpsCounter.display,uiX,player.camera.y + 32);
-
-        // Entity Count
-        ctx.fillText("Entity Count: " + game.itemEntities.entities.length,uiX,player.camera.y + 64);
-
-        // Player info
-        ctx.fillText("Player Pos: " + "X: " + gridXfromCoordinate(player.centerX) + ", Y: " + (gridYfromCoordinate(player.centerY)-1),uiX,player.camera.y + 96); 
-
-        
-
-        // Tile info
-        let tile = game.world.getTile(game.input.mouse.gridX,game.input.mouse.gridY);
-
-        let t1,t2;
-
-        if(tile) {
-            t1 = "X " + tile.gridX + ", Y: " + tile.gridY; 
-            t2 = tile.registryName;
-        } else {
-            t1 = null;
-            t2 = null;
-        }
-
-        ctx.fillText("Tile Pos: " + t1,uiX,player.camera.y + 128); 
-        ctx.fillText("Tile Type: " + t2,uiX,player.camera.y + 160); 
-
-        disableShadow(ctx);
+        drawDebugUI(game);
     }
     ctx.restore();
 }

@@ -5,6 +5,18 @@
     : Additional info
     // Notes & comments
 
+<2023-01-08>
+    * More work on player states.
+
+<2023-01-06>
+    + Added a (placeholder) player sprite
+    + Added player idle and running animations
+
+<2023-01-02>
+    + Added functional player states
+        : 'STANDING', 'WALKING', and 'JUMPING'
+    + Added 'Cheetah frames' when player falls off an edge, where the player is able to jump.
+
 <2023-01-01>
     * All current game functions and mechanics have been made functional again.
     

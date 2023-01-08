@@ -18,6 +18,10 @@ export const sprites = {
         acorn: image("items/acorn"),
     },
 
+    entities: {
+        player: image("entities/spritesheet_player"),
+    },
+
     ui: {
         item_type: {
             icon_pickaxe: image("ui/icons/item_pickaxe"),
