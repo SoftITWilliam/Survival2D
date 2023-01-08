@@ -5,6 +5,9 @@
     : Additional info
     // Notes & comments
 
+<2023-01-08>
+    * More work on player states.
+
 <2023-01-06>
     + Added a (placeholder) player sprite
     + Added player idle and running animations

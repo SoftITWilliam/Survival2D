@@ -24,6 +24,7 @@ export class PlayerStanding extends State {
         this.player.frameX = 0;
         this.player.frameAmount = 2;
         this.player.frameDelay = 30; // 2 FPS
+        this.player.frameLoop = true;
     }
 
     update() {
@@ -56,6 +57,7 @@ export class PlayerRunning extends State {
         this.player.frameX = 3;
         this.player.frameAmount = 8;
         this.player.frameDelay = 4; // 15 FPS
+        this.player.frameLoop = true;
     }
 
     update() {
@@ -88,20 +90,40 @@ export class PlayerJumping extends State {
     
     enter() {
         this.player.dy = -6.5;
-        this.player.jumpFrames = 1;
         this.player.frameX = 0;
-        this.player.frameAmount = 2;
+        this.player.frameAmount = 3;
         this.player.frameDelay = 4;
+        this.player.frameLoop = false;
+        this.player.cheetahFrames = 0;
+        this.jumpFrames = 1;
     }
 
     update() {
+
+        // Determine direction player is facing
         switch(this.player.facing) {
-            case "right": this.player.frameY = 0; break;
-            case "left": this.player.frameY = 1; break;
+            case "right": this.player.frameY = 4; break;
+            case "left": this.player.frameY = 5; break;
+        }
+
+        // Do gravity
+        this.player.dy += this.player.gravity;
+            
+        // Cannot exceed max falling speed
+        if(this.player.dy > this.player.maxFallSpeed) {
+            this.player.dy = this.player.maxFallSpeed;
         }
     }
 
     handleInput(input) {
+
+        if((input.keys.includes("W") || input.keys.includes(" ")) && this.jumpFrames < 20) {
+            this.player.dy = -6.5;
+            this.jumpFrames++;
+        } else {
+            this.jumpFrames = 20;
+        }
+
         if(this.player.dy > 0) {
             this.player.setState("FALLING");
         }
@@ -114,15 +136,28 @@ export class PlayerFalling extends State {
     }
     
     enter() {
-        this.player.frameX = 0;
-        this.player.frameAmount = 2;
-        this.player.frameDelay = 4;
+        this.player.frameX = 2;
+        this.player.frameAmount = 3;;
+        this.player.frameLoop = false;
     }
 
-    update() {
+    update(input) {
+        // Determine direction player is facing
         switch(this.player.facing) {
-            case "right": this.player.frameY = 0; break;
-            case "left": this.player.frameY = 1; break;
+            case "right": this.player.frameY = 4; break;
+            case "left": this.player.frameY = 5; break;
+        }
+
+        if(this.player.cheetahFrames > 0) {
+            this.player.cheetahFrames -= 1;
+        }
+
+        // Do gravity
+        this.player.dy += this.player.gravity;
+            
+        // Cannot exceed max falling speed
+        if(this.player.dy > this.player.maxFallSpeed) {
+            this.player.dy = this.player.maxFallSpeed;
         }
     }
 

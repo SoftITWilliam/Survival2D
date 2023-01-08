@@ -1,6 +1,6 @@
 
 // FIXED IMPORTS:
-import { ctx, canvas, TILE_SIZE, GRAVITY } from '../game/global.js';
+import { ctx, canvas, TILE_SIZE } from '../game/global.js';
 import { Inventory } from './inventory.js';
 import { MiningEvent } from './mining.js';
 import { calculateDistance, clamp, gridXfromCoordinate, gridYfromCoordinate } from '../misc/util.js';
@@ -17,34 +17,27 @@ import ItemInfoDisplay from './itemInfo.js';
 import { PlayerFalling, PlayerJumping, PlayerRunning, PlayerStanding, PlayerSwimming, stateEnum } from './playerStates.js';
 import { sprites } from '../game/graphics/loadAssets.js';
 
-const P_WIDTH = 36;
-const P_HEIGHT = 72;
-const P_ACCELERATION = 0.5;
-const P_MAX_DX = 5;
-const P_FALLSPEED = 12;
-const P_REACH = 3;
-
 class Player {
     constructor(game) {
         this.game = game;
-        this.w = P_WIDTH;
-        this.h = P_HEIGHT;
+        this.w = 36;
+        this.h = 72;
 
         this.stateList = [new PlayerStanding(this), new PlayerRunning(this), new PlayerJumping(this),
             new PlayerFalling(this), new PlayerSwimming(this)];
         
         this.x;
         this.y;
-
-        this.camera = new Camera(this);
-
         this.centerX;
         this.centerY;
         
         this.dx = 0;
         this.dy = 0;
-        this.maxSpeed = P_MAX_DX;
+        this.maxSpeed = 5;
+        this.maxFallSpeed = 12;
         this.grounded = false;
+        this.gravity = 0.35;
+        this.acceleration = 0.5;
 
         this.inLiquid = false;
         
@@ -57,17 +50,16 @@ class Player {
         this.pickupLabels = new PickupLabelHandler(this);
         this.hotbarText = new HotbarText(this);
         this.itemInfoDisplay = new ItemInfoDisplay(this);
+        this.camera = new Camera(this);
 
         this.miningEvent = null;
         
-        this.defaultReach = P_REACH;
-        this.reach = P_REACH * TILE_SIZE;
+        this.defaultReach = 3;
+        this.reach = 3 * TILE_SIZE;
 
         this.heldItem = null;
 
         this.cheetahFrames = 0;
-
-        this.sprite
 
         this.spriteSheet = sprites.entities.player;
         this.frameX = 0;
@@ -102,19 +94,53 @@ class Player {
             input.keys.splice(input.keys.indexOf("X"),1);
         }
 
-        let jump = (input.keys.includes("W") || input.keys.includes(" "));
-
         let left = input.keys.includes("A");
         let right = input.keys.includes("D");
 
-        if(left) {
-            this.facing = "left";
+        if(left) {this.facing = "left"}
+        if(right) {this.facing = "right"}
+
+        this.getHorizontalMovement(left,right);
+        this.checkCollision();
+        this.pickupLabels.update();
+
+        this.state.handleInput(this.game.input);
+        this.state.update(this.game.input);
+
+        if(this.placeDelay > 0) {
+            this.placeDelay -= 1;
+        }
+            
+        // Tile interaction
+        if(input.mouse.click && !this.inventory.view) {
+
+            if(this.heldItem && this.heldItem.placeable) {
+                this.placeTile(this.heldItem,input.mouse.gridX,input.mouse.gridY);
+            } else {
+                this.updateMining(input);
+            }
+        } else {
+            this.miningEvent = null;
         }
 
-        if(right) {
-            this.facing = "right";
-        }
+        this.updatePosition(input);
+        this.updateInventory(input);
 
+        // Old water physics
+        /*
+        // Gravity in water
+        if(this.inLiquid) {
+            this.dy += GRAVITY/3;
+            this.dy = clamp(this.dy,-4,4);
+        } 
+
+        if(jump && this.inLiquid) {
+            this.dy -= 0.2;
+        }
+        */
+    }
+
+    updateInventory(input) {
         // Open and Close inventory
         if(input.keys.includes("E")) {
             if(this.inventory.view) {
@@ -134,76 +160,8 @@ class Player {
             }
         }
 
-
-
-        this.getHorizontalMovement(left,right);
-        this.checkCollision();
-        this.pickupLabels.update();
-
-        this.state.handleInput(this.game.input);
-        this.state.update();
-
-        if(this.placeDelay > 0) {
-            this.placeDelay -= 1;
-        }
-
-        if(this.state.name == "JUMPING" || this.state.name == "FALLING")
-
-        // Gravity
-        if(!this.grounded) {
-
-            // Gravity in water
-            if(this.inLiquid) {
-                this.dy += GRAVITY/3;
-                this.dy = clamp(this.dy,-4,4);
-            } 
-            
-            // Gravity out of water
-            else { 
-                this.dy += GRAVITY;
-            }
-            
-            // Cannot exceed max falling speed
-            if(this.dy > P_FALLSPEED) {
-                this.dy = P_FALLSPEED;
-            }
-        } 
-
-        // Hold jump
-        if(this.jumpFrames > 0) {
-            if(this.jumpFrames < 20 && jump) {
-                this.dy = -6.5;
-                this.jumpFrames++;
-            } else {
-                this.jumpFrames = false;
-            }
-        }
-
-        // Swim
-        if(jump && this.inLiquid) {
-            this.dy -= 0.2;
-        }
-
-        // Tile interaction
-        if(input.mouse.click && !this.inventory.view) {
-
-            if(this.heldItem && this.heldItem.placeable) {
-                this.placeTile(this.heldItem,input.mouse.gridX,input.mouse.gridY);
-            } else {
-                this.updateMining(input);
-            }
-        } else {
-            this.miningEvent = null;
-        }
-
-        this.updatePosition(input);
-
         if(this.inventory.view) {
             this.inventory.update(input);
-        }
-
-        if(this.cheetahFrames > 0) {
-            this.cheetahFrames -= 1;
         }
     }
 
@@ -247,11 +205,11 @@ class Player {
     getHorizontalMovement(walkLeft,walkRight) {
         // If player is holding A, accelerate left.
         if(walkLeft) {
-            this.dx -= P_ACCELERATION;
+            this.dx -= this.acceleration;
         }
         // If player is holding D, accelerate right.
         else if(walkRight) {
-            this.dx += P_ACCELERATION;
+            this.dx += this.acceleration;
         }
 
         // If player is not moving left but has left momentum, slow down.
@@ -369,13 +327,13 @@ class Player {
             if(selected.stack.item.reach) {
                 this.reach = selected.stack.item.reach * TILE_SIZE;
             } else {
-                this.reach = P_REACH * TILE_SIZE;
+                this.reach = this.reach;
             }
             this.heldItem = selected.stack.item;
             this.miningEvent = null;
         } else {
             this.heldItem = null;
-            this.reach = P_REACH * TILE_SIZE;
+            this.reach = this.reach;
         }
     }
 
@@ -397,16 +355,26 @@ class Player {
         this.heldItem.placementPreview.draw(input.mouse.gridX,input.mouse.gridY);
     }
 
-    draw() {
+    updateAnimationFrame() {
+
         this.frameCounter += 1;
-        if(this.frameCounter >= this.frameDelay) {
-            this.frameCounter = 0;
-            if(this.frameX < this.frameAmount - 1) {
-                this.frameX++;
-            } else {
+
+        if(this.frameCounter < this.frameDelay) {
+            return;
+        }
+        
+        this.frameCounter = 0;
+        if(this.frameX < this.frameAmount - 1) {
+            this.frameX++;
+        } else {
+            if(this.frameLoop) {
                 this.frameX = 0;
             }
         }
+    }
+
+    draw() {
+        this.updateAnimationFrame();
 
         let frameSize = 96;
         let x = this.x - (frameSize - this.w) / 2;
@@ -419,42 +387,35 @@ class Player {
 
         // Placement delay
         if(this.placeDelay > 0) {
-            console.log("1")
             return;
         }
 
         // Check if item is placeable
         if(!item || !item.placeable) {
-            console.log("2")
             return;
         }
 
         // Must be a valid placement position
         if(!validPlacementPosition(x,y,this.game.world)) {
-            console.log("3")
             return;
         }
     
         // X and Y must be within grid
         if(isNaN(x) || isNaN(y) || this.game.world.outOfBounds(x,y)) {
-            console.log("4")
             return;
         }
 
         let tile = item.place(x,y);
 
         if(!tile || this.game.world.getTile(x,y)) {
-            console.log("5")
             return;
         }
 
         if(calculateDistance(this,tile) > this.reach) {
-            console.log("6")
             return;
         } 
 
         if(overlap(this,tile)) {
-            console.log("7")
             return;
         }
 
@@ -469,6 +430,8 @@ class Player {
             this.inventory.getSelectedSlot().stack = null;
             this.heldItem = null;
         }
+
+        this.placeDelay = 15;
 
         this.game.world.updateNearbyTiles(x,y);
         updateLighting(this.gridX,this.gridY,this.game.world);
