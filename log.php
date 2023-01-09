@@ -5,7 +5,11 @@
     : Additional info
     // Notes & comments
 
-<2023-01-08>
+<2023-01-07>
+    * Converted Lighting into a class, instead of a messy collection of functions
+    * Fixed a bug where lighting updates wouldn't consider off-screen light sources
+
+<2023-01-07>
     * More work on player states.
 
 <2023-01-06>
