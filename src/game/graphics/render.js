@@ -52,23 +52,7 @@ export default function render(game,player) {
 
     // Lighting
     if(DRAW_LIGHTING) {  
-        for(let x = gX - DRAWDIST.x ; x < gX + DRAWDIST.x + 1 ; x++) {
-            for(let y = gY - DRAWDIST.y ; y < gY + DRAWDIST.y + 1 ; y++) {
-
-                // Cannot draw outside map
-                if(game.world.outOfBounds(x,y)) {
-                    continue;
-                }
-
-                // Calculate opacity based on light level
-                let light = game.world.lightGrid[x][y];
-                let a = clamp(1 - light.level / 15, 0, 1);
-
-                ctx.fillStyle = "rgba(0,0,0,"+a+")";
-                ctx.fillRect(x * TILE_SIZE, -y * TILE_SIZE,TILE_SIZE,TILE_SIZE);
-                ctx.globalAlpha = 1;
-            }
-        }
+        game.world.lighting.draw(gX,gY);
     }
 
     player.drawPlacementPreview(game.input);

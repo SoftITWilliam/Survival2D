@@ -1,7 +1,7 @@
 
 import * as tiles from '../tile/tileParent.js';
 import { WORLD_HEIGHT, WORLD_WIDTH } from '../game/global.js';
-import { createLightGrid } from './lighting.js';
+import LightingGrid, { createLightGrid } from './lighting.js';
 import Noise from './noise.js';
 import { generateDirtDepth, generateTerrainHeight, generateTerrainTile, generateTerrainWall } from './generation.js';
 
@@ -15,6 +15,8 @@ export class World {
 
         this.tileGrid = [];
         this.wallGrid = [];
+
+        this.lighting = new LightingGrid(this);
 
         for(let x=0;x<this.width;x++) {
             this.tileGrid.push([]);
@@ -92,8 +94,7 @@ export class World {
             structure.generate();
         })
 
-        this.lightGrid = [];
-        createLightGrid(this);
+        this.lighting.generate();
 
         this.updateAllTiles();
     }    

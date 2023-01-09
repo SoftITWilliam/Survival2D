@@ -12,7 +12,6 @@ import HotbarText from './hotbarText.js';
 import { PickupLabelHandler } from './pickupLabels.js';
 import { validPlacementPosition } from './placementPreview.js';
 import { Camera } from '../game/camera.js';
-import { updateLighting } from '../world/lighting.js';
 import ItemInfoDisplay from './itemInfo.js';
 import { PlayerFalling, PlayerJumping, PlayerRunning, PlayerStanding, PlayerSwimming, stateEnum } from './playerStates.js';
 import { sprites } from '../game/graphics/loadAssets.js';
@@ -30,6 +29,7 @@ class Player {
         this.y;
         this.centerX;
         this.centerY;
+        this.facing = "right";
         
         this.dx = 0;
         this.dy = 0;
@@ -196,7 +196,7 @@ class Player {
         this.miningEvent.increaseProgress();
 
         if(this.miningEvent.finished) {
-            updateLighting(this.gridX,this.gridY,this.game.world);
+            this.game.world.lighting.update(this);
             this.miningEvent = null;
         }
     }
@@ -434,7 +434,7 @@ class Player {
         this.placeDelay = 15;
 
         this.game.world.updateNearbyTiles(x,y);
-        updateLighting(this.gridX,this.gridY,this.game.world);
+        this.game.world.lighting.update(this);
     }
 
     // Put the player in the center of the map
