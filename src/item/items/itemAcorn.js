@@ -1,5 +1,5 @@
 import { sprites } from "../../game/graphics/loadAssets.js";
-import PlacementPreview from "../../player/placementPreview.js";
+import PlacementPreview from "../../ui/placementPreview.js";
 import ItemBase from "./base/itemBase.js";
 
 export class ItemAcorn extends ItemBase {

@@ -1,18 +1,18 @@
 
 // FIXED IMPORTS:
 import { ctx, canvas, TILE_SIZE } from '../game/global.js';
-import { Inventory } from './inventory.js';
+import { Inventory } from '../ui/inventory.js';
 import { MiningEvent } from './mining.js';
 import { calculateDistance, clamp, gridXfromCoordinate, gridYfromCoordinate } from '../misc/util.js';
 import { HEIGHTMAP } from '../world/world.js';
 import { overlap, surfaceCollision } from '../game/collision.js';
 import { PlayerStatBar } from './statBar.js';
 import { checkToolInteraction } from '../tile/toolInteraction.js';
-import HotbarText from './hotbarText.js';
-import { PickupLabelHandler } from './pickupLabels.js';
-import { validPlacementPosition } from './placementPreview.js';
+import HotbarText from '../ui/hotbarText.js';
+import { PickupLabelHandler } from '../ui/pickupLabels.js';
+import { validPlacementPosition } from '../ui/placementPreview.js';
 import { Camera } from '../game/camera.js';
-import ItemInfoDisplay from './itemInfo.js';
+import ItemInfoDisplay from '../ui/itemInfo.js';
 import { PlayerFalling, PlayerJumping, PlayerRunning, PlayerStanding, PlayerSwimming, stateEnum } from './playerStates.js';
 import { sprites } from '../game/graphics/loadAssets.js';
 
