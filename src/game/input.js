@@ -43,39 +43,15 @@ export class InputHandler {
 
         window.addEventListener("keydown", event => {
             let key = event.key.toUpperCase();
-            if((key === "A" ||
-                key === "D" ||
-                key === "W" ||
-                key === " " ||
-                key === "E" ||
-                key === "1" ||
-                key === "2" ||
-                key === "3" ||
-                key === "4" ||
-                key === "5" ||
-                key === "6" ||
-                key === "X" 
-                ) && this.keys.indexOf(key) === -1) {
-                    this.keys.push(key);
+            if(this.keys.indexOf(key) === -1) {
+                this.keys.push(key);
             }
         });
 
         window.addEventListener("keyup", event => {
             let key = event.key.toUpperCase();
-            if((key === "A" ||
-                key === "D" ||
-                key === "W" ||
-                key === " " ||
-                key === "E" ||
-                key === "1" ||
-                key === "2" ||
-                key === "3" ||
-                key === "4" ||
-                key === "5" ||
-                key === "6" ||
-                key === "X"
-                ) && this.keys.includes(key)) {
-                    this.keys.splice(this.keys.indexOf(key),1);
+            if(this.keys.includes(key)) {
+                this.keys.splice(this.keys.indexOf(key),1);
             }
         });
 
@@ -99,7 +75,11 @@ export class InputHandler {
             this.mouse.x = event.clientX - rect.left;
             this.mouse.y = event.clientY - rect.top;
             this.mouse.updateGridPos();
-        })
+        });
+    }
+
+    removeKey(key) {
+        this.keys.splice(this.keys.indexOf(key),1);
     }
 }
 

@@ -64,14 +64,18 @@ export default function render(game,player) {
     drawStatBar("health",player.health.max,player.health.current,"rgb(220,60,50)",16,player);
     //drawStatBar("hunger",player.hunger.max,player.hunger.current,"rgb(180,120,100)",72);
     //drawStatBar("thirst",player.thirst.max,player.thirst.current,"rgb(80,160,220)",128);
-    
-    player.inventory.draw();
-    player.inventory.drawItems(game.input);
-    player.inventory.drawSelection(game.input);
-    
-    player.hotbarText.draw();
-    player.pickupLabels.draw();
-    player.itemInfoDisplay.draw(game.input);
+
+    if(player.craftingMenu.isOpen) {
+        player.craftingMenu.render(player.camera.limX(),player.camera.y);
+    } else {
+        player.inventory.draw();
+        player.inventory.drawItems(game.input);
+        player.inventory.drawSelection(game.input);
+        
+        player.hotbarText.draw();
+        player.pickupLabels.draw();
+        player.itemInfoDisplay.draw(game.input);
+    }
     
     // Debug UI
     if(DEBUG_MODE) {

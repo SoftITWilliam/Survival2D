@@ -15,6 +15,7 @@ import { Camera } from '../game/camera.js';
 import ItemInfoDisplay from '../ui/itemInfo.js';
 import { PlayerFalling, PlayerJumping, PlayerRunning, PlayerStanding, PlayerSwimming, stateEnum } from './playerStates.js';
 import { sprites } from '../game/graphics/loadAssets.js';
+import CraftingMenu from './crafting.js';
 
 class Player {
     constructor(game) {
@@ -51,6 +52,7 @@ class Player {
         this.hotbarText = new HotbarText(this);
         this.itemInfoDisplay = new ItemInfoDisplay(this);
         this.camera = new Camera(this);
+        this.craftingMenu = new CraftingMenu(this);
 
         this.miningEvent = null;
         
@@ -91,7 +93,7 @@ class Player {
         // Handle input
         if(input.keys.includes("X")) {
             this.addDevKit();
-            input.keys.splice(input.keys.indexOf("X"),1);
+            input.removeKey("X");
         }
 
         let left = input.keys.includes("A");
@@ -141,6 +143,14 @@ class Player {
     }
 
     updateInventory(input) {
+
+        // Crafting menu
+        if(this.craftingMenu.isOpen) {
+            this.craftingMenu.handleInput(this.game.input);
+            this.craftingMenu.update();
+            return;
+        }
+
         // Open and Close inventory
         if(input.keys.includes("E")) {
             if(this.inventory.view) {
@@ -148,7 +158,7 @@ class Player {
             } else {
                 this.inventory.view = true;
             }
-            input.keys.splice(input.keys.indexOf("E"),1);
+            input.removeKey("E");
         }
 
         // Select inventory slot
@@ -156,12 +166,18 @@ class Player {
             if(input.keys.includes(i.toString())) {
                 this.miningEvent = null;
                 this.selectItem(i);
-                input.keys.splice(input.keys.indexOf(i.toString()),1);
+                input.removeKey(i.toString());
             }
         }
 
         if(this.inventory.view) {
             this.inventory.update(input);
+
+            // Open crafting menu
+            if(input.keys.includes("C")) {
+                this.craftingMenu.open();
+                input.removeKey("C");
+            }
         }
     }
 
