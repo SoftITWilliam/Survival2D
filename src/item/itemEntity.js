@@ -4,6 +4,7 @@ import { gridXfromCoordinate, gridYfromCoordinate, mouseOn, setAttributes } from
 import { sprites } from "../game/graphics/loadAssets.js";
 import { ctx, GRAVITY, TILE_SIZE, WORLD_HEIGHT, WORLD_WIDTH } from "../game/global.js";
 import { surfaceCollision } from "../game/collision.js";
+import { renderItem } from "../game/graphics/renderUtil.js";
 
 
 export class ItemEntity {
@@ -93,15 +94,7 @@ export class ItemEntity {
     }
 
     draw(input) {
-        if(!this.item.missingTexture) {
-            ctx.drawImage(
-                this.item.sprite,this.item.sx,this.item.sy,TILE_SIZE,TILE_SIZE,
-                this.x,this.y,this.w,this.h);
-        } else {
-            ctx.drawImage(
-                sprites.misc.missing_texture,0,0,TILE_SIZE,TILE_SIZE,
-                this.x,this.y,this.w,this.h);
-        }
+        renderItem(this.item,this.x,this.y,this.w,this.h);
 
         if(mouseOn(this,input.mouse)) {
             this.drawLabel(input);
