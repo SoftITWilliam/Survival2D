@@ -8,7 +8,12 @@ export default class RecipeManager {
 
     defineRecipes() {
         this.recipes = [
-            new CraftingRecipe("DEFAULT", [["wood",2],["branch",4]], "stone", 4, this.game),
+            new CraftingRecipe("DEFAULT", [["wood",2],["stone",3]], "dev_pickaxe", 1, this.game),
+            new CraftingRecipe("DEFAULT", [["wood",2],["stone",3]], "dev_axe", 1, this.game),
+            new CraftingRecipe("DEFAULT", [["wood",2],["stone",1]], "dev_shovel", 1, this.game),
+            new CraftingRecipe("DEFAULT", [["wood",2],["stone",5]], "dev_hammer", 1, this.game),
+            new CraftingRecipe("DEFAULT", [["stone",1]], "dirt", 1, this.game),
+            new CraftingRecipe("DEFAULT", [["dirt",1]], "stone", 1, this.game),
             new CraftingRecipe("WORKBENCH", [["stone",8]], "acorn", 1, this.game),
         ];
     }
@@ -19,7 +24,6 @@ export default class RecipeManager {
 
     /**
      * Return an array of all recipes with a specific 'station' value
-     * 
      * @param {string} station 
      * @returns {Array}
      */

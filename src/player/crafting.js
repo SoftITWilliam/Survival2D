@@ -1,7 +1,4 @@
-import { canvas, ctx } from "../game/global.js";
-import { colors } from "../game/graphics/colors.js";
-import { rgb } from "../game/graphics/rgb.js";
-import { drawRounded, setAttributes } from "../misc/util.js";
+import { canvas } from "../game/global.js";
 import CraftingInterface from "../ui/craftingInterface.js";
 
 
@@ -27,7 +24,7 @@ export default class CraftingMenu {
         this.isOpen = true;
         this.station = station;
         this.recipes = this.recipeManager.getRecipesForStation(station);
-        console.log(this.recipes);
+        this.ui.loadCraftables(this.recipes,this.player.game);
     }
 
     close() {
@@ -53,17 +50,18 @@ export default class CraftingMenu {
     }
     
     render(x,y) {
-        const w = 620; const h = 500;
-        const offsetX = (canvas.width - w) / 2;
-        const offsetY = (canvas.height - h) / 2;
+        const offsetX = (canvas.width - this.ui.w) / 2;
+        const offsetY = (canvas.height - this.ui.h) / 2;
         const posX = x + offsetX;
         const posY = y + offsetY;
 
-        this.ui.setProperties(posX,posY,w,h);
+        this.ui.setPosition(posX,posY);
 
         this.ui.renderBase();
 
         let label = this.labels[this.station];
         this.ui.renderTopLabel(label);
+
+        this.ui.renderRecipeList();
     }
 }

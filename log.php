@@ -5,6 +5,12 @@
     : Additional info
     // Notes & comments
 
+<2023-01-12>
+    + Crafting menu now displays avalible recipes for the selected station (currently only hand)
+
+<2023-01-10>
+    + Pressing "C" while in the inventory now opens a blank, non-functional Crafting menu
+
 <2023-01-07>
     * Converted Lighting into a class, instead of a messy collection of functions
     * Fixed a bug where lighting updates wouldn't consider off-screen light sources
