@@ -8,12 +8,12 @@ import { drawDebugUI } from './debug.js';
 
 export default function render(game,player) {
     ctx.save();
-    ctx.translate(-player.camera.limX(),-player.camera.y);
-    ctx.clearRect(player.camera.limX(),player.camera.y,canvas.width,canvas.height);
+    ctx.translate(-player.camera.getX(),-player.camera.getY());
+    ctx.clearRect(player.camera.getX(),player.camera.getY(),canvas.width,canvas.height);
 
     // Background
     ctx.fillStyle = "rgb(150,180,250)";
-    ctx.fillRect(player.camera.limX(),player.camera.y,canvas.width,canvas.height);
+    ctx.fillRect(player.camera.getX(),player.camera.getY(),canvas.width,canvas.height);
 
     // Wall Tiles
 
@@ -66,7 +66,7 @@ export default function render(game,player) {
     //drawStatBar("thirst",player.thirst.max,player.thirst.current,"rgb(80,160,220)",128);
 
     if(player.craftingMenu.isOpen) {
-        player.craftingMenu.render(player.camera.limX(),player.camera.y);
+        player.craftingMenu.render(player.camera.getX(),player.camera.getY());
     } else {
         player.inventory.draw();
         player.inventory.drawItems(game.input);

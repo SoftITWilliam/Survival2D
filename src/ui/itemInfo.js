@@ -154,8 +154,8 @@ export default class ItemInfoDisplay {
         this.boxHeight += this.footerHeight;
 
         // Box must be contained within screen
-        if(this.y + this.boxHeight > this.player.camera.y + canvas.height) {
-            this.y = this.player.camera.y + canvas.height - this.boxHeight;
+        if(this.y + this.boxHeight > this.player.camera.getY() + canvas.height) {
+            this.y = this.player.camera.getY() + canvas.height - this.boxHeight;
         }
 
         // =====================================

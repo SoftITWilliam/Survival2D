@@ -42,8 +42,8 @@ export default class HotbarText {
 
         setAttributes(ctx,{font:"24px Font1",textAlign:"center",fillStyle:"rgba(255,255,255," + this.opacity + ")",
             shadowOffsetX:2,shadowOffsetY:2,shadowColor:"black",shadowBlur:4});
-        let x = this.player.camera.limX() + canvas.width / 2;
-        let y = this.player.camera.y + canvas.height - 144;
+        let x = this.player.camera.getX() + canvas.width / 2;
+        let y = this.player.camera.getY() + canvas.height - 144;
         ctx.fillText(this.text,x,y);
         setAttributes(ctx,{shadowOffsetX:0,shadowOffsetY:0,shadowColor:0,shadowBlur:0});
     }

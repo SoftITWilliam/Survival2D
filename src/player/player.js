@@ -127,6 +127,7 @@ class Player {
 
         this.updatePosition(input);
         this.updateInventory(input);
+        this.camera.update();
 
         // Old water physics
         /*
@@ -253,8 +254,6 @@ class Player {
     updatePosition(input) {
         this.x += Math.round(this.dx);
         this.y += Math.round(this.dy);
-        this.camera.x += Math.round(this.dx);
-        this.camera.y += Math.round(this.dy);
         this.centerX = this.x + this.w/2;
         this.centerY = this.y + this.w/2;
         this.gridX = gridXfromCoordinate(this.centerX);
@@ -268,7 +267,6 @@ class Player {
             let distance = this.x;
             this.dx = 0;
             this.x = 0;
-            this.camera.x -= distance;
         }
 
         // Right wall
@@ -277,7 +275,6 @@ class Player {
             let distance = this.x + this.w - rightEdge;
             this.dx = 0;
             this.x = rightEdge - this.w;
-            this.camera.x -= distance;
         }
 
         // Only check collision of blocks within a 2 block radius
@@ -299,14 +296,12 @@ class Player {
                         let distance = this.y + this.h - tile.y;
                         this.dy = 0;
                         this.y = tile.y - this.h;
-                        this.camera.y -= distance;
                     }
 
                     if(surfaceCollision("bottom",this,tile)) {
                         let distance = this.y - (tile.y + tile.h);
                         this.dy = 0;
                         this.y = tile.y + tile.h;
-                        this.camera.y -= distance;
                         this.jumpFrames = false;
                     }
 
@@ -314,14 +309,12 @@ class Player {
                         let distance = this.x + this.w - tile.x;
                         this.dx = 0;
                         this.x = tile.x - this.w;
-                        this.camera.x -= distance;
                     }
 
                     if(surfaceCollision("right",this,tile)) {
                         let distance = this.x - (tile.x + tile.w);
                         this.dx = 0;
                         this.x = tile.x + tile.w;
-                        this.camera.x -= distance;
                     }
                 }
 
@@ -457,8 +450,6 @@ class Player {
     spawn() {
         this.x = Math.round(this.game.world.width / 2 * TILE_SIZE - this.w / 2);
         this.y = Math.round((-HEIGHTMAP[63] - 2) * TILE_SIZE);
-        this.camera.x = Math.round(this.x - canvas.width / 2 + this.w / 2);
-        this.camera.y = Math.round(this.y - canvas.height / 2 + this.h / 2);
         this.centerX = this.x + this.w/2;
         this.centerY = this.y + this.w/2;
         this.gridX = gridXfromCoordinate(this.centerX);

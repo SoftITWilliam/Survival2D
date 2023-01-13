@@ -305,7 +305,7 @@ export class Inventory {
 
         ctx.beginPath();
         setAttributes(ctx,{strokeStyle:"rgba(0,0,0,0.5)",fillStyle:"rgba(0,0,0,0.25)",lineWidth:3});
-        ctx.rect(this.player.camera.limX() + this.leftEdge-3,this.player.camera.y + this.topEdge-27,this.fullWidth+6,this.slotSize*(this.h-1) +6);
+        ctx.rect(this.player.camera.getX() + this.leftEdge-3,this.player.camera.getY() + this.topEdge-27,this.fullWidth+6,this.slotSize*(this.h-1) +6);
         ctx.fill();
         ctx.stroke();
         ctx.closePath();
@@ -322,7 +322,7 @@ export class Inventory {
 
         ctx.beginPath();
         setAttributes(ctx,{strokeStyle:"rgba(0,0,0,0.5)",fillStyle:"rgba(0,0,0,0.25)",lineWidth:3});
-        ctx.rect(this.player.camera.limX() + this.leftEdge-3,this.player.camera.y + this.topEdge-3 + this.slotSize * 3,this.fullWidth+6,this.slotSize+6);
+        ctx.rect(this.player.camera.getX() + this.leftEdge-3,this.player.camera.getY() + this.topEdge-3 + this.slotSize * 3,this.fullWidth+6,this.slotSize+6);
         ctx.fill();
         ctx.stroke();
 
@@ -337,7 +337,7 @@ export class Inventory {
         let slot = this.getSelectedSlot();
 
         ctx.beginPath();
-        ctx.rect(this.player.camera.limX() + slot.x,this.player.camera.y + slot.y,this.slotSize,this.slotSize);
+        ctx.rect(this.player.camera.getX() + slot.x,this.player.camera.getY() + slot.y,this.slotSize,this.slotSize);
         ctx.stroke();
         ctx.closePath();
     }
@@ -393,7 +393,7 @@ class InventorySlot {
         setAttributes(ctx,{strokeStyle:"rgb(200,200,200)",lineWidth:3})
 
         ctx.beginPath();
-        ctx.rect(this.x + this.player.camera.limX(),this.y + this.player.camera.y,this.w,this.h);
+        ctx.rect(this.x + this.player.camera.getX(),this.y + this.player.camera.getY(),this.w,this.h);
         ctx.stroke();
         ctx.closePath();
 
@@ -408,8 +408,8 @@ class InventorySlot {
         }
 
         // Item position
-        let xPos = this.player.camera.limX() + this.x;
-        let yPos = this.player.camera.y + this.y;
+        let xPos = this.player.camera.getX() + this.x;
+        let yPos = this.player.camera.getY() + this.y;
 
         // Draw item
         this.stack.draw(xPos + 16,yPos + 16);
@@ -423,6 +423,6 @@ class InventorySlot {
         }
 
         ctx.fillStyle = "rgba(255,255,255,0.25)";
-        ctx.fillRect(this.player.camera.limX() + this.x,this.player.camera.y + this.y,this.w,this.h)
+        ctx.fillRect(this.player.camera.getX() + this.x,this.player.camera.getY() + this.y,this.w,this.h)
     }
 }
