@@ -14,7 +14,7 @@ export function drawDebugUI(game) {
     ctx.fillText("Entity Count: " + game.itemEntities.entities.length,uiX,game.player.camera.getY() + 64);
 
     // Player info
-    ctx.fillText("Player Pos: " + "X: " + gridXfromCoordinate(game.player.centerX) + ", Y: " + (gridYfromCoordinate(game.player.centerY)-1),uiX,game.player.camera.y + 96); 
+    ctx.fillText("Player Pos: " + "X: " + gridXfromCoordinate(game.player.centerX) + ", Y: " + (gridYfromCoordinate(game.player.centerY)-1),uiX,game.player.camera.getY() + 96); 
 
     ctx.fillText("Player State: " + game.player.state.name,uiX,game.player.camera.getY() + 128)
     

@@ -15,8 +15,8 @@ export class Camera {
      * Set the camera position to center the player
      */
     update() {
-        this.#x = this.player.x + (this.player.w / 2) - (canvas.width / 2);
-        this.#y = this.player.y + (this.player.h / 2) - (canvas.height / 2);
+        this.#x = Math.round(this.player.x + (this.player.w / 2) - (canvas.width / 2));
+        this.#y = Math.round(this.player.y + (this.player.h / 2) - (canvas.height / 2));
     }
 
     /**
@@ -33,7 +33,6 @@ export class Camera {
      */
     getY() {
         let y = clamp(this.#y,-this.player.game.world.height * TILE_SIZE,-canvas.height + TILE_SIZE);
-        console.log(y)
         return y;
     }
 }
