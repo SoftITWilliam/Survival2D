@@ -1,20 +1,21 @@
 
 // FIXED IMPORTS:
 import { ctx, canvas, TILE_SIZE } from '../game/global.js';
-import { Inventory } from './inventory.js';
+import { Inventory } from '../ui/inventory.js';
 import { MiningEvent } from './mining.js';
 import { calculateDistance, clamp, gridXfromCoordinate, gridYfromCoordinate } from '../misc/util.js';
 import { HEIGHTMAP } from '../world/world.js';
 import { overlap, surfaceCollision } from '../game/collision.js';
 import { PlayerStatBar } from './statBar.js';
 import { checkToolInteraction } from '../tile/toolInteraction.js';
-import HotbarText from './hotbarText.js';
-import { PickupLabelHandler } from './pickupLabels.js';
-import { validPlacementPosition } from './placementPreview.js';
+import HotbarText from '../ui/hotbarText.js';
+import { PickupLabelHandler } from '../ui/pickupLabels.js';
+import { validPlacementPosition } from '../ui/placementPreview.js';
 import { Camera } from '../game/camera.js';
-import ItemInfoDisplay from './itemInfo.js';
+import ItemInfoDisplay from '../ui/itemInfo.js';
 import { PlayerFalling, PlayerJumping, PlayerRunning, PlayerStanding, PlayerSwimming, stateEnum } from './playerStates.js';
 import { sprites } from '../game/graphics/loadAssets.js';
+import CraftingMenu from './crafting.js';
 
 class Player {
     constructor(game) {
@@ -51,6 +52,7 @@ class Player {
         this.hotbarText = new HotbarText(this);
         this.itemInfoDisplay = new ItemInfoDisplay(this);
         this.camera = new Camera(this);
+        this.craftingMenu = new CraftingMenu(this);
 
         this.miningEvent = null;
         
@@ -91,7 +93,7 @@ class Player {
         // Handle input
         if(input.keys.includes("X")) {
             this.addDevKit();
-            input.keys.splice(input.keys.indexOf("X"),1);
+            input.removeKey("X");
         }
 
         let left = input.keys.includes("A");
@@ -125,6 +127,7 @@ class Player {
 
         this.updatePosition(input);
         this.updateInventory(input);
+        this.camera.update();
 
         // Old water physics
         /*
@@ -141,6 +144,14 @@ class Player {
     }
 
     updateInventory(input) {
+
+        // Crafting menu
+        if(this.craftingMenu.isOpen) {
+            this.craftingMenu.handleInput(this.game.input);
+            this.craftingMenu.update();
+            return;
+        }
+
         // Open and Close inventory
         if(input.keys.includes("E")) {
             if(this.inventory.view) {
@@ -148,7 +159,7 @@ class Player {
             } else {
                 this.inventory.view = true;
             }
-            input.keys.splice(input.keys.indexOf("E"),1);
+            input.removeKey("E");
         }
 
         // Select inventory slot
@@ -156,12 +167,18 @@ class Player {
             if(input.keys.includes(i.toString())) {
                 this.miningEvent = null;
                 this.selectItem(i);
-                input.keys.splice(input.keys.indexOf(i.toString()),1);
+                input.removeKey(i.toString());
             }
         }
 
         if(this.inventory.view) {
             this.inventory.update(input);
+
+            // Open crafting menu
+            if(input.keys.includes("C")) {
+                this.craftingMenu.open();
+                input.removeKey("C");
+            }
         }
     }
 
@@ -237,8 +254,6 @@ class Player {
     updatePosition(input) {
         this.x += Math.round(this.dx);
         this.y += Math.round(this.dy);
-        this.camera.x += Math.round(this.dx);
-        this.camera.y += Math.round(this.dy);
         this.centerX = this.x + this.w/2;
         this.centerY = this.y + this.w/2;
         this.gridX = gridXfromCoordinate(this.centerX);
@@ -252,7 +267,6 @@ class Player {
             let distance = this.x;
             this.dx = 0;
             this.x = 0;
-            this.camera.x -= distance;
         }
 
         // Right wall
@@ -261,7 +275,6 @@ class Player {
             let distance = this.x + this.w - rightEdge;
             this.dx = 0;
             this.x = rightEdge - this.w;
-            this.camera.x -= distance;
         }
 
         // Only check collision of blocks within a 2 block radius
@@ -283,14 +296,12 @@ class Player {
                         let distance = this.y + this.h - tile.y;
                         this.dy = 0;
                         this.y = tile.y - this.h;
-                        this.camera.y -= distance;
                     }
 
                     if(surfaceCollision("bottom",this,tile)) {
                         let distance = this.y - (tile.y + tile.h);
                         this.dy = 0;
                         this.y = tile.y + tile.h;
-                        this.camera.y -= distance;
                         this.jumpFrames = false;
                     }
 
@@ -298,14 +309,12 @@ class Player {
                         let distance = this.x + this.w - tile.x;
                         this.dx = 0;
                         this.x = tile.x - this.w;
-                        this.camera.x -= distance;
                     }
 
                     if(surfaceCollision("right",this,tile)) {
                         let distance = this.x - (tile.x + tile.w);
                         this.dx = 0;
                         this.x = tile.x + tile.w;
-                        this.camera.x -= distance;
                     }
                 }
 
@@ -441,8 +450,6 @@ class Player {
     spawn() {
         this.x = Math.round(this.game.world.width / 2 * TILE_SIZE - this.w / 2);
         this.y = Math.round((-HEIGHTMAP[63] - 2) * TILE_SIZE);
-        this.camera.x = Math.round(this.x - canvas.width / 2 + this.w / 2);
-        this.camera.y = Math.round(this.y - canvas.height / 2 + this.h / 2);
         this.centerX = this.x + this.w/2;
         this.centerY = this.y + this.w/2;
         this.gridX = gridXfromCoordinate(this.centerX);

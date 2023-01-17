@@ -1,5 +1,5 @@
 import { sprites } from "../../game/graphics/loadAssets.js";
-import PlacementPreview from "../../player/placementPreview.js";
+import PlacementPreview from "../../ui/placementPreview.js";
 import { Dirt } from "../../tile/tileParent.js";
 import TileItemBase from "./base/tileItemBase.js";
 

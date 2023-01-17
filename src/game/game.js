@@ -1,6 +1,7 @@
 import ItemEntityHandler from "../item/itemEntityHandler.js";
 import ItemRegistry from "../item/itemRegistry.js";
 import { Player } from "../player/player.js";
+import RecipeManager from "../player/recipe.js";
 import { World } from "../world/world.js";
 import FPSCounter from "./graphics/FPScounter.js";
 import { InputHandler } from "./input.js";
@@ -10,15 +11,19 @@ export class Game {
     constructor() {
         this.world = new World(this,127,127);
         this.world.generate();
-        
+
+        this.itemRegistry = new ItemRegistry(this);
+        this.recipeManager = new RecipeManager(this);
+        this.itemEntities = new ItemEntityHandler(this);
         this.player = new Player(this);
         this.input = new InputHandler(this);
-        this.itemEntities = new ItemEntityHandler(this);
         this.fpsCounter = new FPSCounter(this);
-        this.itemRegistry = new ItemRegistry(this);
+        
+        
     }
 
     update() {
+        document.body.style.cursor = "default";
         this.fpsCounter.increment();
         this.player.update(this.input);
         this.itemEntities.update();

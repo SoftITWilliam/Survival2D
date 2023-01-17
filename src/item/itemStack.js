@@ -1,6 +1,7 @@
 
 // FIXED IMPORTS:
 import { ctx, TILE_SIZE } from "../game/global.js";
+import { renderItem } from "../game/graphics/renderUtil.js";
 import { setAttributes } from "../misc/util.js";
 
 export class ItemStack {
@@ -36,17 +37,7 @@ export class ItemStack {
     }
 
     draw(x,y) {
-        if(this.item.sprite) {
-            ctx.drawImage(
-                this.item.sprite,this.item.sx,this.item.sy,TILE_SIZE,TILE_SIZE,
-                x,y,this.size,this.size);
-        } else {
-            let img = new Image;
-            img.src = "assets/missing_texture.png";
-            ctx.drawImage(
-                img,0,0,TILE_SIZE,TILE_SIZE,
-                x,y,this.size,this.size);
-        }
+        renderItem(this.item,x,y,this.size,this.size);
     }
 
     drawAmount(x,y) {

@@ -1,6 +1,7 @@
 
 import { ctx } from '../global.js';
 import { setAttributes } from '../../misc/util.js';
+import { renderPath } from './renderUtil.js';
 
 export function drawStatBar(barType,max,current,color,y,player) {
     let m = 8;
@@ -8,24 +9,28 @@ export function drawStatBar(barType,max,current,color,y,player) {
     let barHeight = 32;
     ctx.lineWidth = 3;
 
-    ctx.beginPath();
-    ctx.strokeStyle = "rgba(0,0,0,0.6)";
-    ctx.rect(player.camera.limX() + 17, player.camera.y + y, barLength + 6,barHeight + 6);
-    ctx.stroke();
-    ctx.closePath();
+    let x = player.camera.getX();
+    y += player.camera.getY();
 
-    ctx.beginPath();
-    ctx.strokeStyle = "white";
-    ctx.fillStyle = "rgba(0,0,0,0.4)";
-    ctx.rect(player.camera.limX() + 20, player.camera.y + y + 3, barLength, barHeight);
-    ctx.fill();
-    ctx.stroke();
-    ctx.closePath();
+    renderPath(() => {
+        ctx.strokeStyle = "rgba(0,0,0,0.6)";
+        ctx.rect(x + 17, y, barLength + 6,barHeight + 6);
+        ctx.stroke();
+    })
+    
+    renderPath(() => {
+        ctx.strokeStyle = "white";
+        ctx.fillStyle = "rgba(0,0,0,0.4)";
+        ctx.rect(x + 20, y + 3, barLength, barHeight);
+        ctx.fill();
+        ctx.stroke();
+    })
 
-    ctx.beginPath();
-    ctx.fillStyle = color;
-    ctx.fillRect(player.camera.limX() + 22, player.camera.y + y + 5, current * m, barHeight-4);
+    renderPath(() => {
+        ctx.fillStyle = color;
+        ctx.fillRect(x + 22, y + 5, current * m, barHeight-4);
 
-    setAttributes(ctx,{fillStyle:"rgb(255,255,255)",font:"24px Font1",textAlign:"center"});
-    ctx.fillText(current + "/" + max,player.camera.limX() + 23 + barLength / 2, player.camera.y + y + 28);
+        setAttributes(ctx,{fillStyle:"rgb(255,255,255)",font:"24px Font1",textAlign:"center"});
+        ctx.fillText(current + "/" + max,x + 23 + barLength / 2, y + 28);
+    })
 }

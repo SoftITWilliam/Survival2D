@@ -1,7 +1,7 @@
 
 // FIXED IMPORTS:
 import { ctx } from "../game/global.js";
-import { rgb } from "../game/graphics/rgb.js";
+import { rgb } from "../game/graphics/renderUtil.js";
 import { getLang } from "../game/lang.js";
 import { sprites } from "../game/graphics/loadAssets.js";
 import { disableShadow, drawRounded, setAttributes, splitIntoLines } from "../misc/util.js";
@@ -154,8 +154,8 @@ export default class ItemInfoDisplay {
         this.boxHeight += this.footerHeight;
 
         // Box must be contained within screen
-        if(this.y + this.boxHeight > this.player.camera.y + canvas.height) {
-            this.y = this.player.camera.y + canvas.height - this.boxHeight;
+        if(this.y + this.boxHeight > this.player.camera.getY() + canvas.height) {
+            this.y = this.player.camera.getY() + canvas.height - this.boxHeight;
         }
 
         // =====================================

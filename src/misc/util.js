@@ -139,3 +139,16 @@ export function splitIntoLines(string,maxWidth) {
 
     return lines;
 }
+
+/**
+ * Calculate size of gaps between a number of equally sized items on a line.
+ * If the sum of the items is greater than the total size, return 0.
+ * @param {number} totalSize Total size of area
+ * @param {number} size Item size
+ * @param {number} amount Amount of items
+ * @returns {number} Gap size
+*/
+export function getGap(totalSize,size,amount) {
+    let gap = (totalSize - (size * amount)) / (amount + 1);
+    return(gap > 0 ? gap : 0);
+}

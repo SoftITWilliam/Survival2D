@@ -5,7 +5,25 @@
     : Additional info
     // Notes & comments
 
-<2023-01-07>
+<2023-01-17>
+    + Crafting menu displays how many of each crafting ingredient is avalible
+    * Crafting button is not avalible when player cannot afford to craft the item.
+
+<2023-01-16>
+    + Crafting menu displays item cost
+
+<2023-01-13>
+    * More work on Crafting system
+
+<2023-01-12>
+    + Crafting menu now displays avalible recipes for the selected station
+    * Reworked how the player camera works
+    * Camera Y is restricted to world boundaries
+
+<2023-01-10>
+    + Pressing "C" while in the inventory now opens a blank, non-functional Crafting menu
+
+<2023-01-08>
     * Converted Lighting into a class, instead of a messy collection of functions
     * Fixed a bug where lighting updates wouldn't consider off-screen light sources
 
