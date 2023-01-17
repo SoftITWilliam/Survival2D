@@ -145,8 +145,9 @@ export default class CraftingMenu {
     }
 
     /**
-     * Check
-     * @param {object} recipe 
+     * Return true if the player is able to craft the given amount of a given item with the materials currently in their inventory
+     * @param {object} recipe Crafting recipe
+     * @param {number} amount Crafting count 
      * @returns {boolean}
      */
     ableToCraft(recipe,amount) {
@@ -158,6 +159,19 @@ export default class CraftingMenu {
             }
         });
         return craftingStatus;
+    }
+
+    craftItem() {
+        let recipe = this.getSelectedRecipe();
+        let itemRegistry = this.player.game.itemRegistry;
+
+        recipe.inputList.forEach(r => {
+            let item = itemRegistry.get(r[0]);
+            this.player.inventory.removeItem(item,this.craftingAmount * r[1]);
+        })
+            
+        this.player.inventory.addItem(this.outputItem,this.craftingAmount * recipe.outputAmount);
+        this.close();
     }
 
     handleInput(input) {
@@ -201,6 +215,5 @@ export default class CraftingMenu {
         } else {
             this.ui.renderNoRecipe();
         }
-        
     }
 }

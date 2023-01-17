@@ -68,7 +68,7 @@ export default class CraftingInterface {
         this.buttons.craftItem.setSize(96,36);
         this.buttons.craftItem.setText("Craft",colors.white,"Font1",24);
         this.buttons.craftItem.setDisplay(colors.uiLight,12);
-        this.buttons.craftItem.setOnClick(() => {console.log("Click!")});
+        this.buttons.craftItem.setOnClick(() => this.menu.craftItem());
 
         this.buttons.maxAmount.setText(">","W");
         this.buttons.increaseAmount.setText("+");

@@ -317,6 +317,41 @@ export class Inventory {
         this.player.pickupLabels.add(item,startAmount);
     }
 
+    removeItem(item, amount) {
+        for(let y = this.h - 1; y >= 0; y--) {
+            for(let x = this.w - 1; x >= 0; x--) {
+                console.log(x + ", " + y);
+                
+                // Loop through inventory until a slot is found that has the given item
+                let slot = this.grid[x][y];
+                if(!slot.stack) {
+                    continue;
+                }
+
+                if(slot.stack.item.registryName !== item.registryName) {
+                    continue;
+                }
+
+                // Delete the given amount from the stack, then return.
+                if(amount < slot.stack.amount) {
+                    slot.stack.amount -= amount;
+                    return;
+                }
+
+                // Delete the stack, then return.
+                if(amount == slot.stack.amount) {
+                    slot.stack = null;
+                    return;
+                }
+
+                // Delete the stack, then find the next stack.
+                if(amount >= slot.stack.null) {
+                    slot.stack = null;
+                }
+            }
+        }
+    }
+
     draw() {
 
         // Draw hotbar
