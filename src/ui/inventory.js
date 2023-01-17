@@ -231,6 +231,30 @@ export class Inventory {
     }
 
     /**
+     * Search inventory for a certain item and returns the total amount
+     * @param {object} item The item to be searched for
+     */
+    getItemAmount(item) {
+        if(!item) {
+            return;
+        }
+
+        let amount = 0;
+        for(let x = 0; x < this.w; x++) {
+            for(let y = 0; y < this.h; y++) {
+                let g = this.grid[x][y];
+                if(!g.stack) {
+                    continue;
+                }
+                if(g.stack.item.registryName == item.registryName) {
+                    amount += g.stack.amount;
+                }
+            }
+        }
+        return amount;
+    }
+
+    /**
      * Try to add an item into the inventory
      * 
      * @param {*} item 
@@ -343,7 +367,6 @@ export class Inventory {
     }
 
     drawSelectedStack(input) {
-        console.log(input);
         this.holdingStack.draw(input.mouse.mapX,-input.mouse.mapY);
         this.holdingStack.drawAmount(input.mouse.mapX - 16, -input.mouse.mapY - 16);
     }

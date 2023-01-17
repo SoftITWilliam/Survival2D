@@ -17,6 +17,8 @@ export default class CraftingMenu {
             DEFAULT: "Crafting",
             WORKBENCH: "Workbench"
         }
+
+        this.avalibleResources = {}
     }
 
     open(station) {
@@ -27,7 +29,9 @@ export default class CraftingMenu {
         this.isOpen = true;
         this.station = station;
         this.recipes = this.recipeManager.getRecipesForStation(station);
+        this.refreshResources(); 
         this.ui.loadCraftables(this.recipes,this.player.game);
+        this.ui.updateCraftingAmount(this.craftingAmount);
     }
 
     close() {
@@ -53,22 +57,71 @@ export default class CraftingMenu {
             this.selectedRecipe = null;
         } else {
             this.selectedRecipe = index;
-            this.loadRecipe(this.recipes[this.selectedRecipe]);
+            this.loadRecipe(this.getSelectedRecipe());
         }
     } 
 
-    getResourceAmount(item) {
-        this.player.inventory.getItemAmount(item);
+    getSelectedRecipe() {
+        return this.recipes[this.selectedRecipe];
+    }
+
+    /**
+     * Go through all the resources, look at their inputs, and put the amount the player has in their inventory into this.avalibleResources.
+     * This might be very inefficient once there are a lot of recipes to deal with.
+     */
+    refreshResources() {
+        this.avalibleResources = {}
+        this.recipes.forEach(recipe => {
+            recipe.inputList.forEach(i => {
+                if(!this.avalibleResources.hasOwnProperty(i[0])) {
+                    let item = this.player.game.itemRegistry.get(i[0]);
+                    this.avalibleResources[i[0]] = this.player.inventory.getItemAmount(item);
+                }
+            })
+        })
+        console.log(this.avalibleResources);
+    }
+
+    minAmount() {
+        this.craftingAmount = 1;
+        this.ui.updateCraftingAmount(this.craftingAmount);
+        this.updateCraftButton();
     }
 
     increaseAmount() {
         this.craftingAmount += 1;
+        this.ui.updateCraftingAmount(this.craftingAmount);
+        this.updateCraftButton();
     }
 
     decreaseAmount() {
         if(this.craftingAmount > 1) {
             this.craftingAmount -= 1;
+            this.ui.updateCraftingAmount(this.craftingAmount);
+            this.updateCraftButton();
         }
+    }
+
+    maxAmount() {
+        let craftingCost = this.getSelectedRecipe().inputList;
+        this.craftingAmount = 99;
+        craftingCost.forEach(i => {
+            let avalible = this.avalibleResources[i[0]];
+            let max = Math.floor(avalible / i[1]);
+            if(max < this.craftingAmount) {
+                this.craftingAmount = max;
+            }
+        });
+        if(this.craftingAmount <= 1) {
+            this.craftingAmount = 1;
+        }
+        this.ui.updateCraftingAmount(this.craftingAmount);
+        this.updateCraftButton();
+    }
+
+    updateCraftButton() {
+        let status = this.ableToCraft(this.getSelectedRecipe(),this.craftingAmount);
+        this.ui.buttons.craftItem.setClickable(status);
     }
 
     /** 
@@ -86,6 +139,25 @@ export default class CraftingMenu {
         })
 
         this.outputAmount = recipe.outputAmount;
+
+        this.ui.updateCraftingAmount(this.craftingAmount);
+        this.updateCraftButton();
+    }
+
+    /**
+     * Check
+     * @param {object} recipe 
+     * @returns {boolean}
+     */
+    ableToCraft(recipe,amount) {
+        let craftingStatus = true;
+        recipe.inputList.forEach(i => {
+            let avalible = this.avalibleResources[i[0]];
+            if(i[1] * amount > avalible) {
+                craftingStatus = false;
+            }
+        });
+        return craftingStatus;
     }
 
     handleInput(input) {
@@ -108,14 +180,12 @@ export default class CraftingMenu {
             }
         }
     }
-    
+
     render(x,y,input) {
         const offsetX = (canvas.width - this.ui.w) / 2;
         const offsetY = (canvas.height - this.ui.h) / 2;
-        const posX = x + offsetX;
-        const posY = y + offsetY;
 
-        this.ui.setPosition(posX,posY);
+        this.ui.setPosition(x + offsetX, y + offsetY);
     
         this.ui.renderBase();
         this.ui.renderTopLabel(this.labels[this.station]);

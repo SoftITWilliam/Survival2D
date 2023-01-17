@@ -6,10 +6,11 @@
     // Notes & comments
 
 <2023-01-17>
-    
+    + Crafting menu displays how many of each crafting ingredient is avalible
+    * Crafting button is not avalible when player cannot afford to craft the item.
 
 <2023-01-16>
-    * Crafting menu displays item cost
+    + Crafting menu displays item cost
 
 <2023-01-13>
     * More work on Crafting system

@@ -96,7 +96,9 @@ export default class Button {
 
     // Render button on canvas
     render() {
-        if(this.#hovering) {
+        if(!this.#clickable) {
+            ctx.fillStyle = rgbm(this.#color,0.7);
+        } else if(this.#hovering) {
             ctx.fillStyle = rgbm(this.#color,1.3);
         } else {
             ctx.fillStyle = rgb(this.#color);
@@ -108,10 +110,15 @@ export default class Button {
         });
 
         setAttributes(ctx,{
-            fillStyle: this.#textColor,
             font: this.#fontSize + "px " + this.#font,
             textAlign: "center",
         });
+
+        if(!this.#clickable) {
+            ctx.fillStyle = rgbm(this.#textColor,0.7);
+        }  else {
+            ctx.fillStyle = rgb(this.#textColor);
+        }
 
         ctx.fillText(this.#text, this.#x + this.#w / 2, this.#y + this.#h / 2 + this.#fontSize / 3);
     }

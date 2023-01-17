@@ -22,6 +22,8 @@ export default class CraftingInterface {
         this.sectionHeight = 380;
         this.craftables = [];
 
+        this.amountDisplayWidth = 0;
+
         // Section positions
         this.section1 = {
             x: getGap(this.w, this.sectionWidth, 2),
@@ -44,6 +46,12 @@ export default class CraftingInterface {
             this.itemGap = getGap(this.sectionWidth,this.craftableSize,this.itemsPerRow);
         }
 
+        // Section sizes for ingredient list
+        this.s1 = Math.round(this.sectionWidth * 0.20);
+        this.s2 = Math.round(this.sectionWidth * 0.48);
+        this.s3 = Math.round(this.sectionWidth * 0.14);
+        this.s4 = Math.round(this.sectionWidth * 0.14);
+
 
         // ============================
         //    BUTTONS
@@ -58,7 +66,7 @@ export default class CraftingInterface {
         }
     
         this.buttons.craftItem.setSize(96,36);
-        this.buttons.craftItem.setText("Craft","white","Font1",24);
+        this.buttons.craftItem.setText("Craft",colors.white,"Font1",24);
         this.buttons.craftItem.setDisplay(colors.uiLight,12);
         this.buttons.craftItem.setOnClick(() => {console.log("Click!")});
 
@@ -69,7 +77,7 @@ export default class CraftingInterface {
 
         const setBaseProperties = (b,text) => {
             b.setSize(32,32);
-            b.setText(text,"white","Font1",18);
+            b.setText(text,colors.white,"Font1",18);
             b.setDisplay(colors.uiLight,8);
         }
 
@@ -78,8 +86,10 @@ export default class CraftingInterface {
         setBaseProperties(this.buttons.decreaseAmount,"-");
         setBaseProperties(this.buttons.minAmount,"<");
 
+        this.buttons.maxAmount.setOnClick(() => this.menu.maxAmount());
         this.buttons.increaseAmount.setOnClick(() => this.menu.increaseAmount());
         this.buttons.decreaseAmount.setOnClick(() => this.menu.decreaseAmount());
+        this.buttons.minAmount.setOnClick(() => this.menu.minAmount());
     }
 
     setPosition(x,y) {
@@ -104,6 +114,11 @@ export default class CraftingInterface {
             }
         }
         this.menu.hoveredCraftable = null;
+    }
+
+    updateCraftingAmount(amount) {
+        ctx.font = "16px Font1";
+        this.amountDisplayWidth = ctx.measureText(amount).width + 24;
     }
 
     renderBase() {
@@ -224,36 +239,41 @@ export default class CraftingInterface {
 
         ctx.font = "14px Font1";
 
-        let w1 = Math.round(this.sectionWidth * 0.20);
-        let w2 = Math.round(this.sectionWidth * 0.48);
-        let w3 = Math.round(this.sectionWidth * 0.14);
-        let w4 = Math.round(this.sectionWidth * 0.14);
-
         // Top row
         ctx.fillStyle = rgbm(colors.uiDark,0.8);
         ctx.fillRect(x, y,this.sectionWidth,rowHeight);
         ctx.fillStyle = "rgb(220,220,220)";
 
         ctx.textAlign = "center";
-        ctx.fillText("Amount", x + w1/2, y + 20);
+        ctx.fillText("Amount", x + this.s1/2, y + 20);
         ctx.textAlign = "left";
-        ctx.fillText("Item", x + w1 + 8, y + 20);
+        ctx.fillText("Item", x + this.s1 + 8, y + 20);
         ctx.textAlign = "center";
-        ctx.fillText("Total", x + w1 + w2 + w3/2, y + 20);
-        ctx.fillText("Have", x + w1 + w2 + w3 + w4/2, y + 20);
+        ctx.fillText("Total", x + this.s1 + this.s2 + this.s3/2, y + 20);
+        ctx.fillText("Have", x + this.s1 + this.s2 + this.s3 + this.s4/2, y + 20);
 
+        // Resouces required
         for(let i=0; i<rowCount-1;i++) {
             let yPos = y + ((rowHeight + rowGap) * (i+1));
 
             ctx.fillStyle = "rgb(220,220,220)";
 
             let item = inputItems[i][0];
+            let itemAmount = inputItems[i][1];
+            let totalAmount = itemAmount * amount;
+            let avalible = this.menu.avalibleResources[item.registryName];
+
             ctx.textAlign = "center";
-            ctx.fillText(inputItems[i][1], x + w1/2, yPos + 20);
-            ctx.fillText(inputItems[i][1] * amount, x + w1 + w2 + w3/2, yPos + 20);
-            ctx.textAlign = "left";
-            ctx.fillText(item.displayName, x + w1 + 30, yPos + 20);
-            renderItem(item, x + w1, yPos + (rowHeight - 24) / 2, 24, 24);
+            ctx.fillText(itemAmount, x + this.s1/2, yPos + 20);
+            ctx.fillText(totalAmount, x + this.s1 + this.s2 + this.s3/2, yPos + 20);
+
+            if(avalible < totalAmount) {
+                ctx.fillStyle = rgb(colors.errorRed);
+            }
+            ctx.fillText(avalible, x + this.s1 + this.s2 + this.s3 + this.s4/2, yPos + 20);
+            setAttributes(ctx,{textAlign: "left", fillStyle: "white"});
+            ctx.fillText(item.displayName, x + this.s1 + 30, yPos + 20);
+            renderItem(item, x + this.s1, yPos + (rowHeight - 24) / 2, 24, 24);
         }
     }
 
@@ -266,12 +286,21 @@ export default class CraftingInterface {
 
         xPos += 14;
         let spaceBetween = 4;
-        let width = 32;
-        let numWidth = 0;
+        let size = 32;
         this.buttons.minAmount.setPosition(xPos, yPos + 2);
-        this.buttons.decreaseAmount.setPosition(xPos + width + spaceBetween, yPos + 2);
-        this.buttons.increaseAmount.setPosition(xPos + (2*width) + numWidth + (3*spaceBetween), yPos + 2);
-        this.buttons.maxAmount.setPosition(xPos + (3*width) + numWidth + (4*spaceBetween), yPos + 2);
+        this.buttons.decreaseAmount.setPosition(xPos + size + spaceBetween, yPos + 2);
+        this.buttons.increaseAmount.setPosition(xPos + (2*size) + this.amountDisplayWidth + (3*spaceBetween), yPos + 2);
+        this.buttons.maxAmount.setPosition(xPos + (3*size) + this.amountDisplayWidth + (4*spaceBetween), yPos + 2);
+
+        this.amountDisplayPos = {x: xPos + (2*size) + this.amountDisplayWidth/2 + (2*spaceBetween), y: yPos + 20}
+
+        let bgPadding = 4;
+        this.buttonBg = {
+            x: xPos - bgPadding,
+            y: (yPos + 2) - bgPadding,
+            w: (size * 4) + (spaceBetween * 4) + this.amountDisplayWidth + (bgPadding * 2),
+            h: size + (bgPadding * 2)
+        }
         
         // Update all buttons
         for(let b in this.buttons) {
@@ -281,6 +310,13 @@ export default class CraftingInterface {
     }
 
     renderRecipeButtons() {
+        ctx.fillStyle = rgbm(colors.uiDark,0.5);
+        renderPath(() => {
+            drawRounded(this.buttonBg.x, this.buttonBg.y, this.buttonBg.w, this.buttonBg.h,10,ctx);
+            ctx.fill(); ctx.restore();
+        })
+        setAttributes(ctx,{fillStyle:rgb(colors.white),font:"16px Font1",textAlign:"center"});
+        ctx.fillText(this.menu.craftingAmount,this.amountDisplayPos.x,this.amountDisplayPos.y);
         this.buttons.craftItem.render();
         this.buttons.maxAmount.render();
         this.buttons.increaseAmount.render();
