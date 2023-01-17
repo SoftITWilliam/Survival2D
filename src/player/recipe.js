@@ -14,6 +14,7 @@ export default class RecipeManager {
             new CraftingRecipe("DEFAULT", [["wood",2],["stone",5]], "dev_hammer", 1, this.game),
             new CraftingRecipe("DEFAULT", [["stone",1]], "dirt", 1, this.game),
             new CraftingRecipe("DEFAULT", [["dirt",1]], "stone", 1, this.game),
+            new CraftingRecipe("DEFAULT", [["wood",2]], "branch", 4, this.game),
             new CraftingRecipe("WORKBENCH", [["stone",8]], "acorn", 1, this.game),
         ];
     }

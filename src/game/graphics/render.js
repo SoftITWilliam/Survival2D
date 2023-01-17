@@ -66,7 +66,7 @@ export default function render(game,player) {
     //drawStatBar("thirst",player.thirst.max,player.thirst.current,"rgb(80,160,220)",128);
 
     if(player.craftingMenu.isOpen) {
-        player.craftingMenu.render(player.camera.getX(),player.camera.getY());
+        player.craftingMenu.render(player.camera.getX(),player.camera.getY(),game.input);
     } else {
         player.inventory.draw();
         player.inventory.drawItems(game.input);

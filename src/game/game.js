@@ -23,6 +23,7 @@ export class Game {
     }
 
     update() {
+        document.body.style.cursor = "default";
         this.fpsCounter.increment();
         this.player.update(this.input);
         this.itemEntities.update();
