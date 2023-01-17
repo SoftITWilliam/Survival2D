@@ -291,29 +291,45 @@ export class Inventory {
             }
         }
 
-        // Find empty inventory space
-        let emptySlot = this.findEmptySlot();
+        while(true) {
 
-        // If inventory is full, return the amount of items left.
-        if(!emptySlot) {
-            if(startAmount - amount != 0) {
-                this.player.pickupLabels.add(item,startAmount - amount);
+            // Break condition
+            console.log(amount);
+            if(amount == 0) {
+                break;
             }
-            return amount;
+
+            // Find empty inventory space
+            let emptySlot = this.findEmptySlot();
+
+            // If inventory is full, return the amount of items left.
+            if(!emptySlot) {
+                if(startAmount - amount != 0) {
+                    this.player.pickupLabels.add(item,startAmount - amount);
+                }
+                return amount;
+            }
+
+            let x = emptySlot.x; let y = emptySlot.y;
+
+            // Creates new item stack
+            // (If the item entity picked up still has items left after this, they will be deleted)
+            // (Unless Tile entities of the same type combine with eachother in the future, this won't be a problem) (IT ENDED UP BEING A PROBLEM)
+            if(item.stackLimit < amount) {
+                this.grid[x][y].stack = new ItemStack(item,item.stackLimit);
+                amount -= item.stackLimit;
+            } else {
+                this.grid[x][y].stack = new ItemStack(item,amount);
+                amount = 0;
+            }
+            
+
+            // If new stack is placed in the selected hotbar slot, the selection is refreshed.
+            if(y + 1 == this.h && x + 1 == this.selectedHotbarSlot) {
+                this.player.selectItem(x + 1);
+            }
         }
 
-        let x = emptySlot.x; let y = emptySlot.y;
-
-        // Creates new item stack
-        // (If the item entity picked up still has items left after this, they will be deleted)
-        // (Unless Tile entities of the same type combine with eachother in the future, this won't be a problem)
-        this.grid[x][y].stack = new ItemStack(item,amount);
-
-        // If new stack is placed in the selected hotbar slot, the selection is refreshed.
-        if(y + 1 == this.h && x + 1 == this.selectedHotbarSlot) {
-            this.player.selectItem(x + 1);
-        }
-        
         this.player.pickupLabels.add(item,startAmount);
     }
 
