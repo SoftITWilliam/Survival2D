@@ -1,4 +1,4 @@
-import { canvas } from "../game/global.js";
+import { canvas, ITEM_SIZE, TILE_SIZE } from "../game/global.js";
 import CraftingInterface from "../ui/craftingUI.js";
 
 
@@ -140,6 +140,8 @@ export default class CraftingMenu {
 
         this.outputAmount = recipe.outputAmount;
 
+        this.ui.loadRecipe(this.inputItems,this.outputItem,this.outputAmount);
+        
         this.ui.updateCraftingAmount(this.craftingAmount);
         this.updateCraftButton();
     }
@@ -201,16 +203,14 @@ export default class CraftingMenu {
 
         this.ui.setPosition(x + offsetX, y + offsetY);
     
-        this.ui.renderBase();
-        this.ui.renderTopLabel(this.labels[this.station]);
+        this.ui.renderBase(this.labels[this.station]);
         this.ui.renderRecipeList();
 
         this.ui.updateButtons(input);
 
         if(this.selectedRecipe !== null) {
-            this.ui.renderRecipeInfo(this.outputItem);
-            this.ui.renderOutputAmount(this.outputAmount);
-            this.ui.renderRecipeCost(this.inputItems,this.craftingAmount);
+            this.ui.renderRecipeInfo();
+
             this.ui.renderRecipeButtons();
         } else {
             this.ui.renderNoRecipe();

@@ -3,6 +3,7 @@ import { colors } from "../game/graphics/colors.js";
 import { renderItem, renderPath, rgb, rgbm } from "../game/graphics/renderUtil.js";
 import { setAttributes, drawRounded, getGap, mouseOn } from "../misc/util.js";
 import Button from "./button.js";
+import * as components from "./componentParent.js";
 
 
 
@@ -46,12 +47,96 @@ export default class CraftingInterface {
             this.itemGap = getGap(this.sectionWidth,this.craftableSize,this.itemsPerRow);
         }
 
-        // Section sizes for ingredient list
-        this.s1 = Math.round(this.sectionWidth * 0.20);
-        this.s2 = Math.round(this.sectionWidth * 0.48);
-        this.s3 = Math.round(this.sectionWidth * 0.14);
-        this.s4 = Math.round(this.sectionWidth * 0.14);
+        // ============================
+        //    COMPONENTS
+        // ============================
 
+        this.game = this.menu.player.game;
+
+        this.rowHeight = 32;
+
+        this.components = {}
+
+        // Crafting menu base
+        this.CPrimary = new components.PrimaryContainer(this.game, {
+            width: this.w, height: this.h, cornerRadius: 16,
+            fillColor: colors.uiLight, strokeColor: colors.black,
+        }),
+
+        // Sections
+        this.CSectionLeft = new components.CraftingSection(this.game, {
+            width: this.sectionWidth, height: this.sectionHeight,
+        });
+
+        this.CSectionRight = new components.CraftingSection(this.game, {
+            width: this.sectionWidth, height: this.sectionHeight,
+        });
+        
+        // Top label
+        this.CTopLabel = new components.OutlinedText(this.game, {
+            font: "Font1", fontSize: 36, 
+            textFill: colors.white, textStroke: colors.black, 
+            position: "ABSOLUTE", offsetY: 48, centerX: true,
+        });
+
+        this.CPrimary.addChildren([this.CSectionLeft,this.CSectionRight,this.CTopLabel]);
+
+        // "No recipe selected" text
+        this.CNoRecipe = new components.TextComponent(this.game, {
+            font: "Font1", fontSize: 24, text: "No recipe selected", 
+            textFill: colors.lightGray, textAlign: "center",
+            centerX: true, centerY: true, 
+        });
+
+        this.COutputSprite = new components.ItemComponent(this.game, {
+            width:24, height: 24, position: "absolute", offsetX: 16, offsetY: 16, item: null,
+        });
+
+        this.COutputName = new components.TextComponent(this.game, {
+            font:"Font1", fontSize: 20, textFill: colors.white, textAlign: "center",
+            position: "absolute", centerX: true, offsetY: 28, 
+        });
+
+        this.COutputAmount = new components.DefaultComponent(this.game, {
+            font:"Font1", fontSize: 20, textFill: colors.white, textAlign: "center", textBaseline: "middle", textCenterX: true, textCenterY: true,
+            position: "absolute", floatX: "right", offsetX: 20, offsetY: 16,
+            fillColor: colors.uiLight, cornerRadius: 4, height: 24
+        });
+
+        this.CItemCostList = new components.DefaultComponent(this.game, {
+            width: this.sectionWidth, floatY: "bottom", offsetY: 68, position: "absolute", childDirection: "column",
+        });
+
+        this.CItemCostLabels = new components.ContainerComponent(this.game, {
+            width: this.sectionWidth, position: "relative", height: this.rowHeight, fillColor: colors.uiDarker,
+        });
+
+        this.CItemCostLabelList = [
+            new components.DefaultComponent(this.game, {
+                text: "Amount", width: this.sectionWidth * 0.20, textAlign: "center", textCenterX: true,
+            }),
+            new components.DefaultComponent(this.game, {
+                text: "Item", width: this.sectionWidth * 0.48,
+            }),
+            new components.DefaultComponent(this.game, {
+                text: "Total", width: this.sectionWidth * 0.14,
+            }),
+            new components.DefaultComponent(this.game, {
+                text: "Have", width: this.sectionWidth * 0.14,
+            }),
+        ];
+
+        this.CItemCostLabelList.forEach(label => {
+            label.setFont(14,"Font1");
+            label.setTextAttribute("textBaseline","middle");
+            label.setTextColor(colors.white,null);
+            label.textCenterY = true;
+            label.h = this.rowHeight;
+        })
+
+        this.CSectionRight.addChildren([this.CNoRecipe, this.COutputSprite, this.COutputName, this.COutputAmount, this.CItemCostList]);
+        this.CItemCostList.addChildren([this.CItemCostLabels]);
+        this.CItemCostLabels.addChildren(this.CItemCostLabelList);
 
         // ============================
         //    BUTTONS
@@ -92,6 +177,77 @@ export default class CraftingInterface {
         this.buttons.minAmount.setOnClick(() => this.menu.minAmount());
     }
 
+    // Prepare components for displaying recipe
+    loadRecipe(input,output,amount) {
+        this.COutputAmount.setText("x" + amount);
+        this.COutputAmount.setSize((this.COutputAmount.getTextWidth() + 16), 24);
+        this.COutputAmount.update();
+        this.COutputSprite.setItem(output);
+        this.COutputName.setText(output.displayName);
+
+        this.CItemCostList.children = [];
+
+        this.CInputList = [];
+
+        input.forEach(i => {
+            let container = new components.DefaultComponent(this.game, {
+                width: this.sectionWidth, height: this.rowHeight,
+            });
+
+            let item = i[0];
+            let itemAmount = i[1];
+            let totalAmount = itemAmount * this.menu.craftingAmount;
+            let avalible = this.menu.avalibleResources[item.registryName];
+
+            let children = [
+                new components.DefaultComponent(this.game, {
+                    height: this.rowHeight, width: this.sectionWidth * 0.20, text: itemAmount, textCenterX: true,
+                }),
+
+                new components.ItemComponent(this.game, {
+                    height: 24, width:24, item: item, centerY: true,
+                }),
+
+                new components.DefaultComponent(this.game, {
+                    height: this.rowHeight, width: this.sectionWidth * 0.48 - 32, offsetX: 8, text: i[0].displayName,
+                }),
+
+                new components.DefaultComponent(this.game, {
+                    height: this.rowHeight, width: this.sectionWidth * 0.12, text: totalAmount, textCenterX: true,
+                }),
+
+                new components.DefaultComponent(this.game, {
+                    height: this.rowHeight, width: this.sectionWidth * 0.14, text: avalible.toString(), textCenterX: true,
+                }),
+            ];
+
+            children.forEach(child => {
+                child.setTextColor(colors.white);
+                child.setTextAttribute("textBaseline","middle");
+                child.textCenterY = true;
+            });
+
+            if(avalible < totalAmount) {
+                children[4].setTextColor(colors.errorRed,null);
+            }
+
+            container.addChildren(children);
+
+            this.CInputList.push(container);
+        })
+
+        this.CInputList.unshift(this.CItemCostLabels);
+        this.CItemCostList.addChildren(this.CInputList);
+        this.CItemCostList.setSize(this.sectionWidth, this.CItemCostList.getTotalChildHeight());
+
+        this.update();
+        console.log(this.CItemCostList);
+    }
+
+    update() {
+        this.CPrimary.updateCascading();
+    }
+
     setPosition(x,y) {
         this.x = x;
         this.y = y;
@@ -116,48 +272,17 @@ export default class CraftingInterface {
         this.menu.hoveredCraftable = null;
     }
 
-    updateCraftingAmount(amount) {
+    updateCraftingAmount(input,output,amount) {
         ctx.font = "16px Font1";
         this.amountDisplayWidth = ctx.measureText(amount).width + 24;
     }
 
-    renderBase() {
-        setAttributes(ctx,{
-            fillStyle:rgb(colors.uiLight),
-            strokeStyle:"black",
-            lineWidth:4,
-        });
-
-        renderPath(() => {
-            drawRounded(this.x, this.y, this.w, this.h, 16, ctx);
-            ctx.fill(); ctx.restore(); ctx.stroke();
-        })
-
-        ctx.fillStyle = rgb(colors.uiDark);
-        let gap = getGap(this.w, this.sectionWidth, 2);
-        let sectionOffset = this.h - this.sectionHeight - gap;
-
-        renderPath(() => {
-            ctx.rect(this.x + gap,this.y + sectionOffset, this.sectionWidth, this.sectionHeight);
-            ctx.rect(this.x + this.sectionWidth + (gap * 2),this.y + sectionOffset, this.sectionWidth, this.sectionHeight);
-            ctx.fill(); ctx.stroke();
-        })
-        
-    }
-
-    renderTopLabel(label) {
-        setAttributes(ctx,{
-            fillStyle:"white",
-            strokeStyle:"black",
-            lineWidth:5,
-            font:"36px Font1",
-            textAlign:"center",
-        });
-
-        renderPath(() => {
-            ctx.strokeText(label,this.x + (this.w / 2),this.y + 48);
-            ctx.fillText(label,this.x + (this.w / 2),this.y + 48);
-        })
+    renderBase(label) {
+        this.CPrimary.render();
+        this.CSectionLeft.render();
+        this.CSectionRight.render();
+        this.CTopLabel.setText(label);
+        this.CTopLabel.render();
     }
 
     loadCraftables(recipes,game) {
@@ -182,99 +307,11 @@ export default class CraftingInterface {
         });
     }
 
-    renderRecipeInfo(outputItem) {
-        let x = this.x + this.section2.x;
-        let y = this.y + this.section2.y;
-        let centerX = x + this.sectionWidth / 2;
-
-        setAttributes(ctx,{
-            fillStyle:"white",
-            textAlign:"center",
-            font:"20px Font1",
-        });
-
-        // Render item sprite in the corner
-        renderItem(outputItem, x + 12, y + 16, 24, 24);
-
-        // Render item name
-        ctx.fillText(
-            outputItem.displayName,
-            centerX,
-            y + 36,
-        );
-    }
-
-    // Render amount crafted at once
-    renderOutputAmount(amount) {
-        let x = this.x + this.section2.x;
-        let y = this.y + this.section2.y;
-
-        ctx.fillStyle = rgb(colors.uiLight);
-        let txt = "x" + amount;
-        let txtWidth = ctx.measureText(txt).width + 16;
-
-        renderPath(() => {
-            drawRounded(x + this.sectionWidth - txtWidth - 16,y + 16,txtWidth,24,4,ctx);
-            ctx.fill(); ctx.restore();
-        })
-        
-        ctx.fillStyle = "white";
-        ctx.fillText(
-            txt,
-            x + this.sectionWidth - 16 - txtWidth/2,
-            y + 35,
-        );
-    }
-
-    /** 
-     * Draw the information about the currently selected recipe
-    */
-    renderRecipeCost(inputItems, amount) {
-        let rowHeight = 32;
-        let rowCount = inputItems.length + 1;
-        let rowGap = 4;
-
-        let x = this.x + this.section2.x;
-        let y = this.y + this.section2.y + this.sectionHeight - 64 - ((rowHeight + rowGap) * rowCount);
-
-        ctx.font = "14px Font1";
-
-        // Top row
-        ctx.fillStyle = rgbm(colors.uiDark,0.8);
-        ctx.fillRect(x, y,this.sectionWidth,rowHeight);
-        ctx.fillStyle = "rgb(220,220,220)";
-
-        ctx.textAlign = "center";
-        ctx.fillText("Amount", x + this.s1/2, y + 20);
-        ctx.textAlign = "left";
-        ctx.fillText("Item", x + this.s1 + 8, y + 20);
-        ctx.textAlign = "center";
-        ctx.fillText("Total", x + this.s1 + this.s2 + this.s3/2, y + 20);
-        ctx.fillText("Have", x + this.s1 + this.s2 + this.s3 + this.s4/2, y + 20);
-
-        // Resouces required
-        for(let i=0; i<rowCount-1;i++) {
-            let yPos = y + ((rowHeight + rowGap) * (i+1));
-
-            ctx.fillStyle = "rgb(220,220,220)";
-
-            let item = inputItems[i][0];
-            let itemAmount = inputItems[i][1];
-            let totalAmount = itemAmount * amount;
-            let avalible = this.menu.avalibleResources[item.registryName];
-
-            ctx.textAlign = "center";
-            ctx.fillText(itemAmount, x + this.s1/2, yPos + 20);
-            ctx.fillText(totalAmount, x + this.s1 + this.s2 + this.s3/2, yPos + 20);
-
-            if(avalible < totalAmount) {
-                ctx.fillStyle = rgb(colors.errorRed);
-            }
-            ctx.fillText(avalible, x + this.s1 + this.s2 + this.s3 + this.s4/2, yPos + 20);
-            setAttributes(ctx,{textAlign: "left", fillStyle: "white"});
-            ctx.fillText(item.displayName, x + this.s1 + 30, yPos + 20);
-            renderItem(item, x + this.s1, yPos + (rowHeight - 24) / 2, 24, 24);
-        }
+    renderRecipeInfo() {
+        this.COutputSprite.render();
+        this.COutputName.render();
+        this.COutputAmount.render();
+        this.CItemCostList.renderCascading();
     }
 
     updateButtons(input) {
@@ -328,16 +365,7 @@ export default class CraftingInterface {
      * Draw "No recipe selected" text in the middle of the recipe section, if no recipe is selected
     */
     renderNoRecipe() {
-        setAttributes(ctx,{
-            fillStyle:"rgb(200,200,200)",
-            textAlign:"center",
-            font:"24px Font1",
-        });
-        ctx.fillText(
-            "No recipe selected",
-            this.x + this.section2.x + this.sectionWidth / 2,
-            this.y + this.section2.y + this.sectionHeight / 2
-        );
+        this.CNoRecipe.render();
     }
 }
 
