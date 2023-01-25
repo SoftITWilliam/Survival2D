@@ -76,52 +76,52 @@ export default class CraftingInterface {
         this.CTopLabel = new components.OutlinedText(this.game, {
             font: "Font1", fontSize: 36, 
             textFill: colors.white, textStroke: colors.black, 
-            position: "ABSOLUTE", offsetY: 48, centerX: true,
+            position: "ABSOLUTE", offsetY: 48, centerX: true, textAlign: "center",
         });
 
         this.CPrimary.addChildren([this.CSectionLeft,this.CSectionRight,this.CTopLabel]);
 
         // "No recipe selected" text
-        this.CNoRecipe = new components.TextComponent(this.game, {
+        this.CNoRecipe = new components.Text(this.game, {
             font: "Font1", fontSize: 24, text: "No recipe selected", 
             textFill: colors.lightGray, textAlign: "center",
             centerX: true, centerY: true, 
         });
 
-        this.COutputSprite = new components.ItemComponent(this.game, {
+        this.COutputSprite = new components.Item(this.game, {
             width:24, height: 24, position: "absolute", offsetX: 16, offsetY: 16, item: null,
         });
 
-        this.COutputName = new components.TextComponent(this.game, {
+        this.COutputName = new components.Text(this.game, {
             font:"Font1", fontSize: 20, textFill: colors.white, textAlign: "center",
             position: "absolute", centerX: true, offsetY: 28, 
         });
 
-        this.COutputAmount = new components.DefaultComponent(this.game, {
+        this.COutputAmount = new components.Default(this.game, {
             font:"Font1", fontSize: 20, textFill: colors.white, textAlign: "center", textBaseline: "middle", textCenterX: true, textCenterY: true,
             position: "absolute", floatX: "right", offsetX: 20, offsetY: 16,
             fillColor: colors.uiLight, cornerRadius: 4, height: 24
         });
 
-        this.CItemCostList = new components.DefaultComponent(this.game, {
+        this.CItemCostList = new components.Default(this.game, {
             width: this.sectionWidth, floatY: "bottom", offsetY: 68, position: "absolute", childDirection: "column",
         });
 
-        this.CItemCostLabels = new components.ContainerComponent(this.game, {
+        this.CItemCostLabels = new components.Container(this.game, {
             width: this.sectionWidth, position: "relative", height: this.rowHeight, fillColor: colors.uiDarker,
         });
 
         this.CItemCostLabelList = [
-            new components.DefaultComponent(this.game, {
+            new components.Default(this.game, {
                 text: "Amount", width: this.sectionWidth * 0.20, textAlign: "center", textCenterX: true,
             }),
-            new components.DefaultComponent(this.game, {
+            new components.Default(this.game, {
                 text: "Item", width: this.sectionWidth * 0.48,
             }),
-            new components.DefaultComponent(this.game, {
+            new components.Default(this.game, {
                 text: "Total", width: this.sectionWidth * 0.14,
             }),
-            new components.DefaultComponent(this.game, {
+            new components.Default(this.game, {
                 text: "Have", width: this.sectionWidth * 0.14,
             }),
         ];
@@ -132,11 +132,17 @@ export default class CraftingInterface {
             label.setTextColor(colors.white,null);
             label.textCenterY = true;
             label.h = this.rowHeight;
-        })
+        });
 
         this.CSectionRight.addChildren([this.CNoRecipe, this.COutputSprite, this.COutputName, this.COutputAmount, this.CItemCostList]);
         this.CItemCostList.addChildren([this.CItemCostLabels]);
         this.CItemCostLabels.addChildren(this.CItemCostLabelList);
+
+        this.CCraftableList = new components.Scrollable(this.game, {
+            width: this.sectionWidth, height: this.sectionHeight,
+        });
+
+        this.CSectionLeft.addChildren([this.CCraftableList]);
 
         // ============================
         //    BUTTONS
@@ -190,7 +196,7 @@ export default class CraftingInterface {
         this.CInputList = [];
 
         input.forEach(i => {
-            let container = new components.DefaultComponent(this.game, {
+            let container = new components.Default(this.game, {
                 width: this.sectionWidth, height: this.rowHeight,
             });
 
@@ -200,23 +206,23 @@ export default class CraftingInterface {
             let avalible = this.menu.avalibleResources[item.registryName];
 
             let children = [
-                new components.DefaultComponent(this.game, {
+                new components.Default(this.game, {
                     height: this.rowHeight, width: this.sectionWidth * 0.20, text: itemAmount, textCenterX: true,
                 }),
 
-                new components.ItemComponent(this.game, {
+                new components.Item(this.game, {
                     height: 24, width:24, item: item, centerY: true,
                 }),
 
-                new components.DefaultComponent(this.game, {
+                new components.Default(this.game, {
                     height: this.rowHeight, width: this.sectionWidth * 0.48 - 32, offsetX: 8, text: i[0].displayName,
                 }),
 
-                new components.DefaultComponent(this.game, {
+                new components.Default(this.game, {
                     height: this.rowHeight, width: this.sectionWidth * 0.12, text: totalAmount, textCenterX: true,
                 }),
 
-                new components.DefaultComponent(this.game, {
+                new components.Default(this.game, {
                     height: this.rowHeight, width: this.sectionWidth * 0.14, text: avalible.toString(), textCenterX: true,
                 }),
             ];
@@ -241,11 +247,12 @@ export default class CraftingInterface {
         this.CItemCostList.setSize(this.sectionWidth, this.CItemCostList.getTotalChildHeight());
 
         this.update();
-        console.log(this.CItemCostList);
     }
 
     update() {
-        this.CPrimary.updateCascading();
+        if(this.menu.isOpen) {
+            this.CPrimary.updateCascading();
+        }
     }
 
     setPosition(x,y) {
@@ -279,7 +286,7 @@ export default class CraftingInterface {
 
     renderBase(label) {
         this.CPrimary.render();
-        this.CSectionLeft.render();
+        this.CSectionLeft.renderCascading();
         this.CSectionRight.render();
         this.CTopLabel.setText(label);
         this.CTopLabel.render();
@@ -287,24 +294,43 @@ export default class CraftingInterface {
 
     loadCraftables(recipes,game) {
         this.craftables = [];
+
         for(let i = 0; i < recipes.length; i++) {
-            // Get item
             let item = game.itemRegistry.get(recipes[i].output);
 
-            // Calculate its row and column position
-            let r = Math.floor(i / this.itemsPerRow);
-            let c = (i % this.itemsPerRow);
-            
-            
-            this.craftables.push(new CraftableItem(r,c,item,this.craftableSize,i,this));
-        }
-    }
+            let rowHeight = 56;
 
-    renderRecipeList() {
-        this.craftables.forEach(c => {
-            let itemPos = this.getCraftablePos(c.row,c.column);
-            c.render(itemPos.x,itemPos.y);
-        });
+            let itemRow = new components.Clickable(game, {
+                width: this.sectionWidth - this.CCraftableList.scrollbarWidth, height: rowHeight, 
+                fillColor: colors.uiDark,
+            });
+
+            itemRow.setOnClick(() => {
+                this.menu.selectRecipe(i);
+            })
+
+            let itemIcon = new components.Item(game, {
+                width: 32, height: 32, item: item, centerY: true, offsetX: 8,
+            });
+
+            let itemName = new components.OutlinedText(game, {
+                font: "Font1", fontSize: 20, textFill: item.textColor, textStroke: colors.black, text: item.displayName,
+                item: item, centerY: true, offsetX: 16, 
+            });
+
+            if(recipes[i].outputAmount > 1) {
+                itemName.setText(`${item.displayName} (${recipes[i].outputAmount})`);
+            }
+
+            itemRow.addChildren([itemIcon, itemName]);
+
+            this.craftables.push(itemRow);
+        }
+
+        this.CCraftableList.children = [];
+        this.CCraftableList.addChildren(this.craftables);
+        this.CCraftableList.updateScrollableHeight();
+        this.CCraftableList.refreshScrollbar();
     }
 
     renderRecipeInfo() {
@@ -366,35 +392,5 @@ export default class CraftingInterface {
     */
     renderNoRecipe() {
         this.CNoRecipe.render();
-    }
-}
-
-class CraftableItem {
-    constructor(r,c,item,size,index,parent) {
-        this.interface = parent; // Pointer
-        this.item = item;
-        this.row = r;
-        this.column = c;
-        this.size = size;
-        this.index = index;
-    }
-
-    render(x,y) {
-
-        // If hovered, draw the 
-        if(this.interface.menu.hoveredCraftable == this.index) {
-            ctx.filter = "brightness(150%)";
-        }
-        renderItem(this.item, Math.round(x), Math.round(y), this.size, this.size);
-        ctx.filter = "none";
-
-        // If selected, draw a white square around it.
-        if(this.interface.menu.selectedRecipe == this.index) {
-            setAttributes(ctx,{strokeStyle:"white",lineWidth:2});
-            renderPath(() => {
-                ctx.rect(x-4 ,y-4, this.size+8, this.size+8);
-                ctx.stroke();
-            }) 
-        }
     }
 }

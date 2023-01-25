@@ -16,10 +16,10 @@ export class InputHandler {
             gridY:0,
 
             updateGridPos: function() {
-                this.gridX = Math.floor((game.player.camera.getX() + this.x) / TILE_SIZE);
-                this.gridY = Math.floor((-game.player.camera.getY() - this.y) / TILE_SIZE) + 1;
                 this.mapX = game.player.camera.getX() + this.x;
                 this.mapY = -game.player.camera.getY() - this.y;
+                this.gridX = Math.floor((this.mapX) / TILE_SIZE);
+                this.gridY = Math.floor((this.mapY) / TILE_SIZE) + 1;
             },
         
             on: function(obj) {
@@ -38,6 +38,8 @@ export class InputHandler {
                 return false;
             }
         }
+
+        this.scroll = 0;
 
         this.keys = [];
 
@@ -75,6 +77,10 @@ export class InputHandler {
             this.mouse.x = event.clientX - rect.left;
             this.mouse.y = event.clientY - rect.top;
             this.mouse.updateGridPos();
+        });
+
+        document.addEventListener('wheel', event => {
+            this.scroll = event.deltaY;
         });
     }
 

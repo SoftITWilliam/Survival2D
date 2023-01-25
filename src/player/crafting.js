@@ -128,6 +128,8 @@ export default class CraftingMenu {
      * Prepare all the data for the rendering of the recipe, run once when a recipe is selected.
     */
     loadRecipe(recipe) {
+        console.log("Loading recipe");
+        console.log(recipe);
         let itemRegistry = this.player.game.itemRegistry;
         this.craftingAmount = 1;
         
@@ -153,6 +155,9 @@ export default class CraftingMenu {
      * @returns {boolean}
      */
     ableToCraft(recipe,amount) {
+        if(!recipe) {
+            return false;
+        }
         let craftingStatus = true;
         recipe.inputList.forEach(i => {
             let avalible = this.avalibleResources[i[0]];
@@ -204,7 +209,6 @@ export default class CraftingMenu {
         this.ui.setPosition(x + offsetX, y + offsetY);
     
         this.ui.renderBase(this.labels[this.station]);
-        this.ui.renderRecipeList();
 
         this.ui.updateButtons(input);
 

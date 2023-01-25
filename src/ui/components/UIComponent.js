@@ -64,6 +64,8 @@ export default class UIComponent {
             textBaseline:"Alphabetic",
         }
 
+        this.scrollable = false;
+
         // Base colors
         this.fillColor = attributes.fillColor ? attributes.fillColor : null;
         this.strokeColor = attributes.strokeColor ? attributes.strokeColor : null;
@@ -293,10 +295,17 @@ export default class UIComponent {
             }
 
             if(this.position == "RELATIVE") {
+                if(this.parent.scrollable) {
+                    this.y -= this.parent.scrollDistance;
+                }
+
                 if(this.parent.childDirection == "column") {
                     for(let i = 0; i < this.index; i++) {
                         if(this.parent.children[i].position == "RELATIVE") {
                             this.y += this.parent.children[i].h;
+                            if(this.parent.childAlignment == "setSpacing") {
+                                this.y += this.parent.childSpacing;
+                            }
                         }
                     }
                     return;
@@ -307,6 +316,7 @@ export default class UIComponent {
                 this.y = this.parent.y + this.offsetY;
             }
             */
+           
         } else {
             if(this.centerY) {
                 this.y = this.game.player.camera.getY() + (canvas.height - this.h) / 2;
@@ -413,15 +423,45 @@ export default class UIComponent {
         }
     }
 
-    render() {
-        this.applyAttributes(this.attributes);
-
-        if(this.fillColor) 
+    /**
+     * Set the fill & stroke colors, based on the base colors (if they are set)
+     * Can be overwritten by other components, to have different colors in different conditions
+     */
+    updateBaseColor() {
+        if(this.fillColor) {
             ctx.fillStyle = rgb(this.fillColor);
-        if(this.strokeColor) 
+        }
+            
+        if(this.strokeColor) {
             ctx.strokeStyle = rgb(this.strokeColor);
-        
-        // Draw component base
+        }
+    } 
+
+    /**
+     * Set the fill & stroke colors, based on the text colors (if they are set)
+     * Can be overwritten by other components, to have different colors in different conditions
+     */
+    updateTextColor() {
+        if(this.textFill) {
+            ctx.fillStyle = rgb(this.textFill);
+        }
+
+        if(this.textStroke) {
+            ctx.strokeStyle = rgb(this.textStroke);
+        }
+    }
+
+    render() {
+        this.renderBase();
+        this.renderText();
+    }
+
+    /** 
+     * Render the 'base' of the component, i.e. the basic shape.
+    */
+    renderBase() {
+        this.applyAttributes(this.attributes);
+        this.updateBaseColor();
 
         if(this.cornerRadius > 0) {
             renderPath(() => {
@@ -437,16 +477,14 @@ export default class UIComponent {
                 this.stroke();
             })
         }
+    }
 
-        // Draw component text
-
+    /**
+     * Render the text contained in the component
+     */
+    renderText() {
         this.applyAttributes(this.textAttributes);
-
-        
-        if(this.textFill) 
-            ctx.fillStyle = rgb(this.textFill);
-        if(this.textStroke) 
-            ctx.strokeStyle = rgb(this.textStroke);
+        this.updateTextColor();
 
         let textX = this.x + this.textOffsetX;
         let textY = this.y + this.textOffsetY;
