@@ -1,4 +1,4 @@
-import { canvas } from "../game/global.js";
+import { canvas, ITEM_SIZE, TILE_SIZE } from "../game/global.js";
 import CraftingInterface from "../ui/craftingUI.js";
 
 
@@ -79,7 +79,6 @@ export default class CraftingMenu {
                 }
             })
         })
-        console.log(this.avalibleResources);
     }
 
     minAmount() {
@@ -121,7 +120,7 @@ export default class CraftingMenu {
 
     updateCraftButton() {
         let status = this.ableToCraft(this.getSelectedRecipe(),this.craftingAmount);
-        this.ui.buttons.craftItem.setClickable(status);
+        this.ui.buttons[4].setClickable(status);
     }
 
     /** 
@@ -140,6 +139,8 @@ export default class CraftingMenu {
 
         this.outputAmount = recipe.outputAmount;
 
+        this.ui.loadRecipe(this.inputItems,this.outputItem,this.outputAmount);
+        
         this.ui.updateCraftingAmount(this.craftingAmount);
         this.updateCraftButton();
     }
@@ -151,6 +152,9 @@ export default class CraftingMenu {
      * @returns {boolean}
      */
     ableToCraft(recipe,amount) {
+        if(!recipe) {
+            return false;
+        }
         let craftingStatus = true;
         recipe.inputList.forEach(i => {
             let avalible = this.avalibleResources[i[0]];
@@ -184,15 +188,6 @@ export default class CraftingMenu {
             this.player.inventory.view = false;
             input.removeKey("C");
         }
-
-        this.ui.updateHover(input);
-
-        if(input.mouse.click) {
-            this.selectRecipe(this.hoveredCraftable);
-            if(this.hoveredCraftable !== null) {
-                input.mouse.click = false;
-            }
-        }
     }
 
     render(x,y,input) {
@@ -201,17 +196,12 @@ export default class CraftingMenu {
 
         this.ui.setPosition(x + offsetX, y + offsetY);
     
-        this.ui.renderBase();
-        this.ui.renderTopLabel(this.labels[this.station]);
-        this.ui.renderRecipeList();
+        this.ui.renderBase(this.labels[this.station]);
 
         this.ui.updateButtons(input);
 
         if(this.selectedRecipe !== null) {
-            this.ui.renderRecipeInfo(this.outputItem);
-            this.ui.renderOutputAmount(this.outputAmount);
-            this.ui.renderRecipeCost(this.inputItems,this.craftingAmount);
-            this.ui.renderRecipeButtons();
+            this.ui.renderRecipeInfo();
         } else {
             this.ui.renderNoRecipe();
         }

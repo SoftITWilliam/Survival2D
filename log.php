@@ -5,6 +5,16 @@
     : Additional info
     // Notes & comments
 
+<2023-01-25>
+    + Added clickable and scrollable UI components
+    * Reworked the craftable item list
+
+<2023-01-19>
+    * Working on UI Component system
+
+<2023-01-18>
+    * Working on UI Component system
+
 <2023-01-17>
     + Crafting menu displays how many of each crafting ingredient is avalible
     * Crafting button is not avalible when player cannot afford to craft the item.

@@ -26,6 +26,7 @@ export class Game {
         document.body.style.cursor = "default";
         this.fpsCounter.increment();
         this.player.update(this.input);
+        this.player.craftingMenu.ui.update();
         this.itemEntities.update();
     }
 }

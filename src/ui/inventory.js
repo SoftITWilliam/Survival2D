@@ -294,7 +294,6 @@ export class Inventory {
         while(true) {
 
             // Break condition
-            console.log(amount);
             if(amount == 0) {
                 break;
             }
@@ -336,8 +335,7 @@ export class Inventory {
     removeItem(item, amount) {
         for(let y = this.h - 1; y >= 0; y--) {
             for(let x = this.w - 1; x >= 0; x--) {
-                console.log(x + ", " + y);
-                
+
                 // Loop through inventory until a slot is found that has the given item
                 let slot = this.grid[x][y];
                 if(!slot.stack) {
