@@ -126,7 +126,13 @@ export class Tile {
         }
     }
 
-    update() {
+    // Runs whenever the tile is "refreshed", i.e. something happens to an adjacent tile.
+    tileUpdate() {
+        return;
+    }
+
+    // Runs at a regular interval (not every frame)
+    tickUpdate() {
         return;
     }
 
