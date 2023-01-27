@@ -50,14 +50,10 @@ export class ScrollableComponent extends UIComponent {
             }
         });
 
-        console.log(this.scrollableHeight);
-
         // Add child spacing to the total height, if conditions are met.
         if(this.childAlignment == "setSpacing" && childCount > 1) {
             this.scrollableHeight += this.childSpacing * (childCount - 1);
         }
-
-        console.log(this.scrollableHeight);
     }
 
     // Override default function

@@ -30,7 +30,7 @@ export default class CraftingInterface {
             x: getGap(this.w, this.sectionWidth, 2),
             y: this.h - this.sectionHeight - getGap(this.w, this.sectionWidth, 2),
         }
-         
+          
         this.section2 = {
             x: this.section1.x * 2 + this.sectionWidth,
             y: this.section1.y,
@@ -69,7 +69,7 @@ export default class CraftingInterface {
         });
 
         this.CSectionRight = new components.CraftingSection(this.game, {
-            width: this.sectionWidth, height: this.sectionHeight,
+            width: this.sectionWidth, height: this.sectionHeight, childDirection: "column"
         });
         
         // Top label
@@ -103,8 +103,12 @@ export default class CraftingInterface {
             fillColor: colors.uiLight, cornerRadius: 4, height: 24
         });
 
+        this.CLowerContainer = new components.Container(this.game, {
+            width: this.sectionWidth, height: 72, floatY: "bottom",
+        })
+
         this.CItemCostList = new components.Default(this.game, {
-            width: this.sectionWidth, floatY: "bottom", offsetY: 68, position: "absolute", childDirection: "column",
+            width: this.sectionWidth, floatY: "bottom", childDirection: "column",
         });
 
         this.CItemCostLabels = new components.Container(this.game, {
@@ -134,7 +138,7 @@ export default class CraftingInterface {
             label.h = this.rowHeight;
         });
 
-        this.CSectionRight.addChildren([this.CNoRecipe, this.COutputSprite, this.COutputName, this.COutputAmount, this.CItemCostList]);
+        this.CSectionRight.addChildren([this.CNoRecipe, this.COutputSprite, this.COutputName, this.COutputAmount]);
         this.CItemCostList.addChildren([this.CItemCostLabels]);
         this.CItemCostLabels.addChildren(this.CItemCostLabelList);
 
@@ -148,39 +152,50 @@ export default class CraftingInterface {
         //    BUTTONS
         // ============================
 
-        this.buttons = {
-            craftItem: new Button(),
-            maxAmount: new Button(),
-            increaseAmount: new Button(),
-            decreaseAmount: new Button(),
-            minAmount: new Button(),
-        }
-    
-        this.buttons.craftItem.setSize(96,36);
-        this.buttons.craftItem.setText("Craft",colors.white,"Font1",24);
-        this.buttons.craftItem.setDisplay(colors.uiLight,12);
-        this.buttons.craftItem.setOnClick(() => this.menu.craftItem());
+        this.CButtonContainer = new components.Default(this.game, {
+            height: 48, width: 188,
+            fillColor: colors.uiDarker,
+            childSpacing: 4, childMargin: 8, childAlignment: "setSpacing", centerY: true,
+        });
 
-        this.buttons.maxAmount.setText(">","W");
-        this.buttons.increaseAmount.setText("+");
-        this.buttons.decreaseAmount.setText("-");
-        this.buttons.minAmount.setText("<");
+        this.CSectionRight.addChildren([this.CButtonContainer]);
 
-        const setBaseProperties = (b,text) => {
-            b.setSize(32,32);
-            b.setText(text,colors.white,"Font1",18);
-            b.setDisplay(colors.uiLight,8);
+        this.buttons = [];
+        let buttonCharacters = ["<","-","+",">"];
+
+        for(let i = 0; i < 4; i++) {
+            this.buttons.push(new components.Clickable(this.game, {
+                height: 32, width: 32, cornerRadius: 8,
+                font: "Font1", fontSize: 24, text: buttonCharacters[i],
+                fillColor: colors.uiLight, textFill: colors.white,
+                textCenterX: true, textCenterY: true, textAlign: "center", textBaseline: "middle",
+            }));
         }
 
-        setBaseProperties(this.buttons.maxAmount,">");
-        setBaseProperties(this.buttons.increaseAmount,"+");
-        setBaseProperties(this.buttons.decreaseAmount,"-");
-        setBaseProperties(this.buttons.minAmount,"<");
+        this.buttons[2].floatX = "right";
+        this.buttons[3].floatX = "right";
 
-        this.buttons.maxAmount.setOnClick(() => this.menu.maxAmount());
-        this.buttons.increaseAmount.setOnClick(() => this.menu.increaseAmount());
-        this.buttons.decreaseAmount.setOnClick(() => this.menu.decreaseAmount());
-        this.buttons.minAmount.setOnClick(() => this.menu.minAmount());
+        this.buttons.push(new components.Clickable(this.game, {
+            height: 32, width: 80, cornerRadius: 8,
+            floatX: "right", centerY: true, fillColor: colors.uiLight, 
+            font: "Font1", fontSize: 24, textCenterX: true, textCenterY: true, 
+            textAlign: "center", textBaseline: "middle", text: "Craft", textFill: colors.white,
+        }));
+
+        this.CCraftingAmount = new components.Text(this.game, {
+            font: "Font1", fontSize: 20, textFill: colors.white,
+            textAlign:"middle", textBaseline: "middle", centerX: true, centerY: true,
+        })
+
+        this.buttons[0].setOnClick(() => this.menu.minAmount());
+        this.buttons[1].setOnClick(() => this.menu.decreaseAmount());
+        this.buttons[2].setOnClick(() => this.menu.increaseAmount());
+        this.buttons[3].setOnClick(() => this.menu.maxAmount());
+        this.buttons[4].setOnClick(() => this.menu.craftItem());
+
+        this.CButtonContainer.addChildren([this.buttons[0],this.buttons[1],this.CCraftingAmount,this.buttons[3],this.buttons[2]]);
+        this.CLowerContainer.addChildren([this.CButtonContainer, this.buttons[4]]);
+        this.CSectionRight.addChildren([this.CLowerContainer,this.CItemCostList]);
     }
 
     // Prepare components for displaying recipe
@@ -250,9 +265,13 @@ export default class CraftingInterface {
     }
 
     update() {
-        if(this.menu.isOpen) {
-            this.CPrimary.updateCascading();
+        if(!this.menu.isOpen) {
+            return;
         }
+        
+        this.CPrimary.updateCascading();
+
+        this.refreshInputItems(this.menu.inputItems,this.menu.outputItem,this.menu.outputAmount);
     }
 
     setPosition(x,y) {
@@ -260,28 +279,8 @@ export default class CraftingInterface {
         this.y = y;
     }
 
-    getCraftablePos(row,column) {
-        return {
-            x: this.x + this.section1.x + this.itemGap + (this.craftableSize + this.itemGap) * column,
-            y: this.y + this.section1.y + this.itemGap + (this.craftableSize + this.itemGap) * row,
-        }
-    }
-
-    updateHover(input) {
-        for(let i=0; i<this.craftables.length;i++) {
-            let pos = this.getCraftablePos(this.craftables[i].row,this.craftables[i].column);
-            let craftable = {x: pos.x, y: pos.y, w: this.craftableSize, h: this.craftableSize}
-            if(mouseOn(craftable,input.mouse)) {
-                this.menu.hoveredCraftable = i;
-                return;
-            }
-        }
-        this.menu.hoveredCraftable = null;
-    }
-
-    updateCraftingAmount(input,output,amount) {
-        ctx.font = "16px Font1";
-        this.amountDisplayWidth = ctx.measureText(amount).width + 24;
+    updateCraftingAmount(amount) {
+        this.CCraftingAmount.setText(amount);
     }
 
     renderBase(label) {
@@ -338,53 +337,36 @@ export default class CraftingInterface {
         this.COutputName.render();
         this.COutputAmount.render();
         this.CItemCostList.renderCascading();
+        this.CLowerContainer.renderCascading();
+    }
+
+    refreshInputItems(input,output,amount) {
+        if(!input) {
+            return;
+        }
+
+        for(let i = 0; i < input.length; i++) {
+            let item = this.game.itemRegistry.get(input[i][0].registryName);
+            let row = this.CInputList[i+1].children;
+
+            // Update 'total'
+            let total = this.menu.craftingAmount * input[i][1]
+            row[3].setText(total);
+
+            // Update 'have'
+            let avalible = this.menu.avalibleResources[item.registryName];
+            row[4].setText(avalible);
+
+            if(avalible < total) {
+                row[4].setTextColor(colors.errorRed,null);
+            } else {
+                row[4].setTextColor(colors.white);
+            }
+        }
     }
 
     updateButtons(input) {
-        let xPos = this.x + this.section2.x;
-        let yPos = this.y + this.section2.y + this.sectionHeight - this.buttons.craftItem.getHeight() - 16;
 
-        // Update positions
-        this.buttons.craftItem.setPosition(xPos + this.sectionWidth - this.buttons.craftItem.getWidth() - 12, yPos);
-
-        xPos += 14;
-        let spaceBetween = 4;
-        let size = 32;
-        this.buttons.minAmount.setPosition(xPos, yPos + 2);
-        this.buttons.decreaseAmount.setPosition(xPos + size + spaceBetween, yPos + 2);
-        this.buttons.increaseAmount.setPosition(xPos + (2*size) + this.amountDisplayWidth + (3*spaceBetween), yPos + 2);
-        this.buttons.maxAmount.setPosition(xPos + (3*size) + this.amountDisplayWidth + (4*spaceBetween), yPos + 2);
-
-        this.amountDisplayPos = {x: xPos + (2*size) + this.amountDisplayWidth/2 + (2*spaceBetween), y: yPos + 20}
-
-        let bgPadding = 4;
-        this.buttonBg = {
-            x: xPos - bgPadding,
-            y: (yPos + 2) - bgPadding,
-            w: (size * 4) + (spaceBetween * 4) + this.amountDisplayWidth + (bgPadding * 2),
-            h: size + (bgPadding * 2)
-        }
-        
-        // Update all buttons
-        for(let b in this.buttons) {
-            this.buttons[b].update(input);
-        }
-        this.buttons.craftItem.update(input);
-    }
-
-    renderRecipeButtons() {
-        ctx.fillStyle = rgbm(colors.uiDark,0.5);
-        renderPath(() => {
-            drawRounded(this.buttonBg.x, this.buttonBg.y, this.buttonBg.w, this.buttonBg.h,10,ctx);
-            ctx.fill(); ctx.restore();
-        })
-        setAttributes(ctx,{fillStyle:rgb(colors.white),font:"16px Font1",textAlign:"center"});
-        ctx.fillText(this.menu.craftingAmount,this.amountDisplayPos.x,this.amountDisplayPos.y);
-        this.buttons.craftItem.render();
-        this.buttons.maxAmount.render();
-        this.buttons.increaseAmount.render();
-        this.buttons.decreaseAmount.render();
-        this.buttons.minAmount.render();
     }
 
     /** 

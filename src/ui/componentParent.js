@@ -6,6 +6,7 @@ export { ItemComponent as Item } from './components/ItemComponent.js';
 export { ScrollableComponent as Scrollable } from './components/ScrollableComponent.js';
 export { ContainerComponent as Container } from './components/ContainerComponent.js';
 export { ClickableComponent as Clickable } from './components/ClickableComponent.js';
+export { StretchingComponent as Stretching } from './components/StretchingComponent.js';
 
 export { PrimaryContainer } from './components/PrimaryContainer.js';
 export { CraftingSection } from './components/CraftingSection.js';

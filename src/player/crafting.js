@@ -79,7 +79,6 @@ export default class CraftingMenu {
                 }
             })
         })
-        console.log(this.avalibleResources);
     }
 
     minAmount() {
@@ -121,15 +120,13 @@ export default class CraftingMenu {
 
     updateCraftButton() {
         let status = this.ableToCraft(this.getSelectedRecipe(),this.craftingAmount);
-        this.ui.buttons.craftItem.setClickable(status);
+        this.ui.buttons[4].setClickable(status);
     }
 
     /** 
      * Prepare all the data for the rendering of the recipe, run once when a recipe is selected.
     */
     loadRecipe(recipe) {
-        console.log("Loading recipe");
-        console.log(recipe);
         let itemRegistry = this.player.game.itemRegistry;
         this.craftingAmount = 1;
         
@@ -191,15 +188,6 @@ export default class CraftingMenu {
             this.player.inventory.view = false;
             input.removeKey("C");
         }
-
-        this.ui.updateHover(input);
-
-        if(input.mouse.click) {
-            this.selectRecipe(this.hoveredCraftable);
-            if(this.hoveredCraftable !== null) {
-                input.mouse.click = false;
-            }
-        }
     }
 
     render(x,y,input) {
@@ -214,8 +202,6 @@ export default class CraftingMenu {
 
         if(this.selectedRecipe !== null) {
             this.ui.renderRecipeInfo();
-
-            this.ui.renderRecipeButtons();
         } else {
             this.ui.renderNoRecipe();
         }

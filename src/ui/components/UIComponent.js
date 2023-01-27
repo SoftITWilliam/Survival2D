@@ -35,7 +35,7 @@ export default class UIComponent {
         this.position = attributes.position ? attributes.position.toUpperCase() : "RELATIVE";
 
         // Text
-        this.text = attributes.text ? attributes.text : null;
+        this.text = attributes.text ? attributes.text : "";
 
         // Text offset
         this.textOffsetX = attributes.textOffsetX ? attributes.textOffsetX : 0;
@@ -65,6 +65,8 @@ export default class UIComponent {
         }
 
         this.scrollable = false;
+        this.childMargin = attributes.childMargin ? attributes.childMargin : 0;
+        this.childSpacing = attributes.childSpacing ? attributes.childSpacing : 0;
 
         // Base colors
         this.fillColor = attributes.fillColor ? attributes.fillColor : null;
@@ -187,12 +189,20 @@ export default class UIComponent {
         this.index = index;
     }
 
+    getWidth() {
+        return this.w;
+    }
+
+    getHeight() {
+        return this.h;
+    }
+
     /**
      * Measure the text in the component
      * @returns {number} Width of text in pixels
      */
     getTextWidth() {
-        ctx.font = this.attributes.font;
+        ctx.font = this.textAttributes.font;
         return ctx.measureText(this.text).width;
     }
 
@@ -201,16 +211,16 @@ export default class UIComponent {
      * @returns {number} Height of text in pixels
      */
     getTextHeight() {
-        ctx.font = this.attributes.font;
+        ctx.font = this.textAttributes.font;
         return ctx.measureText(this.text).height;
     }
 
     getMiddleX() {
-        return this.x + this.w / 2;
+        return this.x + this.getWidth() / 2;
     }
 
-    getMiddleX() {
-        return this.x + this.w / 2;
+    getMiddleY() {
+        return this.y + this.getHeight / 2;
     }
 
     update() {
@@ -224,50 +234,66 @@ export default class UIComponent {
      * Yes, this code is really fucking messy. I'll try to clean it up once it's done.
      */
     updatePositionX() {
-        
-        if(this.parent) {
-            this.x = this.parent.x;
-            if(this.centerX) {
-                this.x += (this.parent.w - this.w) / 2;
-                return;
-            }
 
-            if(this.position == "ABSOLUTE" || this.parent.childDirection == "column") {
-                if(this.floatX == "left") {this.x += this.offsetX} 
-                else if(this.floatX == "right") {this.x = this.floatRight() - this.offsetX}
-                return;
-            }
-
-            if(this.position == "RELATIVE") {
-                if(this.parent.childDirection == "row") {
-                    if(this.parent.childAlignment == "spaceEvenly") {
-                        let spacing = this.parent.getChildSpacing("x");
-                        this.x = this.parent.x + (spacing * (this.index + 1));
-                        for(let i = 0; i < this.index; i++) {
-                            if(this.parent.children[i].position == "RELATIVE") {
-                                this.x += this.parent.children[i].w;
-                            }
-                        }
-                    } 
-                    
-                    else {
-                        for(let i = 0; i < this.index; i++) {
-                            let child = this.parent.children[i];
-                            if(child.position == "RELATIVE") {
-                                this.x += child.w + child.offsetX;
-                            }
-                        }
-                        this.x += this.offsetX;
-                    }
-                    return;
-                }
-            }
-        } 
-        
-        else {
+        if(!this.parent) {
             if(this.centerX) {
                 this.x = this.game.player.camera.getX() + (canvas.width - this.w) / 2;
+            }
+            return;
+        }
+        
+        this.x = this.parent.x;
+        if(this.centerX) {
+            this.x += (this.parent.w - this.w) / 2;
+            return;
+        }
+
+        if(this.position == "ABSOLUTE" || this.parent.childDirection == "column") {
+            if(this.floatX == "left") {
+                this.x += this.offsetX
+            } else if(this.floatX == "right") {
+                this.x = this.floatRight() - this.offsetX
+            }
+            return;
+        }
+
+        if(this.position == "RELATIVE") {
+            let sibling = this.getRelative();
+
+            if(this.parent.childAlignment == "setSpacing") {
+
+                if(sibling) {
+                    let distance = sibling.getWidth() + this.offsetX + this.parent.childSpacing;
+                    this.x = (this.floatX == "left") ? sibling.x + distance : sibling.x - distance;
+                } else {
+                    if(this.floatX == "left") {
+                        this.x += this.offsetX + this.parent.childMargin; 
+                    } else {
+                        this.x = this.floatRight() - this.offsetX - this.parent.childMargin;
+                    }
+                }
+
                 return;
+            }
+
+            if(this.parent.childAlignment == "spaceEvenly") {
+                let spacing = this.parent.getChildSpacing("x");
+                this.x = this.parent.x + (spacing * (this.index + 1));
+                for(let i = 0; i < this.index; i++) {
+                    if(this.parent.children[i].position == "RELATIVE") {
+                        this.x += this.parent.children[i].getWidth();
+                    }
+                }
+            } 
+            
+            else {
+                for(let i = 0; i < this.index; i++) {
+                    let child = this.parent.children[i];
+                    if(child.position == "RELATIVE") {
+                        this.x += child.getWidth() + child.offsetX;
+                    }
+                }
+                this.x += this.offsetX;
             }
         }
     }
@@ -278,28 +304,75 @@ export default class UIComponent {
      * Yes, this code is really fucking messy. I'll try to clean it up once it's done.
      */
     updatePositionY() {
-        if(this.parent) {
-            this.y = this.parent.y;
+
+        const getRelativeSum = () => {
+            let sum = 0;
+            for(let i = 0; i < this.index; i++) {
+                if(this.parent.children[i].position == "RELATIVE") {
+                    sum += this.parent.children[i].h;
+                }
+            }
+            return sum;
+        }
+
+        const getRelativeCount = () => {
+            let count = 0;
+            for(let i = 0; i < this.index; i++) {
+                if(this.parent.children[i].position == "RELATIVE") {
+                    count++;
+                }
+            }
+            return childCount;
+        }
+
+        if(!this.parent) {
             if(this.centerY) {
-                this.y += (this.parent.h - this.h) / 2;
+                this.y = this.game.player.camera.getY() + (canvas.height - this.h) / 2;
+            }
+            return;
+        }
+
+        this.y = this.parent.y;
+        if(this.centerY) {
+            this.y += (this.parent.h - this.h) / 2;
+            return;
+        }
+
+        if(this.position == "ABSOLUTE" || this.parent.childDirection == "row") {
+            if(this.floatY == "top") {
+                this.y += this.offsetY + this.parent.childMargin;
+            } else if(this.floatY == "bottom") {
+                this.y = this.floatDown() - this.offsetY - this.parent.childMargin;
+            }
+            return;
+        }
+
+        if(this.position == "RELATIVE") {
+            let sibling = this.getRelative();
+            let scrolldist = this.parent.scrollable ? this.parent.scrollDistance : 0;
+
+            if(this.parent.childAlignment == "setSpacing") {
+                if(sibling) {
+                    let distance = sibling.getHeight() + this.offsetY + this.parent.childSpacing;
+                    this.y = (this.floatY == "top") ? sibling.y + distance : sibling.y - distance;
+                } else {
+                    if(this.floatY == "top") {
+                        this.y += this.offsetY + this.parent.childMargin; 
+                        this.y -= scrolldist;
+                    } else {
+                        this.y = this.floatDown() - this.offsetY - this.parent.childMargin;
+                        this.y -= scrolldist;
+                    }
+                }
                 return;
             }
 
-            if(this.position == "ABSOLUTE") {
+            if(this.parent.childAlignment == "spaceEvenly") {
+                return;
+            }
+
+            else {
                 if(this.floatY == "top") {
-                    this.y += this.offsetY;
-                } else if(this.floatY == "bottom") {
-                    this.y = this.floatDown() - this.offsetY;
-                }
-                return;
-            }
-
-            if(this.position == "RELATIVE") {
-                if(this.parent.scrollable) {
-                    this.y -= this.parent.scrollDistance;
-                }
-
-                if(this.parent.childDirection == "column") {
                     for(let i = 0; i < this.index; i++) {
                         if(this.parent.children[i].position == "RELATIVE") {
                             this.y += this.parent.children[i].h;
@@ -308,21 +381,43 @@ export default class UIComponent {
                             }
                         }
                     }
-                    return;
+                    this.y -= scrolldist;
+                } else if(this.floatY == "bottom") {
+                    this.y = this.floatDown();
+                    for(let i = 0; i < this.index; i++) {
+                        let child = this.parent.children[i];
+                        if(child.position == "RELATIVE" && child.floatY == this.floatY) {
+                            this.y -= child.h;
+                        }
+                    }
                 }
             }
-            /*
-            else if(this.parent.childAlignment == "none" && this.parent.childDirection == "row") {
-                this.y = this.parent.y + this.offsetY;
-            }
-            */
-           
-        } else {
-            if(this.centerY) {
-                this.y = this.game.player.camera.getY() + (canvas.height - this.h) / 2;
-                return;
-            }
+            return;
         }
+    }
+
+    /**
+     * Return the adjacent 'sibling' component.
+     */
+    getRelative() {
+        for(let i = this.index - 1; i >= 0; i--) {
+            let sibling = this.parent.children[i];
+            if(sibling.position != "RELATIVE") {
+                continue;
+            }
+
+            if(this.parent.childDirection == "row" && sibling.floatX != this.floatX) {
+                continue;
+            }
+
+            if(this.parent.childDirection == "column" && sibling.floatY != this.floatY) {
+                continue;
+            }
+
+            return sibling;
+        }
+
+        return null;
     }
 
     /**
@@ -333,10 +428,10 @@ export default class UIComponent {
         let childCount = 0; // Only count children with RELATIVE position
 
         if(axis == "x") {
-            spacing = this.w;
+            spacing = this.getWidth();
             this.children.forEach(child => {
                 if(child.position == "RELATIVE") {
-                    spacing -= child.w;
+                    spacing -= child.getWidth();
                     childCount += 1;
                 }
             });
@@ -369,7 +464,7 @@ export default class UIComponent {
         let totalWidth = 0;
         this.children.forEach(child => {
             if(child.position == "RELATIVE") {
-                totalWidth += child.w;
+                totalWidth += child.getWidth();
             }
         });
         return totalWidth;
@@ -377,7 +472,7 @@ export default class UIComponent {
 
     floatRight() {
         if(this.parent) {
-            return this.parent.x + this.parent.w - this.w;
+            return this.parent.x + this.parent.getWidth() - this.getWidth();
         }
     }
 
@@ -424,32 +519,18 @@ export default class UIComponent {
     }
 
     /**
-     * Set the fill & stroke colors, based on the base colors (if they are set)
-     * Can be overwritten by other components, to have different colors in different conditions
+     * Set the fill & stroke colors (if they are set)
+     * Can be overwritten by other components, to have different colors in different conditions (ex. when hovered)
      */
-    updateBaseColor() {
-        if(this.fillColor) {
-            ctx.fillStyle = rgb(this.fillColor);
+    updateColor(fillColor, strokeColor) {
+        if(fillColor) {
+            ctx.fillStyle = rgb(fillColor);
         }
             
-        if(this.strokeColor) {
-            ctx.strokeStyle = rgb(this.strokeColor);
+        if(strokeColor) {
+            ctx.strokeStyle = rgb(strokeColor);
         }
     } 
-
-    /**
-     * Set the fill & stroke colors, based on the text colors (if they are set)
-     * Can be overwritten by other components, to have different colors in different conditions
-     */
-    updateTextColor() {
-        if(this.textFill) {
-            ctx.fillStyle = rgb(this.textFill);
-        }
-
-        if(this.textStroke) {
-            ctx.strokeStyle = rgb(this.textStroke);
-        }
-    }
 
     render() {
         this.renderBase();
@@ -461,18 +542,18 @@ export default class UIComponent {
     */
     renderBase() {
         this.applyAttributes(this.attributes);
-        this.updateBaseColor();
+        this.updateColor(this.fillColor,this.strokeColor);
 
         if(this.cornerRadius > 0) {
             renderPath(() => {
-                drawRounded(this.x,this.y,this.w,this.h,this.cornerRadius,ctx);
+                drawRounded(Math.round(this.x),Math.round(this.y),this.w,this.h,this.cornerRadius,ctx);
                 this.fill();
                 ctx.restore();
                 this.stroke();
             });
         } else {
             renderPath(() => {
-                ctx.rect(this.x,this.y,this.w,this.h);
+                ctx.rect(Math.round(this.x),Math.round(this.y),this.w,this.h);
                 this.fill();
                 this.stroke();
             })
@@ -484,10 +565,10 @@ export default class UIComponent {
      */
     renderText() {
         this.applyAttributes(this.textAttributes);
-        this.updateTextColor();
+        this.updateColor(this.textFill,this.textStroke);
 
-        let textX = this.x + this.textOffsetX;
-        let textY = this.y + this.textOffsetY;
+        let textX = Math.round(this.x) + this.textOffsetX;
+        let textY = Math.round(this.y) + this.textOffsetY;
         
         if(this.textCenterX) {
             textX += this.w / 2;

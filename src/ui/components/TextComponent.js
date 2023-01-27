@@ -15,13 +15,11 @@ export class TextComponent extends UIComponent {
 
     // Overriding default function
     getHeight() {
-        ctx.font = this.attributes.font;
-        return ctx.measureText(this.text).height;
+        return this.getTextHeight();
     }
 
     // Overriding default function
     getWidth() {
-        ctx.font = this.attributes.font;
-        return ctx.measureText(this.text).width;
+        return this.getTextWidth();
     }
 }

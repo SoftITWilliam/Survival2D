@@ -58,7 +58,7 @@ export class ClickableComponent extends UIComponent {
     }
 
     updateClick(input) {
-        if(this.hovering && input.mouse.click) {
+        if(this.clickable && this.hovering && input.mouse.click) {
             input.mouse.click = false;
             this.onClick();
         }
@@ -67,35 +67,19 @@ export class ClickableComponent extends UIComponent {
     /**
      *  Overwrite of default function, to have different colors when hovered.
      */ 
-    updateBaseColor() {
-        if(this.fillColor) {
-            if(this.hovering && this.clickable) {
-                ctx.fillStyle = rgbm(this.fillColor,1.3);
+    updateColor(fillColor,strokeColor) {
+        if(fillColor) {
+            if(!this.clickable) {
+                ctx.fillStyle = rgbm(fillColor,0.7);
+            } else if(this.hovering) {
+                ctx.fillStyle = rgbm(fillColor,1.3);
             } else {
-                ctx.fillStyle = rgb(this.fillColor);
+                ctx.fillStyle = rgb(fillColor);
             }
-            
         }
             
-        if(this.strokeColor) {
-            ctx.strokeStyle = rgb(this.strokeColor);
+        if(strokeColor) {
+            ctx.strokeStyle = rgb(strokeColor);
         }
     } 
-
-    /**
-     * Overwrite of default function, to have different colors when hovered.
-     */
-    updateTextColor() {
-        if(this.textFill) {
-            if(this.hovering && this.clickable) {
-                ctx.fillStyle = rgbm(this.textFill,1.3);
-            } else {
-                ctx.fillStyle = rgb(this.textFill);
-            }
-        }
-
-        if(this.textStroke) {
-            ctx.strokeStyle = rgb(this.textStroke);
-        }
-    }
 }
