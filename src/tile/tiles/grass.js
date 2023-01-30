@@ -54,7 +54,8 @@ export class Grass extends Tile {
 
     tileUpdate() {
         // If another tile is placed on top of a grass tile, it is converted into a dirt block
-        if(this.world.getTile(this.gridX,this.gridY + 1)) {
+        let tileAbove = this.world.getTile(this.gridX,this.gridY + 1);
+        if(tileAbove && !tileAbove.transparent) {
             this.world.setTile(this.gridX,this.gridY,new Dirt(this.gridX,this.gridY,this.world));
             this.world.getTile(this.gridX,this.gridY).getTilesetSource();
         }

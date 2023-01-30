@@ -144,7 +144,8 @@ export class Tile {
 
         let checkTile = (x,y) => {
             try {
-                if(this.world.getTile(x,y)) {
+                let tile = this.world.getTile(x,y);
+                if(tile && !tile.transparent) {
                     return true;
                 }
                 return false;
