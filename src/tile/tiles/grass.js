@@ -15,7 +15,8 @@ export class Grass extends Tile {
         this.miningTime = 1.5;
 
         this.tileDrops = [
-            {id:0,rate:100,amount:1,requireTool:false}
+            {id:0,rate:100,amount:1,requireTool:false},
+            {id:9,rate:10,amount:1,requireTool:false}
         ]
     }
 

@@ -5,8 +5,9 @@ import { sprites } from "../game/graphics/loadAssets.js";
 import { calculateDistance } from "../misc/util.js";
 
 export default class PlacementPreview {
-    constructor(sprite,offsetX,offsetY,game) {
+    constructor(sprite,offsetX,offsetY,game,item) {
         this.game = game;
+        this.item = item;
         this.sx = offsetX;
         this.sy = offsetY;
 
@@ -44,9 +45,10 @@ export default class PlacementPreview {
             centerY:-gridY * TILE_SIZE + TILE_SIZE / 2
         }
 
-        if(calculateDistance(this.game.player,pos) > this.game.player.reach || 
-            !validPlacementPosition(gridX,gridY,this.game.world)) {
-                ctx.globalAlpha = 0.05;
+        if (calculateDistance(this.game.player,pos) > this.game.player.reach || 
+            !this.item.canBePlaced(gridX,gridY)
+        ) {
+            ctx.globalAlpha = 0.05;
         } else {
             ctx.globalAlpha = this.a;
         }

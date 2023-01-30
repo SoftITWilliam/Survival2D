@@ -15,6 +15,7 @@ export default class ItemRegistry {
             wood:6,
             branch:7,
             acorn:8,
+            grass_seeds:9,
         };
 
         this.items = [
@@ -26,7 +27,8 @@ export default class ItemRegistry {
             new item.DevHammer(game), // ID 5
             new item.Wood(game), // ID 6
             new item.Branch(game), // ID 7
-            new item.Acorn(game), // ID 8
+            new item.Acorn(game), // ID 8¨
+            new item.GrassSeeds(game), // ID 9
         ];
 
         this.items.forEach(item => {
