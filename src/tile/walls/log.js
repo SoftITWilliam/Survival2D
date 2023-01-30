@@ -1,5 +1,5 @@
-import { ctx } from "../../../game/global.js";
-import { Tile } from "../../../tile/tile.js";
+import { ctx } from "../../game/global.js";
+import { Tile } from "../tile.js";
 
 export class Log extends Tile {
     constructor(gridX,gridY,world) {

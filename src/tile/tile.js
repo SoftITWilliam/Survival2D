@@ -35,6 +35,7 @@ export class Tile {
         this.miningTime = 0;
 
         this.transparent = false;
+        this.connective = true;
 
         this.tileDrops = [];
 
@@ -167,6 +168,12 @@ export class Tile {
     // This is a very messy way to do this and probably isn't optimal
     // But to be honest, I can't come up with a better one.
     getTilesetSource() {
+        if(this.connective == false) {
+            this.sx = 0;
+            this.sy = 0;
+            return;
+        }
+
         let a = this.getAdjacent();
         let s = [];
 
