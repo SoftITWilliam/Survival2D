@@ -8,6 +8,10 @@ export const sprites = {
         tile_grass: image("tiles/tileset_grass"),
     },
 
+    placeables: {
+        sapling: image("tiles/sapling"),
+    },
+
     items: {
         dev_pickaxe: image("items/dev_pickaxe"),
         dev_axe: image("items/dev_axe"),

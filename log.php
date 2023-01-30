@@ -5,6 +5,9 @@
     : Additional info
     // Notes & comments
 
+<2023-01-30>
+    + Added sprite and display name for Grass Seeds
+
 <2023-01-27>
     + Components have been fully implemented for the crafting UI. Done working with them for now.
     + Grass now spreads to nearby dirt blocks
