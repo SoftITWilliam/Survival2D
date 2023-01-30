@@ -1,15 +1,14 @@
 import { sprites } from "../../game/graphics/loadAssets.js";
 import { rng } from "../../misc/util.js";
-import { Tile } from "../../tile/tile.js";
 import { Dirt } from "../../tile/tileParent.js";
+import TileBase from "../base/tileBase.js";
 
-export class Grass extends Tile {
+export class Grass extends TileBase {
     constructor(gridX,gridY,world) {
         super(gridX,gridY,world);
         this.setRegistryName("tile_grass");
         this.setSprite(sprites.tiles.tile_grass);
 
-        this.objectType = "solid";
         this.toolType = "shovel";
         this.miningLevel = 0;
         this.miningTime = 1.5;

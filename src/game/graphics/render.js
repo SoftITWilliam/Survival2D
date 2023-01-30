@@ -1,9 +1,8 @@
 
 // FIXED IMPORTS:
 import { drawStatBar } from './ui.js';
-import { ctx, canvas, TILE_SIZE, DRAWDIST, DRAW_LIGHTING, DEBUG_MODE } from '../global.js';
-import { calculateDistance, clamp, disableShadow, gridXfromCoordinate, gridYfromCoordinate, setAttributes } from '../../misc/util.js';
-import { checkToolInteraction } from '../../tile/toolInteraction.js';
+import { ctx, canvas, DRAWDIST, DRAW_LIGHTING, DEBUG_MODE } from '../global.js';
+import { calculateDistance, clamp, setAttributes } from '../../misc/util.js';
 import { drawDebugUI } from './debug.js';
 
 export default function render(game,player) {
@@ -85,16 +84,21 @@ export default function render(game,player) {
 }
 
 function drawHoverEffect(game,input) {
-
-
-    let obj = checkToolInteraction(input.mouse.gridX,input.mouse.gridY,game.player.heldItem,game.world);
-
-    if(!obj) {
-        return;
-    }
+    let tile = game.world.getTile(input.mouse.gridX,input.mouse.gridY);
+    let wall = game.world.getWall(input.mouse.gridX,input.mouse.gridY);
 
     // Cannot interact with tiles while inventory is open
     if(game.player.inventory.view) {
+        return;
+    }
+
+    // Check if player is able to interact with tile or wall using the tool they're currently holding
+    let obj;
+    if(tile && tile.canBeMined(game.player.heldItem)) {
+        obj = tile;
+    } else if(wall && wall.canBeMined(game.player.heldItem)) {
+        obj = wall;
+    } else {
         return;
     }
 

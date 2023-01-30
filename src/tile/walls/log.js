@@ -1,14 +1,12 @@
 import { ctx } from "../../game/global.js";
-import { Tile } from "../tile.js";
+import WallBase from "../base/wallBase.js";
 
-export class Log extends Tile {
+export class Log extends WallBase {
     constructor(gridX,gridY,world) {
         super(gridX,gridY,world);
         this.setRegistryName("wall_log");
-
         this.transparent = true;
-
-        this.objectType = "wall";
+        this.requireTool = false;
         this.toolType = "axe";
         this.miningLevel = 0;
         this.miningTime = 1.5;
@@ -16,6 +14,14 @@ export class Log extends Tile {
         this.tileDrops = [
             {id:6,rate:100,amount:[1,3],requireTool:false}
         ]
+    }
+
+    // Override
+    canBeMined(item) {
+        if(item && item.toolType == "hammer") {
+            return false;
+        }
+        return true;
     }
 
     breakTile() {

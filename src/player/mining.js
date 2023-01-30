@@ -5,15 +5,15 @@ import { dropItemFromBlock } from "../item/dropItem.js";
 import { rng } from "../misc/util.js";
 
 class MiningEvent {
-    constructor(tile,tool,game) {
+    constructor(tile,item,game) {
         this.game = game;
         this.tile = tile;
         this.finished = false;
 
-        if(tool) {
-            this.toolType = tool.toolType;
-            this.miningSpeed = tool.miningSpeed;
-            this.miningLevel = tool.miningLevel;
+        if(item) {
+            this.toolType = item.toolType ? item.toolType : null;
+            this.miningSpeed = item.miningSpeed ? item.miningSpeed : 1;
+            this.miningLevel = item.miningLevel ? item.miningLevel : 0;
         } else {
             this.toolType = null;
             this.miningSpeed = 1;

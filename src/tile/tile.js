@@ -36,6 +36,7 @@ export class Tile {
 
         this.transparent = false;
         this.connective = true;
+        this.requireTool = false;
 
         this.tileDrops = [];
 
@@ -84,6 +85,13 @@ export class Tile {
         ctx.drawImage(
             this.sprite,this.sx,this.sy,TILE_SIZE,TILE_SIZE,this.x,this.y,TILE_SIZE,TILE_SIZE
         );
+    }
+
+    canBeMined(item) {
+        if(this.requiredTool && !item) {
+            return false;
+        }
+        return true;
     }
 
     // Remove the tile and drop its items.
