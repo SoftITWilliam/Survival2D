@@ -16,6 +16,7 @@ export const sprites = {
         wood: image("items/wood"),
         branch: image("items/branch"),
         acorn: image("items/acorn"),
+        grass_seeds: image("items/grass_seeds"),
     },
 
     entities: {

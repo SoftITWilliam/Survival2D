@@ -9,4 +9,29 @@ export default class TileItemBase extends Item {
         this.stackLimit = 99;
         this.entitySize = ITEM_SIZE;
     }
+
+    // Return true if position has no tile, is adjacent to another time or on top of a wall.
+    canBePlaced(x,y) {
+        let world = this.game.world;
+        // Check for unavalible tile
+        if(world.outOfBounds(x,y) || world.getTile(x,y)) {
+            return false;
+        } 
+        
+        // Check for adjacent tile or wall
+        if (world.getTile(x-1,y) ||
+            world.getTile(x,y+1) ||
+            world.getTile(x+1,y) ||
+            world.getTile(x,y-1) ||
+            world.getWall(x,y)
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    place(x,y) {
+        
+    }
 }

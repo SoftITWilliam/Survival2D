@@ -19,11 +19,12 @@ export class Game {
         this.input = new InputHandler(this);
         this.fpsCounter = new FPSCounter(this);
         
-        
+
     }
 
     update() {
         document.body.style.cursor = "default";
+        this.world.tickCounter();
         this.fpsCounter.increment();
         this.player.update(this.input);
         this.player.craftingMenu.ui.update();

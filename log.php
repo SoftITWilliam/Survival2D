@@ -5,6 +5,12 @@
     : Additional info
     // Notes & comments
 
+<2023-01-27>
+    + Components have been fully implemented for the crafting UI. Done working with them for now.
+    + Grass now spreads to nearby dirt blocks
+    + Added "Grass seeds" item, which is functional but unfinished.
+    * Changed some mechanics behind tile placement, which ended up making it impossible to place regular tiles. Will fix! :)
+
 <2023-01-25>
     + Added clickable and scrollable UI components
     * Reworked the craftable item list

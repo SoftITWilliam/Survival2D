@@ -347,6 +347,8 @@ class Player {
     }
 
     drawPlacementPreview(input) {
+        let x = input.mouse.gridX;
+        let y = input.mouse.gridY;
         // Held item must have a placement preview
         if(!this.heldItem) {
             return;
@@ -356,12 +358,12 @@ class Player {
             return;
         }
 
-        // Will not draw a preview on top of already existing tile
-        if(this.game.world.getTile(input.mouse.gridX,input.mouse.gridY)) {
+        if(!this.heldItem.canBePlaced(x,y)) {
+            console.log("Cannot be placed");
             return;
         }
 
-        this.heldItem.placementPreview.draw(input.mouse.gridX,input.mouse.gridY);
+        this.heldItem.placementPreview.draw(x,y);
     }
 
     updateAnimationFrame() {
@@ -404,19 +406,18 @@ class Player {
             return;
         }
 
-        // Must be a valid placement position
-        if(!validPlacementPosition(x,y,this.game.world)) {
-            return;
-        }
-    
         // X and Y must be within grid
         if(isNaN(x) || isNaN(y) || this.game.world.outOfBounds(x,y)) {
             return;
         }
 
+        // Must be a valid placement position
+        if(!item.canBePlaced(x,y)) {
+            return;
+        }
+    
         let tile = item.place(x,y);
-
-        if(!tile || this.game.world.getTile(x,y)) {
+        if(!tile) {
             return;
         }
 

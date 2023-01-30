@@ -1,4 +1,5 @@
 import { sprites } from "../../game/graphics/loadAssets.js";
+import { rng } from "../../misc/util.js";
 import { Tile } from "../../tile/tile.js";
 import { Dirt } from "../../tile/tileParent.js";
 
@@ -14,7 +15,8 @@ export class Grass extends Tile {
         this.miningTime = 1.5;
 
         this.tileDrops = [
-            {id:0,rate:100,amount:1,requireTool:false}
+            {id:0,rate:100,amount:1,requireTool:false},
+            {id:9,rate:10,amount:1,requireTool:false}
         ]
     }
 
@@ -22,8 +24,35 @@ export class Grass extends Tile {
         this.drawSprite();
     }
 
-    update() {
+    checkSpreadCondition(x,y) {
+        let tile = this.world.getTile(x,y);
+        if(tile && tile.registryName == "tile_dirt") {
+            y += 1;
+            if(!this.world.getTile(x,y)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
+    tickUpdate() {
+        // Try to spread grass to surrounding tiles
+        let range = 2;
+        for(let x = this.gridX - range; x <= this.gridX + range; x++) {
+            for(let y = this.gridY - range; y <= this.gridY + range; y++) {
+                if(!this.checkSpreadCondition(x,y)) {
+                    continue;
+                };
+                if(rng(0,1023) > 0) {
+                    continue;
+                }
+                this.world.setTile(x,y,new Grass(x, y, this.world));
+                this.world.getTile(x,y).getTilesetSource();
+            }
+        }
+    }
+
+    tileUpdate() {
         // If another tile is placed on top of a grass tile, it is converted into a dirt block
         if(this.world.getTile(this.gridX,this.gridY + 1)) {
             this.world.setTile(this.gridX,this.gridY,new Dirt(this.gridX,this.gridY,this.world));

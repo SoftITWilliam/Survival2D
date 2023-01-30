@@ -24,6 +24,9 @@ export class World {
         }
 
         this.structures = [];
+
+        this.frameCounter = 0;
+        this.ticksPerSecond = 10;
     }
 
     // Return the tile at the given position
@@ -74,6 +77,27 @@ export class World {
         return (x < 0 || x >= this.width || y < 0 || y >= this.height);
     }
 
+    tickCounter() {
+        this.frameCounter += 1;
+        if(this.frameCounter > 60 / this.ticksPerSecond) {
+            this.frameCounter = 0;
+            this.tick();
+        }
+    }
+
+    tick() {
+        console.log("Tick!");
+        for(let x = 0; x < this.width; x++) {
+            for(let y = 0; y < this.height; y++) {
+                let tile = this.getTile(x,y);
+                if(!tile) {
+                    continue;
+                }
+                tile.tickUpdate();
+            }
+        }
+    }
+
     generate() {
         let noise = new Noise(0,100,this);
         noise.blur(3);
@@ -107,6 +131,7 @@ export class World {
                     continue;
                 }
                 tile.getTilesetSource();
+                tile.tileUpdate();
             }
         }
     }
@@ -124,7 +149,7 @@ export class World {
                 }
                 
                 tile.getTilesetSource();
-                tile.update();
+                tile.tileUpdate();
             }
         }
     }
