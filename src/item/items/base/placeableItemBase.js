@@ -7,7 +7,7 @@ export default class PlaceableBase extends Item {
         this.itemType = 'placeable';
         this.placeable = true;
         this.stackLimit = 99;
-        this.entitySize = ITEM_SIZE;
+        this.entitySize = 32;
     }
 
     canBePlaced(x,y) {

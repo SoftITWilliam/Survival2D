@@ -10,6 +10,7 @@ export default class TileItemBase extends Item {
         this.entitySize = ITEM_SIZE;
     }
 
+    // Return true if position has no tile, is adjacent to another time or on top of a wall.
     canBePlaced(x,y) {
         let world = this.game.world;
         // Check for unavalible tile

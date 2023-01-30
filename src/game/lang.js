@@ -34,6 +34,7 @@ export const LANG = {
         wood: "Wood",
         branch: "Branch",
         acorn: "Acorn",
+        grass_seeds: "Grass Seeds",
 
         // Item descriptions
         dev_pickaxe_description: "This item is for testing purposes only",
@@ -43,6 +44,7 @@ export const LANG = {
         wood_description: "A very abundant and useful material",
         branch_description: "A branch from a tree",
         acorn_description: "Plant into dirt and watch it grow into a tree.",
+        grass_seeds_description: "Plant on dirt to grow",
 
         // Rarities
         rarity_0: "Common",
@@ -74,6 +76,7 @@ export const LANG = {
         wood: "Trä",
         branch: "Gren",
         acorn: "Ekollon",
+        grass_seeds: "Gräsfrön",
 
         // Item descriptions
         dev_pickaxe_description: "Det här föremålet är enbart för teständamål",
@@ -83,6 +86,7 @@ export const LANG = {
         wood_description: "Ett väldigt rikligt och användbart material",
         branch_description: "En gren från ett träd",
         acorn_description: "Plantera i jord och se den växa till ett träd",
+        grass_seeds_description: "Plantera på jort för att växa",
 
         // Rarities
         rarity_0: "Vanlig",

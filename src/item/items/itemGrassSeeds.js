@@ -9,10 +9,11 @@ export class ItemGrassSeeds extends PlaceableBase {
         this.setRegistryName("grass_seeds");
         this.setRarity(1);
 
-        this.setSprite(null);
+        this.setSprite(sprites.items.grass_seeds);
         this.placementPreview = new PlacementPreview(sprites.tiles.tile_grass,72,12,this.game,this);
     }
 
+    // Return true if the given position is a dirt block with no block above
     canBePlaced(x,y) {
         let tile = this.game.world.getTile(x,y);
         if(tile && tile.registryName == "tile_dirt" && !this.game.world.getTile(x,y+1)) {
