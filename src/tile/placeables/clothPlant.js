@@ -6,9 +6,12 @@ export class ClothPlant extends PlantBase {
         super(gridX,gridY,world);
         this.setRegistryName("plant_cloth");
         this.setSprite(sprites.placeables.cloth_plant);
+        this.miningLevel = 0;
+        this.miningTime = 0.5;
 
         this.tileDrops = [
-            {id:8,rate:50,amount:1,requireTool:false}
+            {id:10,rate:100,amount:[1,3],requireTool:false},
+            {id:11,rate:100,amount:[1,2],requireTool:false}
         ];
     }
 

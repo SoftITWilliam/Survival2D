@@ -9,12 +9,15 @@
     + Saplings can grow into trees
     + Added 'Cloth Plant' (placeholder name probably)
     + Added 'Plant fiber' and 'Cloth Plant Seeds' items, dropped from Cloth Plant
+    * Turned World generation into a class, and restructured it a little.
+    * Trees spawn more often, but require a gap of at least 2 blocks
 
 <2023-01-30>
     + Added sprite and display name for Grass Seeds
     + Acorns can be placed, creating the new 'Sapling' object
     * Adjusted mining mechanic
         : each object now has its own 'canBeMined()' function, instead of having a single big function for all objects.
+    * Fixed the bug mentioned in the previous changelog
 
 <2023-01-27>
     + Components have been fully implemented for the crafting UI. Done working with them for now.

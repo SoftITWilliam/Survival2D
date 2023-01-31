@@ -6,11 +6,11 @@ import PlaceableBase from "./base/placeableItemBase.js";
 export class ItemClothSeeds extends PlaceableBase {
     constructor(game) {
         super(game);
-        this.setRegistryName("grass_seeds");
+        this.setRegistryName("cloth_seeds");
         this.setRarity(1);
 
-        this.setSprite(sprites.items.grass_seeds);
-        this.placementPreview = new PlacementPreview(sprites.tiles.tile_grass,72,12,this);
+        this.setSprite(sprites.items.cloth_seeds);
+        this.placementPreview = new PlacementPreview(sprites.placeables.cloth_plant,0,0,this);
     }
 
     // Return true if position isn't occupied and tile below is either dirt or grass

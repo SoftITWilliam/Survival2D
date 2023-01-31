@@ -25,7 +25,7 @@ export default class PlaceableBase extends Tile {
             }
         }
         
-        if(item.toolType == "hammer") {
+        if(item && item.toolType == "hammer") {
             return false;
         }
 
