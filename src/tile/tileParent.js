@@ -8,3 +8,4 @@ export { Water } from './tiles/water.js'; // ID 6
 export { DirtWall } from './walls/dirtWall.js'; // ID 7
 export { StoneWall } from './walls/stoneWall.js'; // ID 8
 export { Sapling } from './placeables/sapling.js'; // ID 9
+export { ClothPlant } from './placeables/clothPlant.js'; // ID 10

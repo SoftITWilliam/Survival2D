@@ -9,3 +9,5 @@ export { ItemWood as Wood } from './items/itemWood.js';
 export { ItemBranch as Branch } from './items/itemBranch.js';
 export { ItemAcorn as Acorn } from './items/itemAcorn.js';
 export { ItemGrassSeeds as GrassSeeds } from './items/itemGrassSeeds.js';
+export { ItemPlantFiber as PlantFiber } from './items/itemPlantFiber.js';
+export { ItemClothSeeds as ClothSeeds } from './items/itemClothSeeds.js';
