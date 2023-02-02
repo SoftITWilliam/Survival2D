@@ -2,50 +2,35 @@ import * as item from './itemParent.js';
 
 export default class ItemRegistry {
     constructor(game) {
-        console.log(game);
         this.game = game;
 
-        this.enum = {
-            dirt:               0,
-            stone:              1,
-            dev_pickaxe:        2,
-            dev_shovel:         3,
-            dev_axe:            4,
-            dev_hammer:         5,
-            wood:               6,
-            branch:             7,
-            acorn:              8,
-            grass_seeds:        9,
-            plant_fiber:        10,
-            cloth_seeds:        11,
-            wooden_pickaxe:     12,
-            wooden_axe:         13,
-            wooden_shovel:      14,
-            wooden_hammer:      15,
-        };
-
+        // List of all items in the game
         this.items = [
-            new item.Dirt(game), // ID 0
-            new item.Stone(game), // ID 1
-            new item.DevPickaxe(game), // ID 2
-            new item.DevAxe(game), // ID 3
-            new item.DevShovel(game), // ID 4
-            new item.DevHammer(game), // ID 5
-            new item.Wood(game), // ID 6
-            new item.Branch(game), // ID 7
-            new item.Acorn(game), // ID 8
-            new item.GrassSeeds(game), // ID 9
-            new item.PlantFiber(game), // ID 10
-            new item.ClothSeeds(game), // ID 11
-            new item.WoodenPickaxe(game), // ID 12
-            new item.WoodenAxe(game), // ID 13
-            new item.WoodenShovel(game), // ID 14
-            new item.WoodenHammer(game), // ID 15
+            new item.Tile(game, "dirt", "Dirt", "COMMON"),                              // ID 0
+            new item.Tile(game, "stone", "Stone", "COMMON"),                            // ID 1
+            new item.Pickaxe(game, "dev_pickaxe", 999, 5, 10, "UNOBTAINABLE"),          // ID 2
+            new item.Axe(game, "dev_axe", 999, 5, 10, "UNOBTAINABLE"),                  // ID 3
+            new item.Shovel(game, "dev_shovel", 999, 5, 10, "UNOBTAINABLE"),            // ID 4
+            new item.Hammer(game, "dev_hammer", 999, 5, 10, "UNOBTAINABLE"),            // ID 5
+            new item.Default(game, "wood", "COMMON"),                                   // ID 6
+            new item.Default(game, "branch", "COMMON"),                                 // ID 7
+            new item.Acorn(game, "acorn", "COMMON"),                                    // ID 8
+            new item.GrassSeeds(game, "grass_seeds", "UNCOMMON"),                       // ID 9
+            new item.Default(game, "plant_fiber", "COMMON"),                            // ID 10
+            new item.ClothSeeds(game, "cloth_seeds", "COMMON"),                         // ID 11
+            new item.Pickaxe(game, "wooden_pickaxe", 1, 2, 4, "UNCOMMON"),              // ID 12
+            new item.Axe(game, "wooden_axe", 1, 2, 4, "UNCOMMON"),                      // ID 13
+            new item.Shovel(game, "wooden_shovel",1, 2, 4, "UNCOMMON"),                 // ID 14
+            new item.Hammer(game, "wooden_hammer", 1, 2, 4, "UNCOMMON"),                // ID 15
         ];
 
-        this.items.forEach(item => {
-            item.id = this.enum[item.registryName];
-        });
+        this.enum = {};
+
+        // Assign IDs and set up Enum
+        for(let i = 0; i < this.items.length; i++) {
+            this.items[i].id = i;
+            this.enum[this.items[i].registryName] = i;
+        }
 
         this.validateItems();
     }
@@ -63,8 +48,8 @@ export default class ItemRegistry {
     // Make sure all items have their essential properties. Throw an error if not.
     validateItems() {
         this.items.forEach(item => {
-            console.log(item);
             if(item.id === undefined || item.registryName === undefined || item.rarity === undefined) {
+                console.log(item);
                 throw new Error("One or more items have invalid properties!");
             }
         })

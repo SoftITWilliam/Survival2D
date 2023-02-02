@@ -4,13 +4,8 @@ import PlacementPreview from "../../ui/placementPreview.js";
 import PlaceableBase from "./base/placeableItemBase.js";
 
 export class ItemAcorn extends PlaceableBase {
-    constructor(game) {
-        super(game);
-        this.setRegistryName("acorn");
-        this.setRarity(0);
-        this.placeable = true;
-
-        this.setSprite(sprites.items.acorn);
+    constructor(game, registryName, rarity) {
+        super(game, registryName, rarity);
         this.placementPreview = new PlacementPreview(sprites.placeables.sapling,0,0,this);
     }
 

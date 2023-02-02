@@ -7,8 +7,9 @@ import { getDescription, getDisplayName, getLang } from "../game/lang.js";
 import { sprites } from "../game/graphics/loadAssets.js";
 
 export default class Item {
-    constructor(game) {
+    constructor(game,registryName) {
         this.game = game; // Pointer
+        this.setRegistryName(registryName);
         this.setSprite('missing_texture');
         this.itemType = null;
         this.stackSize = 99;
@@ -33,18 +34,33 @@ export default class Item {
     /**
      * Set item rarity and display color
      * 
-     * @param {int} rarity   Item rarity number 
+     * @param {any} rarity   Item rarity (supports both numbers and names, ex. 0 and "COMMON")
      */
     setRarity(rarity) {
-        this.rarity = rarity;
-        this.rarityText = getLang("rarity_" + rarity);
-        switch(rarity) {
+        let rarityEnum = {
+            "COMMON": 0,
+            "UNCOMMON": 1,
+            "RARE": 2,
+            "EPIC": 3,
+            "LEGENDARY": 4,
+            "UNOBTAINABLE": 99,
+        }
+
+        if(typeof rarity == "number") {
+            this.rarity = rarity;
+        } else {
+            this.rarity = rarityEnum[rarity] ? rarityEnum[rarity] : 0; // Default to 0 if name is invalid
+        }
+        
+        this.rarityText = getLang("rarity_" + this.rarity);
+        switch(this.rarity) {
             case 0: this.textColor = {r:240,g:240,b:240}; break;
             case 1: this.textColor = {r:100,g:200,b:120}; break;
             case 2: this.textColor = {r:80,g:150,b:220}; break;
             case 3: this.textColor = {r:170,g:110,b:255}; break;
             case 4: this.textColor = {r:255,g:180,b:0}; break;
             case 99: this.textColor = {r:220,g:0,b:30}; break;
+            default: this.textColor = {r:240,g:240,b:240}; break;
         }
     }
 
