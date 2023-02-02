@@ -24,6 +24,10 @@ export const sprites = {
         grass_seeds: image("items/grass_seeds"),
         plant_fiber: image("items/plant_fiber"),
         cloth_seeds: image("items/cloth_seeds"),
+        wooden_pickaxe: image("items/wooden_pickaxe"),
+        wooden_axe: image("items/wooden_axe"),
+        wooden_shovel: image("items/wooden_shovel"),
+        wooden_hammer: image("items/wooden_hammer"),
     },
 
     entities: {

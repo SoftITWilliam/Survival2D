@@ -11,6 +11,6 @@ export class ItemWoodenAxe extends AxeBase {
         this.miningSpeed = 2;
         this.reach = 4;
 
-        this.setSprite(null);
+        this.setSprite(sprites.items.wooden_axe);
     }
 }

@@ -11,6 +11,6 @@ export class ItemWoodenPickaxe extends PickaxeBase {
         this.miningSpeed = 2;
         this.reach = 4;
 
-        this.setSprite(null);
+        this.setSprite(sprites.items.wooden_pickaxe);
     }
 }

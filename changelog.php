@@ -5,6 +5,9 @@
     : Additional info
     // Notes & comments
 
+<2023-02-02> 
+    + Added sprites and display names for Wooden tools
+
 <2023-01-31>
     + Saplings can grow into trees
     + Added 'Cloth Plant' (placeholder name probably)
