@@ -11,3 +11,7 @@ export { ItemAcorn as Acorn } from './items/itemAcorn.js';
 export { ItemGrassSeeds as GrassSeeds } from './items/itemGrassSeeds.js';
 export { ItemPlantFiber as PlantFiber } from './items/itemPlantFiber.js';
 export { ItemClothSeeds as ClothSeeds } from './items/itemClothSeeds.js';
+export { ItemWoodenPickaxe as WoodenPickaxe } from './items/itemWoodenPickaxe.js';
+export { ItemWoodenAxe as WoodenAxe } from './items/itemWoodenAxe.js';
+export { ItemWoodenShovel as WoodenShovel } from './items/itemWoodenShovel.js';
+export { ItemWoodenHammer as WoodenHammer } from './items/itemWoodenHammer.js';

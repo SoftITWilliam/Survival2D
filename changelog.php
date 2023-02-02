@@ -9,6 +9,7 @@
     + Saplings can grow into trees
     + Added 'Cloth Plant' (placeholder name probably)
     + Added 'Plant fiber' and 'Cloth Plant Seeds' items, dropped from Cloth Plant
+    + Added a set of Wooden tools, and crafting recipes for them.
     * Turned World generation into a class, and restructured it a little.
     * Trees spawn more often, but require a gap of at least 2 blocks
 

@@ -18,6 +18,10 @@ export default class ItemRegistry {
             grass_seeds:        9,
             plant_fiber:        10,
             cloth_seeds:        11,
+            wooden_pickaxe:     12,
+            wooden_axe:         13,
+            wooden_shovel:      14,
+            wooden_hammer:      15,
         };
 
         this.items = [
@@ -33,6 +37,10 @@ export default class ItemRegistry {
             new item.GrassSeeds(game), // ID 9
             new item.PlantFiber(game), // ID 10
             new item.ClothSeeds(game), // ID 11
+            new item.WoodenPickaxe(game), // ID 12
+            new item.WoodenAxe(game), // ID 13
+            new item.WoodenShovel(game), // ID 14
+            new item.WoodenHammer(game), // ID 15
         ];
 
         this.items.forEach(item => {
