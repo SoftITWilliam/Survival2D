@@ -1,52 +1,117 @@
 import * as tiles from '../tile/tileParent.js';
 import * as structures from '../structure/structureParent.js';
 import { BASE_TERRAIN_HEIGHT, WORLD_WIDTH } from "../game/global.js";
-import { rng } from "../misc/util.js";
+import { rng, rollMax } from "../misc/util.js";
 import { HEIGHTMAP } from "./world.js";
+import Noise from './noise.js';
 
+export class WorldGeneration {
+    constructor(world) {
+        this.world = world;
 
-
-export function generateTerrainTile(x,y,threshold,dirtDepth,noiseValue,world) {
-    // No blocks or walls are generated above surface height
-    if(y > HEIGHTMAP[x] || noiseValue >= threshold) {
-        return null;
+        for(let x=0;x<this.world.width;x++) {
+            this.world.tileGrid.push([]);
+            this.world.wallGrid.push([]);
+        }
     }
 
-    // Grass
-    if(HEIGHTMAP[x] == y) {
-        // Try to generate a tree
-        generateTree(x,y+1,world);
-        return new tiles.Grass(x,y,world);
-    } 
-    
-    // Dirt
-    else if(HEIGHTMAP[x] - dirtDepth < y) {
-        return new tiles.Dirt(x,y,world);
-    } 
-    
-    // Stone
-    else {
-        return new tiles.Stone(x,y,world);
+    generate() {
+        this.terrainNoise = new Noise(0,100,this.world);
+        this.terrainNoise.blur(3);
+        this.dirtMap = this.generateDirtDepth(2,5);
+        this.threshold = 53;
+
+        // Place tiles based on noise
+        for(let x=0;x<this.world.width;x++) {
+            for(let y=0;y<this.world.height;y++) {
+                this.world.tileGrid[x].push(this.getTerrainTile(x,y,this.terrainNoise.get(x,y)));
+                this.world.wallGrid[x].push(this.getTerrainWall(x,y));
+            }
+        }
+
+        this.generateVegetation();
+    }
+
+    getTerrainTile(x,y,noiseValue) {
+        // No blocks or walls are generated above surface height
+        if(y > HEIGHTMAP[x] || noiseValue >= this.threshold) {
+            return null;
+        }
+
+        // Grass
+        if(HEIGHTMAP[x] == y) {
+            return new tiles.Grass(x,y,this.world);
+        } 
+        
+        // Dirt
+        else if(HEIGHTMAP[x] - this.dirtMap[x] < y) {
+            return new tiles.Dirt(x,y,this.world);
+        } 
+        
+        // Stone
+        else {
+            return new tiles.Stone(x,y,this.world);
+        }
+    }
+
+    getTerrainWall(x,y) {
+        // No wall
+        if(y > HEIGHTMAP[x]) {
+            return null;
+        }
+
+        // Dirt walls
+        if(HEIGHTMAP[x] - this.dirtMap[x] <= y) {
+            return new tiles.DirtWall(x,y,this.world);
+        } 
+        
+        // Stone walls
+        else {
+            return new tiles.StoneWall(x,y,this.world);
+        }
+    }
+
+    /**
+     * Return an array of randomized dirth depths, as long as the world is wide.
+     * @param {number} minDepth Minimum dirt depth
+     * @param {number} maxDepth Maximum dirt depth
+     * @returns {Array} 
+     */
+    generateDirtDepth(minDepth,maxDepth) {
+        let dirtDepth = [];
+        for(let i=0;i<this.world.width;i++) {
+            dirtDepth.push(rng(minDepth,maxDepth));
+        }
+        return dirtDepth;
+    }
+
+    generateVegetation() {
+        let lastTree = -1;
+        let treeGap = 2;
+
+        // 1 in X chance of generating these on each grass tile
+        let treeValue = 10;
+        let clothValue = 16;
+
+        for(let x = 0; x < this.world.width; x++) {
+            let y = HEIGHTMAP[x];
+            let tile = this.world.getTile(x,y);
+            if(!tile || tile.registryName != "tile_grass") {
+                continue;
+            }
+
+            if(rollMax(treeValue) && (x - lastTree) > treeGap) {
+                this.world.structures.push(new structures.BasicTree(x,y+1,this.world));
+                lastTree = x;
+                continue;
+            }
+
+            if(rollMax(clothValue)) {
+                this.world.setTile(x, y+1, new tiles.ClothPlant(x,y+1,this.world));
+            }
+        }
     }
 }
-
-export function generateTerrainWall(x,y,dirtDepth,world) {
-    // No wall
-    if(y > HEIGHTMAP[x]) {
-        return null;
-    }
-
-    // Dirt walls
-    if(HEIGHTMAP[x] - dirtDepth <= y) {
-        return new tiles.DirtWall(x,y,world);
-    } 
-    
-    // Stone walls
-    else {
-        return new tiles.StoneWall(x,y,world);
-    }
-}
-
 
 
 export function generateTerrainHeight() {
@@ -85,14 +150,6 @@ export function generateTerrainHeight() {
     }
 
     return heightMap;
-}
-
-export function generateDirtDepth(world) {
-    let dirtDepth = [];
-    for(let i=0;i<world.width;i++) {
-        dirtDepth.push(rng(3,5));
-    }
-    return dirtDepth;
 }
 
 // Has a chance of placing a Tree structure.

@@ -11,7 +11,7 @@ export class ItemStone extends TileItemBase {
 
         this.setSprite(sprites.tiles.tile_stone);
         this.setSpriteOffset(192,192);
-        this.placementPreview = new PlacementPreview(sprites.tiles.tile_stone,this.sx,this.sy,this.game,this);
+        this.placementPreview = new PlacementPreview(sprites.tiles.tile_stone,this.sx,this.sy,this);
     }
 
     place(gridX,gridY) {

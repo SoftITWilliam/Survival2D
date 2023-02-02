@@ -8,10 +8,10 @@ export default class RecipeManager {
 
     defineRecipes() {
         this.recipes = [
-            new CraftingRecipe("DEFAULT", [["wood",2],["stone",3]], "dev_pickaxe", 1, this.game),
-            new CraftingRecipe("DEFAULT", [["wood",2],["stone",3]], "dev_axe", 1, this.game),
-            new CraftingRecipe("DEFAULT", [["wood",2],["stone",1]], "dev_shovel", 1, this.game),
-            new CraftingRecipe("DEFAULT", [["wood",2],["stone",5]], "dev_hammer", 1, this.game),
+            new CraftingRecipe("DEFAULT", [["wood",6],["plant_fiber",5],["branch",5]], "wooden_pickaxe", 1, this.game),
+            new CraftingRecipe("DEFAULT", [["wood",5],["plant_fiber",4],["branch",4]], "wooden_axe", 1, this.game),
+            new CraftingRecipe("DEFAULT", [["wood",3],["plant_fiber",3],["branch",5]], "wooden_shovel", 1, this.game),
+            new CraftingRecipe("DEFAULT", [["wood",4],["plant_fiber",3],["branch",4]], "wooden_hammer", 1, this.game),
             new CraftingRecipe("DEFAULT", [["stone",1]], "dirt", 1, this.game),
             new CraftingRecipe("DEFAULT", [["dirt",1]], "stone", 1, this.game),
             new CraftingRecipe("DEFAULT", [["wood",2]], "branch", 4, this.game),

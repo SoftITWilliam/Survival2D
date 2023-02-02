@@ -1,9 +1,7 @@
 
 import * as tiles from '../tile/tileParent.js';
-import { WORLD_HEIGHT, WORLD_WIDTH } from '../game/global.js';
-import LightingGrid, { createLightGrid } from './lighting.js';
-import Noise from './noise.js';
-import { generateDirtDepth, generateTerrainHeight, generateTerrainTile, generateTerrainWall } from './generation.js';
+import LightingGrid from './lighting.js';
+import { generateTerrainHeight, WorldGeneration } from './generation.js';
 
 export const HEIGHTMAP = generateTerrainHeight();
 
@@ -18,6 +16,8 @@ export class World {
 
         this.lighting = new LightingGrid(this);
 
+        this.worldGen = new WorldGeneration(this);
+
         for(let x=0;x<this.width;x++) {
             this.tileGrid.push([]);
             this.wallGrid.push([]);
@@ -31,12 +31,20 @@ export class World {
 
     // Return the tile at the given position
     getTile(x,y) {
-        return this.outOfBounds(x,y) ? null : this.tileGrid[x][y];
+        try {
+            return this.outOfBounds(x,y) ? null : this.tileGrid[x][y];
+        } catch {
+            return null;
+        }
     }
 
     // Return the wall at the given position
     getWall(x,y) {
-        return this.outOfBounds(x,y) ? null : this.wallGrid[x][y];
+        try {
+            return this.outOfBounds(x,y) ? null : this.wallGrid[x][y];
+        } catch {
+            return null;
+        }
     }
 
     // Clear the given tile
@@ -99,19 +107,21 @@ export class World {
     }
 
     generate() {
-        let noise = new Noise(0,100,this);
-        noise.blur(3);
-        let dirtDepth = generateDirtDepth(this);
+        //let noise = new Noise(0,100,this);
+        //noise.blur(3);
+        //let dirtDepth = generateDirtDepth(this);
+
+        this.worldGen.generate();
 
         // Place tiles based on noise
-        for(let x=0;x<this.width;x++) {
-            for(let y=0;y<this.height;y++) {
-                let threshold = 53;
+        //for(let x=0;x<this.width;x++) {
+        //    for(let y=0;y<this.height;y++) {
+        //        let threshold = 53;
 
-                this.tileGrid[x].push(generateTerrainTile(x,y,threshold,dirtDepth[x],noise.get(x,y),this));
-                this.wallGrid[x].push(generateTerrainWall(x,y,dirtDepth[x],this));
-            }
-        }
+        //        this.tileGrid[x].push(generateTerrainTile(x,y,threshold,dirtDepth[x],noise.get(x,y),this));
+        //        this.wallGrid[x].push(generateTerrainWall(x,y,dirtDepth[x],this));
+        //    }
+        //}
 
         // Convert all generated 'structures' into actual tiles
         this.structures.forEach(structure => {
@@ -126,7 +136,7 @@ export class World {
     updateAllTiles() {
         for(let x=0;x<this.width;x++) {
             for(let y=0;y<this.height;y++) {
-                let tile = this.tileGrid[x][y];
+                let tile = this.getTile(x,y);
                 if(!tile) {
                     continue;
                 }
@@ -143,7 +153,7 @@ export class World {
                     continue;
                 }
     
-                let tile = this.tileGrid[x][y];
+                let tile = this.getTile(x,y);
                 if(!tile) {
                     continue;
                 }

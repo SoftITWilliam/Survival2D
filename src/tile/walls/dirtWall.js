@@ -1,13 +1,11 @@
-import { ctx } from "../../../game/global.js";
-import { Tile } from "../../../tile/tile.js";
+import { ctx } from "../../game/global.js";
+import WallBase from "../base/wallBase.js";
 
-export class DirtWall extends Tile {
+export class DirtWall extends WallBase {
     constructor(gridX,gridY,world) {
         super(gridX,gridY,world);
         this.setRegistryName("wall_dirt");
-        
-        this.objectType = "wall";
-        this.toolType = "hammer";
+
         this.miningLevel = 0;
         this.miningTime = 0.8;
     }

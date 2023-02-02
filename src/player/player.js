@@ -7,10 +7,8 @@ import { calculateDistance, clamp, gridXfromCoordinate, gridYfromCoordinate } fr
 import { HEIGHTMAP } from '../world/world.js';
 import { overlap, surfaceCollision } from '../game/collision.js';
 import { PlayerStatBar } from './statBar.js';
-import { checkToolInteraction } from '../tile/toolInteraction.js';
 import HotbarText from '../ui/hotbarText.js';
 import { PickupLabelHandler } from '../ui/pickupLabels.js';
-import { validPlacementPosition } from '../ui/placementPreview.js';
 import { Camera } from '../game/camera.js';
 import ItemInfoDisplay from '../ui/itemInfo.js';
 import { PlayerFalling, PlayerJumping, PlayerRunning, PlayerStanding, PlayerSwimming, stateEnum } from './playerStates.js';
@@ -20,6 +18,7 @@ import CraftingMenu from './crafting.js';
 class Player {
     constructor(game) {
         this.game = game;
+        this.world = game.world;
         this.w = 36;
         this.h = 72;
 
@@ -183,29 +182,39 @@ class Player {
     }
 
     updateMining(input) {
+        let tile = this.world.getTile(input.mouse.gridX, input.mouse.gridY);
+        let wall = this.world.getWall(input.mouse.gridX, input.mouse.gridY);
 
-        // Check if the tool can interact with the tile
-        let obj = checkToolInteraction(input.mouse.gridX,input.mouse.gridY,this.heldItem,this.game.world);
-
-        if(!obj) {
+        // Find object the tool is able to interact with
+        let obj;
+        if(tile && tile.canBeMined(this.heldItem)) {
+            obj = tile;
+        } else if(wall && wall.canBeMined(this.heldItem)) {
+            obj = wall;
+        } else {
             this.miningEvent = null;
             return;
         }
 
+        console.log("Can interact");
+
         // If not currently mining the block, create a new Mining event
         if(!this.miningEvent) {
             this.miningEvent = new MiningEvent(obj,this.heldItem,this.game);
+            console.log("New event")
         }
 
         // If not in range of the block, cancel Mining event
         if(calculateDistance(this,this.miningEvent.tile) > this.reach) {
             this.miningEvent = null;
+            console.log("Too far away")
             return;
         }
 
         // If mouse has moved outside the previous block being mined, create new Event
         if(this.miningEvent.tile.gridX != input.mouse.gridX || 
             this.miningEvent.tile.gridY != input.mouse.gridY) {
+                console.log("Different tile")
                 this.miningEvent = new MiningEvent(obj,this.heldItem,this.game);
         }
 
@@ -213,6 +222,7 @@ class Player {
         this.miningEvent.increaseProgress();
 
         if(this.miningEvent.finished) {
+            console.log("Mining finished")
             this.game.world.lighting.update(this);
             this.miningEvent = null;
         }
@@ -359,7 +369,6 @@ class Player {
         }
 
         if(!this.heldItem.canBePlaced(x,y)) {
-            console.log("Cannot be placed");
             return;
         }
 
@@ -421,11 +430,13 @@ class Player {
             return;
         }
 
+        // Cannot place out of range
         if(calculateDistance(this,tile) > this.reach) {
             return;
         } 
 
-        if(overlap(this,tile)) {
+        // Cannot place a solid tile which overlaps with player
+        if(tile.objectType == "solid" && overlap(this,tile)) {
             return;
         }
 

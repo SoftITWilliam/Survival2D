@@ -5,8 +5,8 @@ import { sprites } from "../game/graphics/loadAssets.js";
 import { calculateDistance } from "../misc/util.js";
 
 export default class PlacementPreview {
-    constructor(sprite,offsetX,offsetY,game,item) {
-        this.game = game;
+    constructor(sprite,offsetX,offsetY,item) {
+        this.game = item.game;
         this.item = item;
         this.sx = offsetX;
         this.sy = offsetY;

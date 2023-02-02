@@ -1,14 +1,12 @@
 import { ctx } from "../../game/global.js";
 import { sprites } from "../../game/graphics/loadAssets.js";
-import { Tile } from "../../tile/tile.js";
+import TileBase from "../base/tileBase.js";
 
-
-export class Leaves extends Tile {
+export class Leaves extends TileBase {
     constructor(gridX,gridY,world) {
         super(gridX,gridY,world);
         this.setRegistryName("tile_leaves");
         this.setSprite();
-        this.objectType = "solid";
         this.transparent = true;
 
         this.toolType = "axe";

@@ -35,6 +35,8 @@ export class Tile {
         this.miningTime = 0;
 
         this.transparent = false;
+        this.connective = true;
+        this.requireTool = false;
 
         this.tileDrops = [];
 
@@ -83,6 +85,13 @@ export class Tile {
         ctx.drawImage(
             this.sprite,this.sx,this.sy,TILE_SIZE,TILE_SIZE,this.x,this.y,TILE_SIZE,TILE_SIZE
         );
+    }
+
+    canBeMined(item) {
+        if(this.requiredTool && !item) {
+            return false;
+        }
+        return true;
     }
 
     // Remove the tile and drop its items.
@@ -143,7 +152,8 @@ export class Tile {
 
         let checkTile = (x,y) => {
             try {
-                if(this.world.getTile(x,y)) {
+                let tile = this.world.getTile(x,y);
+                if(tile && !tile.transparent) {
                     return true;
                 }
                 return false;
@@ -167,6 +177,12 @@ export class Tile {
     // This is a very messy way to do this and probably isn't optimal
     // But to be honest, I can't come up with a better one.
     getTilesetSource() {
+        if(this.connective == false) {
+            this.sx = 0;
+            this.sy = 0;
+            return;
+        }
+
         let a = this.getAdjacent();
         let s = [];
 

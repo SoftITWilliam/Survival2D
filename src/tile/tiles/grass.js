@@ -1,15 +1,14 @@
 import { sprites } from "../../game/graphics/loadAssets.js";
 import { rng } from "../../misc/util.js";
-import { Tile } from "../../tile/tile.js";
 import { Dirt } from "../../tile/tileParent.js";
+import TileBase from "../base/tileBase.js";
 
-export class Grass extends Tile {
+export class Grass extends TileBase {
     constructor(gridX,gridY,world) {
         super(gridX,gridY,world);
         this.setRegistryName("tile_grass");
         this.setSprite(sprites.tiles.tile_grass);
 
-        this.objectType = "solid";
         this.toolType = "shovel";
         this.miningLevel = 0;
         this.miningTime = 1.5;
@@ -54,7 +53,8 @@ export class Grass extends Tile {
 
     tileUpdate() {
         // If another tile is placed on top of a grass tile, it is converted into a dirt block
-        if(this.world.getTile(this.gridX,this.gridY + 1)) {
+        let tileAbove = this.world.getTile(this.gridX,this.gridY + 1);
+        if(tileAbove && !tileAbove.transparent) {
             this.world.setTile(this.gridX,this.gridY,new Dirt(this.gridX,this.gridY,this.world));
             this.world.getTile(this.gridX,this.gridY).getTilesetSource();
         }

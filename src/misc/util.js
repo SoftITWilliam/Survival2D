@@ -17,6 +17,10 @@ export function rng(min,max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
+export function rollMax(value) {
+    return (rng(0,value) == value);
+}
+
 /**
  * Takes a number. Forces the number to be within the given range, then returns it.
  * @param {int}     num     The number

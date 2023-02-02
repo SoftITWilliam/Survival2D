@@ -1,17 +1,16 @@
 import { sprites } from "../../game/graphics/loadAssets.js";
-import { Sapling } from "../../tile/tileParent.js";
+import { ClothPlant } from "../../tile/placeables/clothPlant.js";
 import PlacementPreview from "../../ui/placementPreview.js";
 import PlaceableBase from "./base/placeableItemBase.js";
 
-export class ItemAcorn extends PlaceableBase {
+export class ItemClothSeeds extends PlaceableBase {
     constructor(game) {
         super(game);
-        this.setRegistryName("acorn");
-        this.setRarity(0);
-        this.placeable = true;
+        this.setRegistryName("cloth_seeds");
+        this.setRarity(1);
 
-        this.setSprite(sprites.items.acorn);
-        this.placementPreview = new PlacementPreview(sprites.placeables.sapling,0,0,this);
+        this.setSprite(sprites.items.cloth_seeds);
+        this.placementPreview = new PlacementPreview(sprites.placeables.cloth_plant,0,0,this);
     }
 
     // Return true if position isn't occupied and tile below is either dirt or grass
@@ -29,6 +28,6 @@ export class ItemAcorn extends PlaceableBase {
     }
 
     place(x,y) {
-        return new Sapling(x,y,this.game.world);
+        return new ClothPlant(x,y,this.game.world);
     }
 }

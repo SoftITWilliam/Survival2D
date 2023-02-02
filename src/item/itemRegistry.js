@@ -6,16 +6,22 @@ export default class ItemRegistry {
         this.game = game;
 
         this.enum = {
-            dirt:0,
-            stone:1,
-            dev_pickaxe:2,
-            dev_shovel:3,
-            dev_axe:4,
-            dev_hammer:5,
-            wood:6,
-            branch:7,
-            acorn:8,
-            grass_seeds:9,
+            dirt:               0,
+            stone:              1,
+            dev_pickaxe:        2,
+            dev_shovel:         3,
+            dev_axe:            4,
+            dev_hammer:         5,
+            wood:               6,
+            branch:             7,
+            acorn:              8,
+            grass_seeds:        9,
+            plant_fiber:        10,
+            cloth_seeds:        11,
+            wooden_pickaxe:     12,
+            wooden_axe:         13,
+            wooden_shovel:      14,
+            wooden_hammer:      15,
         };
 
         this.items = [
@@ -27,8 +33,14 @@ export default class ItemRegistry {
             new item.DevHammer(game), // ID 5
             new item.Wood(game), // ID 6
             new item.Branch(game), // ID 7
-            new item.Acorn(game), // ID 8¨
+            new item.Acorn(game), // ID 8
             new item.GrassSeeds(game), // ID 9
+            new item.PlantFiber(game), // ID 10
+            new item.ClothSeeds(game), // ID 11
+            new item.WoodenPickaxe(game), // ID 12
+            new item.WoodenAxe(game), // ID 13
+            new item.WoodenShovel(game), // ID 14
+            new item.WoodenHammer(game), // ID 15
         ];
 
         this.items.forEach(item => {

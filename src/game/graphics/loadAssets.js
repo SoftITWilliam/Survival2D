@@ -8,6 +8,11 @@ export const sprites = {
         tile_grass: image("tiles/tileset_grass"),
     },
 
+    placeables: {
+        sapling: image("tiles/sapling"),
+        cloth_plant: image("tiles/cloth_plant"),
+    },
+
     items: {
         dev_pickaxe: image("items/dev_pickaxe"),
         dev_axe: image("items/dev_axe"),
@@ -17,6 +22,8 @@ export const sprites = {
         branch: image("items/branch"),
         acorn: image("items/acorn"),
         grass_seeds: image("items/grass_seeds"),
+        plant_fiber: image("items/plant_fiber"),
+        cloth_seeds: image("items/cloth_seeds"),
     },
 
     entities: {
