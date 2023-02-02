@@ -1,4 +1,4 @@
-import { canvas, ITEM_SIZE, TILE_SIZE } from "../game/global.js";
+import { canvas } from "../game/global.js";
 import CraftingInterface from "../ui/craftingUI.js";
 
 

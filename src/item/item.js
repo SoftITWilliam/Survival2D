@@ -82,11 +82,37 @@ export default class Item {
         }
     }
 
+    getRegistryName() {
+        return this.registryName;
+    }
+
+    getDisplayName() {
+        return this.displayName;
+    }
+
+    getDescription() {
+        return this.description;
+    }
+
     /** 
      * Return the tile the object is supposed to place.
     */
     place(gridX,gridY) {
         return;
+    }
+
+    /**
+     * Return true if the tile below is either dirt or grass
+     * @param {number} x X grid position
+     * @param {number} y Y grid position
+     * @returns 
+     */
+    canBePlanted(x,y) {
+        let tileBelow = this.game.world.getTile(x,y-1);
+        if(!tileBelow || (tileBelow.registryName != "tile_dirt" && tileBelow.registryName != "tile_grass")) {
+            return false;
+        }
+        return true;
     }
 
     /**

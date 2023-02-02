@@ -1,6 +1,5 @@
 
 // FIXED IMPORTS:
-import { rng } from "../misc/util.js";
 import { dropItemFromBlock } from "../item/dropItem.js";
 import { ctx, TILE_SIZE } from "../game/global.js";
 import { sprites } from "../game/graphics/loadAssets.js";

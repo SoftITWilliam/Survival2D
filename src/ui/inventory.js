@@ -246,7 +246,7 @@ export class Inventory {
                 if(!g.stack) {
                     continue;
                 }
-                if(g.stack.item.registryName == item.registryName) {
+                if(g.stack.item.getRegistryName() == item.getRegistryName()) {
                     amount += g.stack.amount;
                 }
             }
@@ -342,7 +342,7 @@ export class Inventory {
                     continue;
                 }
 
-                if(slot.stack.item.registryName !== item.registryName) {
+                if(slot.stack.item.getRegistryName() !== item.getRegistryName()) {
                     continue;
                 }
 

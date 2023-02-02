@@ -11,15 +11,10 @@ export class ItemAcorn extends PlaceableBase {
 
     // Return true if position isn't occupied and tile below is either dirt or grass
     canBePlaced(x,y) {
-        if(this.game.world.outOfBounds(x,y) || this.game.world.getTile(x,y)) {
+        if(this.game.world.outOfBounds(x,y) || this.game.world.getTile(x,y) || !this.canBePlanted(x,y)) {
             return false;
         }
-
-        let tileBelow = this.game.world.getTile(x,y-1);
-        if(!tileBelow || (tileBelow.registryName != "tile_dirt" && tileBelow.registryName != "tile_grass")) {
-            return false;
-        }
-
+        
         return true;
     }
 
