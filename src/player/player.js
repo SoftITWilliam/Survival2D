@@ -196,25 +196,20 @@ class Player {
             return;
         }
 
-        console.log("Can interact");
-
         // If not currently mining the block, create a new Mining event
         if(!this.miningEvent) {
             this.miningEvent = new MiningEvent(obj,this.heldItem,this.game);
-            console.log("New event")
         }
 
         // If not in range of the block, cancel Mining event
         if(calculateDistance(this,this.miningEvent.tile) > this.reach) {
             this.miningEvent = null;
-            console.log("Too far away")
             return;
         }
 
         // If mouse has moved outside the previous block being mined, create new Event
         if(this.miningEvent.tile.gridX != input.mouse.gridX || 
             this.miningEvent.tile.gridY != input.mouse.gridY) {
-                console.log("Different tile")
                 this.miningEvent = new MiningEvent(obj,this.heldItem,this.game);
         }
 
@@ -222,7 +217,6 @@ class Player {
         this.miningEvent.increaseProgress();
 
         if(this.miningEvent.finished) {
-            console.log("Mining finished")
             this.game.world.lighting.update(this);
             this.miningEvent = null;
         }

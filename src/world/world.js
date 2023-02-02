@@ -94,7 +94,6 @@ export class World {
     }
 
     tick() {
-        console.log("Tick!");
         for(let x = 0; x < this.width; x++) {
             for(let y = 0; y < this.height; y++) {
                 let tile = this.getTile(x,y);
