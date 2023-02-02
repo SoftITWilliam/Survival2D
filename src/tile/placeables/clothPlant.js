@@ -1,5 +1,6 @@
 import { sprites } from "../../game/graphics/loadAssets.js";
 import PlantBase from "../base/plantBase.js";
+import TileDrop from "../tileDrop.js";
 
 export class ClothPlant extends PlantBase {
     constructor(gridX,gridY,world) {
@@ -10,8 +11,8 @@ export class ClothPlant extends PlantBase {
         this.miningTime = 0.5;
 
         this.tileDrops = [
-            {id:10,rate:100,amount:[1,3],requireTool:false},
-            {id:11,rate:100,amount:[1,2],requireTool:false}
+            new TileDrop(this, "plant_fiber", [1,3], 100, true, false),
+            new TileDrop(this, "cloth_seeds", [1,2], 100, false, false),
         ];
     }
 

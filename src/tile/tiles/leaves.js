@@ -1,6 +1,7 @@
 import { ctx } from "../../game/global.js";
 import { sprites } from "../../game/graphics/loadAssets.js";
 import TileBase from "../base/tileBase.js";
+import TileDrop from "../tileDrop.js";
 
 export class Leaves extends TileBase {
     constructor(gridX,gridY,world) {
@@ -14,8 +15,8 @@ export class Leaves extends TileBase {
         this.miningTime = 0.6;
 
         this.tileDrops = [
-            {id:7,rate:16,amount:1,requireTool:false},
-            {id:8,rate:8,amount:1,requireTool:false}
+            new TileDrop(this, "branch", [1,2], 20, true, false),
+            new TileDrop(this, "acorn", 1, 10, true, false),
         ]
     }
 

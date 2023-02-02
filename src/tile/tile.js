@@ -95,44 +95,25 @@ export class Tile {
     }
 
     // Remove the tile and drop its items.
-    breakTile(toolType,toolLevel) {
+    breakTile(toolType, miningLevel) {
         if(this.objectType == "wall") {
             this.world.clearWall(this.gridX,this.gridY);
         } else {
             this.world.clearTile(this.gridX,this.gridY);
         }
 
-        this.dropItems(toolType,toolLevel);
+        this.dropItems(toolType, miningLevel);
         this.world.updateNearbyTiles(this.gridX,this.gridY);
     }
 
     // Loop through this tile's drops. Runs when the tile is broken.
-    dropItems(toolType,toolLevel) {
-        for(let i=0;i<this.tileDrops.length;i++) {
-            const drop = this.tileDrops[i];
-            
-
-            // If tool is required and isn't used, the item is not dropped.
-            if(drop.requireTool && toolType != this.toolType) {
-                continue;
+    dropItems(toolType, miningLevel) {
+        this.tileDrops.forEach(tileDrop => {
+            const droppedItem = tileDrop.roll(toolType, miningLevel, 1);
+            if(droppedItem) {
+                dropItemFromBlock(this, droppedItem.item, droppedItem.amount, this.world.game);
             }
-
-            // If drop rate RNG isn't high enough, the item is not dropped.
-            let rand = rng(1,100);
-            if(rand > drop.rate) {
-                continue;
-            }
-
-            // If 'amount' is a number, drop that amount.
-            // If 'amount' is an array, the first number is the minimum, and the second is maximum.
-            let itemAmount = 0;
-            if(Array.isArray(drop.amount)) {
-                itemAmount = rng(drop.amount[0],drop.amount[1]);
-            } else {
-                itemAmount = drop.amount;
-            }
-            dropItemFromBlock(this,drop.id,itemAmount,this.world.game);
-        }
+        })
     }
 
     // Runs whenever the tile is "refreshed", i.e. something happens to an adjacent tile.

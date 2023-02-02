@@ -2,6 +2,7 @@ import { sprites } from "../../game/graphics/loadAssets.js";
 import { rng } from "../../misc/util.js";
 import { Dirt } from "../../tile/tileParent.js";
 import TileBase from "../base/tileBase.js";
+import TileDrop from "../tileDrop.js";
 
 export class Grass extends TileBase {
     constructor(gridX,gridY,world) {
@@ -14,8 +15,8 @@ export class Grass extends TileBase {
         this.miningTime = 1.5;
 
         this.tileDrops = [
-            {id:0,rate:100,amount:1,requireTool:false},
-            {id:9,rate:10,amount:1,requireTool:false}
+            new TileDrop(this, "dirt", 1, 100, false, false),
+            new TileDrop(this, "grass_seeds", 1, 10, true, false),
         ]
     }
 
