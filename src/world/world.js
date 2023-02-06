@@ -2,6 +2,7 @@
 import * as tiles from '../tile/tileParent.js';
 import LightingGrid from './lighting.js';
 import { generateTerrainHeight, WorldGeneration } from './generation.js';
+import { TileInstance } from '../tile/tileInstance.js';
 
 export const HEIGHTMAP = generateTerrainHeight();
 
@@ -61,12 +62,15 @@ export class World {
         }
     }
 
-    // Set the tile at the given position to the given tile
-    setTile(x,y,tile) {
-        if(!this.outOfBounds(x,y)) {
+    setTile(x,y,tileName) {
+        if(this.outOfBounds(x,y)) {
+            return;
+        }
+        let tile = new TileInstance(this,x,y,tileName);
+
+        if(tile.model) {
             this.tileGrid[x][y] = tile;
         }
-        
     }
 
     // Set the wall at the given position to the given wall
@@ -139,7 +143,7 @@ export class World {
                 if(!tile) {
                     continue;
                 }
-                tile.getTilesetSource();
+                tile.getSpritePosition();
                 tile.tileUpdate();
             }
         }
@@ -157,7 +161,7 @@ export class World {
                     continue;
                 }
                 
-                tile.getTilesetSource();
+                tile.getSpritePosition();
                 tile.tileUpdate();
             }
         }

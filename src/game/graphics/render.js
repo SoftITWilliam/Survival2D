@@ -30,12 +30,12 @@ export default function render(game,player) {
 
             let wall = game.world.wallGrid[x][y];
             if(wall) {
-                wall.draw();
+                wall.render();
             }
             
             let tile = game.world.getTile(x,y);
             if(tile) {
-                tile.draw();
+                tile.render();
             }
         }
     }

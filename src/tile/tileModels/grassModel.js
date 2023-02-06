@@ -1,18 +1,16 @@
+import { TILE_SIZE } from "../../game/global.js";
 import { sprites } from "../../game/graphics/loadAssets.js";
 import { rng } from "../../misc/util.js";
 import { Dirt } from "../../tile/tileParent.js";
-import TileBase from "../base/tileBase.js";
 import TileDrop from "../tileDrop.js";
+import { TileModel } from "../tileModel.js";
 
-export class Grass extends TileBase {
-    constructor(gridX,gridY,world) {
-        super(gridX,gridY,world);
-        this.setRegistryName("tile_grass");
+export class GrassModel extends TileModel {
+    constructor(world, registryName) {
+        super(world, registryName, TILE_SIZE, TILE_SIZE);
         this.setSprite(sprites.tiles.tile_grass);
-
-        this.toolType = "shovel";
-        this.miningLevel = 0;
-        this.miningTime = 1.5;
+        this.setMiningProperties("shovel", 0, 1.5, false);
+        this.setType("solid");
 
         this.tileDrops = [
             new TileDrop(this, "dirt", 1, 100, false, false),
@@ -62,42 +60,27 @@ export class Grass extends TileBase {
     }
 
     // Grass uses a different tileset from other tiles
-    getTilesetSource() {
-        let a = this.getAdjacent();
-
-        let s = [];
-
+    getSpritePosition(a) {
         if(!a.ml && a.mr) {
-            if(!a.bm) {s = [0,1]}
-            else if(a.br) {s = [0,0]}
-            else if(!a.br) {s = [0,2]}
+            return !a.bm ? {x:0, y:1} : a.br ? {x:0, y:0} : {x:0, y:2}
         }
 
         if(a.ml && a.mr) {
-            if(!a.bm) {s = [1,1]}
-            else if(a.bl && a.br) {s = [1,0]}
-            else if(!a.bl && a.br) {s = [1,2]}
-            else if(!a.bl && !a.br) {s = [2,2]}
-            else if(a.bl && !a.br) {s = [3,2]}
+            if(!a.bm) {return {x:1, y:1}}
+            else if(a.bl && a.br) {return {x:1, y:0}}
+            else if(!a.bl && a.br) {return {x:1, y:2}}
+            else if(!a.bl && !a.br) {return {x:2, y:2}}
+            else if(a.bl && !a.br) {return {x:3, y:2}}
         }
 
         if(a.ml && !a.mr) {
-            if(!a.bm) {s = [2,1]}
-            else if(a.bl) {s = [2,0]}
-            else if(!a.bl) {s = [4,2]}
+            if(!a.bm) {return {x:2, y:1}}
+            else if(a.bl) {return {x:2, y:0}}
+            else if(!a.bl) {return {x:4, y:2}}
         }
 
         if(!a.ml && !a.mr) {
-            if(!a.bm) {s = [3,1]}
-            else {s = [3,0]}
-        }
-
-        if(this.missingTexture) {
-            this.sx = 0;
-            this.sy = 0;
-        } else {
-            this.sx = 12 + (s[0] * 60);
-            this.sy = 12 + (s[1] * 60);
+            return !a.bm ? {x:3, y:1} : {x:3, y:0}
         }
     }
 }

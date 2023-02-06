@@ -268,7 +268,6 @@ class Player {
     checkCollision() {
         // Left wall
         if(this.x + this.dx < 0) {
-            let distance = this.x;
             this.dx = 0;
             this.x = 0;
         }
@@ -276,7 +275,6 @@ class Player {
         // Right wall
         let rightEdge = this.game.world.width * TILE_SIZE;
         if(this.x + this.w + this.dx > rightEdge) {
-            let distance = this.x + this.w - rightEdge;
             this.dx = 0;
             this.x = rightEdge - this.w;
         }
@@ -294,35 +292,31 @@ class Player {
                     continue;
                 }
 
-                if(tile.objectType == "solid") {
+                if(tile.getType() == "solid") {
                     if(surfaceCollision("top",this,tile)) {
                         this.grounded = true;
-                        let distance = this.y + this.h - tile.y;
                         this.dy = 0;
-                        this.y = tile.y - this.h;
+                        this.y = tile.getY() - this.h;
                     }
 
                     if(surfaceCollision("bottom",this,tile)) {
-                        let distance = this.y - (tile.y + tile.h);
                         this.dy = 0;
-                        this.y = tile.y + tile.h;
+                        this.y = tile.getY() + tile.getHeight()
                         this.jumpFrames = false;
                     }
 
                     if(surfaceCollision("left",this,tile)) {
-                        let distance = this.x + this.w - tile.x;
                         this.dx = 0;
-                        this.x = tile.x - this.w;
+                        this.x = tile.getX() - this.w;
                     }
 
                     if(surfaceCollision("right",this,tile)) {
-                        let distance = this.x - (tile.x + tile.w);
                         this.dx = 0;
-                        this.x = tile.x + tile.w;
+                        this.x = tile.getX() + tile.getWidth();
                     }
                 }
 
-                if(tile.objectType == "liquid") {
+                if(tile.getType() == "liquid") {
                     if(overlap(this,tile)) {
                         this.inLiquid = true;
                     }
