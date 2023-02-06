@@ -1,5 +1,6 @@
 import { ctx } from "../../game/global.js";
 import WallBase from "../base/wallBase.js";
+import TileDrop from "../tileDrop.js";
 
 export class Log extends WallBase {
     constructor(gridX,gridY,world) {
@@ -12,7 +13,7 @@ export class Log extends WallBase {
         this.miningTime = 1.5;
 
         this.tileDrops = [
-            {id:6,rate:100,amount:[1,3],requireTool:false}
+            new TileDrop(this, "wood", [1,3], 100, true, false),
         ]
     }
 

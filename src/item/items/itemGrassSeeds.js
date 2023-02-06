@@ -4,12 +4,9 @@ import PlacementPreview from "../../ui/placementPreview.js";
 import PlaceableBase from "./base/placeableItemBase.js";
 
 export class ItemGrassSeeds extends PlaceableBase {
-    constructor(game) {
-        super(game);
-        this.setRegistryName("grass_seeds");
-        this.setRarity(1);
+    constructor(game, registryName, rarity) {
+        super(game, registryName, rarity);
 
-        this.setSprite(sprites.items.grass_seeds);
         this.placementPreview = new PlacementPreview(sprites.tiles.tile_grass,72,12,this);
     }
 

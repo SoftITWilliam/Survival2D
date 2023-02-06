@@ -1,15 +1,8 @@
-import Item from "../../../item/item.js";
+import { ToolBase } from "./toolBase.js";
 
-export default class PickaxeBase extends Item {
-    constructor(game) {
-        super(game);
-        this.itemType = 'tool';
+export class PickaxeBase extends ToolBase {
+    constructor(game,registryName,miningLevel,miningSpeed,reach,rarity) {
+        super(game,registryName,miningLevel,miningSpeed,reach,rarity);
         this.toolType = 'pickaxe';
-        this.miningLevel;
-        this.miningSpeed;
-
-        this.entitySize = 32;
-        this.placeable = false;
-        this.stackLimit = 1;
     }
 }

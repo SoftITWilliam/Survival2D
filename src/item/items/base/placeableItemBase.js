@@ -1,9 +1,8 @@
-import { ITEM_SIZE } from "../../../game/global.js";
-import Item from "../../item.js";
+import { ItemBase } from "./itemBase.js";
 
-export default class PlaceableBase extends Item {
-    constructor(game) {
-        super(game);
+export default class PlaceableBase extends ItemBase {
+    constructor(game,registryName, rarity) {
+        super(game,registryName, rarity);
         this.itemType = 'placeable';
         this.placeable = true;
         this.stackLimit = 99;

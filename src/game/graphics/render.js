@@ -42,8 +42,8 @@ export default function render(game,player) {
     
     // Player
     player.draw();
-    if(player.miningEvent) {
-        player.miningEvent.drawProgress();
+    if(player.miningAction) {
+        player.miningAction.drawProgress();
     }
 
     // Item entities

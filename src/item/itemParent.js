@@ -1,17 +1,13 @@
 
-export { ItemDirt as Dirt } from './items/itemDirt.js';
-export { ItemStone as Stone } from './items/itemStone.js';
-export { ItemDevPickaxe as DevPickaxe } from './items/itemDevPickaxe.js';
-export { ItemDevAxe as DevAxe } from './items/itemDevAxe.js';
-export { ItemDevShovel as DevShovel } from './items/itemDevShovel.js';
-export { ItemDevHammer as DevHammer } from './items/itemDevHammer.js';
-export { ItemWood as Wood } from './items/itemWood.js';
-export { ItemBranch as Branch } from './items/itemBranch.js';
+// Base
+export { PickaxeBase as Pickaxe } from './items/base/pickaxeItemBase.js';
+export { AxeBase as Axe } from './items/base/axeItemBase.js';
+export { ShovelBase as Shovel } from './items/base/shovelItemBase.js';
+export { HammerBase as Hammer } from './items/base/hammerItemBase.js';
+export { ItemBase as Default } from './items/base/itemBase.js';
+export { TileItemBase as Tile } from './items/base/tileItemBase.js';
+
+// Custom
 export { ItemAcorn as Acorn } from './items/itemAcorn.js';
 export { ItemGrassSeeds as GrassSeeds } from './items/itemGrassSeeds.js';
-export { ItemPlantFiber as PlantFiber } from './items/itemPlantFiber.js';
 export { ItemClothSeeds as ClothSeeds } from './items/itemClothSeeds.js';
-export { ItemWoodenPickaxe as WoodenPickaxe } from './items/itemWoodenPickaxe.js';
-export { ItemWoodenAxe as WoodenAxe } from './items/itemWoodenAxe.js';
-export { ItemWoodenShovel as WoodenShovel } from './items/itemWoodenShovel.js';
-export { ItemWoodenHammer as WoodenHammer } from './items/itemWoodenHammer.js';

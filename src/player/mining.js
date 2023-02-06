@@ -1,12 +1,8 @@
-
-// FIXED IMPORTS:
 import { ctx } from "../game/global.js";
-import { dropItemFromBlock } from "../item/dropItem.js";
-import { rng } from "../misc/util.js";
 
-class MiningEvent {
+export default class MiningAction {
     constructor(tile,item,game) {
-        this.game = game;
+        this.world = game.world;
         this.tile = tile;
         this.finished = false;
 
@@ -40,10 +36,11 @@ class MiningEvent {
 
         // Break tile
         if(this.tile.objectType == "wall") {
-            this.game.world.getWall(this.tile.gridX,this.tile.gridY).breakTile(this.toolType,this.miningLevel);
+            var object = this.world.getWall(this.tile.gridX,this.tile.gridY);
         } else {
-            this.game.world.getTile(this.tile.gridX,this.tile.gridY).breakTile(this.toolType,this.miningLevel);
+            var object = this.world.getTile(this.tile.gridX,this.tile.gridY);
         }
+        object.breakTile(this.toolType,this.miningLevel);
 
         this.finished = true;
     }
@@ -59,35 +56,4 @@ class MiningEvent {
         ctx.lineTo(this.tile.centerX,this.tile.centerY);
         ctx.fill();
     }
-
-    dropItems() {
-        for(let i=0;i<this.tile.tileDrops.length;i++) {
-            const drop = this.tile.tileDrops[i];
-            
-
-            // If tool is required and isn't used, the item is not dropped.
-            if(drop.requireTool && this.toolType != this.tile.toolType) {
-                continue;
-            }
-
-            // If drop rate RNG isn't high enough, the item is not dropped.
-            let rand = rng(1,100);
-            if(rand > drop.rate) {
-                continue;
-            }
-
-            // If 'amount' is a number, drop that amount.
-            // If 'amount' is an array, the first number is the minimum, and the second is maximum.
-            let itemAmount = 0;
-            if(Array.isArray(drop.amount)) {
-                itemAmount = rng(drop.amount[0],drop.amount[1]);
-            } else {
-                itemAmount = drop.amount;
-            }
-            console.log(this.itemAmount);
-            dropItemFromBlock(this.tile,drop.id,itemAmount);
-        }
-    }
 }
-
-export { MiningEvent }

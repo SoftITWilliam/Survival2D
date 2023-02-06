@@ -3,11 +3,14 @@ import { ctx, TILE_SIZE } from "../global.js";
 
 /**
  * Take an object of RGB values and format into a string usable by the canvas - ex. {r:50,g:50,b:50} => "rgb(50,50,50)"
- * @param {object} values RGB object (ex. {r:50,g:50,b:50})
+ * @param {object} v RGB object (ex. {r:50,g:50,b:50})
  * @returns 
  */
-export function rgb(values) {
-    return "rgb(" + values.r + "," + values.g + "," + values.b + ")";
+export function rgb(col) {
+    if(!col) {
+        return "rgb(0,0,0)";
+    }
+    return `rgb(${col.r},${col.g},${col.b})`;
 }
 
 /**
@@ -15,11 +18,15 @@ export function rgb(values) {
  * @param {object} values RGB object (ex. {r:50,g:50,b:50})
  * @returns 
  */
-export function rgbm(values, brightness) {
-    let r = clamp(values.r * brightness, 0, 255);
-    let g = clamp(values.g * brightness, 0, 255);
-    let b = clamp(values.b * brightness, 0, 255);   
-    return "rgb(" + r + "," + g + "," + b + ")";
+export function rgbm(col, brightness) {
+    if(!col) {
+        return "rgb(0,0,0)";
+    }
+
+    let r = clamp(col.r * brightness, 0, 255);
+    let g = clamp(col.g * brightness, 0, 255);
+    let b = clamp(col.b * brightness, 0, 255);   
+    return `rgb(${r},${g},${b})`;
 }
 
 
@@ -29,8 +36,8 @@ export function rgbm(values, brightness) {
  *  * @param {Number} alpha Opacity given as separate argument. (0 < alpha < 1)
  * @returns 
  */
-export function rgba(values,alpha) {
-    return "rgba(" + values.r + "," + values.g + "," + values.b + "," + alpha + ")";
+export function rgba(col,alpha) {
+    return `rgba(${col.r},${col.g},${col.b},${alpha})`;
 }
 
 /**

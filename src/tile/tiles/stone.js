@@ -1,5 +1,6 @@
 import { sprites } from "../../game/graphics/loadAssets.js";
 import TileBase from "../base/tileBase.js";
+import TileDrop from "../tileDrop.js";
 
 export class Stone extends TileBase {
     constructor(gridX,gridY,world) {
@@ -12,7 +13,7 @@ export class Stone extends TileBase {
         this.miningTime = 3.0;
 
         this.tileDrops = [
-            {id:1,rate:100,amount:1,requireTool:true}
+            new TileDrop(this, "stone", 1, 100, false, true),
         ]
     }
 

@@ -2,7 +2,7 @@
 // FIXED IMPORTS:
 import { ctx, canvas, TILE_SIZE } from '../game/global.js';
 import { Inventory } from '../ui/inventory.js';
-import { MiningEvent } from './mining.js';
+import MiningAction from './mining.js';
 import { calculateDistance, clamp, gridXfromCoordinate, gridYfromCoordinate } from '../misc/util.js';
 import { HEIGHTMAP } from '../world/world.js';
 import { overlap, surfaceCollision } from '../game/collision.js';
@@ -48,12 +48,12 @@ class Player {
         this.thirst = new PlayerStatBar(50,20);
 
         this.pickupLabels = new PickupLabelHandler(this);
-        this.hotbarText = new HotbarText(this);
+        this.hotbarText = new HotbarText(this); 
         this.itemInfoDisplay = new ItemInfoDisplay(this);
         this.camera = new Camera(this);
         this.craftingMenu = new CraftingMenu(this);
 
-        this.miningEvent = null;
+        this.miningAction = null;
         
         this.defaultReach = 3;
         this.reach = 3 * TILE_SIZE;
@@ -121,7 +121,7 @@ class Player {
                 this.updateMining(input);
             }
         } else {
-            this.miningEvent = null;
+            this.miningAction = null;
         }
 
         this.updatePosition(input);
@@ -164,7 +164,7 @@ class Player {
         // Select inventory slot
         for(let i=1;i<=6;i++) {
             if(input.keys.includes(i.toString())) {
-                this.miningEvent = null;
+                this.miningAction = null;
                 this.selectItem(i);
                 input.removeKey(i.toString());
             }
@@ -192,39 +192,33 @@ class Player {
         } else if(wall && wall.canBeMined(this.heldItem)) {
             obj = wall;
         } else {
-            this.miningEvent = null;
+            this.miningAction = null;
             return;
         }
 
-        console.log("Can interact");
-
         // If not currently mining the block, create a new Mining event
-        if(!this.miningEvent) {
-            this.miningEvent = new MiningEvent(obj,this.heldItem,this.game);
-            console.log("New event")
+        if(!this.miningAction) {
+            this.miningAction = new MiningAction(obj,this.heldItem,this.game);
         }
 
         // If not in range of the block, cancel Mining event
-        if(calculateDistance(this,this.miningEvent.tile) > this.reach) {
-            this.miningEvent = null;
-            console.log("Too far away")
+        if(calculateDistance(this,this.miningAction.tile) > this.reach) {
+            this.miningAction = null;
             return;
         }
 
         // If mouse has moved outside the previous block being mined, create new Event
-        if(this.miningEvent.tile.gridX != input.mouse.gridX || 
-            this.miningEvent.tile.gridY != input.mouse.gridY) {
-                console.log("Different tile")
-                this.miningEvent = new MiningEvent(obj,this.heldItem,this.game);
+        if(this.miningAction.tile.gridX != input.mouse.gridX || 
+            this.miningAction.tile.gridY != input.mouse.gridY) {
+                this.miningAction = new MiningAction(obj,this.heldItem,this.game);
         }
 
         // Increase mining progress.
-        this.miningEvent.increaseProgress();
+        this.miningAction.increaseProgress();
 
-        if(this.miningEvent.finished) {
-            console.log("Mining finished")
+        if(this.miningAction.finished) {
             this.game.world.lighting.update(this);
-            this.miningEvent = null;
+            this.miningAction = null;
         }
     }
         
@@ -349,7 +343,7 @@ class Player {
                 this.reach = this.reach;
             }
             this.heldItem = selected.stack.item;
-            this.miningEvent = null;
+            this.miningAction = null;
         } else {
             this.heldItem = null;
             this.reach = this.reach;
