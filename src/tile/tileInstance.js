@@ -11,10 +11,12 @@ export class TileInstance {
         this.y = y;
         this.mapX = x * TILE_SIZE;
         this.mapY = -y * TILE_SIZE;
-        this.centerX = this.x + this.getWidth() / 2;
-        this.centerY = this.y + this.getHeight() / 2;
+        this.centerX = this.mapX + this.getWidth() / 2;
+        this.centerY = this.mapY + this.getHeight() / 2;
         this.setSpriteOffset();
     }
+
+    // SO MUCH FCKING BOILERPLATE!!! DAMN!
 
     setModel(model) {
         this.model = this.game.tileRegistry.get(model);
@@ -36,8 +38,16 @@ export class TileInstance {
         return this.model ? this.model.displayName : "";
     }
 
-    getRequiredTool() {
+    requiresTool() {
         return this.model.requiredTool;
+    }
+
+    getMiningTime() {
+        return this.model.miningTime;
+    }
+
+    getToolType() {
+        return this.model.toolType;
     }
 
     getID() {
@@ -46,6 +56,14 @@ export class TileInstance {
 
     getType() {
         return this.model.objectType;
+    }
+
+    getCenterX() {
+        return this.getX() + this.getWidth() / 2;
+    }
+
+    getCenterY() {
+        return this.getY() + this.getHeight() / 2;
     }
 
     getX() {
@@ -83,10 +101,11 @@ export class TileInstance {
     }
 
     canBeMined(item) {
-        if(this.getRequiredTool() && !item) {
-            return false;
-        }
-        return true;
+        return this.model ? this.model.canBeMined(item) : false;
+    }
+
+    breakTile(x, y, toolType, miningLevel) {
+        this.model.breakTile(x, y, toolType, miningLevel);
     }
 
     getSpritePosition() {

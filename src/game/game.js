@@ -13,7 +13,7 @@ export class Game {
         this.world = new World(this,127,127);
         
         this.itemRegistry = new ItemRegistry(this);
-        this.tileRegistry = new TileRegistry(this);
+        this.tileRegistry = new TileRegistry(this.world);
 
         this.world.generate();
 

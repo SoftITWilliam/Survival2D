@@ -72,6 +72,14 @@ class Player {
 
     }
 
+    getCenterX() {
+        return this.centerX;
+    }
+
+    getCenterY() {
+        return this.centerY;
+    }
+
     setState(state) {
         this.frameCounter = 0;
         this.state = this.stateList[stateEnum[state]];
@@ -208,8 +216,8 @@ class Player {
         }
 
         // If mouse has moved outside the previous block being mined, create new Event
-        if(this.miningAction.tile.gridX != input.mouse.gridX || 
-            this.miningAction.tile.gridY != input.mouse.gridY) {
+        if(this.miningAction.tile.getGridX() != input.mouse.gridX || 
+            this.miningAction.tile.getGridY() != input.mouse.gridY) {
                 this.miningAction = new MiningAction(obj,this.heldItem,this.game);
         }
 
@@ -424,7 +432,7 @@ class Player {
         } 
 
         // Cannot place a solid tile which overlaps with player
-        if(tile.objectType == "solid" && overlap(this,tile)) {
+        if(tile.getType() == "solid" && overlap(this,tile)) {
             return;
         }
 

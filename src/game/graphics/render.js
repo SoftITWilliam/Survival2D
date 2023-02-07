@@ -112,7 +112,7 @@ function drawHoverEffect(game,input) {
     }
     
     // Draw hover effect
-    ctx.rect(obj.x,obj.y,obj.h,obj.w);
+    ctx.rect(obj.getX(),obj.getY(),obj.getHeight(),obj.getWidth());
     ctx.stroke();
     ctx.fill();
 }

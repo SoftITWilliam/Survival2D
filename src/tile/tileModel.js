@@ -1,5 +1,6 @@
 import { ctx, TILE_SIZE } from "../game/global.js";
 import { sprites } from "../game/graphics/loadAssets.js";
+import { dropItemFromBlock } from "../item/dropItem.js";
 
 export class TileModel {
     constructor(world,registryName,width,height) {
@@ -44,6 +45,32 @@ export class TileModel {
             this.sprite = sprites.misc.missing_texture;
             this.missingTexture = true;
         }
+    }
+
+    // Remove the tile and drop its items.
+    breakTile(tile, toolType, miningLevel) {
+        if(this.objectType == "wall") {
+            this.world.clearWall(tile.x, tile.y);
+        } else {
+            this.world.clearTile(tile.x, tile.y);
+        }
+
+        this.dropItems(tile, toolType, miningLevel);
+        this.world.updateNearbyTiles(tile.x, tile.y);
+    }
+
+    // Loop through this tile's drops. Runs when the tile is broken.
+    dropItems(tile, toolType, miningLevel) {
+        this.tileDrops.forEach(tileDrop => {
+            const droppedItem = tileDrop.roll(toolType, miningLevel, 1);
+            if(droppedItem) {
+                dropItemFromBlock(tile, droppedItem.item, droppedItem.amount, this.world.game);
+            }
+        })
+    }
+
+    canBeMined() {
+        return false;
     }
 
     // Return spritesheet position based on which tiles are adjacent
