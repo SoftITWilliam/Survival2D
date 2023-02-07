@@ -24,7 +24,7 @@ export default class LightingGrid {
 
     generate() {
         // Create light sources
-        this.setLightSources();
+        this.setLightSources(0, 0, this.world.width, this.world.height);
 
         // Cycle through all light levels.
         // If a tile has the light level, all surrounding tiles *that are unassigned* are assigned a lower light level
@@ -45,29 +45,24 @@ export default class LightingGrid {
         let dist = {x: DRAWDIST.x * 2, y: DRAWDIST.y * 2};
         let gX = clamp(player.gridX, dist.x, this.world.width - dist.x);
         let gY = clamp(player.gridY, dist.y, this.world.height - dist.y);
+        let x1 = gX - dist.x; let x2 = gX + dist.x;
+        let y1 = gY - dist.y; let y2 = gY + dist.y; 
     
         // Reset grid on screen
-        for(let x = gX - dist.x; x < gX + dist.x ; x++) {
-            for(let y = gY - dist.y ; y < gY + dist.y ; y++) {
+        for(let x = x1; x < x2 ; x++) {
+            for(let y = y1 ; y < y2 ; y++) {
                 this.grid[x][y] = null;
             }
         }
     
-        // Create light sources
-        for(let x = gX - dist.x ; x < gX + dist.x ; x++) {
-            for(let y = gY - dist.y ; y < gY + dist.y ; y++) {
-                if(this.checkLightSource(x,y)) {
-                    this.grid[x][y] = {level:16}
-                };
-            }
-        }
+        this.setLightSources(x1, y1, x2, y2);
     
         // Cycle through all 15 light levels.
         // If a tile has the light level, all surrounding tiles *that are unassigned* are assigned a lower light level
         // (-1 for walls, -2 for solid tiles)
         for(let l = 16; l > 0; l-- ) {
-            for(let x = gX - dist.x - 1; x < gX + dist.x + 1 ; x++) {
-                for(let y = gY - dist.y - 1 ; y < gY + dist.y + 1 ; y++) {
+            for(let x = x1 - 1; x < x2 + 1 ; x++) {
+                for(let y = y1 - 1 ; y < y2 + 1 ; y++) {
                     if(this.world.outOfBounds(x,y)) {
                         continue;
                     }
@@ -104,10 +99,10 @@ export default class LightingGrid {
         }
     }
 
-    setLightSources() {
+    setLightSources(x1,y1,x2,y2) {
         // Set light sources
-        for(let x=0;x<this.world.width;x++) {
-            for(let y=0;y<this.world.height;y++) {
+        for(let x = x1; x < x2; x++) {
+            for(let y = y1; y < y2; y++) {
                 if(this.checkLightSource(x,y)) {
                     this.grid[x][y] = {level:16}
                 };
@@ -118,8 +113,8 @@ export default class LightingGrid {
     // Return true if given tile is a light source
     // (Currently, the only light source in the game is any coordinate where there is no tile or wall)
     checkLightSource(x,y) {
-        if((!this.world.getTile(x,y) || this.world.getTile(x,y).transparent) && 
-            (!this.world.getWall(x,y) || this.world.getWall(x,y).transparent)) {
+        if((!this.world.getTile(x,y) || this.world.getTile(x,y).isTransparent()) && 
+            (!this.world.getWall(x,y) || this.world.getWall(x,y).isTransparent())) {
                 return true;   
         }
         return false;
@@ -161,65 +156,3 @@ export default class LightingGrid {
         }
     }
 }
-
-function lightingSpread(x,y,level,world) {
-
-}
-
-
-
-
-
-export function createLightGrid(world) {
-
-}
-
-/*
-export function updateLighting(gX,gY,world) {
-
-    gX = clamp(gX, DRAWDIST.x, world.width - DRAWDIST.x);
-    gY = clamp(gY, DRAWDIST.y, world.height - DRAWDIST.y);
-
-    // Reset grid on screen
-    for(let x = gX - DRAWDIST.x ; x < gX + DRAWDIST.x ; x++) {
-        for(let y = gY - DRAWDIST.y ; y < gY + DRAWDIST.y ; y++) {
-            world.lightGrid[x][y] = null;
-        }
-    }
-
-    // Create light sources
-    for(let x = gX - DRAWDIST.x ; x < gX + DRAWDIST.x ; x++) {
-        for(let y = gY - DRAWDIST.y ; y < gY + DRAWDIST.y ; y++) {
-            if(checkLightSource(x,y,world)) {
-                world.lightGrid[x][y] = {level:16}
-            };
-        }
-    }
-
-    // Cycle through all 15 light levels.
-    // If a tile has the light level, all surrounding tiles *that are unassigned* are assigned a lower light level
-    // (-1 for walls, -2 for solid tiles)
-    for(let l = 16; l > 0; l-- ) {
-        for(let x = gX - DRAWDIST.x ; x < gX + DRAWDIST.x ; x++) {
-            for(let y = gY - DRAWDIST.y ; y < gY + DRAWDIST.y ; y++) {
-                if(!world.lightGrid[x][y] || world.lightGrid[x][y].level != l) {
-                    continue;
-                }
-                
-                // Spread lighting to surrounding blocks
-                lightingSpread(x-1,y,l,world); // Left
-                lightingSpread(x+1,y,l,world); // Right
-                lightingSpread(x,y+1,l,world); // Top
-                lightingSpread(x,y-1,l,world); // Bottom uwu :3
-            }
-        }
-    }
-    
-    // If no light level is assigned, it is 0.
-    for(let x=0;x<world.width;x++) {
-        for(let y=0;y<world.height;y++) {
-            lightingDefault(x,y,world);
-        }
-    }
-}
-*/

@@ -8,6 +8,7 @@ export class ClothPlantModel extends PlantBase {
         super(world, registryName, TILE_SIZE, TILE_SIZE);
         this.setSprite(sprites.placeables.cloth_plant);
         this.setMiningProperties("sickle", 0, 0.5, false);
+        this.transparent = true;
         this.connective = false;
 
         this.tileDrops = [
