@@ -3,9 +3,9 @@ import { sprites } from "../../game/graphics/loadAssets.js";
 import { rng } from "../../misc/util.js";
 import { Dirt } from "../../tile/tileParent.js";
 import TileDrop from "../tileDrop.js";
-import { TileModel } from "../tileModel.js";
+import TileBase from "./TileBase.js";
 
-export class GrassModel extends TileModel {
+export class GrassModel extends TileBase {
     constructor(world, registryName) {
         super(world, registryName, TILE_SIZE, TILE_SIZE);
         this.setSprite(sprites.tiles.tile_grass);
@@ -16,10 +16,6 @@ export class GrassModel extends TileModel {
             new TileDrop(this, "dirt", 1, 100, false, false),
             new TileDrop(this, "grass_seeds", 1, 10, true, false),
         ]
-    }
-
-    draw() {
-        this.drawSprite();
     }
 
     checkSpreadCondition(x,y) {

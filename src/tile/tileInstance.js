@@ -64,6 +64,14 @@ export class TileInstance {
         return this.y;
     }
 
+    isTransparent() {
+        return this.model.transparent;
+    }
+
+    isConnective() {
+        return this.model.connective;
+    }
+
     // Runs whenever the tile is "refreshed", i.e. something happens to an adjacent tile.
     tileUpdate() {
         return;
@@ -84,8 +92,15 @@ export class TileInstance {
     getSpritePosition() {
         let adjacent = this.getAdjacent();
         let position = this.model.getSpritePosition(adjacent);
-        this.sx = 12 + (position.x * 60);
-        this.sy = 12 + (position.y * 60);
+
+        let spriteSize = 48;
+        let spriteGap = 12;
+        this.sx = position.x * (spriteSize + spriteGap);
+        this.sy = position.y * (spriteSize + spriteGap);
+        if(this.isConnective()) {
+            this.sx += spriteGap;
+            this.sy += spriteGap;
+        }
     }
 
     /**

@@ -61,21 +61,25 @@ export class WorldGeneration {
     }
 
     getTerrainWall(x,y) {
-        return null;
         // No wall
         if(y > HEIGHTMAP[x]) {
             return null;
         }
 
+        let tileName = "";
+
         // Dirt walls
         if(HEIGHTMAP[x] - this.dirtMap[x] <= y) {
-            return new tiles.DirtWall(x,y,this.world);
+            tileName = "dirt_wall";
         } 
         
         // Stone walls
         else {
-            return new tiles.StoneWall(x,y,this.world);
+            tileName = "stone_wall";
         }
+
+        let tile = new TileInstance(this.world, x, y, tileName);
+        return tile.model ? tile : null;
     }
 
     /**
@@ -103,7 +107,7 @@ export class WorldGeneration {
         for(let x = 0; x < this.world.width; x++) {
             let y = HEIGHTMAP[x];
             let tile = this.world.getTile(x,y);
-            if(!tile || tile.registryName != "tile_grass") {
+            if(!tile || tile.getRegistryName() != "grass") {
                 continue;
             }
 
@@ -114,7 +118,7 @@ export class WorldGeneration {
             }
 
             if(rollMax(clothValue)) {
-                this.world.setTile(x, y+1, new tiles.ClothPlant(x,y+1,this.world));
+                this.world.setTile(x, y+1, "cloth_plant");
             }
         }
     }

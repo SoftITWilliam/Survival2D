@@ -3,15 +3,15 @@ import { sprites } from "../../game/graphics/loadAssets.js";
 import TileDrop from "../tileDrop.js";
 import TileBase from "./TileBase.js";
 
-export class DirtModel extends TileBase {
+export class StoneModel extends TileBase {
     constructor(world, registryName) {
         super(world, registryName, TILE_SIZE, TILE_SIZE);
-        this.setSprite(sprites.tiles.tile_dirt);
-        this.setMiningProperties("shovel",0,1.0,false);
+        this.setSprite(sprites.tiles.tile_stone);
+        this.setMiningProperties("pickaxe", 1, 3.0, true);
         this.setType("solid");
 
         this.tileDrops = [
-            new TileDrop(this, "dirt", 1, 100, false, false),
-        ];
+            new TileDrop(this, "stone", 1, 100, false, true),
+        ]
     }
 }

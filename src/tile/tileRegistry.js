@@ -7,6 +7,12 @@ export default class TileRegistry {
         this.tiles = [
             new tile.Dirt(world, "dirt"),
             new tile.Grass(world, "grass"),
+            new tile.Stone(world, "stone"),
+            new tile.DirtWall(world, "dirt_wall"),
+            new tile.StoneWall(world, "stone_wall"),
+            new tile.Log(world, "log"),
+            new tile.Leaves(world, "leaves"),
+            new tile.ClothPlant(world, "cloth_plant"),
         ]
 
         this.enum = {};

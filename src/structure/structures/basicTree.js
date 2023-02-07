@@ -17,7 +17,7 @@ export class BasicTree extends Structure {
         // Generate logs
         let logHeight = rng(3,8);
         for(let i=0;i<logHeight;i++) {
-            this.world.addStructureTile("Log",bx,by + i,false);
+            this.world.setWall(bx, by + i, "log");
         }
 
         // Generate some values for the leaves
@@ -33,7 +33,7 @@ export class BasicTree extends Structure {
 
         for(let y=0;y<baseHeight;y++) {
             for(let x=-1;x<=1;x++) {
-                this.world.addStructureTile("Leaves",bx+x,topY + y-1,false);
+                this.world.setTileIfEmpty(bx+x, topY + y - 1, "leaves");
             }
         }
 
@@ -41,7 +41,7 @@ export class BasicTree extends Structure {
         // 3 blocks below the leaf "base". Each has a 50% chance of appearing.
         for(let i=-1;i<=1;i++) {
             if(rng(0,1) == 1) {
-                this.world.addStructureTile("Leaves",bx+i,topY - 2,false);
+                this.world.setTileIfEmpty(bx+i, topY - 2, "leaves");
             }
         }
 
@@ -56,18 +56,18 @@ export class BasicTree extends Structure {
         
 
         for(let i=0;i<topExtension;i++) {
-            this.world.addStructureTile("Leaves",bx+i+lean-1,topY+baseHeight-1,false);
+            this.world.setTileIfEmpty(bx + i + lean - 1, topY + baseHeight - 1, "leaves");
         }
 
         
         let o = rng(0,1);
         for(let i=0;i<leftExtension;i++) {
-            this.world.addStructureTile("Leaves",bx-2,topY+i-o,false);
+            this.world.setTileIfEmpty(bx - 2, topY + i - o, "leaves");
         }
 
         o = rng(0,1);
         for(let i=0;i<rightExtension;i++) {
-            this.world.addStructureTile("Leaves",bx+2,topY+i-o,false);
+            this.world.setTileIfEmpty(bx + 2, topY + i - o, "leaves");
         }
 
     }

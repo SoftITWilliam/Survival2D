@@ -41,9 +41,9 @@ export class Log extends WallBase {
         this.world.updateNearbyTiles(this.gridX,this.gridY);
     }
 
-    draw() {
+    render(x,y) {
         ctx.fillStyle = "rgb(200,130,110)";
-        ctx.fillRect(this.x+4,this.y,this.w-8,this.h);
+        ctx.fillRect(x+4,y,this.w-8,this.h);
     }
 
 
