@@ -14,11 +14,11 @@ export class Game {
         
         this.itemRegistry = new ItemRegistry(this);
         this.tileRegistry = new TileRegistry(this.world);
+        this.itemEntities = new ItemEntityHandler(this);
 
         this.world.generate();
 
         this.recipeManager = new RecipeManager(this);
-        this.itemEntities = new ItemEntityHandler(this);
         this.player = new Player(this);
         this.input = new InputHandler(this);
         this.fpsCounter = new FPSCounter(this);

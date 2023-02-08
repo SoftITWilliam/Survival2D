@@ -1,4 +1,3 @@
-import * as tiles from '../tile/tileParent.js';
 import * as structures from '../structure/structureParent.js';
 import { BASE_TERRAIN_HEIGHT, WORLD_WIDTH } from "../game/global.js";
 import { rng, rollMax } from "../misc/util.js";

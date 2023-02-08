@@ -9,6 +9,7 @@ export function dropItemFromBlock(tile,item,amount,game) {
     let dy = rng(-20,0) / 10;
 
     if(item) {
+        console.log(tile);
         game.itemEntities.addEntity(tile.getCenterX(),tile.getCenterY(),dx,dy,amount,item);
     }
 }

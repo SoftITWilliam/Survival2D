@@ -1,5 +1,4 @@
 
-import * as tiles from '../tile/tileParent.js';
 import LightingGrid from './lighting.js';
 import { generateTerrainHeight, WorldGeneration } from './generation.js';
 import { TileInstance } from '../tile/tileInstance.js';

@@ -1,7 +1,6 @@
 import { TILE_SIZE } from "../../game/global.js";
 import { sprites } from "../../game/graphics/loadAssets.js";
 import { rng } from "../../misc/util.js";
-import { Dirt } from "../../tile/tileParent.js";
 import { TileDrop } from "../tileDrop.js";
 import TileBase from "./TileBase.js";
 
@@ -29,29 +28,29 @@ export class GrassModel extends TileBase {
         return false;
     }
 
-    tickUpdate() {
+    tickUpdate(tile) {
         // Try to spread grass to surrounding tiles
         let range = 2;
-        for(let x = this.gridX - range; x <= this.gridX + range; x++) {
-            for(let y = this.gridY - range; y <= this.gridY + range; y++) {
+        for(let x = tile.gridX - range; x <= tile.gridX + range; x++) {
+            for(let y = tile.gridY - range; y <= tile.gridY + range; y++) {
                 if(!this.checkSpreadCondition(x,y)) {
                     continue;
                 };
                 if(rng(0,1023) > 0) {
                     continue;
                 }
-                this.world.setTile(x,y,new Grass(x, y, this.world));
+                this.world.setTile(x,y,"grass");
                 this.world.getTile(x,y).getSpritePosition();
             }
         }
     }
 
-    tileUpdate() {
+    tileUpdate(tile) {
         // If another tile is placed on top of a grass tile, it is converted into a dirt block
-        let tileAbove = this.world.getTile(this.gridX,this.gridY + 1);
-        if(tileAbove && !tileAbove.transparent) {
-            this.world.setTile(this.gridX,this.gridY,new Dirt(this.gridX,this.gridY,this.world));
-            this.world.getTile(this.gridX,this.gridY).getSpritePosition();
+        let tileAbove = this.world.getTile(tile.getGridX(),tile.getGridY() + 1);
+        if(tileAbove && !tileAbove.isTransparent()) {
+            this.world.setTile(tile.getGridX(),tile.getGridY(),"dirt");
+            this.world.getTile(tile.getGridX(),tile.getGridY()).getSpritePosition();
         }
     }
 

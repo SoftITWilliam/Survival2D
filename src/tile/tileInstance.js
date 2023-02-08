@@ -92,12 +92,12 @@ export class TileInstance {
 
     // Runs whenever the tile is "refreshed", i.e. something happens to an adjacent tile.
     tileUpdate() {
-        return;
+        this.model.tileUpdate(this);
     }
 
     // Runs at a regular interval (not every frame)
     tickUpdate() {
-        return;
+        this.model.tickUpdate(this);
     }
 
     canBeMined(item) {

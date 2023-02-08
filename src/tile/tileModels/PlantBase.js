@@ -1,4 +1,3 @@
-import { TileModel } from "../tileModel.js";
 import ObjectBase from "./ObjectBase.js";
 
 export default class PlantBase extends ObjectBase {
@@ -9,9 +8,9 @@ export default class PlantBase extends ObjectBase {
     }
 
     // Remove plant if ground below is broken
-    tileUpdate(x,y) {
-        if(!this.world.getTile(x, y - 1)) {
-            this.breakTile();
+    tileUpdate(tile) {
+        if(!this.world.getTile(tile.x, tile.y - 1)) {
+            this.breakTile(tile,null,null);
         }
     }
 }

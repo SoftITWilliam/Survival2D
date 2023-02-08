@@ -74,6 +74,16 @@ export class TileModel {
         return false;
     }
 
+    // Runs whenever the tile is "refreshed", i.e. something happens to an adjacent tile.
+    tileUpdate(tile) {
+        
+    }
+
+    // Runs at a regular interval (not every frame)
+    tickUpdate(tile) {
+        
+    }
+
     // Return spritesheet position based on which tiles are adjacent
     getSpritePosition(a) {
         if(this.connective == false) {
