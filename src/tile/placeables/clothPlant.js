@@ -1,6 +1,6 @@
 import { sprites } from "../../game/graphics/loadAssets.js";
 import PlantBase from "../base/plantBase.js";
-import TileDrop from "../tileDrop.js";
+import { TileDrop } from "../tileDrop.js";
 
 export class ClothPlant extends PlantBase {
     constructor(gridX,gridY,world) {

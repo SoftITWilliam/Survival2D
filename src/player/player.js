@@ -14,6 +14,7 @@ import ItemInfoDisplay from '../ui/itemInfo.js';
 import { PlayerFalling, PlayerJumping, PlayerRunning, PlayerStanding, PlayerSwimming, stateEnum } from './playerStates.js';
 import { sprites } from '../game/graphics/loadAssets.js';
 import CraftingMenu from './crafting.js';
+import { TileInstance } from '../tile/tileInstance.js';
 
 class Player {
     constructor(game) {
@@ -72,13 +73,17 @@ class Player {
 
     }
 
-    getCenterX() {
-        return this.centerX;
-    }
+    getX() { return this.x }
 
-    getCenterY() {
-        return this.centerY;
-    }
+    getY() { return this.y }
+    
+    getWidth() { return this.w }
+
+    getHeight() { return this.h }
+
+    getCenterX() { return this.centerX }
+
+    getCenterY() { return this.centerY }
 
     setState(state) {
         this.frameCounter = 0;
@@ -421,8 +426,8 @@ class Player {
             return;
         }
     
-        let tile = item.place(x,y);
-        if(!tile) {
+        let tile = new TileInstance(this.game.world, x, y, item.place());
+        if(!tile || !tile.model) {
             return;
         }
 
@@ -436,7 +441,7 @@ class Player {
             return;
         }
 
-        this.game.world.setTile(x,y,tile);
+        this.game.world.setTile(x,y,tile.getRegistryName());
         
         // Decrease amount in stack by 1
         let heldStack = this.inventory.getSelectedSlot().stack;

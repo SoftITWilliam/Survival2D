@@ -2,7 +2,6 @@ import { ctx } from "../game/global.js";
 
 export default class MiningAction {
     constructor(tile,item,game) {
-        console.log("MINING");
         this.world = game.world;
         this.tile = tile;
         this.finished = false;

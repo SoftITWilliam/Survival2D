@@ -1,5 +1,5 @@
 import { ctx, TILE_SIZE } from "../../game/global.js";
-import TileDrop from "../tileDrop.js";
+import { TileDrop } from "../tileDrop.js";
 import TileBase from "./TileBase.js";
 
 export class LeavesModel extends TileBase {

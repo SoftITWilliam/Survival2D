@@ -1,9 +1,9 @@
 
 export function overlap(a,b) {
-    return a.x < b.x + b.w &&
-        a.x + a.w > b.x &&
-        a.y < b.y + b.h &&
-        a.y + a.h > b.y;
+    return a.getX() < b.getX() + b.getWidth() &&
+        a.getX() + a.getWidth() > b.getX() &&
+        a.getY() < b.getY() + b.getHeight() &&
+        a.getY() + a.getHeight() > b.getY();
 }
 
 export function surfaceCollision(surface,entity,tile) {

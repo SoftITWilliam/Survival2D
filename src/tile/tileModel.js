@@ -9,6 +9,7 @@ export class TileModel {
         this.objectType;
         this.w = width;
         this.h = height;
+        this.tileDrops = [];
     }
 
     setRegistryName(name) {

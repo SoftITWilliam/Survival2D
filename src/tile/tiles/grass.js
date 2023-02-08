@@ -2,7 +2,7 @@ import { sprites } from "../../game/graphics/loadAssets.js";
 import { rng } from "../../misc/util.js";
 import { Dirt } from "../../tile/tileParent.js";
 import TileBase from "../base/tileBase.js";
-import TileDrop from "../tileDrop.js";
+import { TileDrop } from "../tileDrop.js";
 
 export class Grass extends TileBase {
     constructor(gridX,gridY,world) {

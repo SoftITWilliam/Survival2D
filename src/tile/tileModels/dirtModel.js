@@ -1,6 +1,6 @@
 import { TILE_SIZE } from "../../game/global.js";
 import { sprites } from "../../game/graphics/loadAssets.js";
-import TileDrop from "../tileDrop.js";
+import { SelfDrop, TileDrop } from "../tileDrop.js";
 import TileBase from "./TileBase.js";
 
 export class DirtModel extends TileBase {
@@ -11,7 +11,7 @@ export class DirtModel extends TileBase {
         this.setType("solid");
 
         this.tileDrops = [
-            new TileDrop(this, "dirt", 1, 100, false, false),
+            new SelfDrop(this, false),
         ];
     }
 }

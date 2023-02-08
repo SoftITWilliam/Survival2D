@@ -18,6 +18,18 @@ export class ItemEntity {
         this.setInitialPosition(x,y);
     }
 
+    getX() { return this.x }
+    
+    getY() { return this.y }
+    
+    getWidth() { return this.w }
+
+    getHeight() { return this.h }
+
+    getCenterX() { return this.centerX }
+
+    getCenterY() { return this.centerY }
+
     setInitialPosition(x,y) {
         this.x = x - this.w / 2;
         this.y = y - this.w / 2;
@@ -63,25 +75,25 @@ export class ItemEntity {
                     continue;
                 }
 
-                if(tile.objectType == "solid") {
+                if(tile.getType() == "solid") {
                     if(surfaceCollision("top",this,tile)) {
-                        this.y = tile.y - this.h;
+                        this.y = tile.getY() - this.h;
                         this.bounce();
                     }
 
                     if(surfaceCollision("bottom",this,tile)) {
                         this.dy = 0;
-                        this.y = tile.y + tile.h;
+                        this.y = tile.getY() + tile.getHeight();
                     }
 
                     if(surfaceCollision("left",this,tile)) {
                         this.dx = 0;
-                        this.x = tile.x - this.w;
+                        this.x = tile.getX() - this.w;
                     }
 
                     if(surfaceCollision("right",this,tile)) {
                         this.dx = 0;
-                        this.x = tile.x + tile.w;
+                        this.x = tile.getX() + tile.getWidth();
                     }
                 }
             }

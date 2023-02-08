@@ -1,4 +1,5 @@
 import { sprites } from "../../game/graphics/loadAssets.js";
+import { TileInstance } from "../../tile/tileInstance.js";
 import { Sapling } from "../../tile/tileParent.js";
 import PlacementPreview from "../../ui/placementPreview.js";
 import PlaceableBase from "./base/placeableItemBase.js";
@@ -19,6 +20,6 @@ export class ItemAcorn extends PlaceableBase {
     }
 
     place(x,y) {
-        return new Sapling(x,y,this.game.world);
+        return "sapling";
     }
 }

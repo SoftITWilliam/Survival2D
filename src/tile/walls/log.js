@@ -1,6 +1,6 @@
 import { ctx } from "../../game/global.js";
 import WallBase from "../base/wallBase.js";
-import TileDrop from "../tileDrop.js";
+import { TileDrop } from "../tileDrop.js";
 
 export class Log extends WallBase {
     constructor(gridX,gridY,world) {

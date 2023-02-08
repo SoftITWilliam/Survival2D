@@ -109,7 +109,7 @@ export default class Item {
      */
     canBePlanted(x,y) {
         let tileBelow = this.game.world.getTile(x,y-1);
-        if(!tileBelow || (tileBelow.registryName != "tile_dirt" && tileBelow.registryName != "tile_grass")) {
+        if(!tileBelow || (tileBelow.getRegistryName() != "dirt" && tileBelow.getRegistryName() != "grass")) {
             return false;
         }
         return true;

@@ -1,7 +1,7 @@
 import { sprites } from "../../game/graphics/loadAssets.js";
 import { BasicTree } from "../../structure/structureParent.js";
 import SaplingBase from "../base/saplingBase.js";
-import TileDrop from "../tileDrop.js";
+import { TileDrop } from "../tileDrop.js";
 
 export class Sapling extends SaplingBase {
     constructor(gridX,gridY,world) {

@@ -20,6 +20,6 @@ export class ItemClothSeeds extends PlaceableBase {
     }
 
     place(x,y) {
-        return new ClothPlant(x,y,this.game.world);
+        return "cloth_plant";
     }
 }

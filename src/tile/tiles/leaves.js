@@ -1,7 +1,7 @@
 import { ctx } from "../../game/global.js";
 import { sprites } from "../../game/graphics/loadAssets.js";
 import TileBase from "../base/tileBase.js";
-import TileDrop from "../tileDrop.js";
+import { TileDrop } from "../tileDrop.js";
 
 export class Leaves extends TileBase {
     constructor(gridX,gridY,world) {
