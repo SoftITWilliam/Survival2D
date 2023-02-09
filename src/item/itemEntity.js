@@ -1,8 +1,5 @@
-
-// FIXED IMPORTS:
 import { gridXfromCoordinate, gridYfromCoordinate, mouseOn, setAttributes } from "../misc/util.js";
-import { sprites } from "../game/graphics/loadAssets.js";
-import { ctx, GRAVITY, TILE_SIZE, WORLD_HEIGHT, WORLD_WIDTH } from "../game/global.js";
+import { ctx, GRAVITY } from "../game/global.js";
 import { surfaceCollision } from "../game/collision.js";
 import { renderItem } from "../game/graphics/renderUtil.js";
 
@@ -17,6 +14,18 @@ export class ItemEntity {
         this.stackSize = stackSize;
         this.setInitialPosition(x,y);
     }
+
+    getX() { return this.x }
+    
+    getY() { return this.y }
+    
+    getWidth() { return this.w }
+
+    getHeight() { return this.h }
+
+    getCenterX() { return this.centerX }
+
+    getCenterY() { return this.centerY }
 
     setInitialPosition(x,y) {
         this.x = x - this.w / 2;
@@ -63,25 +72,25 @@ export class ItemEntity {
                     continue;
                 }
 
-                if(tile.objectType == "solid") {
+                if(tile.getType() == "solid") {
                     if(surfaceCollision("top",this,tile)) {
-                        this.y = tile.y - this.h;
+                        this.y = tile.getY() - this.h;
                         this.bounce();
                     }
 
                     if(surfaceCollision("bottom",this,tile)) {
                         this.dy = 0;
-                        this.y = tile.y + tile.h;
+                        this.y = tile.getY() + tile.getHeight();
                     }
 
                     if(surfaceCollision("left",this,tile)) {
                         this.dx = 0;
-                        this.x = tile.x - this.w;
+                        this.x = tile.getX() - this.w;
                     }
 
                     if(surfaceCollision("right",this,tile)) {
                         this.dx = 0;
-                        this.x = tile.x + tile.w;
+                        this.x = tile.getX() + tile.getWidth();
                     }
                 }
             }

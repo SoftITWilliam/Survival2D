@@ -1,44 +1,40 @@
+import { TILE_SIZE } from "../../game/global.js";
 import { rng } from "../../misc/util.js";
 import { BasicTree } from "../../structure/structureParent.js";
-import PlaceableBase from "./placeableBase.js";
+import ObjectBase from "../base/ObjectBase.js";
 
-export default class SaplingBase extends PlaceableBase {
-    constructor(gridX,gridY,world) {
-        super(gridX,gridY,world);
-        this.objectType = "nonSolid";
-        this.toolType = "axe";
-        this.miningLevel = 0;
-        this.miningTime = 0.2;
-        this.requireTool = true;
+export default class SaplingBase extends ObjectBase {
+    constructor(world, registryName) {
+        super(world, registryName, TILE_SIZE, TILE_SIZE);
+        this.setType("nonSolid");
+        this.setMiningProperties("axe", 0, 0.2, true);
 
-        this.tree = new BasicTree(this.gridX,this.gridY,this.world);
+        this.tree = new BasicTree(0,0,this.world);
         this.growthValue = 255;
     }
 
     /**
      * Remove the sapling and grow a tree in its place
      */
-    growTree() {
-        this.world.clearTile(this.gridX,this.gridY);
+    growTree(tile) {
+        this.world.clearTile(tile.getGridX(),tile.getGridY());
         if(this.tree) {
+            this.tree.gridX = tile.getGridX();
+            this.tree.gridY = tile.getGridY();
             this.tree.generate();
-            console.log("GROWING SUCCESSFUL");
         }
     }
 
     /**
      * Roll a random number between 0 and 'value'. If number is equal to 'value', grow a tree (if conditions are met).
-     * Runs every frame
+     * Runs every tick by default
+     * Could also be used for any fertilizer items I add in the future
      * @param {number} n Growth chance (1 in n). 0 guarantees growth.
-     * @returns null
      */
-    tryToGrow(n) {
-        let rand = rng(0,n);
-
-        if(rand == n) {
-            console.log("TRYING TO GROW");
-            if(this.checkGrowCondition()) {
-                this.growTree();
+    tryToGrow(n, tile) {
+        if(rng(0,n) == n) {
+            if(this.checkGrowCondition(tile)) {
+                this.growTree(tile);
             }
         }
     }
@@ -47,14 +43,13 @@ export default class SaplingBase extends PlaceableBase {
      * Check if the tree is able to grow in its current position.
      * @returns {boolean}
      */
-    checkGrowCondition() {
+    checkGrowCondition(tile) {
 
         // Check for solid blocks above sapling
         let minimumSpace = 8;
-        for(let y = this.gridY + 1; y < this.gridY + minimumSpace; y++) {
-            let tile = this.world.getTile(this.gridX, y)
-            if(tile && !tile.transparent) {
-                console.log("CANNOT GROW: SOLID BLOCK ABOVE");
+        for(let y = tile.getGridY() + 1; y < tile.getGridY() + minimumSpace; y++) {
+            let checkedTile = this.world.getTile(tile.getGridX(), y)
+            if(checkedTile && !checkedTile.isTransparent()) {
                 return false;
             }
         }
@@ -62,12 +57,10 @@ export default class SaplingBase extends PlaceableBase {
         // Check for logs near sapling
         let logDistanceX = 1;
         let logDistanceY = 5;
-        for(let x = this.gridX - logDistanceX; x <= this.gridX + logDistanceX; x++) {
-            for(let y = this.gridY; y <= this.gridY + logDistanceY; y++) {
+        for(let x = tile.getGridX() - logDistanceX; x <= tile.getGridX() + logDistanceX; x++) {
+            for(let y = tile.getGridY(); y <= tile.getGridY() + logDistanceY; y++) {
                 let object = this.world.getWall(x,y);
-                console.log(object);
-                if(object && object.registryName == "wall_log") {
-                    console.log("CANNOT GROW: LOG NEARBY");
+                if(object && object.getRegistryName() == "log") {
                     return false;
                 }
             }
@@ -76,13 +69,13 @@ export default class SaplingBase extends PlaceableBase {
         return true;
     }
 
-    tickUpdate() {
-        this.tryToGrow(this.growthValue);
+    tickUpdate(tile) {
+        this.tryToGrow(this.growthValue, tile);
     }
 
-    tileUpdate() {
-        if(!this.world.getTile(this.gridX, this.gridY - 1)) {
-            this.breakTile();
+    tileUpdate(tile) {
+        if(!this.world.getTile(tile.getGridX(), tile.getGridY() - 1)) {
+            this.breakTile(tile);
         }
     }
 }

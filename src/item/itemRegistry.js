@@ -6,8 +6,8 @@ export default class ItemRegistry {
 
         // List of all items in the game
         this.items = [
-            new item.Tile(game, "dirt", "Dirt", "COMMON"),                              // ID 0
-            new item.Tile(game, "stone", "Stone", "COMMON"),                            // ID 1
+            new item.Tile(game, "dirt", "COMMON"),                                      // ID 0
+            new item.Tile(game, "stone", "COMMON"),                                     // ID 1
             new item.Pickaxe(game, "dev_pickaxe", 999, 5, 10, "UNOBTAINABLE"),          // ID 2
             new item.Axe(game, "dev_axe", 999, 5, 10, "UNOBTAINABLE"),                  // ID 3
             new item.Shovel(game, "dev_shovel", 999, 5, 10, "UNOBTAINABLE"),            // ID 4

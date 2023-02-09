@@ -57,8 +57,8 @@ export const image = (src) => {
 }
 
 export function calculateDistance(obj1,obj2) {
-    let a = Math.max(obj1.centerX,obj2.centerX) - Math.min(obj1.centerX,obj2.centerX);
-    let b = Math.max(obj1.centerY,obj2.centerY) - Math.min(obj1.centerY,obj2.centerY);
+    let a = Math.max(obj1.getCenterX(),obj2.getCenterX()) - Math.min(obj1.getCenterX(),obj2.getCenterX());
+    let b = Math.max(obj1.getCenterY(),obj2.getCenterY()) - Math.min(obj1.getCenterY(),obj2.getCenterY());
     let dist = Math.sqrt((a**2 + b**2));
     return dist;
 }

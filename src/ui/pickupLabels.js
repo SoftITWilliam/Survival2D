@@ -1,5 +1,3 @@
-
-// FIXED IMPORTS:
 import { ctx } from "../game/global.js";
 import { rgba } from "../game/graphics/renderUtil.js";
 import { setAttributes } from "../misc/util.js";

@@ -1,5 +1,3 @@
-
-// FIXED IMPORTS:
 import { ctx, TILE_SIZE } from "../game/global.js";
 import { sprites } from "../game/graphics/loadAssets.js";
 import { calculateDistance } from "../misc/util.js";
@@ -41,8 +39,8 @@ export default class PlacementPreview {
 
         // If out of placement range, 
         let pos = {
-            centerX:gridX * TILE_SIZE + TILE_SIZE / 2,
-            centerY:-gridY * TILE_SIZE + TILE_SIZE / 2
+            getCenterX: () => gridX * TILE_SIZE + TILE_SIZE / 2,
+            getCenterY: () => -gridY * TILE_SIZE + TILE_SIZE / 2
         }
 
         if (calculateDistance(this.game.player,pos) > this.game.player.reach || 

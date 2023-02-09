@@ -1,17 +1,15 @@
 import { ITEM_SIZE } from "../../../game/global.js";
 import { sprites } from "../../../game/graphics/loadAssets.js";
-import * as tiles from "../../../tile/tileParent.js";
 import PlacementPreview from "../../../ui/placementPreview.js";
 import { ItemBase } from "./itemBase.js";
 
 export class TileItemBase extends ItemBase {
-    constructor(game,registryName,tileName,rarity) {
+    constructor(game,registryName,rarity) {
         super(game,registryName,rarity);
         this.world = game.world;
         this.itemType = 'tile';
         this.placeable = true;
         this.stackLimit = 99;
-        this.tileName = tileName;
         this.entitySize = ITEM_SIZE;
 
         this.setSprite(sprites.tiles[`tile_${this.registryName}`]);
@@ -48,7 +46,7 @@ export class TileItemBase extends ItemBase {
         return false;
     }
 
-    place(x,y) {
-        return new tiles[this.tileName](x,y,this.world);
+    place() {
+        return this.registryName;
     }
 }

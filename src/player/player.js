@@ -1,6 +1,4 @@
-
-// FIXED IMPORTS:
-import { ctx, canvas, TILE_SIZE } from '../game/global.js';
+import { ctx, TILE_SIZE } from '../game/global.js';
 import { Inventory } from '../ui/inventory.js';
 import MiningAction from './mining.js';
 import { calculateDistance, clamp, gridXfromCoordinate, gridYfromCoordinate } from '../misc/util.js';
@@ -14,6 +12,7 @@ import ItemInfoDisplay from '../ui/itemInfo.js';
 import { PlayerFalling, PlayerJumping, PlayerRunning, PlayerStanding, PlayerSwimming, stateEnum } from './playerStates.js';
 import { sprites } from '../game/graphics/loadAssets.js';
 import CraftingMenu from './crafting.js';
+import { TileInstance } from '../tile/tileInstance.js';
 
 class Player {
     constructor(game) {
@@ -71,6 +70,18 @@ class Player {
         this.frameCounter = 0;
 
     }
+
+    getX() { return this.x }
+
+    getY() { return this.y }
+    
+    getWidth() { return this.w }
+
+    getHeight() { return this.h }
+
+    getCenterX() { return this.centerX }
+
+    getCenterY() { return this.centerY }
 
     setState(state) {
         this.frameCounter = 0;
@@ -208,8 +219,8 @@ class Player {
         }
 
         // If mouse has moved outside the previous block being mined, create new Event
-        if(this.miningAction.tile.gridX != input.mouse.gridX || 
-            this.miningAction.tile.gridY != input.mouse.gridY) {
+        if(this.miningAction.tile.getGridX() != input.mouse.gridX || 
+            this.miningAction.tile.getGridY() != input.mouse.gridY) {
                 this.miningAction = new MiningAction(obj,this.heldItem,this.game);
         }
 
@@ -268,7 +279,6 @@ class Player {
     checkCollision() {
         // Left wall
         if(this.x + this.dx < 0) {
-            let distance = this.x;
             this.dx = 0;
             this.x = 0;
         }
@@ -276,7 +286,6 @@ class Player {
         // Right wall
         let rightEdge = this.game.world.width * TILE_SIZE;
         if(this.x + this.w + this.dx > rightEdge) {
-            let distance = this.x + this.w - rightEdge;
             this.dx = 0;
             this.x = rightEdge - this.w;
         }
@@ -294,35 +303,31 @@ class Player {
                     continue;
                 }
 
-                if(tile.objectType == "solid") {
+                if(tile.getType() == "solid") {
                     if(surfaceCollision("top",this,tile)) {
                         this.grounded = true;
-                        let distance = this.y + this.h - tile.y;
                         this.dy = 0;
-                        this.y = tile.y - this.h;
+                        this.y = tile.getY() - this.h;
                     }
 
                     if(surfaceCollision("bottom",this,tile)) {
-                        let distance = this.y - (tile.y + tile.h);
                         this.dy = 0;
-                        this.y = tile.y + tile.h;
+                        this.y = tile.getY() + tile.getHeight()
                         this.jumpFrames = false;
                     }
 
                     if(surfaceCollision("left",this,tile)) {
-                        let distance = this.x + this.w - tile.x;
                         this.dx = 0;
-                        this.x = tile.x - this.w;
+                        this.x = tile.getX() - this.w;
                     }
 
                     if(surfaceCollision("right",this,tile)) {
-                        let distance = this.x - (tile.x + tile.w);
                         this.dx = 0;
-                        this.x = tile.x + tile.w;
+                        this.x = tile.getX() + tile.getWidth();
                     }
                 }
 
-                if(tile.objectType == "liquid") {
+                if(tile.getType() == "liquid") {
                     if(overlap(this,tile)) {
                         this.inLiquid = true;
                     }
@@ -419,8 +424,8 @@ class Player {
             return;
         }
     
-        let tile = item.place(x,y);
-        if(!tile) {
+        let tile = new TileInstance(this.game.world, x, y, item.place());
+        if(!tile || !tile.model) {
             return;
         }
 
@@ -430,11 +435,11 @@ class Player {
         } 
 
         // Cannot place a solid tile which overlaps with player
-        if(tile.objectType == "solid" && overlap(this,tile)) {
+        if(tile.getType() == "solid" && overlap(this,tile)) {
             return;
         }
 
-        this.game.world.setTile(x,y,tile);
+        this.game.world.setTile(x,y,tile.getRegistryName());
         
         // Decrease amount in stack by 1
         let heldStack = this.inventory.getSelectedSlot().stack;

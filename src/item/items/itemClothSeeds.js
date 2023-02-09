@@ -1,5 +1,4 @@
 import { sprites } from "../../game/graphics/loadAssets.js";
-import { ClothPlant } from "../../tile/placeables/clothPlant.js";
 import PlacementPreview from "../../ui/placementPreview.js";
 import PlaceableBase from "./base/placeableItemBase.js";
 
@@ -20,6 +19,6 @@ export class ItemClothSeeds extends PlaceableBase {
     }
 
     place(x,y) {
-        return new ClothPlant(x,y,this.game.world);
+        return "cloth_plant";
     }
 }
