@@ -24,7 +24,7 @@ export default class UIComponent {
 
         // Size
         this.w = getIfSet(attributes.width, 0);
-        this.h = getIfSet(attributes.height, 0);attributes.height ? attributes.height : 0;
+        this.h = getIfSet(attributes.height, 0);
 
         this.offsetX = getIfSet(attributes.offsetX, 0);
         this.offsetY = getIfSet(attributes.offsetY, 0);
@@ -32,7 +32,8 @@ export default class UIComponent {
         // Position is either Relative or Absolute.
         // "Relative" positions the object in relation to its siblings,
         // "Absolute" positions the object in relation to its parent. It will ignore even spacing.
-        this.position = getIfSet(attributes.position.toUpperCase(), "RELATIVE");
+        this.position = getIfSet(attributes.position, "RELATIVE");
+        this.position = this.position.toUpperCase();
 
         // Text
         this.text = getIfSet(attributes.text, "");
