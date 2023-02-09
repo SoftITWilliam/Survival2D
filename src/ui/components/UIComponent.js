@@ -19,8 +19,8 @@ export default class UIComponent {
         this.y = 0;
 
         // If true, center itself on axis inside of parent. If there is no parent, center itself on screen.
-        this.centerX = getIfSet(); attributes.centerX ? attributes.centerX : false;
-        this.centerY = getIfSet();attributes.centerY ? attributes.centerY : false;
+        this.centerX = getIfSet(attributes.centerX, false);
+        this.centerY = getIfSet(attributes.centerY, false);
 
         // Size
         this.w = getIfSet(attributes.width, 0);
@@ -33,7 +33,6 @@ export default class UIComponent {
         // "Relative" positions the object in relation to its siblings,
         // "Absolute" positions the object in relation to its parent. It will ignore even spacing.
         this.position = getIfSet(attributes.position, "RELATIVE");
-        this.position = this.position.toUpperCase();
 
         // Text
         this.text = getIfSet(attributes.text, "");
