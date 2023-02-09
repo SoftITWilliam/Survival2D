@@ -1,5 +1,5 @@
 import { ctx } from "../../game/global.js";
-import WallBase from "./WallBase.js";
+import WallBase from "../base/WallBase.js";
 
 export class DirtWallModel extends WallBase {
     constructor(world, registryName) {

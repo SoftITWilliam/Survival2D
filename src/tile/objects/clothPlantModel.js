@@ -1,7 +1,7 @@
 import { TILE_SIZE } from "../../game/global.js";
 import { sprites } from "../../game/graphics/loadAssets.js";
 import { TileDrop } from "../tileDrop.js";
-import PlantBase from "./PlantBase.js";
+import PlantBase from "../base/PlantBase.js";
 
 export class ClothPlantModel extends PlantBase {
     constructor(world, registryName) {

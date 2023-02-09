@@ -1,7 +1,7 @@
 import { TILE_SIZE } from "../../game/global.js";
 import { sprites } from "../../game/graphics/loadAssets.js";
-import { SelfDrop, TileDrop } from "../tileDrop.js";
-import TileBase from "./TileBase.js";
+import { SelfDrop } from "../tileDrop.js";
+import TileBase from "../base/TileBase.js";
 
 export class StoneModel extends TileBase {
     constructor(world, registryName) {
