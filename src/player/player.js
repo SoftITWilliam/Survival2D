@@ -249,6 +249,12 @@ class Player extends GameEntity {
         input.mouse.updateGridPos();
     }
 
+    // Override
+    onBottomCollision(tile) {
+        super.onBottomCollision(tile);
+        this.setState("FALLING");
+    }
+
     selectItem(slot) {
         this.inventory.selectedHotbarSlot = slot;
         let selected = this.inventory.getSelectedSlot();
