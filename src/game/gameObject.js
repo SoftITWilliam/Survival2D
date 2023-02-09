@@ -1,4 +1,4 @@
-import { getIfSet } from "../misc/util";
+import { getIfSet, gridXfromCoordinate, gridYfromCoordinate } from "../misc/util.js";
 
 export default class GameObject {
     constructor(game,x,y,w,h) {
@@ -15,43 +15,44 @@ export default class GameObject {
     }
 
     getX() { 
-        return this.x 
+        return this.x;
     }
 
     getY() { 
-        return this.y 
-    }
-    
-    getWidth() { 
-        return this.w 
+        return this.y;
     }
 
-    getHeight() { 
-        return this.h 
+    getGridX() {
+        return this.gridX;
+    }
+
+    getGridY() {
+        return this.gridY;
     }
 
     getCenterX() { 
-        return this.centerX 
+        return this.centerX;
     }
 
     getCenterY() { 
-        return this.centerY 
+        return this.centerY;
     }
 
+    getWidth() { 
+        return this.w;
+    }
+
+    getHeight() { 
+        return this.h;
+    }
+    
     updateCenterPos() {
-        this.centerX = this.x + (this.w / 2);
-        this.centerY = this.y + (this.y / 2);
+        this.centerX = this.getX() + (this.getWidth() / 2);
+        this.centerY = this.getY() + (this.getHeight() / 2);
     }
 
     updateGridPos() {
         this.gridX = gridXfromCoordinate(this.centerX);
         this.gridY = gridYfromCoordinate(this.centerY);
-    }
-
-    move(deltaX, deltaY) {
-        this.x += Math.round(deltaX);
-        this.y += Math.round(deltaX);
-        this.updateCenterPos();
-        this.updateGridPos();
     }
 }
