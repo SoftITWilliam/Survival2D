@@ -156,3 +156,13 @@ export function getGap(totalSize,size,amount) {
     let gap = (totalSize - (size * amount)) / (amount + 1);
     return(gap > 0 ? gap : 0);
 }
+
+/**
+ * If 'variable' is set, return variable. Else return 'defaultValue'
+ * @param {any} variable 
+ * @param {any} defaultValue
+ * @returns {any}
+ */ 
+export function getIfSet(variable, defaultValue) {
+    return variable !== undefined ? variable : defaultValue;
+}

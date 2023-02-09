@@ -1,6 +1,6 @@
 import { canvas, ctx } from "../../game/global.js";
 import { renderPath, rgb } from "../../game/graphics/renderUtil.js";
-import { drawRounded, setAttributes } from "../../misc/util.js";
+import { drawRounded, getIfSet, setAttributes } from "../../misc/util.js";
 
 
 export default class UIComponent {
@@ -10,8 +10,8 @@ export default class UIComponent {
 
         // Child properties
         this.children = [];
-        this.childAlignment = attributes.childAlignment ? attributes.childAlignment : "none";
-        this.childDirection = attributes.childDirection ? attributes.childDirection : "row";
+        this.childAlignment = getIfSet(attributes.childAlignment, "none");
+        this.childDirection = getIfSet(attributes.childDirection, "row");
         this.index;
 
         // Position
@@ -19,37 +19,37 @@ export default class UIComponent {
         this.y = 0;
 
         // If true, center itself on axis inside of parent. If there is no parent, center itself on screen.
-        this.centerX = attributes.centerX ? attributes.centerX : false;
-        this.centerY = attributes.centerY ? attributes.centerY : false;
+        this.centerX = getIfSet(); attributes.centerX ? attributes.centerX : false;
+        this.centerY = getIfSet();attributes.centerY ? attributes.centerY : false;
 
         // Size
-        this.w = attributes.width ? attributes.width : 0;
-        this.h = attributes.height ? attributes.height : 0;
+        this.w = getIfSet(attributes.width, 0);
+        this.h = getIfSet(attributes.height, 0);attributes.height ? attributes.height : 0;
 
-        this.offsetX = attributes.offsetX ? attributes.offsetX : 0;
-        this.offsetY = attributes.offsetY ? attributes.offsetY : 0;
+        this.offsetX = getIfSet(attributes.offsetX, 0);
+        this.offsetY = getIfSet(attributes.offsetY, 0);
 
         // Position is either Relative or Absolute.
         // "Relative" positions the object in relation to its siblings,
         // "Absolute" positions the object in relation to its parent. It will ignore even spacing.
-        this.position = attributes.position ? attributes.position.toUpperCase() : "RELATIVE";
+        this.position = getIfSet(attributes.position.toUpperCase(), "RELATIVE");
 
         // Text
-        this.text = attributes.text ? attributes.text : "";
+        this.text = getIfSet(attributes.text, "");
 
         // Text offset
-        this.textOffsetX = attributes.textOffsetX ? attributes.textOffsetX : 0;
-        this.textOffsetY = attributes.textOffsetY ? attributes.textOffsetY : 0;
+        this.textOffsetX = getIfSet(attributes.textOffsetX, 0);
+        this.textOffsetY = getIfSet(attributes.textOffsetY, 0);
 
         // If true, center the text inside the component
-        this.textCenterX = attributes.textCenterX ? attributes.textCenterX : false;
-        this.textCenterY = attributes.textCenterY ? attributes.textCenterY : false;
+        this.textCenterX = getIfSet(attributes.textCenterX, false);
+        this.textCenterY = getIfSet(attributes.textCenterY, false);
 
-        this.floatX = attributes.floatX ? attributes.floatX : "left";
-        this.floatY = attributes.floatY ? attributes.floatY : "top";
+        this.floatX = getIfSet(attributes.floatX, "left");
+        this.floatY = getIfSet(attributes.floatY, "top");
 
         // If > 0, component will have rounded corners.
-        this.cornerRadius = attributes.cornerRadius ? attributes.cornerRadius : 0;
+        this.cornerRadius = getIfSet(attributes.cornerRadius, 0);
 
         // ctx attributes for rendering component. Default values
         this.attributes = {
@@ -65,16 +65,16 @@ export default class UIComponent {
         }
 
         this.scrollable = false;
-        this.childMargin = attributes.childMargin ? attributes.childMargin : 0;
-        this.childSpacing = attributes.childSpacing ? attributes.childSpacing : 0;
+        this.childMargin = getIfSet(attributes.childMargin, 0);
+        this.childSpacing = getIfSet(attributes.childSpacing, 0);
 
         // Base colors
-        this.fillColor = attributes.fillColor ? attributes.fillColor : null;
-        this.strokeColor = attributes.strokeColor ? attributes.strokeColor : null;
+        this.fillColor = getIfSet(attributes.fillColor, null);
+        this.strokeColor = getIfSet(attributes.strokeColor, null);
 
         // Text colors
-        this.textFill = attributes.textFill ? attributes.textFill : null;
-        this.textStroke = attributes.textStroke ? attributes.textStroke : null;
+        this.textFill = getIfSet(attributes.textFill, null);
+        this.textStroke = getIfSet(attributes.textStroke, null);
         
         if(attributes.font && attributes.fontSize) {
             this.setFont(attributes.fontSize, attributes.font);
