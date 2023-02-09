@@ -1,5 +1,3 @@
-
-// FIXED IMPORTS:
 import { ctx, TILE_SIZE } from "../game/global.js";
 import { sprites } from "../game/graphics/loadAssets.js";
 import { calculateDistance } from "../misc/util.js";

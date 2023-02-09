@@ -1,5 +1,3 @@
-
-// FIXED IMPORTS:
 import { rng } from "../misc/util.js";
 
 export function dropItemFromBlock(tile,item,amount,game) {

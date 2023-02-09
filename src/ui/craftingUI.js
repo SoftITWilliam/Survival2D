@@ -1,8 +1,5 @@
-import { ctx } from "../game/global.js";
 import { colors } from "../game/graphics/colors.js";
-import { renderItem, renderPath, rgb, rgbm } from "../game/graphics/renderUtil.js";
-import { setAttributes, drawRounded, getGap, mouseOn } from "../misc/util.js";
-import Button from "./button.js";
+import { getGap } from "../misc/util.js";
 import * as components from "./componentParent.js";
 
 

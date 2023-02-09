@@ -1,6 +1,4 @@
-
-// FIXED IMPORTS:
-import { ctx, canvas, TILE_SIZE } from '../game/global.js';
+import { ctx, TILE_SIZE } from '../game/global.js';
 import { Inventory } from '../ui/inventory.js';
 import MiningAction from './mining.js';
 import { calculateDistance, clamp, gridXfromCoordinate, gridYfromCoordinate } from '../misc/util.js';

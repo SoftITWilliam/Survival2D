@@ -1,13 +1,14 @@
-import { Tile } from "../tile.js";
+import { TILE_SIZE } from "../../game/global.js";
+import { TileModel } from "../tileModel.js";
 
-export default class WallBase extends Tile {
-    constructor(gridX,gridY,world) {
-        super(gridX,gridY,world);
-        this.objectType = "wall";
+export default class WallBase extends TileModel {
+    constructor(world, registryName) {
+        super(world, registryName, TILE_SIZE, TILE_SIZE);
+        this.setType("wall");
         this.toolType = "hammer";
+        this.requireTool = true;
         this.transparent = false;
         this.connective = true;
-        this.requireTool = true;
     }
 
     // Override

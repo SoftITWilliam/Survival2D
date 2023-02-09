@@ -1,8 +1,3 @@
-
-
-
-
-// FIXED IMPORTS:
 import { getDescription, getDisplayName, getLang } from "../game/lang.js";
 import { sprites } from "../game/graphics/loadAssets.js";
 

@@ -1,5 +1,3 @@
-
-// FIXED IMPORTS:
 import { drawStatBar } from './ui.js';
 import { ctx, canvas, DRAWDIST, DRAW_LIGHTING, DEBUG_MODE } from '../global.js';
 import { calculateDistance, clamp, setAttributes } from '../../misc/util.js';

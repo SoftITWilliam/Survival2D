@@ -1,8 +1,5 @@
-
-// FIXED IMPORTS:
 import { gridXfromCoordinate, gridYfromCoordinate, mouseOn, setAttributes } from "../misc/util.js";
-import { sprites } from "../game/graphics/loadAssets.js";
-import { ctx, GRAVITY, TILE_SIZE, WORLD_HEIGHT, WORLD_WIDTH } from "../game/global.js";
+import { ctx, GRAVITY } from "../game/global.js";
 import { surfaceCollision } from "../game/collision.js";
 import { renderItem } from "../game/graphics/renderUtil.js";
 

@@ -1,5 +1,3 @@
-
-// FIXED IMPORTS:
 import { rng } from '../../misc/util.js';
 import Structure from '../structure.js';
 

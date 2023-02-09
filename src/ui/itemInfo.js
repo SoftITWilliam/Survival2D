@@ -1,5 +1,3 @@
-
-// FIXED IMPORTS:
 import { ctx } from "../game/global.js";
 import { rgb } from "../game/graphics/renderUtil.js";
 import { getLang } from "../game/lang.js";
