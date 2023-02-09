@@ -51,9 +51,9 @@ export class TileModel {
     // Remove the tile and drop its items.
     breakTile(tile, toolType, miningLevel) {
         if(this.objectType == "wall") {
-            this.world.clearWall(tile.x, tile.y);
+            this.world.clearWall(tile.getGridX(), tile.getGridY());
         } else {
-            this.world.clearTile(tile.x, tile.y);
+            this.world.clearTile(tile.getGridX(), tile.getGridY());
         }
 
         this.dropItems(tile, toolType, miningLevel);

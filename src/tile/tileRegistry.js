@@ -13,6 +13,7 @@ export default class TileRegistry {
             new tile.Log(world, "log"),
             new tile.Leaves(world, "leaves"),
             new tile.ClothPlant(world, "cloth_plant"),
+            new tile.Sapling(world, "sapling"),
         ]
 
         this.enum = {};
