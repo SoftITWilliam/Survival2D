@@ -34,14 +34,39 @@ export default class GameEntity extends GameObject {
         let rightEdge = this.game.world.width * TILE_SIZE;
         if(this.getX() + this.getWidth() + this.dx > rightEdge) {
             this.dx = 0;
-            this.x = rightEdge - this.w;
+            this.x = rightEdge - this.getWidth();
         }
+    }
+
+    // Runs when colliding with the top side of a solid tile
+    onTopCollision(tile) {
+        this.grounded = true;
+        this.dy = 0;
+        this.y = tile.getY() - this.h;
+    }
+
+    // Runs when colliding with the bottom side of a solid tile
+    onBottomCollision(tile) {
+        this.dy = 0;
+        this.y = tile.getY() + tile.getHeight()
+    }
+
+    // Runs when colliding with the left side of a solid tile
+    onLeftCollision(tile) {
+        this.dx = 0;
+        this.x = tile.getX() - this.getWidth();
+    }
+
+    // Runs when colliding with the right side of a solid tile
+    onRightCollision(tile) {
+        this.dx = 0;
+        this.x = tile.getX() + tile.getWidth();
     }
 
     // Check collision of tiles within a 2 block radius
     tileCollision() {
-        for(let x=this.getGridX() - 2;x<this.gridX + 2;x++) {
-            for(let y=this.gridY - 2;y<this.gridY + 2;y++) {
+        for(let x = this.getGridX() - 2; x < this.getGridX() + 2; x++) {
+            for(let y = this.getGridY() - 2; y < this.getGridY() + 2; y++) {
                 if(this.game.world.outOfBounds(x,y)) {
                     continue;
                 }
@@ -52,25 +77,20 @@ export default class GameEntity extends GameObject {
                 }
 
                 if(tile.getType() == "solid") {
-                    if(surfaceCollision("top",this,tile)) {
-                        this.grounded = true;
-                        this.dy = 0;
-                        this.y = tile.getY() - this.h;
+                    if(surfaceCollision("top", this, tile)) {
+                        this.onTopCollision(tile);
                     }
 
-                    if(surfaceCollision("bottom",this,tile)) {
-                        this.dy = 0;
-                        this.y = tile.getY() + tile.getHeight()
+                    if(surfaceCollision("bottom", this, tile)) {
+                        this.onBottomCollision(tile);
                     }
 
-                    if(surfaceCollision("left",this,tile)) {
-                        this.dx = 0;
-                        this.x = tile.getX() - this.getWidth();
+                    if(surfaceCollision("left", this, tile)) {
+                        this.onLeftCollision(tile);
                     }
 
-                    if(surfaceCollision("right",this,tile)) {
-                        this.dx = 0;
-                        this.x = tile.getX() + tile.getWidth();
+                    if(surfaceCollision("right", this, tile)) {
+                        this.onRightCollision(tile);
                     }
                 }
 
