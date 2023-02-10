@@ -1,19 +1,17 @@
+import GameObject from "../game/gameObject.js";
 import { TILE_SIZE } from "../game/global.js";
 
-export class TileInstance {
+export class TileInstance extends GameObject {
     constructor(world, x, y, model) {
+        super(world.game, x * TILE_SIZE, -y * TILE_SIZE)
         this.world = world;
-        this.game = world.game;
 
         this.setModel(model);
 
-        this.x = x;
-        this.y = y;
-        this.mapX = x * TILE_SIZE;
-        this.mapY = -y * TILE_SIZE;
-        this.centerX = this.mapX + this.getWidth() / 2;
-        this.centerY = this.mapY + this.getHeight() / 2;
+        this.gridX = x;
+        this.gridY = y;
         this.setSpriteOffset();
+        this.updateCenterPos();
     }
 
     // SO MUCH FCKING BOILERPLATE!!! DAMN!
@@ -22,10 +20,12 @@ export class TileInstance {
         this.model = this.game.tileRegistry.get(model);
     }
 
+    // Override
     getHeight() {
         return this.model ? this.model.h : 0;
     }
 
+    // Override
     getWidth() {
         return this.model ? this.model.w : 0;
     }
@@ -39,55 +39,31 @@ export class TileInstance {
     }
 
     requiresTool() {
-        return this.model.requiredTool;
+        return this.model ? this.model.requiredTool : false;
     }
 
     getMiningTime() {
-        return this.model.miningTime;
+        return this.model ? this.model.miningTime : 0;
     }
 
     getToolType() {
-        return this.model.toolType;
+        return this.model ? this.model.toolType : null;
     }
 
     getID() {
-        return this.model.id;
+        return this.model ? this.model.id : null;
     }
 
     getType() {
-        return this.model.objectType;
-    }
-
-    getCenterX() {
-        return this.getX() + this.getWidth() / 2;
-    }
-
-    getCenterY() {
-        return this.getY() + this.getHeight() / 2;
-    }
-
-    getX() {
-        return this.mapX;
-    }
-
-    getY() {
-        return this.mapY;
-    }
-
-    getGridX() {
-        return this.x;
-    }
-
-    getGridY() {
-        return this.y;
+        return this.model ? this.model.objectType : null;
     }
 
     isTransparent() {
-        return this.model.transparent;
+        return this.model ? this.model.transparent : false;
     }
 
     isConnective() {
-        return this.model.connective;
+        return this.model ? this.model.connective : false;
     }
 
     // Runs whenever the tile is "refreshed", i.e. something happens to an adjacent tile.
@@ -156,19 +132,19 @@ export class TileInstance {
             }
         }
 
-        adjacent.tl = checkTile(this.x-1,this.y+1);
-        adjacent.tm = checkTile(this.x,this.y+1);
-        adjacent.tr = checkTile(this.x+1,this.y+1);
-        adjacent.ml = checkTile(this.x-1,this.y);
-        adjacent.mr = checkTile(this.x+1,this.y);
-        adjacent.bl = checkTile(this.x-1,this.y-1);
-        adjacent.bm = checkTile(this.x,this.y-1);
-        adjacent.br = checkTile(this.x+1,this.y-1);
+        adjacent.tl = checkTile(this.gridX -1, this.gridY + 1);
+        adjacent.tm = checkTile(this.gridX, this.gridY + 1);
+        adjacent.tr = checkTile(this.gridX + 1, this.gridY + 1);
+        adjacent.ml = checkTile(this.gridX - 1, this.gridY);
+        adjacent.mr = checkTile(this.gridX + 1, this.gridY);
+        adjacent.bl = checkTile(this.gridX - 1, this.gridY - 1);
+        adjacent.bm = checkTile(this.gridX, this.gridY - 1);
+        adjacent.br = checkTile(this.gridX + 1, this.gridY - 1);
 
         return adjacent;
     }
 
     render() {
-        this.model.render(this.mapX,this.mapY,this.sx,this.sy);
+        this.model.render(this.x,this.y,this.sx,this.sy);
     }
 }
