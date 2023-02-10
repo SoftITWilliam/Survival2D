@@ -57,7 +57,7 @@ export class TileModel {
         }
 
         this.dropItems(tile, toolType, miningLevel);
-        this.world.updateNearbyTiles(tile.x, tile.y);
+        this.world.updateNearbyTiles(tile.getGridX(), tile.getGridY());
     }
 
     // Loop through this tile's drops. Runs when the tile is broken.
