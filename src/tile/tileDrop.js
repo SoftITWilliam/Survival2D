@@ -46,7 +46,9 @@ export class TileDrop {
         let dropAmount;
         if(Array.isArray(this.amount)) {
             dropAmount = rng(this.amount[0],this.amount[1]);
-        } 
+        } else {
+            dropAmount = this.amount;
+        }
 
         let item = this.game.itemRegistry.get(this.itemName);
         return {item: item, amount: dropAmount}
