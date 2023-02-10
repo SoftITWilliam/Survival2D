@@ -19,7 +19,7 @@ export class GrassModel extends TileBase {
 
     checkSpreadCondition(x,y) {
         let tile = this.world.getTile(x,y);
-        if(tile && tile.registryName == "tile_dirt") {
+        if(tile && tile.getRegistryName() == "dirt") {
             y += 1;
             if(!this.world.getTile(x,y)) {
                 return true;
@@ -31,8 +31,8 @@ export class GrassModel extends TileBase {
     tickUpdate(tile) {
         // Try to spread grass to surrounding tiles
         let range = 2;
-        for(let x = tile.gridX - range; x <= tile.gridX + range; x++) {
-            for(let y = tile.gridY - range; y <= tile.gridY + range; y++) {
+        for(let x = tile.getGridX() - range; x <= tile.getGridX() + range; x++) {
+            for(let y = tile.getGridY() - range; y <= tile.getGridY() + range; y++) {
                 if(!this.checkSpreadCondition(x,y)) {
                     continue;
                 };
