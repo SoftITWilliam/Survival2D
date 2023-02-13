@@ -6,6 +6,7 @@ import RecipeManager from "../player/recipe.js";
 import { World } from "../world/world.js";
 import FPSCounter from "./graphics/FPScounter.js";
 import { InputHandler } from "./input.js";
+import { Testing } from "../tests/testing.js";
 
 
 export class Game {
@@ -16,12 +17,12 @@ export class Game {
         this.tileRegistry = new TileRegistry(this.world);
         this.itemEntities = new ItemEntityHandler(this);
 
-        this.world.generate();
-
         this.recipeManager = new RecipeManager(this);
         this.player = new Player(this);
         this.input = new InputHandler(this);
         this.fpsCounter = new FPSCounter(this);
+
+        this.testing = new Testing(this);
     }
 
     update() {

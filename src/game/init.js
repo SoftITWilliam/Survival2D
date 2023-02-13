@@ -8,6 +8,8 @@ window.onload = init();
 
 function init() {
     setCanvasSize();
+    game.world.generate();
+    game.testing.run();
     game.player.spawn();
     window.requestAnimationFrame(gameLoop);
 }
