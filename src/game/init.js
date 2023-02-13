@@ -1,5 +1,3 @@
-
-// FIXED IMPORTS:
 import render from "./graphics/render.js";
 import { canvas } from "./global.js";
 import { Game } from "./game.js";

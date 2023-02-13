@@ -1,16 +1,16 @@
-import PlaceableBase from "./placeableBase.js";
+import ObjectBase from "../base/ObjectBase.js";
 
-export default class PlantBase extends PlaceableBase {
-    constructor(gridX,gridY,world) {
-        super(gridX,gridY,world);
-        this.objectType = "nonSolid";
+export default class PlantBase extends ObjectBase {
+    constructor(world, registryName, width, height) {
+        super(world, registryName, width, height);
+        this.setType("nonSolid");
         this.toolType = "sickle";
     }
 
     // Remove plant if ground below is broken
-    tileUpdate() {
-        if(!this.world.getTile(this.gridX, this.gridY - 1)) {
-            this.breakTile();
+    tileUpdate(tile) {
+        if(!this.world.getTile(tile.getGridX(), tile.getGridY() - 1)) {
+            this.breakTile(tile,null,null);
         }
     }
 }

@@ -1,9 +1,10 @@
 import { rng } from "../misc/util.js";
+import { TileInstance } from "./tileInstance.js";
 
 // This should be converted into a general drop class later, so that it for example could be used for entity drops.
-export default class TileDrop {
+export class TileDrop {
     /**
-     * @param {object} tile Pointer to parent tile
+     * @param {TileInstance} tile Pointer to parent tile
      * @param {string} itemName Registry name of dropped item. ex. "coal"
      * @param {any} amount If static, give number (ex. 1), if range, give array with min/max amount (ex. [1,3])
      * @param {boolean} increasable Whether the drop amount is affected by multipliers
@@ -19,6 +20,12 @@ export default class TileDrop {
         this.requireTool = requireTool;
     }
 
+    validTool(toolType, miningLevel) {
+        return (!toolType || !miningLevel ||
+            toolType != this.tile.getToolType() ||
+            miningLevel < this.tile.getMiningLevel())
+    }
+
     roll(toolType, miningLevel, multiplier) {
 
         // !! Currently doesn't support gathering multipliers
@@ -27,11 +34,7 @@ export default class TileDrop {
             multiplier = 1;
         }
 
-        if (this.requireTool && (
-            !toolType || !miningLevel ||
-            toolType != this.tile.toolType ||
-            miningLevel < this.tile.miningLevel)
-        ) {
+        if (this.requireTool && this.validTool(toolType, miningLevel)) {
             return null;
         }
 
@@ -40,12 +43,34 @@ export default class TileDrop {
             return null;
         }
 
+        let dropAmount;
         if(Array.isArray(this.amount)) {
-            this.amount = rng(this.amount[0],this.amount[1]);
-        } 
+            dropAmount = rng(this.amount[0],this.amount[1]);
+        } else {
+            dropAmount = this.amount;
+        }
 
         let item = this.game.itemRegistry.get(this.itemName);
-        let drop = {item: item, amount: this.amount}
-        return drop;
+        return {item: item, amount: dropAmount}
+    }
+}
+
+/** 
+ * SelfDrop
+ * On roll, return *one* item of the same type as the tile, guarranteed. Not affected by multipliers.
+ * Use on tiles that drop themselves (dirt, etc.)
+*/
+export class SelfDrop extends TileDrop {
+    constructor(tile, requireTool) {
+        super(tile, tile.registryName, 1, 100, false, requireTool);
+    }
+
+    roll(toolType, miningLevel) {
+        if (this.requireTool && this.validTool(toolType, miningLevel)) {
+            return null;
+        }
+
+        let item = this.game.itemRegistry.get(this.itemName);
+        return {item: item, amount: this.amount}
     }
 }

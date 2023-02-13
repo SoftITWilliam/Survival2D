@@ -1,12 +1,12 @@
-import { Tile } from "../tile.js";
 
-export default class TileBase extends Tile {
-    constructor(gridX,gridY,world) {
-        super(gridX,gridY,world);
-        this.objectType = "solid";
+import { TileModel } from "../tileModel.js";
+
+export default class TileBase extends TileModel {
+    constructor(world, registryName, width, height) {
+        super(world, registryName, width, height);
+        this.setType("solid");
         this.transparent = false;
         this.connective = true;
-        this.requireTool = false;
     }
 
     // Override

@@ -1,5 +1,3 @@
-
-// FIXED IMPORTS:
 import { TILE_SIZE } from "./global.js";
 
 export class InputHandler {

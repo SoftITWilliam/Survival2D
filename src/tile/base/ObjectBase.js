@@ -1,9 +1,9 @@
-import { Tile } from "../tile.js";
+import { TileModel } from "../tileModel.js";
 
-export default class PlaceableBase extends Tile {
-    constructor(gridX,gridY,world) {
-        super(gridX,gridY,world);
-        this.objectType = "nonSolid";
+export default class ObjectBase extends TileModel {
+    constructor(world, registryName, width, height) {
+        super(world, registryName, width, height);
+        this.setType("nonSolid");
         this.transparent = true;
         this.connective = false;
         this.requireTool = false;

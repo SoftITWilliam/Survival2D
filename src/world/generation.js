@@ -1,9 +1,9 @@
-import * as tiles from '../tile/tileParent.js';
 import * as structures from '../structure/structureParent.js';
 import { BASE_TERRAIN_HEIGHT, WORLD_WIDTH } from "../game/global.js";
 import { rng, rollMax } from "../misc/util.js";
 import { HEIGHTMAP } from "./world.js";
 import Noise from './noise.js';
+import { TileInstance } from '../tile/tileInstance.js';
 
 export class WorldGeneration {
     constructor(world) {
@@ -38,20 +38,25 @@ export class WorldGeneration {
             return null;
         }
 
+        let tileName = "";
+
         // Grass
         if(HEIGHTMAP[x] == y) {
-            return new tiles.Grass(x,y,this.world);
+            tileName = "grass";
         } 
         
         // Dirt
         else if(HEIGHTMAP[x] - this.dirtMap[x] < y) {
-            return new tiles.Dirt(x,y,this.world);
+            tileName = "dirt";
         } 
         
         // Stone
         else {
-            return new tiles.Stone(x,y,this.world);
+            tileName = "stone";
         }
+
+        let tile = new TileInstance(this.world, x, y, tileName);
+        return tile.model ? tile : null;
     }
 
     getTerrainWall(x,y) {
@@ -60,15 +65,20 @@ export class WorldGeneration {
             return null;
         }
 
+        let tileName = "";
+
         // Dirt walls
         if(HEIGHTMAP[x] - this.dirtMap[x] <= y) {
-            return new tiles.DirtWall(x,y,this.world);
+            tileName = "dirt_wall";
         } 
         
         // Stone walls
         else {
-            return new tiles.StoneWall(x,y,this.world);
+            tileName = "stone_wall";
         }
+
+        let tile = new TileInstance(this.world, x, y, tileName);
+        return tile.model ? tile : null;
     }
 
     /**
@@ -96,7 +106,7 @@ export class WorldGeneration {
         for(let x = 0; x < this.world.width; x++) {
             let y = HEIGHTMAP[x];
             let tile = this.world.getTile(x,y);
-            if(!tile || tile.registryName != "tile_grass") {
+            if(!tile || tile.getRegistryName() != "grass") {
                 continue;
             }
 
@@ -107,7 +117,7 @@ export class WorldGeneration {
             }
 
             if(rollMax(clothValue)) {
-                this.world.setTile(x, y+1, new tiles.ClothPlant(x,y+1,this.world));
+                this.world.setTile(x, y+1, "cloth_plant");
             }
         }
     }

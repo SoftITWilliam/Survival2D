@@ -1,8 +1,5 @@
-import { ctx } from "../game/global.js";
 import { colors } from "../game/graphics/colors.js";
-import { renderItem, renderPath, rgb, rgbm } from "../game/graphics/renderUtil.js";
-import { setAttributes, drawRounded, getGap, mouseOn } from "../misc/util.js";
-import Button from "./button.js";
+import { getGap } from "../misc/util.js";
 import * as components from "./componentParent.js";
 
 
@@ -89,17 +86,17 @@ export default class CraftingInterface {
         });
 
         this.COutputSprite = new components.Item(this.game, {
-            width:24, height: 24, position: "absolute", offsetX: 16, offsetY: 16, item: null,
+            width:24, height: 24, position: "ABSOLUTE", offsetX: 16, offsetY: 16, item: null,
         });
 
         this.COutputName = new components.Text(this.game, {
             font:"Font1", fontSize: 20, textFill: colors.white, textAlign: "center",
-            position: "absolute", centerX: true, offsetY: 28, 
+            position: "ABSOLUTE", centerX: true, offsetY: 28, 
         });
 
         this.COutputAmount = new components.Default(this.game, {
             font:"Font1", fontSize: 20, textFill: colors.white, textAlign: "center", textBaseline: "middle", textCenterX: true, textCenterY: true,
-            position: "absolute", floatX: "right", offsetX: 20, offsetY: 16,
+            position: "ABSOLUTE", floatX: "right", offsetX: 20, offsetY: 16,
             fillColor: colors.uiLight, cornerRadius: 4, height: 24
         });
 
@@ -112,7 +109,7 @@ export default class CraftingInterface {
         });
 
         this.CItemCostLabels = new components.Container(this.game, {
-            width: this.sectionWidth, position: "relative", height: this.rowHeight, fillColor: colors.uiDarker,
+            width: this.sectionWidth, position: "RELATIVE", height: this.rowHeight, fillColor: colors.uiDarker,
         });
 
         this.CItemCostLabelList = [

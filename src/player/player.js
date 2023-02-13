@@ -1,42 +1,32 @@
-
-// FIXED IMPORTS:
-import { ctx, canvas, TILE_SIZE } from '../game/global.js';
+import { ctx, TILE_SIZE } from '../game/global.js';
 import { Inventory } from '../ui/inventory.js';
 import MiningAction from './mining.js';
-import { calculateDistance, clamp, gridXfromCoordinate, gridYfromCoordinate } from '../misc/util.js';
+import { calculateDistance, clamp } from '../misc/util.js';
 import { HEIGHTMAP } from '../world/world.js';
-import { overlap, surfaceCollision } from '../game/collision.js';
+import { overlap } from '../game/collision.js';
 import { PlayerStatBar } from './statBar.js';
 import HotbarText from '../ui/hotbarText.js';
 import { PickupLabelHandler } from '../ui/pickupLabels.js';
-import { Camera } from '../game/camera.js';
+import PlayerCamera from './camera.js';
 import ItemInfoDisplay from '../ui/itemInfo.js';
 import { PlayerFalling, PlayerJumping, PlayerRunning, PlayerStanding, PlayerSwimming, stateEnum } from './playerStates.js';
 import { sprites } from '../game/graphics/loadAssets.js';
 import CraftingMenu from './crafting.js';
+import { TileInstance } from '../tile/tileInstance.js';
+import GameEntity from '../game/gameEntity.js';
 
-class Player {
+class Player extends GameEntity {
     constructor(game) {
-        this.game = game;
+        super(game, 0, 0, 36, 72);
         this.world = game.world;
-        this.w = 36;
-        this.h = 72;
 
         this.stateList = [new PlayerStanding(this), new PlayerRunning(this), new PlayerJumping(this),
             new PlayerFalling(this), new PlayerSwimming(this)];
-        
-        this.x;
-        this.y;
-        this.centerX;
-        this.centerY;
+
         this.facing = "right";
-        
-        this.dx = 0;
-        this.dy = 0;
+
         this.maxSpeed = 5;
         this.maxFallSpeed = 12;
-        this.grounded = false;
-        this.gravity = 0.35;
         this.acceleration = 0.5;
 
         this.inLiquid = false;
@@ -50,7 +40,7 @@ class Player {
         this.pickupLabels = new PickupLabelHandler(this);
         this.hotbarText = new HotbarText(this); 
         this.itemInfoDisplay = new ItemInfoDisplay(this);
-        this.camera = new Camera(this);
+        this.camera = new PlayerCamera(this);
         this.craftingMenu = new CraftingMenu(this);
 
         this.miningAction = null;
@@ -69,7 +59,6 @@ class Player {
         this.frameAmount;
         this.frameWidth = 96;
         this.frameCounter = 0;
-
     }
 
     setState(state) {
@@ -102,7 +91,7 @@ class Player {
         if(right) {this.facing = "right"}
 
         this.getHorizontalMovement(left,right);
-        this.checkCollision();
+        this.updateCollision();
         this.pickupLabels.update();
 
         this.state.handleInput(this.game.input);
@@ -208,8 +197,8 @@ class Player {
         }
 
         // If mouse has moved outside the previous block being mined, create new Event
-        if(this.miningAction.tile.gridX != input.mouse.gridX || 
-            this.miningAction.tile.gridY != input.mouse.gridY) {
+        if(this.miningAction.tile.getGridX() != input.mouse.gridX || 
+            this.miningAction.tile.getGridY() != input.mouse.gridY) {
                 this.miningAction = new MiningAction(obj,this.heldItem,this.game);
         }
 
@@ -256,79 +245,14 @@ class Player {
 
     // Move player and camera by dx and dy
     updatePosition(input) {
-        this.x += Math.round(this.dx);
-        this.y += Math.round(this.dy);
-        this.centerX = this.x + this.w/2;
-        this.centerY = this.y + this.w/2;
-        this.gridX = gridXfromCoordinate(this.centerX);
-        this.gridY = gridYfromCoordinate(this.centerY);
+        this.move(this.dx, this.dy);
         input.mouse.updateGridPos();
     }
 
-    checkCollision() {
-        // Left wall
-        if(this.x + this.dx < 0) {
-            let distance = this.x;
-            this.dx = 0;
-            this.x = 0;
-        }
-
-        // Right wall
-        let rightEdge = this.game.world.width * TILE_SIZE;
-        if(this.x + this.w + this.dx > rightEdge) {
-            let distance = this.x + this.w - rightEdge;
-            this.dx = 0;
-            this.x = rightEdge - this.w;
-        }
-
-        // Only check collision of blocks within a 2 block radius
-        // This is a *very* major optimization!
-        for(let x=this.gridX - 2;x<this.gridX + 2;x++) {
-            for(let y=this.gridY - 2;y<this.gridY + 2;y++) {
-                if(this.game.world.outOfBounds(x,y)) {
-                    continue;
-                }
-
-                let tile = this.game.world.tileGrid[x][y];
-                if(!tile) {
-                    continue;
-                }
-
-                if(tile.objectType == "solid") {
-                    if(surfaceCollision("top",this,tile)) {
-                        this.grounded = true;
-                        let distance = this.y + this.h - tile.y;
-                        this.dy = 0;
-                        this.y = tile.y - this.h;
-                    }
-
-                    if(surfaceCollision("bottom",this,tile)) {
-                        let distance = this.y - (tile.y + tile.h);
-                        this.dy = 0;
-                        this.y = tile.y + tile.h;
-                        this.jumpFrames = false;
-                    }
-
-                    if(surfaceCollision("left",this,tile)) {
-                        let distance = this.x + this.w - tile.x;
-                        this.dx = 0;
-                        this.x = tile.x - this.w;
-                    }
-
-                    if(surfaceCollision("right",this,tile)) {
-                        let distance = this.x - (tile.x + tile.w);
-                        this.dx = 0;
-                        this.x = tile.x + tile.w;
-                    }
-                }
-
-                if(tile.objectType == "liquid") {
-                    if(overlap(this,tile)) {
-                        this.inLiquid = true;
-                    }
-                }
-            }
-        }
+    // Override
+    onBottomCollision(tile) {
+        super.onBottomCollision(tile);
+        this.setState("FALLING");
     }
 
     selectItem(slot) {
@@ -354,15 +278,7 @@ class Player {
         let x = input.mouse.gridX;
         let y = input.mouse.gridY;
         // Held item must have a placement preview
-        if(!this.heldItem) {
-            return;
-        }
-        
-        if(!this.heldItem.placementPreview) {
-            return;
-        }
-
-        if(!this.heldItem.canBePlaced(x,y)) {
+        if(!this.heldItem || !this.heldItem.placementPreview || !this.heldItem.canBePlaced(x,y)) {
             return;
         }
 
@@ -391,8 +307,8 @@ class Player {
         this.updateAnimationFrame();
 
         let frameSize = 96;
-        let x = this.x - (frameSize - this.w) / 2;
-        let y = this.y + this.h - frameSize;
+        let x = this.getX() - (frameSize - this.getWidth()) / 2;
+        let y = this.getY() + this.getHeight() - frameSize;
         ctx.drawImage(this.spriteSheet, frameSize * this.frameX, frameSize * this.frameY, frameSize, frameSize,
             x, y, frameSize, frameSize);
     }
@@ -419,8 +335,8 @@ class Player {
             return;
         }
     
-        let tile = item.place(x,y);
-        if(!tile) {
+        let tile = new TileInstance(this.game.world, x, y, item.place());
+        if(!tile || !tile.model) {
             return;
         }
 
@@ -430,11 +346,11 @@ class Player {
         } 
 
         // Cannot place a solid tile which overlaps with player
-        if(tile.objectType == "solid" && overlap(this,tile)) {
+        if(tile.getType() == "solid" && overlap(this,tile)) {
             return;
         }
 
-        this.game.world.setTile(x,y,tile);
+        this.game.world.setTile(x,y,tile.getRegistryName());
         
         // Decrease amount in stack by 1
         let heldStack = this.inventory.getSelectedSlot().stack;
@@ -454,12 +370,10 @@ class Player {
 
     // Put the player in the center of the map
     spawn() {
-        this.x = Math.round(this.game.world.width / 2 * TILE_SIZE - this.w / 2);
+        this.x = Math.round(this.game.world.width / 2 * TILE_SIZE - this.getWidth() / 2);
         this.y = Math.round((-HEIGHTMAP[63] - 2) * TILE_SIZE);
-        this.centerX = this.x + this.w/2;
-        this.centerY = this.y + this.w/2;
-        this.gridX = gridXfromCoordinate(this.centerX);
-        this.gridY = gridYfromCoordinate(this.centerY);
+        this.updateCenterPos();
+        this.updateGridPos();
         this.inventory = new Inventory(this);
         this.setState("FALLING");
     }

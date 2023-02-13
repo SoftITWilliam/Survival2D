@@ -1,6 +1,4 @@
-
-// FIXED IMPORTS:
-import { ctx, TILE_SIZE } from "../game/global.js";
+import { ctx } from "../game/global.js";
 import { renderItem } from "../game/graphics/renderUtil.js";
 import { setAttributes } from "../misc/util.js";
 

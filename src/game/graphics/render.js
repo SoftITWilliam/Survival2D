@@ -1,5 +1,3 @@
-
-// FIXED IMPORTS:
 import { drawStatBar } from './ui.js';
 import { ctx, canvas, DRAWDIST, DRAW_LIGHTING, DEBUG_MODE } from '../global.js';
 import { calculateDistance, clamp, setAttributes } from '../../misc/util.js';
@@ -30,12 +28,12 @@ export default function render(game,player) {
 
             let wall = game.world.wallGrid[x][y];
             if(wall) {
-                wall.draw();
+                wall.render();
             }
             
             let tile = game.world.getTile(x,y);
             if(tile) {
-                tile.draw();
+                tile.render();
             }
         }
     }
@@ -112,7 +110,7 @@ function drawHoverEffect(game,input) {
     }
     
     // Draw hover effect
-    ctx.rect(obj.x,obj.y,obj.h,obj.w);
+    ctx.rect(obj.getX(),obj.getY(),obj.getHeight(),obj.getWidth());
     ctx.stroke();
     ctx.fill();
 }

@@ -1,7 +1,7 @@
 
-import * as tiles from '../tile/tileParent.js';
 import LightingGrid from './lighting.js';
 import { generateTerrainHeight, WorldGeneration } from './generation.js';
+import { TileInstance } from '../tile/tileInstance.js';
 
 export const HEIGHTMAP = generateTerrainHeight();
 
@@ -61,17 +61,31 @@ export class World {
         }
     }
 
-    // Set the tile at the given position to the given tile
-    setTile(x,y,tile) {
-        if(!this.outOfBounds(x,y)) {
+    setTileIfEmpty(x, y, tileName) {
+        if(!this.getTile(x,y)) {
+            this.setTile(x, y, tileName);
+        }
+    }
+
+    setTile(x,y,tileName) {
+        if(this.outOfBounds(x,y)) {
+            return;
+        }
+        let tile = new TileInstance(this,x,y,tileName);
+
+        if(tile.model) {
             this.tileGrid[x][y] = tile;
         }
-        
     }
 
     // Set the wall at the given position to the given wall
-    setWall(x,y,wall) {
-        if(!this.outOfBounds(x,y)) {
+    setWall(x,y,wallName) {
+        if(this.outOfBounds(x,y)) {
+            return;
+        }
+        let wall = new TileInstance(this,x,y,wallName);
+
+        if(wall.model) {
             this.wallGrid[x][y] = wall;
         }
     }
@@ -139,7 +153,7 @@ export class World {
                 if(!tile) {
                     continue;
                 }
-                tile.getTilesetSource();
+                tile.getSpritePosition();
                 tile.tileUpdate();
             }
         }
@@ -157,30 +171,9 @@ export class World {
                     continue;
                 }
                 
-                tile.getTilesetSource();
+                tile.getSpritePosition();
                 tile.tileUpdate();
             }
-        }
-    }
-
-    // Adds a block for a structure.
-    // If "Override" is enabled, the structure will replace existing blocks.
-    // If "Override" is disabled, the structure will not replace existing blocks.
-
-    addStructureTile(tileName,gridX,gridY,override) {
-        
-        if(this.outOfBounds(gridX,gridY)) {
-            return;
-        }
-
-        switch(tileName) {
-            case "Log":
-                this.setWall(gridX,gridY,new tiles.Log(gridX,gridY,this));
-                break;
-            case "Leaves":
-                if(!override && this.getTile(gridX,gridY)) {return}
-                this.setTile(gridX,gridY,new tiles.Leaves(gridX,gridY,this));
-                break;
         }
     }
 }

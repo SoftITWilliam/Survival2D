@@ -1,4 +1,3 @@
-
 import { canvas, ctx, INVENTORY_HEIGHT, INVENTORY_WIDTH } from "../game/global.js";
 import { setAttributes } from "../misc/util.js";
 import { ItemStack } from "../item/itemStack.js";

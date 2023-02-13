@@ -1,40 +1,40 @@
 
 export function overlap(a,b) {
-    return a.x < b.x + b.w &&
-        a.x + a.w > b.x &&
-        a.y < b.y + b.h &&
-        a.y + a.h > b.y;
+    return a.getX() < b.getX() + b.getWidth() &&
+        a.getX() + a.getWidth() > b.getX() &&
+        a.getY() < b.getY() + b.getHeight() &&
+        a.getY() + a.getHeight() > b.getY();
 }
 
 export function surfaceCollision(surface,entity,tile) {
     switch(surface) {
         case "top":
             return entity.dy >= 0 &&
-                entity.x + entity.w > tile.x + 1 &&
-                entity.x < tile.x + tile.w - 1 &&
-                entity.y + entity.dy + entity.h >= tile.y &&
-                entity.y + entity.h <= tile.y + entity.dy + 1;
+                entity.getX() + entity.getWidth() > tile.getX() + 1 &&
+                entity.getX() < tile.getX() + tile.getWidth() - 1 &&
+                entity.getY() + entity.dy + entity.getHeight() >= tile.getY() &&
+                entity.getY() + entity.getHeight() <= tile.getY() + entity.dy + 1;
 
         case "bottom":
             return entity.dy <= 0 &&
-                entity.x + entity.w > tile.x &&
-                entity.x < tile.x + tile.w &&
-                entity.y <= tile.y + tile.h &&
-                entity.y >= tile.y + tile.h + entity.dy - 1;
+                entity.getX() + entity.getWidth() > tile.getX() &&
+                entity.getX() < tile.getX() + tile.getWidth() &&
+                entity.getY() <= tile.getY() + tile.getHeight() &&
+                entity.getY() >= tile.getY() + tile.getHeight() + entity.dy - 1;
 
         case "left":
             return entity.dx >= 0 &&
-                entity.x + entity.dx + entity.w > tile.x &&
-                entity.x + entity.dx + entity.w <= tile.x + entity.dx + 1 &&
-                entity.y + entity.h > tile.y &&
-                entity.y < tile.y + tile.h;
+                entity.getX() + entity.dx + entity.getWidth() > tile.getX() &&
+                entity.getX() + entity.dx + entity.getWidth() <= tile.getX() + entity.dx + 1 &&
+                entity.getY() + entity.getHeight() > tile.getY() &&
+                entity.getY() < tile.getY() + tile.getHeight();
 
         case "right":
             return entity.dx <= 0 &&
-                entity.x + entity.dx < tile.x + tile.w &&
-                entity.x + entity.dx >= tile.x + tile.w + entity.dx - 1 &&
-                entity.y + entity.h > tile.y &&
-                entity.y < tile.y + tile.h;
+                entity.getX() + entity.dx < tile.getX() + tile.getWidth() &&
+                entity.getX() + entity.dx >= tile.getX() + tile.getWidth() + entity.dx - 1 &&
+                entity.getY() + entity.getHeight() > tile.getY() &&
+                entity.getY() < tile.getY() + tile.getHeight();
 
         default:
             return false;
