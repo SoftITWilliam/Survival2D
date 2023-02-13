@@ -370,8 +370,9 @@ class Player extends GameEntity {
 
     // Put the player in the center of the map
     spawn() {
-        this.x = Math.round(this.game.world.width / 2 * TILE_SIZE - this.getWidth() / 2);
-        this.y = Math.round((-HEIGHTMAP[63] - 2) * TILE_SIZE);
+        let spawnX = Math.floor(this.game.world.width / 2)
+        this.x = Math.round(spawnX * TILE_SIZE - this.getWidth() / 2);
+        this.y = Math.round((-HEIGHTMAP[spawnX] - 2) * TILE_SIZE);
         this.updateCenterPos();
         this.updateGridPos();
         this.inventory = new Inventory(this);

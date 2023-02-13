@@ -6,10 +6,10 @@ import { TileInstance } from '../tile/tileInstance.js';
 export const HEIGHTMAP = generateTerrainHeight();
 
 export class World {
-    constructor(game,height,width) {
+    constructor(game,width,height) {
         this.game = game; // Pointer to Game object
-        this.height = height; // World height in tiles
         this.width = width; // World width in tiles
+        this.height = height; // World height in tiles
 
         this.tileGrid = [];
         this.wallGrid = [];

@@ -11,7 +11,7 @@ export const ctx = canvas.getContext('2d');
 export const TILE_SIZE = 48;
 export const ITEM_SIZE = 16;
 
-export const WORLD_WIDTH = 127;
+export const WORLD_WIDTH = 1023;
 export const WORLD_HEIGHT = 127;
 export const BASE_TERRAIN_HEIGHT = 32;
 
