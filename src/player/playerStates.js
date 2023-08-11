@@ -15,7 +15,8 @@ class State {
     }
 
     enter() { }
-    update(m) { }
+    updateAnimation() { }
+    updatePhysics(m) { }
     handleInput(input) { }
 }
 
@@ -25,13 +26,14 @@ export class PlayerStanding extends State {
     }
     
     enter() {
-        this.player.frameX = 0;
-        this.player.frameAmount = 2;
-        this.player.frameDelay = 30; // 2 FPS
-        this.player.frameLoop = true;
+        const anim = this.player.animation;
+        anim.currentFrame = 0;
+        anim.frameCount = 2;
+        anim.frameRate = 2;
+        anim.loop = true;
     }
 
-    update() {
+    updateAnimation() { 
         switch(this.player.facing) {
             case "right": this.player.frameY = 0; break;
             case "left": this.player.frameY = 1; break;
@@ -58,13 +60,14 @@ export class PlayerRunning extends State {
     }
     
     enter() {
-        this.player.frameX = 3;
-        this.player.frameAmount = 8;
-        this.player.frameDelay = 4; // 15 FPS
-        this.player.frameLoop = true;
+        const anim = this.player.animation;
+        anim.currentFrame = 3;
+        anim.frameCount = 8;
+        anim.frameRate = 15;
+        anim.loop = true;
     }
 
-    update() {
+    updateAnimation() { 
         switch(this.player.facing) {
             case "right": this.player.frameY = 2; break;
             case "left": this.player.frameY = 3; break;
@@ -94,22 +97,24 @@ export class PlayerJumping extends State {
     
     enter() {
         this.player.dy = -6.5;
-        this.player.frameX = 0;
-        this.player.frameAmount = 3;
-        this.player.frameDelay = 4;
-        this.player.frameLoop = false;
         this.player.cheetahFrames = 0;
         this.jumpFrames = 1;
+
+        const anim = this.player.animation;
+        anim.currentFrame = 0;
+        anim.frameCount = 3;
+        anim.frameRate = 15;
+        anim.loop = false;
     }
 
-    update(m) {
-
+    updateAnimation() { 
         // Determine direction player is facing
         switch(this.player.facing) {
             case "right": this.player.frameY = 4; break;
             case "left": this.player.frameY = 5; break;
         }
-
+    }
+    updatePhysics(m) { 
         // Do gravity
         this.player.dy += this.player.gravity * m;
             
@@ -128,7 +133,7 @@ export class PlayerJumping extends State {
             this.jumpFrames = 20;
         }
 
-        if(this.player.dy > 0) {
+        if(this.player.dy >= 0) {
             this.player.setState("FALLING");
         }
     }
@@ -138,20 +143,24 @@ export class PlayerFalling extends State {
     constructor(player) {
         super("FALLING", player);
     }
-    
+
     enter() {
-        this.player.frameX = 2;
-        this.player.frameAmount = 3;;
-        this.player.frameLoop = false;
+        const anim = this.player.animation;
+        anim.currentFrame = 2;
+        anim.frameCount = 3;
+        anim.frameRate = 15;
+        anim.loop = false;
     }
 
-    update(m) {
+    updateAnimation() { 
         // Determine direction player is facing
         switch(this.player.facing) {
             case "right": this.player.frameY = 4; break;
             case "left": this.player.frameY = 5; break;
         }
+    }
 
+    updatePhysics(m) { 
         if(this.player.cheetahFrames > 0) {
             this.player.cheetahFrames -= 1;
         }

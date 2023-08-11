@@ -33,7 +33,7 @@ export class Game {
         document.body.style.cursor = "default";
         this.world.tickCounter();
         this.fpsCounter.increment();
-        this.player.update(this.physicsMultiplier, this.input);
+        this.player.update(this.physicsMultiplier, this.input, deltaTime);
         this.player.craftingMenu.ui.update();
         this.itemEntities.update(this.physicsMultiplier);
     }

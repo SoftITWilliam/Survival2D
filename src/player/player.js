@@ -14,6 +14,7 @@ import { sprites } from '../game/graphics/loadAssets.js';
 import CraftingMenu from './crafting.js';
 import { TileInstance } from '../tile/tileInstance.js';
 import GameEntity from '../game/gameEntity.js';
+import { FrameAnimation } from '../game/graphics/animation.js';
 
 class Player extends GameEntity {
     constructor(game) {
@@ -52,17 +53,21 @@ class Player extends GameEntity {
 
         this.cheetahFrames = 0;
 
+        // Sprite and Animation variables
         this.spriteSheet = sprites.entities.player;
-        this.frameX = 0;
+
         this.frameY = 0;
-        this.frameDelay;
-        this.frameAmount;
+
+        this.animation = new FrameAnimation();
+
         this.frameWidth = 96;
-        this.frameCounter = 0;
+    }
+
+    get frameX() { 
+        return this.animation.currentFrame; 
     }
 
     setState(state) {
-        this.frameCounter = 0;
         this.state = this.stateList[stateEnum[state]];
         this.state.enter();
     }
@@ -74,7 +79,7 @@ class Player extends GameEntity {
         this.inventory.addItem(this.game.itemRegistry.get("dev_shovel"),1);
     }
 
-    update(m, input) {
+    update(m, input, dt) {
         this.inLiquid = false;
         this.grounded = false;
 
@@ -95,7 +100,9 @@ class Player extends GameEntity {
         this.pickupLabels.update();
 
         this.state.handleInput(this.game.input);
-        this.state.update(m);
+        this.state.updatePhysics(m);
+        this.state.updateAnimation();
+        this.animation.update(dt);
 
         if(this.placeDelay > 0) {
             this.placeDelay -= 1;
@@ -285,27 +292,7 @@ class Player extends GameEntity {
         this.heldItem.placementPreview.draw(x,y);
     }
 
-    updateAnimationFrame() {
-
-        this.frameCounter += 1;
-
-        if(this.frameCounter < this.frameDelay) {
-            return;
-        }
-        
-        this.frameCounter = 0;
-        if(this.frameX < this.frameAmount - 1) {
-            this.frameX++;
-        } else {
-            if(this.frameLoop) {
-                this.frameX = 0;
-            }
-        }
-    }
-
     draw() {
-        this.updateAnimationFrame();
-
         let frameSize = 96;
         let x = this.getX() - (frameSize - this.getWidth()) / 2;
         let y = this.getY() + this.getHeight() - frameSize;
