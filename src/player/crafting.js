@@ -1,4 +1,5 @@
 import { canvas } from "../game/global.js";
+import itemRegistry from "../item/itemRegistry.js";
 import CraftingInterface from "../ui/craftingUI.js";
 
 
@@ -74,7 +75,7 @@ export default class CraftingMenu {
         this.recipes.forEach(recipe => {
             recipe.inputList.forEach(i => {
                 if(!this.avalibleResources.hasOwnProperty(i[0])) {
-                    let item = this.player.game.itemRegistry.get(i[0]);
+                    let item = itemRegistry.get(i[0]);
                     this.avalibleResources[i[0]] = this.player.inventory.getItemAmount(item);
                 }
             })
@@ -127,7 +128,6 @@ export default class CraftingMenu {
      * Prepare all the data for the rendering of the recipe, run once when a recipe is selected.
     */
     loadRecipe(recipe) {
-        let itemRegistry = this.player.game.itemRegistry;
         this.craftingAmount = 1;
         
         this.outputItem = itemRegistry.get(recipe.output);
@@ -167,7 +167,6 @@ export default class CraftingMenu {
 
     craftItem() {
         let recipe = this.getSelectedRecipe();
-        let itemRegistry = this.player.game.itemRegistry;
 
         recipe.inputList.forEach(r => {
             let item = itemRegistry.get(r[0]);

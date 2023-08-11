@@ -15,6 +15,7 @@ import CraftingMenu from './crafting.js';
 import { TileInstance } from '../tile/tileInstance.js';
 import GameEntity from '../game/gameEntity.js';
 import { FrameAnimation } from '../game/graphics/animation.js';
+import itemRegistry from '../item/itemRegistry.js';
 
 class Player extends GameEntity {
     constructor(game) {
@@ -39,9 +40,9 @@ class Player extends GameEntity {
         
         this.jumpFrames = false;
 
-        this.health = new PlayerStatBar(50,45);
-        this.hunger = new PlayerStatBar(50,20);
-        this.thirst = new PlayerStatBar(50,20);
+        this.health = new PlayerStatBar(50, 45);
+        this.hunger = new PlayerStatBar(50, 20);
+        this.thirst = new PlayerStatBar(50, 20);
 
         this.pickupLabels = new PickupLabelHandler(this);
         this.hotbarText = new HotbarText(this); 
@@ -75,10 +76,10 @@ class Player extends GameEntity {
     }
 
     addDevKit() {
-        this.inventory.addItem(this.game.itemRegistry.get("dev_pickaxe"),1);
-        this.inventory.addItem(this.game.itemRegistry.get("dev_axe"),1);
-        this.inventory.addItem(this.game.itemRegistry.get("dev_hammer"),1);
-        this.inventory.addItem(this.game.itemRegistry.get("dev_shovel"),1);
+        this.inventory.addItem(itemRegistry.get("dev_pickaxe"), 1);
+        this.inventory.addItem(itemRegistry.get("dev_axe"), 1);
+        this.inventory.addItem(itemRegistry.get("dev_hammer"), 1);
+        this.inventory.addItem(itemRegistry.get("dev_shovel"), 1);
     }
 
     update(m, input, dt) {
@@ -114,7 +115,7 @@ class Player extends GameEntity {
         if(input.mouse.click && !this.inventory.view) {
 
             if(this.heldItem && this.heldItem.placeable) {
-                this.placeTile(this.heldItem,input.mouse.gridX,input.mouse.gridY);
+                this.placeTile(this.heldItem, input.mouse.gridX, input.mouse.gridY);
             } else {
                 this.updateMining(input, dt);
             }

@@ -260,7 +260,9 @@ export class Inventory {
      * @param {*} amount 
      * @returns 
      */
-    addItem(item,amount) {
+    addItem(item, amount) {
+        if(!item) return;
+        
         let startAmount = amount;
         let slot = this.findExistingStack(item.id);
 

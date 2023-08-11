@@ -1,3 +1,4 @@
+import itemRegistry from "../item/itemRegistry.js";
 import { rng } from "../misc/util.js";
 import { TileInstance } from "./tileInstance.js";
 
@@ -50,7 +51,7 @@ export class TileDrop {
             dropAmount = this.amount;
         }
 
-        let item = this.game.itemRegistry.get(this.itemName);
+        let item = itemRegistry.get(this.itemName);
         return {item: item, amount: dropAmount}
     }
 }
@@ -70,7 +71,7 @@ export class SelfDrop extends TileDrop {
             return null;
         }
 
-        let item = this.game.itemRegistry.get(this.itemName);
+        let item = itemRegistry.get(this.itemName);
         return {item: item, amount: this.amount}
     }
 }

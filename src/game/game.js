@@ -1,5 +1,4 @@
 import ItemEntityHandler from "../item/itemEntityHandler.js";
-import ItemRegistry from "../item/itemRegistry.js";
 import TileRegistry from "../tile/tileRegistry.js";
 import { Player } from "../player/player.js";
 import RecipeManager from "../player/recipe.js";
@@ -7,6 +6,7 @@ import { World } from "../world/world.js";
 import FPSCounter from "./graphics/FPScounter.js";
 import { InputHandler } from "./input.js";
 import { Testing } from "../tests/testing.js";
+import itemRegistry from "../item/itemRegistry.js";
 
 
 export class Game {
@@ -15,7 +15,7 @@ export class Game {
 
         this.world = new World(this,127,127);
         
-        this.itemRegistry = new ItemRegistry(this);
+        itemRegistry.initialize(this);
         this.tileRegistry = new TileRegistry(this.world);
         this.itemEntities = new ItemEntityHandler(this);
 

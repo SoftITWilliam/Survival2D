@@ -1,4 +1,5 @@
 import { colors } from "../game/graphics/colors.js";
+import itemRegistry from "../item/itemRegistry.js";
 import { getGap } from "../misc/util.js";
 import * as components from "./componentParent.js";
 
@@ -288,11 +289,11 @@ export default class CraftingInterface {
         this.CTopLabel.render();
     }
 
-    loadCraftables(recipes,game) {
+    loadCraftables(recipes, game) {
         this.craftables = [];
 
         for(let i = 0; i < recipes.length; i++) {
-            let item = game.itemRegistry.get(recipes[i].output);
+            let item = itemRegistry.get(recipes[i].output);
 
             let rowHeight = 56;
 
@@ -337,14 +338,14 @@ export default class CraftingInterface {
         this.CLowerContainer.renderCascading();
     }
 
-    refreshInputItems(input,output,amount) {
+    refreshInputItems(input, output, amount) {
         if(!input) {
             return;
         }
 
         for(let i = 0; i < input.length; i++) {
-            let item = this.game.itemRegistry.get(input[i][0].registryName);
-            let row = this.CInputList[i+1].children;
+            let item = itemRegistry.get(input[i][0].registryName);
+            let row = this.CInputList[i + 1].children;
 
             // Update 'total'
             let total = this.menu.craftingAmount * input[i][1]
@@ -355,7 +356,7 @@ export default class CraftingInterface {
             row[4].setText(avalible);
 
             if(avalible < total) {
-                row[4].setTextColor(colors.errorRed,null);
+                row[4].setTextColor(colors.errorRed, null);
             } else {
                 row[4].setTextColor(colors.white);
             }

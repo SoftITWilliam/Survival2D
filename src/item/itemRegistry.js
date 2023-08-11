@@ -1,7 +1,12 @@
 import * as item from './itemParent.js';
 
-export default class ItemRegistry {
-    constructor(game) {
+
+const itemRegistry = {
+    game: null,
+    items: [],
+    enum: {},
+
+    initialize: function(game) {
         this.game = game;
 
         // List of all items in the game
@@ -24,34 +29,35 @@ export default class ItemRegistry {
             new item.Hammer(game, "wooden_hammer", 1, 2, 4, "UNCOMMON"),                // ID 15
         ];
 
-        this.enum = {};
-
         // Assign IDs and set up Enum
         for(let i = 0; i < this.items.length; i++) {
             this.items[i].id = i;
             this.enum[this.items[i].registryName] = i;
         }
 
-        this.validateItems();
-    }
+        this.validate();
+    },
 
-    get(itemName) {
+    get: function(itemName) {
         let item = this.items[this.enum[itemName]];
+        if(!item) console.warn("itemRegistry.get() warning: invalid item name");
         return item ? item : null;
-    }
+    },
 
-    getFromID(id) {
+    getFromId: function(id) {
         let item = this.items[id];
+        if(!item) console.warn("itemRegistry.getFromId() warning: invalid id");
         return item ? item : null;
-    }
-
-    // Make sure all items have their essential properties. Throw an error if not.
-    validateItems() {
+    },
+    
+    validate: function() {
         this.items.forEach(item => {
             if(item.id === undefined || item.registryName === undefined || item.rarity === undefined) {
                 console.log(item);
                 throw new Error("One or more items have invalid properties!");
             }
         })
-    }
+    },
 }
+
+export default itemRegistry;
