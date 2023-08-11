@@ -28,6 +28,7 @@ export class Game {
     }
 
     update(deltaTime) {
+        if(deltaTime > 500) return;
         this.physicsMultiplier = deltaTime / (1000 / 60);
 
         document.body.style.cursor = "default";
