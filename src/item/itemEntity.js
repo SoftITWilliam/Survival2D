@@ -5,7 +5,7 @@ import GameEntity from "../game/gameEntity.js";
 
 
 export class ItemEntity extends GameEntity {
-    constructor(x,y,dx,dy,stackSize,item,game) {
+    constructor(x, y, dx, dy, stackSize, item, game) {
         super(game, x, y, item.entitySize, item.entitySize);
         this.item = item;
         this.stackSize = stackSize;
@@ -18,18 +18,16 @@ export class ItemEntity extends GameEntity {
         this.updateGridPos();
     }
 
-    update() {
+    update(m) {
         this.inLiquid = false;
         this.grounded = false;
 
-        this.dy += GRAVITY * 0.6;
+        this.dy += (GRAVITY * 0.6 * m);
+        this.dx *= (0.9 * m);
 
+        console.log(this.dy);
         this.updateCollision();
-        this.move(this.dx, this.dy);
-
-        if(this.dx) {
-            this.dx *= 0.9;
-        }
+        this.move(m, this.dx, this.dy);
     }
 
     bounce() {
@@ -42,7 +40,7 @@ export class ItemEntity extends GameEntity {
     }
 
     draw(input) {
-        renderItem(this.item,this.x,this.y,this.w,this.h);
+        renderItem(this.item, this.x, this.y, this.w, this.h);
 
         if(mouseOn(this,input.mouse)) {
             this.drawLabel(input);
@@ -56,13 +54,13 @@ export class ItemEntity extends GameEntity {
     }
 
     drawLabel(input) {
-        setAttributes(ctx,{font:"20px Font1",fillStyle:"rgba(0,0,0,0.5)",textAlign:"left"});
+        setAttributes(ctx,{font:"20px Font1", fillStyle:"rgba(0,0,0,0.5)", textAlign:"left"});
         let offset = 20;
         let txt = this.item.displayName + " ("+this.stackSize+")";
         let boxWidth = ctx.measureText(txt).width + offset * 2;
-        ctx.fillRect(input.mouse.mapX,-input.mouse.mapY - 28,boxWidth,28);
+        ctx.fillRect(input.mouse.mapX, -input.mouse.mapY - 28,boxWidth, 28);
         ctx.fillStyle = "white";
-        ctx.fillText(txt,input.mouse.mapX + offset,-input.mouse.mapY - 6);
+        ctx.fillText(txt, input.mouse.mapX + offset, -input.mouse.mapY - 6);
     }
 
     pickUp(player) {
@@ -75,8 +73,6 @@ export class ItemEntity extends GameEntity {
         } 
         
         // If player has picked up the item, remove the entity.
-        else {
-            return 1;
-        }
+        return 1;
     }
 }

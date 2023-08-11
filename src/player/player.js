@@ -74,7 +74,7 @@ class Player extends GameEntity {
         this.inventory.addItem(this.game.itemRegistry.get("dev_shovel"),1);
     }
 
-    update(input) {
+    update(m, input) {
         this.inLiquid = false;
         this.grounded = false;
 
@@ -95,7 +95,7 @@ class Player extends GameEntity {
         this.pickupLabels.update();
 
         this.state.handleInput(this.game.input);
-        this.state.update(this.game.input);
+        this.state.update(m);
 
         if(this.placeDelay > 0) {
             this.placeDelay -= 1;
@@ -113,7 +113,7 @@ class Player extends GameEntity {
             this.miningAction = null;
         }
 
-        this.updatePosition(input);
+        this.updatePosition(m, input);
         this.updateInventory(input);
         this.camera.update();
 
@@ -244,8 +244,8 @@ class Player extends GameEntity {
     }
 
     // Move player and camera by dx and dy
-    updatePosition(input) {
-        this.move(this.dx, this.dy);
+    updatePosition(m, input) {
+        this.move(m, this.dx, this.dy);
         input.mouse.updateGridPos();
     }
 

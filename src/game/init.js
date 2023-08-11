@@ -6,6 +6,8 @@ const game = new Game();
 
 window.onload = init();
 
+let previousTime = 0;
+
 function init() {
     setCanvasSize();
     game.world.generate();
@@ -20,8 +22,12 @@ function setCanvasSize() {
     canvas.setAttribute("width",Math.round(window.innerWidth));
 }
 
-function gameLoop() {
-    game.update();
+function gameLoop(timestamp) {
+    // Calculate time since last frame
+    const deltaTime = timestamp - previousTime
+    previousTime = timestamp;
+
+    game.update(deltaTime);
     render(game,game.player);
     window.requestAnimationFrame(gameLoop);
 }

@@ -7,13 +7,13 @@ export default class ItemEntityHandler {
         this.entities = [];
     }
 
-    addEntity(x,y,dx,dy,stackSize,item) {
-        this.entities.push(new ItemEntity(x,y,dx,dy,stackSize,item,this.game));
+    addEntity(x, y, dx, dy, stackSize, item) {
+        this.entities.push(new ItemEntity(x, y, dx, dy, stackSize, item, this.game));
     }
 
-    update() {
-        for(let i=0;i<this.entities.length;i++) {
-            this.entities[i].update();
+    update(m) {
+        for(let i = 0; i < this.entities.length; i++) {
+            this.entities[i].update(m);
     
             if(overlap(this.entities[i],this.game.player)) {
                 let removed = this.entities[i].pickUp(this.game.player);
@@ -26,8 +26,8 @@ export default class ItemEntityHandler {
     }
 
     drawAll() {
-        for(let i=0;i<this.entities.length;i++) {
-            this.entities[i].draw(this.game.input);
-        }
+        this.entities.forEach(entity => {
+            entity.draw(this.game.input)
+        });
     }
 }

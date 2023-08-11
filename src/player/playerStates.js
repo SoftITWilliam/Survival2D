@@ -13,6 +13,10 @@ class State {
         this.name = stateName;
         this.player = player;
     }
+
+    enter() { }
+    update(m) { }
+    handleInput(input) { }
 }
 
 export class PlayerStanding extends State {
@@ -98,7 +102,7 @@ export class PlayerJumping extends State {
         this.jumpFrames = 1;
     }
 
-    update() {
+    update(m) {
 
         // Determine direction player is facing
         switch(this.player.facing) {
@@ -107,7 +111,7 @@ export class PlayerJumping extends State {
         }
 
         // Do gravity
-        this.player.dy += this.player.gravity;
+        this.player.dy += this.player.gravity * m;
             
         // Cannot exceed max falling speed
         if(this.player.dy > this.player.maxFallSpeed) {
@@ -141,7 +145,7 @@ export class PlayerFalling extends State {
         this.player.frameLoop = false;
     }
 
-    update(input) {
+    update(m) {
         // Determine direction player is facing
         switch(this.player.facing) {
             case "right": this.player.frameY = 4; break;
@@ -153,7 +157,7 @@ export class PlayerFalling extends State {
         }
 
         // Do gravity
-        this.player.dy += this.player.gravity;
+        this.player.dy += this.player.gravity * m;
             
         // Cannot exceed max falling speed
         if(this.player.dy > this.player.maxFallSpeed) {

@@ -25,12 +25,14 @@ export class Game {
         this.testing = new Testing(this);
     }
 
-    update() {
+    update(deltaTime) {
+        let physicsMultiplier = deltaTime / (1000 / 60);
+
         document.body.style.cursor = "default";
         this.world.tickCounter();
         this.fpsCounter.increment();
-        this.player.update(this.input);
+        this.player.update(physicsMultiplier, this.input);
         this.player.craftingMenu.ui.update();
-        this.itemEntities.update();
+        this.itemEntities.update(physicsMultiplier);
     }
 }
