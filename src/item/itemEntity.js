@@ -24,7 +24,7 @@ export class ItemEntity extends GameEntity {
         this.grounded = false;
 
         this.dy += (GRAVITY * 0.6 * m);
-        this.dx *= (0.9 * m);
+        this.dx *= 1 - (0.1 * m);
 
         console.log(this.dy, this.y);
         this.updateCollision();
