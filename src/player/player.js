@@ -116,7 +116,7 @@ class Player extends GameEntity {
             if(this.heldItem && this.heldItem.placeable) {
                 this.placeTile(this.heldItem,input.mouse.gridX,input.mouse.gridY);
             } else {
-                this.updateMining(input);
+                this.updateMining(input, dt);
             }
         } else {
             this.miningAction = null;
@@ -179,7 +179,7 @@ class Player extends GameEntity {
         }
     }
 
-    updateMining(input) {
+    updateMining(input, dt) {
         let tile = this.world.getTile(input.mouse.gridX, input.mouse.gridY);
         let wall = this.world.getWall(input.mouse.gridX, input.mouse.gridY);
 
@@ -196,11 +196,11 @@ class Player extends GameEntity {
 
         // If not currently mining the block, create a new Mining event
         if(!this.miningAction) {
-            this.miningAction = new MiningAction(obj,this.heldItem,this.game);
+            this.miningAction = new MiningAction(obj, this.heldItem, this.game);
         }
 
         // If not in range of the block, cancel Mining event
-        if(calculateDistance(this,this.miningAction.tile) > this.reach) {
+        if(calculateDistance(this, this.miningAction.tile) > this.reach) {
             this.miningAction = null;
             return;
         }
@@ -208,11 +208,11 @@ class Player extends GameEntity {
         // If mouse has moved outside the previous block being mined, create new Event
         if(this.miningAction.tile.getGridX() != input.mouse.gridX || 
             this.miningAction.tile.getGridY() != input.mouse.gridY) {
-                this.miningAction = new MiningAction(obj,this.heldItem,this.game);
+                this.miningAction = new MiningAction(obj, this.heldItem, this.game);
         }
 
         // Increase mining progress.
-        this.miningAction.increaseProgress();
+        this.miningAction.increaseProgress(dt);
 
         if(this.miningAction.finished) {
             this.game.world.lighting.update(this);

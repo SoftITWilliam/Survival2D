@@ -1,7 +1,9 @@
 import { ctx } from "../game/global.js";
 
+const PROGRESS_DISPLAY_RADIUS = 16;
+
 export default class MiningAction {
-    constructor(tile,item,game) {
+    constructor(tile, item, game) {
         this.world = game.world;
         this.tile = tile;
         this.finished = false;
@@ -16,44 +18,47 @@ export default class MiningAction {
             this.miningLevel = 0;
         }
         
-        this.progress = 0;
+        this.timer = 0;
 
         // Calculate total mining time
-        this.goal = this.tile.getMiningTime() * 60;
+        this.totalTime = this.tile.getMiningTime() * 1000;
+
         if(tile.getToolType() == this.toolType) {
-            this.goal = Math.floor(this.goal / this.miningSpeed);
+            this.totalTime = Math.floor(this.totalTime / this.miningSpeed);
         }
     }
 
-    increaseProgress() {
-        this.progress += 1;
-        if(this.progress == this.goal) {
+    increaseProgress(dt) {
+        this.timer += dt;
+        if(this.timer >= this.totalTime) {
             this.finish();
         }
     }
 
     finish() {
+        let gridX = this.tile.getGridX();
+        let gridY = this.tile.getGridY();
+
+        let object = this.tile.getType() == "wall" ?
+            this.world.getWall(gridX, gridY) : this.world.getTile(gridX, gridY);
 
         // Break tile
-        if(this.tile.getType() == "wall") {
-            var object = this.world.getWall(this.tile.getGridX(), this.tile.getGridY());
-        } else {
-            var object = this.world.getTile(this.tile.getGridX(), this.tile.getGridY());
-        }
         object.breakTile(this.tile, this.toolType, this.miningLevel);
 
         this.finished = true;
     }
 
     drawProgress() {
-        let p = 1.5 + this.progress / this.goal * 2;
+        let p = 1.5 + this.timer / this.totalTime * 2;
+        let cx = this.tile.getCenterX();
+        let cy = this.tile.getCenterY();
 
         ctx.beginPath();
         ctx.fillStyle = "rgba(0,0,0,0.5)";
-        ctx.moveTo(this.tile.getCenterX(),this.tile.getCenterY());
-        ctx.lineTo(this.tile.getCenterX(),this.tile.getCenterY()-16);
-        ctx.arc(this.tile.getCenterX(),this.tile.getCenterY(),16,1.5*Math.PI,p * Math.PI);
-        ctx.lineTo(this.tile.getCenterX(),this.tile.getCenterY());
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx, cy - PROGRESS_DISPLAY_RADIUS);
+        ctx.arc(cx, cy, PROGRESS_DISPLAY_RADIUS, 1.5 * Math.PI, p * Math.PI);
+        ctx.lineTo(cx, cy);
         ctx.fill();
     }
 }
