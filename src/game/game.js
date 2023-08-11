@@ -11,6 +11,8 @@ import { Testing } from "../tests/testing.js";
 
 export class Game {
     constructor() {
+        this.physicsMultiplier = 0;
+
         this.world = new World(this,127,127);
         
         this.itemRegistry = new ItemRegistry(this);
@@ -26,13 +28,13 @@ export class Game {
     }
 
     update(deltaTime) {
-        let physicsMultiplier = deltaTime / (1000 / 60);
+        this.physicsMultiplier = deltaTime / (1000 / 60);
 
         document.body.style.cursor = "default";
         this.world.tickCounter();
         this.fpsCounter.increment();
-        this.player.update(physicsMultiplier, this.input);
+        this.player.update(this.physicsMultiplier, this.input);
         this.player.craftingMenu.ui.update();
-        this.itemEntities.update(physicsMultiplier);
+        this.itemEntities.update(this.physicsMultiplier);
     }
 }
