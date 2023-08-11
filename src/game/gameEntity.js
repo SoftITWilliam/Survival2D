@@ -12,8 +12,8 @@ export default class GameEntity extends GameObject {
     }
 
     move(m, deltaX, deltaY) {
-        this.x += Math.round(deltaX * m);
-        this.y += Math.round(deltaY * m);
+        this._x += deltaX * m;
+        this._y += deltaY * m;
         this.updateCenterPos();
         this.updateGridPos();
     }
