@@ -1,7 +1,11 @@
 import * as tile from './tileModelParent.js';
 
-export default class TileRegistry {
-    constructor(world) {
+const tileRegistry = {
+    world: null,
+    tiles: [],
+    enum: {},
+
+    initialize: function(world) {
         this.world = world;
 
         this.tiles = [
@@ -23,10 +27,13 @@ export default class TileRegistry {
             this.tiles[i].id = i;
             this.enum[this.tiles[i].registryName] = i;
         }
-    }
+    },
 
-    get(tileName) {
+    get: function(tileName) {
         let tile = this.tiles[this.enum[tileName]];
+        if(!tile) console.warn("tileRegistry.get() warning: invalid tile name");
         return tile ? tile : null;
     }
 }
+
+export default tileRegistry;

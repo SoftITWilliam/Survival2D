@@ -1,5 +1,6 @@
 import GameObject from "../game/gameObject.js";
 import { TILE_SIZE } from "../game/global.js";
+import tileRegistry from "./tileRegistry.js";
 
 export class TileInstance extends GameObject {
     constructor(world, x, y, model) {
@@ -17,7 +18,7 @@ export class TileInstance extends GameObject {
     // SO MUCH FCKING BOILERPLATE!!! DAMN!
 
     setModel(model) {
-        this.model = this.game.tileRegistry.get(model);
+        this.model = tileRegistry.get(model);
     }
 
     // Override
