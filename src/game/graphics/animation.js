@@ -10,11 +10,11 @@ export class FrameAnimation {
         this.time = 0;
     }
 
-    get frameDelay() { // delay between each frame, in seconds
+    get frameDelay() { // delay between each frame, in milliseconds
         return (1000 / this.frameRate);
     }
 
-    get fullCycleTime() { // time it takes to complete one animation cycle
+    get fullCycleTime() { // time it takes to complete one animation cycle, in milliseconds
         return (this.frameDelay * this.frameCount);
     }
 
@@ -24,7 +24,6 @@ export class FrameAnimation {
     }
 
     update(dt) {
-        console.log(dt, this.frameDelay);
         if(!this.active) return;
 
         this.time += dt;
