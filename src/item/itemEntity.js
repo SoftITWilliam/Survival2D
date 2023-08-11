@@ -1,19 +1,20 @@
-import { mouseOn, setAttributes } from "../misc/util.js";
+import { mouseOn, rng, setAttributes } from "../misc/util.js";
 import { ctx, GRAVITY } from "../game/global.js";
 import { renderItem } from "../game/graphics/renderUtil.js";
 import GameEntity from "../game/gameEntity.js";
 
+const VECTOR_RANGE = 20;
 
 export class ItemEntity extends GameEntity {
-    constructor(x, y, dx, dy, stackSize, item, game) {
+    constructor(x, y, stackSize, item, game) {
         super(game, x, y, item.entitySize, item.entitySize);
         this.item = item;
         this.stackSize = stackSize;
 
         this.x = x - this.w / 2;
         this.y = y - this.w / 2;
-        this.dx = dx;
-        this.dy = dy;
+        this.dx = 0;
+        this.dy = 0;
         this.updateCenterPos();
         this.updateGridPos();
     }
@@ -25,7 +26,7 @@ export class ItemEntity extends GameEntity {
         this.dy += (GRAVITY * 0.6 * m);
         this.dx *= (0.9 * m);
 
-        console.log(this.dy);
+        console.log(this.dy, this.y);
         this.updateCollision();
         this.move(m, this.dx, this.dy);
     }
@@ -54,9 +55,9 @@ export class ItemEntity extends GameEntity {
     }
 
     drawLabel(input) {
-        setAttributes(ctx,{font:"20px Font1", fillStyle:"rgba(0,0,0,0.5)", textAlign:"left"});
+        setAttributes(ctx, {font:"20px Font1", fillStyle:"rgba(0,0,0,0.5)", textAlign:"left"});
         let offset = 20;
-        let txt = this.item.displayName + " ("+this.stackSize+")";
+        let txt = `${this.item.displayName} (${this.stackSize})`;
         let boxWidth = ctx.measureText(txt).width + offset * 2;
         ctx.fillRect(input.mouse.mapX, -input.mouse.mapY - 28,boxWidth, 28);
         ctx.fillStyle = "white";
@@ -74,5 +75,11 @@ export class ItemEntity extends GameEntity {
         
         // If player has picked up the item, remove the entity.
         return 1;
+    }
+
+    static generateVector() {
+        let dx = rng(-VECTOR_RANGE, VECTOR_RANGE) / 10;
+        let dy = rng(-VECTOR_RANGE, 0) / 10;
+        return { dx: dx, dy: dy }
     }
 }

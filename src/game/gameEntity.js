@@ -3,8 +3,8 @@ import GameObject from './gameObject.js';
 import { TILE_SIZE } from './global.js';
 
 export default class GameEntity extends GameObject {
-    constructor(game,x,y,w,h) {
-        super(game,x,y,w,h);
+    constructor(game, x, y, w, h) {
+        super(game, x, y, w, h);
         this.dx = 0;
         this.dy = 0;
         this.grounded = false;
@@ -18,6 +18,16 @@ export default class GameEntity extends GameObject {
         this.updateGridPos();
     }
 
+    get vector() {
+        return { dx: this.dx, dy: this.dy }
+    }
+
+    set vector(vector) {
+        if(vector.dx === undefined || vector.dy === undefined) return;
+        this.dx = vector.dx ?? 0;
+        this.dy = vector.dy ?? 0;
+    }
+    
     updateCollision() {
         this.worldEdgeCollision();
         this.tileCollision();
@@ -67,14 +77,10 @@ export default class GameEntity extends GameObject {
     tileCollision() {
         for(let x = this.getGridX() - 2; x < this.getGridX() + 2; x++) {
             for(let y = this.getGridY() - 2; y < this.getGridY() + 2; y++) {
-                if(this.game.world.outOfBounds(x,y)) {
-                    continue;
-                }
+                if(this.game.world.outOfBounds(x,y)) continue;
 
                 let tile = this.game.world.tileGrid[x][y];
-                if(!tile) {
-                    continue;
-                }
+                if(!tile) continue;
 
                 if(tile.getType() == "solid") {
                     if(surfaceCollision("top", this, tile)) {

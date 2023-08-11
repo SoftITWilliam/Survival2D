@@ -1,13 +1,10 @@
-import { rng } from "../misc/util.js";
+import { ItemEntity } from "./itemEntity.js";
 
-export function dropItemFromBlock(tile,item,amount,game) {
-
-    // Generate random vector for item movement
-    let dx = rng(-20,20) / 10;
-    let dy = rng(-20,0) / 10;
-
-    if(item) {
-        console.log(tile);
-        game.itemEntities.addEntity(tile.getCenterX(),tile.getCenterY(),dx,dy,amount,item);
-    }
+export function dropItemFromTile(tile, item, amount, game) {
+    if(!item || !tile || !amount || !game) return;
+    
+    // Create an item entity and assign a randomzied movement vector to it
+    let entity = game.itemEntities.addEntity(tile.getCenterX(), tile.getCenterY(), amount, item);
+    let v = ItemEntity.generateVector(game.physicsMultiplier);
+    entity.vector = v;
 }

@@ -1,9 +1,9 @@
 import { ctx, TILE_SIZE } from "../game/global.js";
 import { sprites } from "../game/graphics/loadAssets.js";
-import { dropItemFromBlock } from "../item/dropItem.js";
+import { dropItemFromTile } from "../item/dropItem.js";
 
 export class TileModel {
-    constructor(world,registryName,width,height) {
+    constructor(world, registryName, width, height) {
         this.world = world;
         this.setRegistryName(registryName);
         this.objectType;
@@ -27,8 +27,8 @@ export class TileModel {
      * @param {number} miningTime How long the tool takes to mine (by hand)
      * @param {boolean} requireTool If a tool is required to mine the tile at all.
      */
-    setMiningProperties(toolType,toolLevel,miningTime,requireTool) {
-        let validToolTypes = ["shovel","pickaxe","axe","hammer"];
+    setMiningProperties(toolType, toolLevel, miningTime, requireTool) {
+        let validToolTypes = ["shovel"," pickaxe", "axe", "hammer"];
         this.toolType = validToolTypes.includes(toolType) ? toolType : null;
         this.toolLevel = toolLevel;
         this.miningTime = miningTime;
@@ -65,7 +65,7 @@ export class TileModel {
         this.tileDrops.forEach(tileDrop => {
             const droppedItem = tileDrop.roll(toolType, miningLevel, 1);
             if(droppedItem) {
-                dropItemFromBlock(tile, droppedItem.item, droppedItem.amount, this.world.game);
+                dropItemFromTile(tile, droppedItem.item, droppedItem.amount, this.world.game);
             }
         })
     }
@@ -197,9 +197,9 @@ export class TileModel {
         }
     }
 
-    render(x,y,sx,sy) {
+    render(x, y, sx, sy) {
         ctx.drawImage(
-            this.sprite,sx,sy,TILE_SIZE,TILE_SIZE,x,y,TILE_SIZE,TILE_SIZE
+            this.sprite, sx, sy, TILE_SIZE, TILE_SIZE, x, y, TILE_SIZE, TILE_SIZE
         );
     }
 }
