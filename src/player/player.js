@@ -21,8 +21,13 @@ class Player extends GameEntity {
         super(game, 0, 0, 36, 72);
         this.world = game.world;
 
-        this.stateList = [new PlayerStanding(this), new PlayerRunning(this), new PlayerJumping(this),
-            new PlayerFalling(this), new PlayerSwimming(this)];
+        this.stateList = [
+            new PlayerStanding(this), 
+            new PlayerRunning(this), 
+            new PlayerJumping(this),
+            new PlayerFalling(this), 
+            new PlayerSwimming(this)
+        ];
 
         this.facing = "right";
 
@@ -55,11 +60,8 @@ class Player extends GameEntity {
 
         // Sprite and Animation variables
         this.spriteSheet = sprites.entities.player;
-
         this.frameY = 0;
-
         this.animation = new FrameAnimation();
-
         this.frameWidth = 96;
     }
 
@@ -99,8 +101,8 @@ class Player extends GameEntity {
         this.updateCollision();
         this.pickupLabels.update();
 
-        this.state.handleInput(this.game.input);
-        this.state.updatePhysics(m);
+        this.state.handleInput(this.game.input, dt);
+        this.state.updatePhysics(m, dt);
         this.state.updateAnimation();
         this.animation.update(dt);
 

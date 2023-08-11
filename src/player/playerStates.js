@@ -16,7 +16,7 @@ class State {
 
     enter() { }
     updateAnimation() { }
-    updatePhysics(m) { }
+    updatePhysics(m, dt) { }
     handleInput(input) { }
 }
 
@@ -93,12 +93,15 @@ export class PlayerRunning extends State {
 export class PlayerJumping extends State {
     constructor(player) {
         super("JUMPING", player);
+        this.holdTimer = 0; // in ms
+        this.maxJumpTime = 300; // in ms
     }
     
     enter() {
         this.player.dy = -6.5;
         this.player.cheetahFrames = 0;
-        this.jumpFrames = 1;
+
+        this.holdTimer = 0;
 
         const anim = this.player.animation;
         anim.currentFrame = 0;
@@ -114,7 +117,8 @@ export class PlayerJumping extends State {
             case "left": this.player.frameY = 5; break;
         }
     }
-    updatePhysics(m) { 
+
+    updatePhysics(m, dt) { 
         // Do gravity
         this.player.dy += this.player.gravity * m;
             
@@ -124,13 +128,11 @@ export class PlayerJumping extends State {
         }
     }
 
-    handleInput(input) {
+    handleInput(input, dt) {
 
-        if((input.keys.includes("W") || input.keys.includes(" ")) && this.jumpFrames < 20) {
-            this.player.dy = -6.5;
-            this.jumpFrames++;
-        } else {
-            this.jumpFrames = 20;
+        if((input.keys.includes("W") || input.keys.includes(" ")) && this.holdTimer < this.maxJumpTime) {
+            this.player.dy = -6;
+            this.holdTimer += dt;
         }
 
         if(this.player.dy >= 0) {
