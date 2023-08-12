@@ -1,10 +1,10 @@
 import { ctx } from "../../game/global.js";
 import { rgb, rgbm } from "../../game/graphics/renderUtil.js";
 import { mouseOn } from "../../misc/util.js";
-import UIComponent from "./UIComponent.js";
+import UIElement from "./UIElement.js";
 
 
-export class ClickableComponent extends UIComponent {
+export class ClickableElement extends UIElement {
     constructor(game, attributes) {
         super(game, attributes);
 
@@ -44,7 +44,7 @@ export class ClickableComponent extends UIComponent {
 
     updateHover(input) {
         
-        // If the component is in a scrollable list, it cannot be hovered if it isn't visible.
+        // If the element is in a scrollable list, it cannot be hovered if it isn't visible.
         if(this.parent && this.parent.scrollable && !mouseOn(this.parent,input.mouse)) {
             this.hovering = false;
             return;

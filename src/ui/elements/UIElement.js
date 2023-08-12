@@ -1,9 +1,8 @@
 import { canvas, ctx } from "../../game/global.js";
 import { renderPath, rgb } from "../../game/graphics/renderUtil.js";
-import { drawRounded, getIfSet, setAttributes } from "../../misc/util.js";
+import { drawRounded, setAttributes } from "../../misc/util.js";
 
-
-export default class UIComponent {
+export default class UIElement {
     constructor(game, attributes) {
         this.game = game;
         this.parent = null;
@@ -41,17 +40,17 @@ export default class UIComponent {
         this.textOffsetX = attributes.textOffsetX ?? 0;
         this.textOffsetY = attributes.textOffsetY ?? 0;
 
-        // If true, center the text inside the component
+        // If true, center the text inside the element
         this.textCenterX = attributes.textCenterX ?? false;
         this.textCenterY = attributes.textCenterY ?? false;
 
         this.floatX = attributes.floatX ?? "left";
         this.floatY = attributes.floatY ?? "top";
 
-        // If > 0, component will have rounded corners.
+        // If > 0, element will have rounded corners.
         this.cornerRadius = attributes.cornerRadius ?? 0;
 
-        // ctx attributes for rendering component. Default values
+        // ctx attributes for rendering element. Default values
         this.attributes = {
             lineWidth: 0,
         }
@@ -90,7 +89,7 @@ export default class UIComponent {
     }
 
     /**
-     * Set position of component
+     * Set position of element
      * @param {number} x 
      * @param {number} y 
      */
@@ -106,9 +105,9 @@ export default class UIComponent {
     set y(value) { if(typeof value == "number") this._y = value }
 
     /**
-     * Set width and height of component
-     * @param {number} width Component width
-     * @param {number} height Component height
+     * Set width and height of element
+     * @param {number} width Element width
+     * @param {number} height Element height
      */
     setSize(width,height) {
         this.w = width;
@@ -116,9 +115,9 @@ export default class UIComponent {
     }
 
     /**
-     * Set X and Y centering of component
-     * @param {boolean} x Center component on X axis;
-     * @param {boolean} y Center component on Y axis;
+     * Set X and Y centering of element
+     * @param {boolean} x Center element on X axis;
+     * @param {boolean} y Center element on Y axis;
      */
     setCentering(x,y) {
         this.centerX = x;
@@ -199,7 +198,7 @@ export default class UIComponent {
     get height() { return this.h }
 
     /**
-     * Measure the text in the component
+     * Measure the text in the element
      * @returns {number} Width of text in pixels
      */
     getTextWidth() {
@@ -208,7 +207,7 @@ export default class UIComponent {
     }
 
     /**
-     * Measure the text in the component
+     * Measure the text in the element
      * @returns {number} Height of text in pixels
      */
     getTextHeight() {
@@ -230,8 +229,8 @@ export default class UIComponent {
     }
 
     /**
-     * Sets X position of component based on its positioning attributes and its parents position.
-     * (Make sure top-level components are updated first every frame)
+     * Sets X position of element based on its positioning attributes and its parents position.
+     * (Make sure top-level elements are updated first every frame)
      * Yes, this code is really fucking messy. I'll try to clean it up once it's done.
      */
     updatePositionX() {
@@ -300,8 +299,8 @@ export default class UIComponent {
     }
 
     /**
-     * Sets Y position of component based on its positioning attributes and its parents position.
-     * (Make sure top-level components are updated first every frame)
+     * Sets Y position of element based on its positioning attributes and its parents position.
+     * (Make sure top-level elements are updated first every frame)
      * Yes, this code is really fucking messy. I'll try to clean it up once it's done.
      */
     updatePositionY() {
@@ -398,7 +397,7 @@ export default class UIComponent {
     }
 
     /**
-     * Return the adjacent 'sibling' component.
+     * Return the adjacent 'sibling' element.
      */
     getRelative() {
         for(let i = this.index - 1; i >= 0; i--) {
@@ -422,7 +421,7 @@ export default class UIComponent {
     }
 
     /**
-     *  Calculate the remaining space of all Relative child components, and divide it evenly.
+     *  Calculate the remaining space of all Relative child elements, and divide it evenly.
      */
     getChildSpacing(axis) {
         let spacing;
@@ -484,7 +483,7 @@ export default class UIComponent {
     }
 
     /**
-     * Wrapper for ctx.fill(). Only runs if component has a fill color.
+     * Wrapper for ctx.fill(). Only runs if element has a fill color.
      */
     fill() {
         if(this.fillColor) {
@@ -493,7 +492,7 @@ export default class UIComponent {
     }
 
     /**
-     * Wrapper for ctx.stroke(). Only runs if component has a stroke color.
+     * Wrapper for ctx.stroke(). Only runs if element has a stroke color.
      */
     stroke() {
         if(this.strokeColor) {
@@ -502,7 +501,7 @@ export default class UIComponent {
     }
 
     /**
-     * Wrapper for ctx.fillText(). Only runs if component has a stroke color.
+     * Wrapper for ctx.fillText(). Only runs if element has a stroke color.
      */
     fillText(text,x,y) {
         if(this.textFill) {
@@ -511,7 +510,7 @@ export default class UIComponent {
     }
 
     /**
-     * Wrapper for ctx.strokeText(). Only runs if component has a stroke color.
+     * Wrapper for ctx.strokeText(). Only runs if element has a stroke color.
      */
     strokeText(text,x,y) {
         if(this.textStroke) {
@@ -521,7 +520,7 @@ export default class UIComponent {
 
     /**
      * Set the fill & stroke colors (if they are set)
-     * Can be overwritten by other components, to have different colors in different conditions (ex. when hovered)
+     * Can be overwritten by other elements, to have different colors in different conditions (ex. when hovered)
      */
     updateColor(fillColor, strokeColor) {
         if(fillColor) {
@@ -539,7 +538,7 @@ export default class UIComponent {
     }
 
     /** 
-     * Render the 'base' of the component, i.e. the basic shape.
+     * Render the 'base' of the element, i.e. the basic shape.
     */
     renderBase() {
         this.applyAttributes(this.attributes);
@@ -562,7 +561,7 @@ export default class UIComponent {
     }
 
     /**
-     * Render the text contained in the component
+     * Render the text contained in the element
      */
     renderText() {
         this.applyAttributes(this.textAttributes);

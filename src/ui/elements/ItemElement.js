@@ -1,11 +1,11 @@
 import { renderItem } from "../../game/graphics/renderUtil.js";
-import { ImageComponent } from "./ImageComponent.js";
+import { ImageElement } from "./ImageElement.js";
 
 /**
- * UI component representing an item.
+ * UI Element which displays the sprite of an in-game item.
  */
 
-export class ItemComponent extends ImageComponent {
+export class ItemElement extends ImageElement {
     constructor(game, attributes) {
         super(game, attributes);
 

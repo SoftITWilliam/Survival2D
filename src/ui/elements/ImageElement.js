@@ -1,10 +1,10 @@
-import UIComponent from "./UIComponent.js";
+import UIElement from "./UIElement.js";
 
 /**
- * A component intended to contain a single image
+ * An element intended to contain a single image
  */
 
-export class ImageComponent extends UIComponent {
+export class ImageElement extends UIElement {
     constructor(game, attributes) {
         super(game, attributes);
 

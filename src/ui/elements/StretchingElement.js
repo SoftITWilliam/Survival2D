@@ -1,14 +1,14 @@
 
-import UIComponent from "./UIComponent.js";
+import UIElement from "./UIElement.js";
 
 /**
- * A component which stretches itself to fit all child components.
+ * An element which stretches itself to fit all child elements.
  * Accepts unique attributes: 
- * 'childMargin' - The distance between the children and the edge of the component.
+ * 'childMargin' - The distance between the children and the edge of the element.
  * 'childSpacing' - The distance between children. (requires 'setSpacing' alignment)
  */
 
-export class StretchingComponent extends UIComponent {
+export class StretchingElement extends UIElement {
     constructor(game, attributes) {
         super(game, attributes);
     }

@@ -1,6 +1,6 @@
-import { TextComponent } from './TextComponent.js';
+import { TextElement } from './TextElement.js';
 
-export class OutlinedText extends TextComponent {
+export class OutlinedTextElement extends TextElement {
     constructor(game, attributes) {
         super(game, attributes);
 

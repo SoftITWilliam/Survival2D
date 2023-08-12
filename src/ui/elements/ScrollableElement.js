@@ -1,14 +1,13 @@
 
 import { ctx } from "../../game/global.js";
-import { renderPath } from "../../game/graphics/renderUtil.js";
-import { clamp, drawRounded, mouseOn } from "../../misc/util.js";
-import UIComponent from "./UIComponent.js";
+import { clamp, mouseOn } from "../../misc/util.js";
+import UIElement from "./UIElement.js";
 
 /**
- * A component whose children are scrollable. 
- * Accepts unique attribute 'childSpacing',a hard-coded gap size between all child components
+ * An eleemnt whose children are scrollable. 
+ * Accepts unique attribute 'childSpacing',a hard-coded gap size between all child elements
  */
-export class ScrollableComponent extends UIComponent {
+export class ScrollableElement extends UIElement {
     constructor(game, attributes) {
         super(game, attributes);
         this.scrollable = true;

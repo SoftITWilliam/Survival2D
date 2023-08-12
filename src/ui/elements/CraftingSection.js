@@ -1,8 +1,7 @@
 import { colors } from "../../game/graphics/colors.js";
-import UIComponent from "./UIComponent.js";
+import UIElement from "./UIElement.js";
 
-
-export class CraftingSection extends UIComponent {
+export class CraftingSection extends UIElement {
     constructor(game, attributes) {
         super(game, attributes);
         this.x;

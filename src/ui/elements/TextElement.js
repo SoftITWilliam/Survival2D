@@ -1,14 +1,14 @@
-import UIComponent from "./UIComponent.js";
+import UIElement from "./UIElement.js";
 
 /**
- * A component primarily intended to contain a single piece of text
+ * An element primarily intended to contain a single piece of text
  */
 
-export class TextComponent extends UIComponent {
+export class TextElement extends UIElement {
     constructor(game, attributes) {
         super(game, attributes);
-        this.setSize(0,0);
-        this.setTextAttribute("textBaseline","middle");
+        this.setSize(0, 0);
+        this.setTextAttribute("textBaseline", "middle");
     }
 
     // Overriding default function
