@@ -2,7 +2,7 @@ import { sprites } from "../../../game/graphics/loadAssets.js";
 import Item from "../../item.js";
 
 export class ToolBase extends Item {
-    constructor(game,registryName,miningLevel,miningSpeed,reach,rarity) {
+    constructor(game, registryName, miningLevel, miningSpeed, reach, rarity) {
         super(game,registryName);
         this.itemType = 'tool';
         

@@ -3,12 +3,13 @@ import { sprites } from "../../game/graphics/loadAssets.js";
 import { rng } from "../../misc/util.js";
 import { TileDrop } from "../tileDrop.js";
 import TileBase from "../base/TileBase.js";
+import toolTypes from "../../item/toolTypesEnum.js";
 
 export class GrassModel extends TileBase {
     constructor(world, registryName) {
         super(world, registryName, TILE_SIZE, TILE_SIZE);
         this.setSprite(sprites.tiles.tile_grass);
-        this.setMiningProperties("shovel", 0, 1.5, false);
+        this.setMiningProperties(toolTypes.SHOVEL, 0, 1.5, false);
         this.setType("solid");
 
         this.tileDrops = [
@@ -18,7 +19,7 @@ export class GrassModel extends TileBase {
     }
 
     checkSpreadCondition(x,y) {
-        let tile = this.world.getTile(x,y);
+        let tile = this.world.getTile(x, y);
         if(tile && tile.getRegistryName() == "dirt") {
             y += 1;
             if(!this.world.getTile(x,y)) {
@@ -39,18 +40,18 @@ export class GrassModel extends TileBase {
                 if(rng(0,1023) > 0) {
                     continue;
                 }
-                this.world.setTile(x,y,"grass");
-                this.world.getTile(x,y).getSpritePosition();
+                this.world.setTile(x, y, "grass");
+                this.world.getTile(x, y).getSpritePosition();
             }
         }
     }
 
     tileUpdate(tile) {
         // If another tile is placed on top of a grass tile, it is converted into a dirt block
-        let tileAbove = this.world.getTile(tile.getGridX(),tile.getGridY() + 1);
+        let tileAbove = this.world.getTile(tile.getGridX(), tile.getGridY() + 1);
         if(tileAbove && !tileAbove.isTransparent()) {
-            this.world.setTile(tile.getGridX(),tile.getGridY(),"dirt");
-            this.world.getTile(tile.getGridX(),tile.getGridY()).getSpritePosition();
+            this.world.setTile(tile.getGridX(), tile.getGridY(), "dirt");
+            this.world.getTile(tile.getGridX(), tile.getGridY()).getSpritePosition();
         }
     }
 

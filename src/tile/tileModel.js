@@ -22,14 +22,13 @@ export class TileModel {
 
     /**
      * Set the mining properties of the tile model
-     * @param {string} toolType Which tool type is effective on the tile
+     * @param {int} toolType (toolTypes enum) Effective tool type
      * @param {int} toolLevel Which level of tool is required to count as effective
      * @param {number} miningTime How long the tool takes to mine (by hand)
      * @param {boolean} requireTool If a tool is required to mine the tile at all.
      */
     setMiningProperties(toolType, toolLevel, miningTime, requireTool) {
-        let validToolTypes = ["shovel"," pickaxe", "axe", "hammer"];
-        this.toolType = validToolTypes.includes(toolType) ? toolType : null;
+        this.toolType = toolType ?? null;
         this.toolLevel = toolLevel;
         this.miningTime = miningTime;
         this.requireTool = requireTool;

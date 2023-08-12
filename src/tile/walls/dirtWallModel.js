@@ -1,10 +1,11 @@
 import { ctx } from "../../game/global.js";
+import toolTypes from "../../item/toolTypesEnum.js";
 import WallBase from "../base/WallBase.js";
 
 export class DirtWallModel extends WallBase {
     constructor(world, registryName) {
         super(world, registryName);
-        this.setMiningProperties("hammer", 0, 0.8, true);
+        this.setMiningProperties(toolTypes.HAMMER, 0, 0.8, true);
     }
 
     // Override
