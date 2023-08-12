@@ -17,10 +17,10 @@ export default class SaplingBase extends ObjectBase {
      * Remove the sapling and grow a tree in its place
      */
     growTree(tile) {
-        this.world.clearTile(tile.getGridX(),tile.getGridY());
+        this.world.clearTile(tile.gridX,tile.gridY);
         if(this.tree) {
-            this.tree.gridX = tile.getGridX();
-            this.tree.gridY = tile.getGridY();
+            this.tree.gridX = tile.gridX;
+            this.tree.gridY = tile.gridY;
             this.tree.generate();
         }
     }
@@ -47,8 +47,8 @@ export default class SaplingBase extends ObjectBase {
 
         // Check for solid blocks above sapling
         let minimumSpace = 8;
-        for(let y = tile.getGridY() + 1; y < tile.getGridY() + minimumSpace; y++) {
-            let checkedTile = this.world.getTile(tile.getGridX(), y)
+        for(let y = tile.gridY + 1; y < tile.gridY + minimumSpace; y++) {
+            let checkedTile = this.world.getTile(tile.gridX, y)
             if(checkedTile && !checkedTile.isTransparent()) {
                 return false;
             }
@@ -57,8 +57,8 @@ export default class SaplingBase extends ObjectBase {
         // Check for logs near sapling
         let logDistanceX = 1;
         let logDistanceY = 5;
-        for(let x = tile.getGridX() - logDistanceX; x <= tile.getGridX() + logDistanceX; x++) {
-            for(let y = tile.getGridY(); y <= tile.getGridY() + logDistanceY; y++) {
+        for(let x = tile.gridX - logDistanceX; x <= tile.gridX + logDistanceX; x++) {
+            for(let y = tile.gridY; y <= tile.gridY + logDistanceY; y++) {
                 let object = this.world.getWall(x,y);
                 if(object && object.getRegistryName() == "log") {
                     return false;
@@ -74,7 +74,7 @@ export default class SaplingBase extends ObjectBase {
     }
 
     tileUpdate(tile) {
-        if(!this.world.getTile(tile.getGridX(), tile.getGridY() - 1)) {
+        if(!this.world.getTile(tile.gridX, tile.gridY - 1)) {
             this.breakTile(tile);
         }
     }

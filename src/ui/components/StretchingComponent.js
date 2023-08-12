@@ -28,7 +28,7 @@ export class StretchingComponent extends UIComponent {
             // Get sum of all children's width and offset
             this.children.forEach(child => {
                 if(child.position == "RELATIVE") {
-                    w += child.getWidth();
+                    w += child.width;
                     w += child.offsetX;
                     childCount += 1;
                 }
@@ -44,7 +44,7 @@ export class StretchingComponent extends UIComponent {
 
             // Find the highest child width
             this.children.forEach(child => {
-                let childWidth = child.getWidth() + child.marginX;
+                let childWidth = child.width + child.marginX;
                 if(child.position == "RELATIVE" && childWidth > w) {
                     w = childWidth
                 } 

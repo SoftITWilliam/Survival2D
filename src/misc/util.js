@@ -5,12 +5,12 @@
  * A random collection of useful functions that don't really fit anywhere else
  */
 
-import { ctx, PATH, TILE_SIZE, WORLD_HEIGHT, WORLD_WIDTH } from "../game/global.js";
+import { ctx, PATH, TILE_SIZE } from "../game/global.js";
 
 /**
  * Return a random number between the two points
- * @param {int}     min     Minimum value
- * @param {int}     max     Maximum value
+ * @param {int} min Minimum value
+ * @param {int} max Maximum value
  * @returns {int}
  */
 export function rng(min,max) {
@@ -23,9 +23,9 @@ export function rollMax(value) {
 
 /**
  * Takes a number. Forces the number to be within the given range, then returns it.
- * @param {int}     num     The number
- * @param {int}     min     Minimum value
- * @param {int}     max     Maximum value
+ * @param {int} num The number
+ * @param {int} min Minimum value
+ * @param {int} max Maximum value
  * @returns {int}
  */
 export function clamp(num,min,max) {
@@ -57,10 +57,10 @@ export const image = (src) => {
 }
 
 export function calculateDistance(obj1,obj2) {
-    let a = Math.max(obj1.getCenterX(),obj2.getCenterX()) - Math.min(obj1.getCenterX(),obj2.getCenterX());
-    let b = Math.max(obj1.getCenterY(),obj2.getCenterY()) - Math.min(obj1.getCenterY(),obj2.getCenterY());
-    let dist = Math.sqrt((a**2 + b**2));
-    return dist;
+    let a = Math.max(obj1.centerX, obj2.centerX) - Math.min(obj1.centerX, obj2.centerX);
+    let b = Math.max(obj1.centerY, obj2.centerY) - Math.min(obj1.centerY, obj2.centerY);
+    let distance = Math.sqrt(a**2 + b**2);
+    return distance;
 }
 
 export function mouseOn(object,mouse) {
@@ -106,7 +106,7 @@ export function drawRounded(x,y,width,height,radius,ctx) {
 }
 
 export function disableShadow(ctx) {
-    setAttributes(ctx,{shadowOffsetX:0,shadowOffsetY:0,shadowColor:0,shadowBlur:0});
+    setAttributes(ctx, { shadowOffsetX: 0, shadowOffsetY: 0, shadowColor: 0, shadowBlur: 0});
 }
 
 /**
@@ -131,7 +131,7 @@ export function splitIntoLines(string,maxWidth) {
     for(let i = 0; i < words.length; i++) {
 
         if(ctx.measureText(thisLine + words[i]).width > maxWidth) {
-            lines.push(thisLine.substring(0,thisLine.length - 1));
+            lines.push(thisLine.substring(0, thisLine.length - 1));
             thisLine = "";
         }
 

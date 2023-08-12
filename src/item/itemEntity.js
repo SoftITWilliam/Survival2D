@@ -15,8 +15,6 @@ export class ItemEntity extends GameEntity {
         this.y = y - this.w / 2;
         this.dx = 0;
         this.dy = 0;
-        this.updateCenterPos();
-        this.updateGridPos();
     }
 
     update(m) {
@@ -49,7 +47,7 @@ export class ItemEntity extends GameEntity {
 
     // Override
     onTopCollision(tile) {
-        this.y = tile.getY() - this.h;
+        this.y = tile.y - this.h;
         this.bounce();
     }
 

@@ -10,46 +10,46 @@ export default class UIComponent {
 
         // Child properties
         this.children = [];
-        this.childAlignment = getIfSet(attributes.childAlignment, "none");
-        this.childDirection = getIfSet(attributes.childDirection, "row");
+        this.childAlignment = attributes.childAlignment ?? "none";
+        this.childDirection = attributes.childDirection ?? "row";
         this.index;
 
         // Position
-        this.x = 0;
-        this.y = 0;
+        this._x = 0;
+        this._y = 0;
 
         // If true, center itself on axis inside of parent. If there is no parent, center itself on screen.
-        this.centerX = getIfSet(attributes.centerX, false);
-        this.centerY = getIfSet(attributes.centerY, false);
+        this.centerX = attributes.centerX ?? false;
+        this.centerY = attributes.centerY ?? false;
 
         // Size
-        this.w = getIfSet(attributes.width, 0);
-        this.h = getIfSet(attributes.height, 0);
+        this.w = attributes.width ?? 0;
+        this.h = attributes.height ?? 0;
 
-        this.offsetX = getIfSet(attributes.offsetX, 0);
-        this.offsetY = getIfSet(attributes.offsetY, 0);
+        this.offsetX = attributes.offsetX ?? 0;
+        this.offsetY = attributes.offsetY ?? 0;
 
         // Position is either Relative or Absolute.
         // "Relative" positions the object in relation to its siblings,
         // "Absolute" positions the object in relation to its parent. It will ignore even spacing.
-        this.position = getIfSet(attributes.position, "RELATIVE");
+        this.position = attributes.position ?? "RELATIVE";
 
         // Text
-        this.text = getIfSet(attributes.text, "");
+        this.text = attributes.text ?? "";
 
         // Text offset
-        this.textOffsetX = getIfSet(attributes.textOffsetX, 0);
-        this.textOffsetY = getIfSet(attributes.textOffsetY, 0);
+        this.textOffsetX = attributes.textOffsetX ?? 0;
+        this.textOffsetY = attributes.textOffsetY ?? 0;
 
         // If true, center the text inside the component
-        this.textCenterX = getIfSet(attributes.textCenterX, false);
-        this.textCenterY = getIfSet(attributes.textCenterY, false);
+        this.textCenterX = attributes.textCenterX ?? false;
+        this.textCenterY = attributes.textCenterY ?? false;
 
-        this.floatX = getIfSet(attributes.floatX, "left");
-        this.floatY = getIfSet(attributes.floatY, "top");
+        this.floatX = attributes.floatX ?? "left";
+        this.floatY = attributes.floatY ?? "top";
 
         // If > 0, component will have rounded corners.
-        this.cornerRadius = getIfSet(attributes.cornerRadius, 0);
+        this.cornerRadius = attributes.cornerRadius ?? 0;
 
         // ctx attributes for rendering component. Default values
         this.attributes = {
@@ -65,16 +65,16 @@ export default class UIComponent {
         }
 
         this.scrollable = false;
-        this.childMargin = getIfSet(attributes.childMargin, 0);
-        this.childSpacing = getIfSet(attributes.childSpacing, 0);
+        this.childMargin = attributes.childMargin ?? 0;
+        this.childSpacing = attributes.childSpacing ?? 0;
 
         // Base colors
-        this.fillColor = getIfSet(attributes.fillColor, null);
-        this.strokeColor = getIfSet(attributes.strokeColor, null);
+        this.fillColor = attributes.fillColor ?? null;
+        this.strokeColor = attributes.strokeColor ?? null;
 
         // Text colors
-        this.textFill = getIfSet(attributes.textFill, null);
-        this.textStroke = getIfSet(attributes.textStroke, null);
+        this.textFill = attributes.textFill ?? null;
+        this.textStroke = attributes.textStroke ?? null;
         
         if(attributes.font && attributes.fontSize) {
             this.setFont(attributes.fontSize, attributes.font);
@@ -98,6 +98,12 @@ export default class UIComponent {
         this.x = x;
         this.y = y;
     }
+
+    get x() { return this._x }
+    set x(value) { if(typeof value == "number") this._x = value }
+
+    get y() { return this._y }
+    set y(value) { if(typeof value == "number") this._y = value }
 
     /**
      * Set width and height of component
@@ -189,13 +195,8 @@ export default class UIComponent {
         this.index = index;
     }
 
-    getWidth() {
-        return this.w;
-    }
-
-    getHeight() {
-        return this.h;
-    }
+    get width() { return this.w }
+    get height() { return this.h }
 
     /**
      * Measure the text in the component
@@ -216,11 +217,11 @@ export default class UIComponent {
     }
 
     getMiddleX() {
-        return this.x + this.getWidth() / 2;
+        return this.x + this.width / 2;
     }
 
     getMiddleY() {
-        return this.y + this.getHeight / 2;
+        return this.y + this.height / 2;
     }
 
     update() {
@@ -237,7 +238,7 @@ export default class UIComponent {
 
         if(!this.parent) {
             if(this.centerX) {
-                this.x = this.game.player.camera.getX() + (canvas.width - this.w) / 2;
+                this.x = this.game.player.camera.x + (canvas.width - this.w) / 2;
             }
             return;
         }
@@ -263,7 +264,7 @@ export default class UIComponent {
             if(this.parent.childAlignment == "setSpacing") {
 
                 if(sibling) {
-                    let distance = sibling.getWidth() + this.offsetX + this.parent.childSpacing;
+                    let distance = sibling.width + this.offsetX + this.parent.childSpacing;
                     this.x = (this.floatX == "left") ? sibling.x + distance : sibling.x - distance;
                 } else {
                     if(this.floatX == "left") {
@@ -281,7 +282,7 @@ export default class UIComponent {
                 this.x = this.parent.x + (spacing * (this.index + 1));
                 for(let i = 0; i < this.index; i++) {
                     if(this.parent.children[i].position == "RELATIVE") {
-                        this.x += this.parent.children[i].getWidth();
+                        this.x += this.parent.children[i].width;
                     }
                 }
             } 
@@ -290,7 +291,7 @@ export default class UIComponent {
                 for(let i = 0; i < this.index; i++) {
                     let child = this.parent.children[i];
                     if(child.position == "RELATIVE") {
-                        this.x += child.getWidth() + child.offsetX;
+                        this.x += child.width + child.offsetX;
                     }
                 }
                 this.x += this.offsetX;
@@ -353,7 +354,7 @@ export default class UIComponent {
 
             if(this.parent.childAlignment == "setSpacing") {
                 if(sibling) {
-                    let distance = sibling.getHeight() + this.offsetY + this.parent.childSpacing;
+                    let distance = sibling.height + this.offsetY + this.parent.childSpacing;
                     this.y = (this.floatY == "top") ? sibling.y + distance : sibling.y - distance;
                 } else {
                     if(this.floatY == "top") {
@@ -428,10 +429,10 @@ export default class UIComponent {
         let childCount = 0; // Only count children with RELATIVE position
 
         if(axis == "x") {
-            spacing = this.getWidth();
+            spacing = this.width;
             this.children.forEach(child => {
                 if(child.position == "RELATIVE") {
-                    spacing -= child.getWidth();
+                    spacing -= child.width;
                     childCount += 1;
                 }
             });
@@ -464,7 +465,7 @@ export default class UIComponent {
         let totalWidth = 0;
         this.children.forEach(child => {
             if(child.position == "RELATIVE") {
-                totalWidth += child.getWidth();
+                totalWidth += child.width;
             }
         });
         return totalWidth;
@@ -472,7 +473,7 @@ export default class UIComponent {
 
     floatRight() {
         if(this.parent) {
-            return this.parent.x + this.parent.getWidth() - this.getWidth();
+            return this.parent.x + this.parent.width - this.width;
         }
     }
 

@@ -36,11 +36,11 @@ export default class MiningAction {
     }
 
     finish() {
-        let gridX = this.tile.getGridX();
-        let gridY = this.tile.getGridY();
+        let gx = this.tile.gridX;
+        let gy = this.tile.gridY;
 
         let object = this.tile.getType() == "wall" ?
-            this.world.getWall(gridX, gridY) : this.world.getTile(gridX, gridY);
+            this.world.getWall(gx, gy) : this.world.getTile(gx, gy);
 
         // Break tile
         object.breakTile(this.tile, this.toolType, this.miningLevel);
@@ -50,8 +50,8 @@ export default class MiningAction {
 
     drawProgress() {
         let p = 1.5 + this.timer / this.totalTime * 2;
-        let cx = this.tile.getCenterX();
-        let cy = this.tile.getCenterY();
+        let cx = this.tile.centerX;
+        let cy = this.tile.centerY;
 
         ctx.beginPath();
         ctx.fillStyle = "rgba(0,0,0,0.5)";

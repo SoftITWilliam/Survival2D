@@ -18,11 +18,11 @@ export class GrassModel extends TileBase {
         ]
     }
 
-    checkSpreadCondition(x,y) {
+    checkSpreadCondition(x, y) {
         let tile = this.world.getTile(x, y);
         if(tile && tile.getRegistryName() == "dirt") {
             y += 1;
-            if(!this.world.getTile(x,y)) {
+            if(!this.world.getTile(x, y)) {
                 return true;
             }
         }
@@ -32,14 +32,11 @@ export class GrassModel extends TileBase {
     tickUpdate(tile) {
         // Try to spread grass to surrounding tiles
         let range = 2;
-        for(let x = tile.getGridX() - range; x <= tile.getGridX() + range; x++) {
-            for(let y = tile.getGridY() - range; y <= tile.getGridY() + range; y++) {
-                if(!this.checkSpreadCondition(x,y)) {
-                    continue;
-                };
-                if(rng(0,1023) > 0) {
-                    continue;
-                }
+        for(let x = tile.gridX - range; x <= tile.gridX + range; x++) {
+            for(let y = tile.gridY - range; y <= tile.gridY + range; y++) {
+                if(!this.checkSpreadCondition(x,y)) continue;
+                if(rng(0, 1023) > 0) continue;
+                
                 this.world.setTile(x, y, "grass");
                 this.world.getTile(x, y).getSpritePosition();
             }
@@ -48,10 +45,10 @@ export class GrassModel extends TileBase {
 
     tileUpdate(tile) {
         // If another tile is placed on top of a grass tile, it is converted into a dirt block
-        let tileAbove = this.world.getTile(tile.getGridX(), tile.getGridY() + 1);
+        let tileAbove = this.world.getTile(tile.gridX, tile.gridY + 1);
         if(tileAbove && !tileAbove.isTransparent()) {
-            this.world.setTile(tile.getGridX(), tile.getGridY(), "dirt");
-            this.world.getTile(tile.getGridX(), tile.getGridY()).getSpritePosition();
+            this.world.setTile(tile.gridX, tile.gridY, "dirt");
+            this.world.getTile(tile.gridX, tile.gridY).getSpritePosition();
         }
     }
 

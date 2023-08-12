@@ -207,8 +207,8 @@ class Player extends GameEntity {
         }
 
         // If mouse has moved outside the previous block being mined, create new Event
-        if(this.miningAction.tile.getGridX() != input.mouse.gridX || 
-            this.miningAction.tile.getGridY() != input.mouse.gridY) {
+        if(this.miningAction.tile.gridX != input.mouse.gridX || 
+            this.miningAction.tile.gridY != input.mouse.gridY) {
                 this.miningAction = new MiningAction(obj, this.heldItem, this.game);
         }
 
@@ -297,10 +297,10 @@ class Player extends GameEntity {
 
     draw() {
         let frameSize = 96;
-        let x = this.getX() - (frameSize - this.getWidth()) / 2;
-        let y = this.getY() + this.getHeight() - frameSize;
-        ctx.drawImage(this.spriteSheet, frameSize * this.frameX, frameSize * this.frameY, frameSize, frameSize,
-            x, y, frameSize, frameSize);
+        let x = this.x - (frameSize - this.width) / 2;
+        let y = this.y + this.height - frameSize;
+        ctx.drawImage(this.spriteSheet, frameSize * this.frameX, frameSize * this.frameY, 
+            frameSize, frameSize, x, y, frameSize, frameSize);
     }
 
     placeTile(item,x,y) {
@@ -316,7 +316,7 @@ class Player extends GameEntity {
         }
 
         // X and Y must be within grid
-        if(isNaN(x) || isNaN(y) || this.game.world.outOfBounds(x,y)) {
+        if(isNaN(x) || isNaN(y) || this.game.world.outOfBounds(x, y)) {
             return;
         }
 
@@ -331,16 +331,16 @@ class Player extends GameEntity {
         }
 
         // Cannot place out of range
-        if(calculateDistance(this,tile) > this.reach) {
+        if(calculateDistance(this, tile) > this.reach) {
             return;
         } 
 
         // Cannot place a solid tile which overlaps with player
-        if(tile.getType() == "solid" && overlap(this,tile)) {
+        if(tile.getType() == "solid" && overlap(this, tile)) {
             return;
         }
 
-        this.game.world.setTile(x,y,tile.getRegistryName());
+        this.game.world.setTile(x, y, tile.getRegistryName());
         
         // Decrease amount in stack by 1
         let heldStack = this.inventory.getSelectedSlot().stack;
@@ -354,17 +354,15 @@ class Player extends GameEntity {
 
         this.placeDelay = 15;
 
-        this.game.world.updateNearbyTiles(x,y);
+        this.game.world.updateNearbyTiles(x, y);
         this.game.world.lighting.update(this);
     }
 
     // Put the player in the center of the map
     spawn() {
         let spawnX = Math.floor(this.game.world.width / 2)
-        this.x = Math.round(spawnX * TILE_SIZE - this.getWidth() / 2);
+        this.x = Math.round(spawnX * TILE_SIZE - this.width / 2);
         this.y = Math.round((-HEIGHTMAP[spawnX] - 2) * TILE_SIZE);
-        this.updateCenterPos();
-        this.updateGridPos();
         this.inventory = new Inventory(this);
         this.setState("FALLING");
     }

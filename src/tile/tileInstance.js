@@ -3,33 +3,21 @@ import { TILE_SIZE } from "../game/global.js";
 import tileRegistry from "./tileRegistry.js";
 
 export class TileInstance extends GameObject {
-    constructor(world, x, y, model) {
-        super(world.game, x * TILE_SIZE, -y * TILE_SIZE)
+    constructor(world, gridX, gridY, model) {
+        super(world.game, gridX * TILE_SIZE, -gridY * TILE_SIZE)
         this.world = world;
-
         this.setModel(model);
-
-        this.gridX = x;
-        this.gridY = y;
-        this.setSpriteOffset();
-        this.updateCenterPos();
     }
-
-    // SO MUCH FCKING BOILERPLATE!!! DAMN!
 
     setModel(model) {
         this.model = tileRegistry.get(model);
     }
+    
+    // Override
+    get height() { return this.model ? this.model.height : 0 }
 
     // Override
-    getHeight() {
-        return this.model ? this.model.h : 0;
-    }
-
-    // Override
-    getWidth() {
-        return this.model ? this.model.w : 0;
-    }
+    get width() { return this.model ? this.model.width : 0 }
 
     getRegistryName() {
         return this.model ? this.model.registryName : "";

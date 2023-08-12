@@ -1,6 +1,4 @@
-import { ctx } from "../../game/global.js";
 import UIComponent from "./UIComponent.js";
-
 
 /**
  * A component primarily intended to contain a single piece of text
@@ -14,12 +12,8 @@ export class TextComponent extends UIComponent {
     }
 
     // Overriding default function
-    getHeight() {
-        return this.getTextHeight();
-    }
+    get height() { return this.getTextHeight() }
 
     // Overriding default function
-    getWidth() {
-        return this.getTextWidth();
-    }
+    get width() { return this.getTextWidth() }
 }

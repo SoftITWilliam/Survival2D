@@ -23,18 +23,16 @@ export class LogModel extends WallBase {
     }
 
     breakTile(tile, toolType, miningLevel) {
-        // If
-
-        let tileAbove = this.world.getWall(tile.getGridX(), tile.getGridY()+1);
+        let tileAbove = this.world.getWall(tile.gridX, tile.gridY + 1);
         if(tileAbove && tileAbove.getRegistryName() == "log") {
             tileAbove.breakTile(tileAbove, toolType, miningLevel);
         }
 
         // Remove tile
-        this.world.clearWall(tile.getGridX(), tile.getGridY());
+        this.world.clearWall(tile.gridX, tile.gridY);
 
         this.dropItems(tile, toolType, miningLevel);
-        this.world.updateNearbyTiles(tile.getGridX(), tile.getGridY());
+        this.world.updateNearbyTiles(tile.gridX, tile.gridY);
     }
 
     render(x, y) {

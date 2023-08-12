@@ -14,8 +14,6 @@ export default class GameEntity extends GameObject {
     move(m, deltaX, deltaY) {
         this._x += deltaX * m;
         this._y += deltaY * m;
-        this.updateCenterPos();
-        this.updateGridPos();
     }
 
     get vector() {
@@ -35,16 +33,16 @@ export default class GameEntity extends GameObject {
 
     worldEdgeCollision() {
         // Left edge
-        if(this.getX() + this.dx < 0) {
+        if(this.x + this.dx < 0) {
             this.dx = 0;
             this.x = 0;
         }
 
         // Right edge
         let rightEdge = this.game.world.width * TILE_SIZE;
-        if(this.getX() + this.getWidth() + this.dx > rightEdge) {
+        if(this.x2 + this.dx > rightEdge) {
             this.dx = 0;
-            this.x = rightEdge - this.getWidth();
+            this.x = rightEdge - this.width;
         }
     }
 
@@ -52,32 +50,32 @@ export default class GameEntity extends GameObject {
     onTopCollision(tile) {
         this.grounded = true;
         this.dy = 0;
-        this.y = tile.getY() - this.h;
+        this.y = tile.y - this.h;
     }
 
     // Runs when colliding with the bottom side of a solid tile
     onBottomCollision(tile) {
         this.dy = 0;
-        this.y = tile.getY() + tile.getHeight()
+        this.y = tile.y2;
     }
 
     // Runs when colliding with the left side of a solid tile
     onLeftCollision(tile) {
         this.dx = 0;
-        this.x = tile.getX() - this.getWidth();
+        this.x = tile.x - this.width;
     }
 
     // Runs when colliding with the right side of a solid tile
     onRightCollision(tile) {
         this.dx = 0;
-        this.x = tile.getX() + tile.getWidth();
+        this.x = tile.x2;
     }
 
     // Check collision of tiles within a 2 block radius
     tileCollision() {
-        for(let x = this.getGridX() - 2; x < this.getGridX() + 2; x++) {
-            for(let y = this.getGridY() - 2; y < this.getGridY() + 2; y++) {
-                if(this.game.world.outOfBounds(x,y)) continue;
+        for(let x = this.gridX - 2; x < this.gridX + 2; x++) {
+            for(let y = this.gridY - 2; y < this.gridY + 2; y++) {
+                if(this.game.world.outOfBounds(x, y)) continue;
 
                 let tile = this.game.world.tileGrid[x][y];
                 if(!tile) continue;
@@ -101,7 +99,7 @@ export default class GameEntity extends GameObject {
                 }
 
                 if(tile.getType() == "liquid") {
-                    if(overlap(this,tile)) {
+                    if(overlap(this, tile)) {
                         this.inLiquid = true;
                     }
                 }

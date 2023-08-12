@@ -12,6 +12,9 @@ export class TileModel {
         this.tileDrops = [];
     }
 
+    get width() { return this.w }
+    get height() { return this.h }
+
     setRegistryName(name) {
         this.registryName = name;
     }
@@ -48,15 +51,15 @@ export class TileModel {
     }
 
     // Remove the tile and drop its items.
-    breakTile(tile, toolType, miningLevel) {
+    breakTile(tile, toolType = null, miningLevel = null) {
         if(this.objectType == "wall") {
-            this.world.clearWall(tile.getGridX(), tile.getGridY());
+            this.world.clearWall(tile.gridX, tile.gridY);
         } else {
-            this.world.clearTile(tile.getGridX(), tile.getGridY());
+            this.world.clearTile(tile.gridX, tile.gridY);
         }
 
         this.dropItems(tile, toolType, miningLevel);
-        this.world.updateNearbyTiles(tile.getGridX(), tile.getGridY());
+        this.world.updateNearbyTiles(tile.gridX, tile.gridY);
     }
 
     // Loop through this tile's drops. Runs when the tile is broken.

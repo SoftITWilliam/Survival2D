@@ -14,8 +14,8 @@ export class InputHandler {
             gridY:0,
 
             updateGridPos: function() {
-                this.mapX = game.player.camera.getX() + this.x;
-                this.mapY = -game.player.camera.getY() - this.y;
+                this.mapX = game.player.camera.x + this.x;
+                this.mapY = -game.player.camera.y - this.y;
                 this.gridX = Math.floor((this.mapX) / TILE_SIZE);
                 this.gridY = Math.floor((this.mapY) / TILE_SIZE) + 1;
             },

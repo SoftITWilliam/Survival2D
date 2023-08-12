@@ -3,14 +3,14 @@ import { ctx, canvas, DRAWDIST, DRAW_LIGHTING, DEBUG_MODE } from '../global.js';
 import { calculateDistance, clamp, setAttributes } from '../../misc/util.js';
 import { drawDebugUI } from './debug.js';
 
-export default function render(game,player) {
+export default function render(game, player) {
     ctx.save();
-    ctx.translate(-player.camera.getX(),-player.camera.getY());
-    ctx.clearRect(player.camera.getX(),player.camera.getY(),canvas.width,canvas.height);
+    ctx.translate(-player.camera.x, -player.camera.y);
+    ctx.clearRect(player.camera.x, player.camera.y, canvas.width, canvas.height);
 
     // Background
     ctx.fillStyle = "rgb(150,180,250)";
-    ctx.fillRect(player.camera.getX(),player.camera.getY(),canvas.width,canvas.height);
+    ctx.fillRect(player.camera.x, player.camera.y, canvas.width, canvas.height);
 
     // Wall Tiles
 
@@ -31,7 +31,7 @@ export default function render(game,player) {
                 wall.render();
             }
             
-            let tile = game.world.getTile(x,y);
+            let tile = game.world.getTile(x, y);
             if(tile) {
                 tile.render();
             }
@@ -49,21 +49,21 @@ export default function render(game,player) {
 
     // Lighting
     if(DRAW_LIGHTING) {  
-        game.world.lighting.draw(gX,gY);
+        game.world.lighting.draw(gX, gY);
     }
 
     player.drawPlacementPreview(game.input);
 
     // Tile hover effect
-    drawHoverEffect(game,game.input);
+    drawHoverEffect(game, game.input);
 
     // UI
-    drawStatBar("health",player.health.max,player.health.current,"rgb(220,60,50)",16,player);
+    drawStatBar("health", player.health.max, player.health.current, "rgb(220,60,50)", 16, player);
     //drawStatBar("hunger",player.hunger.max,player.hunger.current,"rgb(180,120,100)",72);
     //drawStatBar("thirst",player.thirst.max,player.thirst.current,"rgb(80,160,220)",128);
 
     if(player.craftingMenu.isOpen) {
-        player.craftingMenu.render(player.camera.getX(),player.camera.getY(),game.input);
+        player.craftingMenu.render(player.camera.x, player.camera.y, game.input);
     } else {
         player.inventory.draw();
         player.inventory.drawItems(game.input);
@@ -82,8 +82,8 @@ export default function render(game,player) {
 }
 
 function drawHoverEffect(game,input) {
-    let tile = game.world.getTile(input.mouse.gridX,input.mouse.gridY);
-    let wall = game.world.getWall(input.mouse.gridX,input.mouse.gridY);
+    let tile = game.world.getTile(input.mouse.gridX, input.mouse.gridY);
+    let wall = game.world.getWall(input.mouse.gridX, input.mouse.gridY);
 
     // Cannot interact with tiles while inventory is open
     if(game.player.inventory.view) {
@@ -104,13 +104,13 @@ function drawHoverEffect(game,input) {
 
     // Different look depending on if tile is in range or not
     if(calculateDistance(game.player,obj) > game.player.reach) {
-        setAttributes(ctx,{lineWidth:1,strokeStyle:"rgba(255,255,255,0.25)",fillStyle:"rgba(0,0,0,0)"});
+        setAttributes(ctx, { lineWidth:1, strokeStyle:"rgba(255,255,255,0.25)", fillStyle:"rgba(0,0,0,0)" });
     } else {
-        setAttributes(ctx,{lineWidth:3,strokeStyle:"rgba(255,255,255,0.5)",fillStyle:"rgba(255,255,255,0.05)"});
+        setAttributes(ctx, { lineWidth:3, strokeStyle:"rgba(255,255,255,0.5)", fillStyle:"rgba(255,255,255,0.05)" });
     }
     
     // Draw hover effect
-    ctx.rect(obj.getX(),obj.getY(),obj.getHeight(),obj.getWidth());
+    ctx.rect(obj.x, obj.y, obj.height, obj.width);
     ctx.stroke();
     ctx.fill();
 }
