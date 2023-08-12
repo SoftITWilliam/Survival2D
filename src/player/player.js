@@ -13,14 +13,19 @@ import { PlayerFalling, PlayerJumping, PlayerRunning, PlayerStanding, PlayerSwim
 import { sprites } from '../game/graphics/loadAssets.js';
 import CraftingMenu from './crafting.js';
 import { TileInstance } from '../tile/tileInstance.js';
-import GameEntity from '../game/gameEntity.js';
 import { FrameAnimation } from '../game/graphics/animation.js';
 import itemRegistry from '../item/itemRegistry.js';
+import { EntityComponent } from '../components/EntityComponent.js';
 
-class Player extends GameEntity {
+const PLAYER_WIDTH = 36;
+const PLAYER_HEIGHT = 72;
+
+class Player {
     constructor(game) {
-        super(game, 0, 0, 36, 72);
+        this.game = game;
         this.world = game.world;
+
+        this._entity = new EntityComponent();
 
         this.stateList = [
             new PlayerStanding(this), 
@@ -29,6 +34,9 @@ class Player extends GameEntity {
             new PlayerFalling(this), 
             new PlayerSwimming(this)
         ];
+
+        this.width = PLAYER_WIDTH;
+        this.height = PLAYER_HEIGHT;
 
         this.facing = "right";
 
@@ -64,7 +72,41 @@ class Player extends GameEntity {
         this.frameY = 0;
         this.animation = new FrameAnimation();
         this.frameWidth = 96;
+
+        this._entity.onBottomCollision = () => {
+            this.setState("FALLING");
+        }
     }
+
+    // Component wrappers
+    get x() { return this._entity.x }
+    set x(value) { this._entity.x = value }
+
+    get y() { return this._entity.y }
+    set y(value) { this._entity.y = value }
+    
+    get x2() { return this._entity.x2 }
+    get y2() { return this._entity.y2 }
+
+    get centerX() { return this._entity.centerX }
+    get centerY() { return this._entity.centerY }
+
+    get gridX() { return this._entity.gridX }
+    get gridY() { return this._entity.gridY }
+
+    get width() { return this._entity.width }
+    set width(value) { this._entity.width = value }
+    get height() { return this._entity.height }  
+    set height(value ) { this._entity.height = value }
+
+    get dx() { return this._entity.dx }
+    set dx(value) { this._entity.dx = value }
+
+    get dy() { return this._entity.dy }
+    set dy(value) { this._entity.dy = value }
+
+    get gravity() { return this._entity.gravity }
+    get grounded() { return this._entity.grounded }
 
     get frameX() { 
         return this.animation.currentFrame; 
@@ -76,6 +118,7 @@ class Player extends GameEntity {
     }
 
     addDevKit() {
+        console.log(this);
         this.inventory.addItem(itemRegistry.get("dev_pickaxe"), 1);
         this.inventory.addItem(itemRegistry.get("dev_axe"), 1);
         this.inventory.addItem(itemRegistry.get("dev_hammer"), 1);
@@ -84,7 +127,7 @@ class Player extends GameEntity {
 
     update(m, input, dt) {
         this.inLiquid = false;
-        this.grounded = false;
+        this._entity.grounded = false;
 
         // Handle input
         if(input.keys.includes("X")) {
@@ -99,7 +142,7 @@ class Player extends GameEntity {
         if(right) {this.facing = "right"}
 
         this.getHorizontalMovement(left,right);
-        this.updateCollision();
+        this._entity.updateCollision(this.world);
         this.pickupLabels.update();
 
         this.state.handleInput(this.game.input, dt);
@@ -255,14 +298,8 @@ class Player extends GameEntity {
 
     // Move player and camera by dx and dy
     updatePosition(m, input) {
-        this.move(m, this.dx, this.dy);
+        this._entity.move(m, this.dx, this.dy);
         input.mouse.updateGridPos();
-    }
-
-    // Override
-    onBottomCollision(tile) {
-        super.onBottomCollision(tile);
-        this.setState("FALLING");
     }
 
     selectItem(slot) {
@@ -340,7 +377,7 @@ class Player extends GameEntity {
             return;
         }
 
-        this.game.world.setTile(x, y, tile.getRegistryName());
+        this.world.setTile(x, y, tile.getRegistryName());
         
         // Decrease amount in stack by 1
         let heldStack = this.inventory.getSelectedSlot().stack;
@@ -354,8 +391,8 @@ class Player extends GameEntity {
 
         this.placeDelay = 15;
 
-        this.game.world.updateNearbyTiles(x, y);
-        this.game.world.lighting.update(this);
+        this.world.updateNearbyTiles(x, y);
+        this.world.lighting.update(this);
     }
 
     // Put the player in the center of the map
