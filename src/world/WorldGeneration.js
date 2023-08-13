@@ -2,41 +2,56 @@ import * as structures from '../structure/structureParent.js';
 import { BASE_TERRAIN_HEIGHT, WORLD_WIDTH } from "../game/global.js";
 import { rng, rollMax } from "../misc/util.js";
 import { HEIGHTMAP } from "./world.js";
-import Noise from './noise.js';
+import NoiseMap from './NoiseMap.js';
 import { TileInstance } from '../tile/tileInstance.js';
+
+const worldGenConfig = {
+
+    NOISE_BLUR: 3,
+
+    MIN_DIRT_DEPTH: 2,
+    MAX_DIRT_DEPTH: 5,
+
+    // lower = more trees (1 in x)
+    TREE_FACTOR: 20, 
+
+    // if noise value for a tile is below the threshold, that tile becomes terrain.
+    // Higher values result in fewer caves
+    TERRAIN_NOISE_THRESHOLD: 53, 
+}
 
 export class WorldGeneration {
     constructor(world) {
         this.world = world;
 
-        for(let x=0;x<this.world.width;x++) {
+        for(let x = 0; x < this.world.width; x++) {
             this.world.tileGrid.push([]);
             this.world.wallGrid.push([]);
         }
     }
 
     generate() {
-        this.terrainNoise = new Noise(0,100,this.world);
-        this.terrainNoise.blur(3);
-        this.dirtMap = this.generateDirtDepth(2,5);
-        this.threshold = 53;
+        this.terrainNoise = new NoiseMap(this.world.width, this.world.height);
+        this.terrainNoise.generate(0, 100);
+        this.terrainNoise.applyBlur(worldGenConfig.NOISE_BLUR);
+
+        this.dirtMap = this.generateDirtDepth(worldGenConfig.MIN_DIRT_DEPTH, worldGenConfig.MAX_DIRT_DEPTH);
+        this.threshold = worldGenConfig.TERRAIN_NOISE_THRESHOLD;
 
         // Place tiles based on noise
-        for(let x=0;x<this.world.width;x++) {
-            for(let y=0;y<this.world.height;y++) {
-                this.world.tileGrid[x].push(this.getTerrainTile(x,y,this.terrainNoise.get(x,y)));
-                this.world.wallGrid[x].push(this.getTerrainWall(x,y));
+        for(let x = 0; x < this.world.width; x++) {
+            for(let y = 0; y < this.world.height; y++) {
+                this.world.tileGrid[x].push(this.getTerrainTile(x, y, this.terrainNoise.get(x, y)));
+                this.world.wallGrid[x].push(this.getTerrainWall(x, y));
             }
         }
 
         this.generateVegetation();
     }
 
-    getTerrainTile(x,y,noiseValue) {
+    getTerrainTile(x, y, noiseValue) {
         // No blocks or walls are generated above surface height
-        if(y > HEIGHTMAP[x] || noiseValue >= this.threshold) {
-            return null;
-        }
+        if(y > HEIGHTMAP[x] || noiseValue >= this.threshold) return null;
 
         let tileName = "";
 
@@ -59,7 +74,7 @@ export class WorldGeneration {
         return tile.model ? tile : null;
     }
 
-    getTerrainWall(x,y) {
+    getTerrainWall(x, y) {
         // No wall
         if(y > HEIGHTMAP[x]) {
             return null;
@@ -87,10 +102,10 @@ export class WorldGeneration {
      * @param {number} maxDepth Maximum dirt depth
      * @returns {Array} 
      */
-    generateDirtDepth(minDepth,maxDepth) {
+    generateDirtDepth(minDepth, maxDepth) {
         let dirtDepth = [];
-        for(let i=0;i<this.world.width;i++) {
-            dirtDepth.push(rng(minDepth,maxDepth));
+        for(let i = 0; i < this.world.width; i++) {
+            dirtDepth.push(rng(minDepth, maxDepth));
         }
         return dirtDepth;
     }
@@ -105,19 +120,19 @@ export class WorldGeneration {
 
         for(let x = 0; x < this.world.width; x++) {
             let y = HEIGHTMAP[x];
-            let tile = this.world.getTile(x,y);
+            let tile = this.world.getTile(x, y);
             if(!tile || tile.getRegistryName() != "grass") {
                 continue;
             }
 
             if(rollMax(treeValue) && (x - lastTree) > treeGap) {
-                this.world.structures.push(new structures.BasicTree(x,y+1,this.world));
+                this.world.structures.push(new structures.BasicTree(x, y + 1, this.world));
                 lastTree = x;
                 continue;
             }
 
             if(rollMax(clothValue)) {
-                this.world.setTile(x, y+1, "cloth_plant");
+                this.world.setTile(x, y + 1, "cloth_plant");
             }
         }
     }
@@ -128,10 +143,10 @@ export function generateTerrainHeight() {
     let heightMap = [];
     heightMap.push(BASE_TERRAIN_HEIGHT + 6);
 
-    for(let x=0 ; x<WORLD_WIDTH ; x++) {
+    for(let x = 0; x < WORLD_WIDTH; x++) {
         let pHeight = heightMap[x];
 
-        let rand = rng(1,100);
+        let rand = rng(1, 100);
 
         //let highThreshold = [5,10,20,40,16,7,2];
 
@@ -156,16 +171,16 @@ export function generateTerrainHeight() {
             c = 3;
         }
 
-        heightMap[x+1] = pHeight + c;
+        heightMap[x + 1] = pHeight + c;
     }
 
     return heightMap;
 }
 
 // Has a chance of placing a Tree structure.
-export function generateTree(x,y,world) {
-    let n = rng(0,20);
-    if(n == 20) {
-        world.structures.push(new structures.BasicTree(x,y,world));
+export function generateTree(x, y, world) {
+    let n = rng(0, worldGenConfig.TREE_FACTOR);
+    if(n == worldGenConfig.TREE_FACTOR) {
+        world.structures.push(new structures.BasicTree(x, y, world));
     }
 }

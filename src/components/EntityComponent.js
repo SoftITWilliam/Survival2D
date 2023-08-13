@@ -1,7 +1,7 @@
 import { overlap, surfaceCollision } from "../game/collision.js";
 import { TILE_SIZE } from "../game/global.js";
 import { World } from "../world/world.js";
-import { PositionComponent } from "./PositionComponent.js";
+import { PositionComponent } from "./positionComponent.js";
 
 export class EntityComponent extends PositionComponent {
     constructor(x = 0, y = 0, width = 0, height = 0) {
