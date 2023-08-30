@@ -1,32 +1,30 @@
 import * as item from './itemParent.js';
 
-
 const itemRegistry = {
     game: null,
     items: [],
     enum: {},
 
-    initialize: function(game) {
-        this.game = game;
+    initialize: function() {
 
         // List of all items in the game
         this.items = [
-            new item.Tile(game, "dirt", "COMMON"),                                      // ID 0
-            new item.Tile(game, "stone", "COMMON"),                                     // ID 1
-            new item.Pickaxe(game, "dev_pickaxe", 999, 5, 10, "UNOBTAINABLE"),          // ID 2
-            new item.Axe(game, "dev_axe", 999, 5, 10, "UNOBTAINABLE"),                  // ID 3
-            new item.Shovel(game, "dev_shovel", 999, 5, 10, "UNOBTAINABLE"),            // ID 4
-            new item.Hammer(game, "dev_hammer", 999, 5, 10, "UNOBTAINABLE"),            // ID 5
-            new item.Default(game, "wood", "COMMON"),                                   // ID 6
-            new item.Default(game, "branch", "COMMON"),                                 // ID 7
-            new item.Acorn(game, "acorn", "COMMON"),                                    // ID 8
-            new item.GrassSeeds(game, "grass_seeds", "UNCOMMON"),                       // ID 9
-            new item.Default(game, "plant_fiber", "COMMON"),                            // ID 10
-            new item.ClothSeeds(game, "cloth_seeds", "COMMON"),                         // ID 11
-            new item.Pickaxe(game, "wooden_pickaxe", 1, 2, 4, "UNCOMMON"),              // ID 12
-            new item.Axe(game, "wooden_axe", 1, 2, 4, "UNCOMMON"),                      // ID 13
-            new item.Shovel(game, "wooden_shovel",1, 2, 4, "UNCOMMON"),                 // ID 14
-            new item.Hammer(game, "wooden_hammer", 1, 2, 4, "UNCOMMON"),                // ID 15
+            new item.Tile("dirt", "COMMON"),                                      // ID 0
+            new item.Tile("stone", "COMMON"),                                     // ID 1
+            new item.Pickaxe("dev_pickaxe", 999, 5, 10, "UNOBTAINABLE"),          // ID 2
+            new item.Axe("dev_axe", 999, 5, 10, "UNOBTAINABLE"),                  // ID 3
+            new item.Shovel("dev_shovel", 999, 5, 10, "UNOBTAINABLE"),            // ID 4
+            new item.Hammer("dev_hammer", 999, 5, 10, "UNOBTAINABLE"),            // ID 5
+            new item.Default("wood", "COMMON"),                                   // ID 6
+            new item.Default("branch", "COMMON"),                                 // ID 7
+            new item.Acorn("acorn", "COMMON"),                                    // ID 8
+            new item.GrassSeeds("grass_seeds", "UNCOMMON"),                       // ID 9
+            new item.Default("plant_fiber", "COMMON"),                            // ID 10
+            new item.ClothSeeds("cloth_seeds", "COMMON"),                         // ID 11
+            new item.Pickaxe("wooden_pickaxe", 1, 2, 4, "UNCOMMON"),              // ID 12
+            new item.Axe("wooden_axe", 1, 2, 4, "UNCOMMON"),                      // ID 13
+            new item.Shovel("wooden_shovel",1, 2, 4, "UNCOMMON"),                 // ID 14
+            new item.Hammer("wooden_hammer", 1, 2, 4, "UNCOMMON"),                // ID 15
         ];
 
         // Assign IDs and set up Enum

@@ -4,9 +4,8 @@ import PlacementPreview from "../../../ui/placementPreview.js";
 import { ItemBase } from "./itemBase.js";
 
 export class TileItemBase extends ItemBase {
-    constructor(game,registryName,rarity) {
-        super(game,registryName,rarity);
-        this.world = game.world;
+    constructor(registryName, rarity) {
+        super(registryName, rarity);
         this.itemType = 'tile';
         this.placeable = true;
         this.stackLimit = 99;
@@ -23,27 +22,20 @@ export class TileItemBase extends ItemBase {
         */
         this.setSpriteOffset(192,192);
 
-        this.placementPreview = new PlacementPreview(sprites.tiles[`tile_${this.registryName}`],this.sx,this.sy,this);
+        this.placementPreview = new PlacementPreview(sprites.tiles[`tile_${this.registryName}`], this.sx, this.sy, this);
     }
 
     // Return true if position has no tile, is adjacent to another time or on top of a wall.
-    canBePlaced(x,y) {
-        // Check for unavalible tile
-        if(this.world.outOfBounds(x,y) || this.world.getTile(x,y)) {
-            return false;
-        } 
-        
-        // Check for adjacent tile or wall
-        if (this.world.getTile(x-1,y) ||
-            this.world.getTile(x,y+1) ||
-            this.world.getTile(x+1,y) ||
-            this.world.getTile(x,y-1) ||
-            this.world.getWall(x,y)
-        ) {
-            return true;
-        }
+    canBePlaced(x, y, world) {
+        if(world.outOfBounds(x, y) || world.getTile(x, y)) { return false } 
 
-        return false;
+        return (
+            world.getTile(x - 1, y) ||
+            world.getTile(x, y + 1) ||
+            world.getTile(x + 1, y) ||
+            world.getTile(x, y - 1) ||
+            world.getWall(x, y)
+        );
     }
 
     place() {

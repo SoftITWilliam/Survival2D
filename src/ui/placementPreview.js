@@ -34,7 +34,7 @@ export default class PlacementPreview {
         }
     }
 
-    draw(gridX, gridY) {
+    draw(gridX, gridY, player) {
         this.updateAlpha();
 
         // If out of placement range, 
@@ -43,10 +43,10 @@ export default class PlacementPreview {
             centerY: -gridY * TILE_SIZE + TILE_SIZE / 2
         }
 
-        let distance = calculateDistance(this.game.player, pos);
-        let inPlacementRange = distance <= this.game.player.reach;
+        let distance = calculateDistance(player, pos);
+        let inPlacementRange = distance <= player.reach;
         
-        if (inPlacementRange && this.item.canBePlaced(gridX, gridY)) {
+        if (inPlacementRange && this.item.canBePlaced(gridX, gridY, player.world)) {
             ctx.globalAlpha = this.a;
         } else {
             ctx.globalAlpha = 0.05;

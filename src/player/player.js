@@ -325,11 +325,13 @@ class Player {
         let x = input.mouse.gridX;
         let y = input.mouse.gridY;
         // Held item must have a placement preview
-        if(!this.heldItem || !this.heldItem.placementPreview || !this.heldItem.canBePlaced(x, y)) {
-            return;
+        if (!this.heldItem || 
+            !this.heldItem.placementPreview || 
+            !this.heldItem.canBePlaced(x, y, this.world)) {
+                return;
         }
 
-        this.heldItem.placementPreview.draw(x, y);
+        this.heldItem.placementPreview.draw(x, y, this);
     }
 
     draw() {
@@ -352,7 +354,7 @@ class Player {
         if(isNaN(x) || isNaN(y) || this.game.world.outOfBounds(x, y))  return;
 
         // Must be a valid placement position
-        if(!item.canBePlaced(x, y)) return;
+        if(!item.canBePlaced(x, y, this.world)) return;
     
         let tile = new TileInstance(this.game.world, x, y, item.place());
         if(!tile || !tile.model) return;

@@ -3,15 +3,13 @@ import { sprites } from "../game/graphics/loadAssets.js";
 import { ITEM_RARITIES, RARITY_COLORS } from "./rarities.js";
 
 export default class Item {
-    constructor(game, registryName) {
-        this.game = game; // Pointer
-        
+    constructor(registryName) {
         this.setSprite('missing_texture');
         this.itemType = null;
         this.stackSize = 99;
         this.sx = 0;
         this.sy = 0;
-
+        
         this._registryname;
 
         this.registryName = registryName;
@@ -81,8 +79,11 @@ export default class Item {
      * @returns 
      */
     canBePlanted(x, y) {
+        /*
         let tileBelow = this.game.world.getTile(x, y - 1);
         return (tileBelow && (tileBelow.registryName == "dirt" || tileBelow.registryName == "grass"));
+        */
+       return false;
     }
 
     /**

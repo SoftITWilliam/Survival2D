@@ -2,8 +2,8 @@ import { sprites } from "../../../game/graphics/loadAssets.js";
 import Item from "../../../item/item.js";
 
 export class ItemBase extends Item {
-    constructor(game,registryName,rarity) {
-        super(game,registryName,rarity);
+    constructor(registryName, rarity) {
+        super(registryName, rarity);
         
         this.itemType = 'default';
         this.miningLevel;
