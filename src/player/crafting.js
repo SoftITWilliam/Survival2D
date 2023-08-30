@@ -1,5 +1,5 @@
 import { canvas } from "../game/global.js";
-import itemRegistry from "../item/itemRegistry.js";
+import { ItemRegistry } from "../item/itemRegistry.js";
 import CraftingInterface from "../ui/craftingUI.js";
 
 
@@ -23,15 +23,13 @@ export default class CraftingMenu {
     }
 
     open(station) {
-        if(!station) {
-            station = "DEFAULT";
-        }
+        station ??= "DEFAULT";
 
         this.isOpen = true;
         this.station = station;
         this.recipes = this.recipeManager.getRecipesForStation(station);
         this.refreshResources(); 
-        this.ui.loadCraftables(this.recipes,this.player.game);
+        this.ui.loadCraftables(this.recipes, this.player.game);
         this.ui.updateCraftingAmount(this.craftingAmount);
     }
 
@@ -75,7 +73,7 @@ export default class CraftingMenu {
         this.recipes.forEach(recipe => {
             recipe.inputList.forEach(i => {
                 if(!this.avalibleResources.hasOwnProperty(i[0])) {
-                    let item = itemRegistry.get(i[0]);
+                    let item = ItemRegistry.get(i[0]);
                     this.avalibleResources[i[0]] = this.player.inventory.getItemAmount(item);
                 }
             })
@@ -120,7 +118,7 @@ export default class CraftingMenu {
     }
 
     updateCraftButton() {
-        let status = this.ableToCraft(this.getSelectedRecipe(),this.craftingAmount);
+        let status = this.ableToCraft(this.getSelectedRecipe(), this.craftingAmount);
         this.ui.buttons[4].setClickable(status);
     }
 
@@ -130,16 +128,16 @@ export default class CraftingMenu {
     loadRecipe(recipe) {
         this.craftingAmount = 1;
         
-        this.outputItem = itemRegistry.get(recipe.output);
+        this.outputItem = ItemRegistry.get(recipe.output);
         this.inputItems = [];
 
         recipe.inputList.forEach(i => {
-            this.inputItems.push([itemRegistry.get(i[0]),i[1]]);
+            this.inputItems.push([ItemRegistry.get(i[0]), i[1]]);
         })
 
         this.outputAmount = recipe.outputAmount;
 
-        this.ui.loadRecipe(this.inputItems,this.outputItem,this.outputAmount);
+        this.ui.loadRecipe(this.inputItems, this.outputItem, this.outputAmount);
         
         this.ui.updateCraftingAmount(this.craftingAmount);
         this.updateCraftButton();
@@ -169,11 +167,11 @@ export default class CraftingMenu {
         let recipe = this.getSelectedRecipe();
 
         recipe.inputList.forEach(r => {
-            let item = itemRegistry.get(r[0]);
-            this.player.inventory.removeItem(item,this.craftingAmount * r[1]);
+            let item = ItemRegistry.get(r[0]);
+            this.player.inventory.removeItem(item, this.craftingAmount * r[1]);
         })
             
-        this.player.inventory.addItem(this.outputItem,this.craftingAmount * recipe.outputAmount);
+        this.player.inventory.addItem(this.outputItem, this.craftingAmount * recipe.outputAmount);
         this.close();
     }
 

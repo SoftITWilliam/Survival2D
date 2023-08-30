@@ -1,6 +1,6 @@
 import { colors } from "../game/graphics/colors.js";
 import { getGap } from "../helper/helper.js";
-import itemRegistry from "../item/itemRegistry.js";
+import { ItemRegistry } from "../item/itemRegistry.js";
 import * as ui from "./elementAggregator.js";
 
 export default class CraftingInterface {
@@ -291,7 +291,7 @@ export default class CraftingInterface {
         this.craftables = [];
 
         for(let i = 0; i < recipes.length; i++) {
-            let item = itemRegistry.get(recipes[i].output);
+            let item = ItemRegistry.get(recipes[i].output);
 
             let rowHeight = 56;
 
@@ -342,7 +342,7 @@ export default class CraftingInterface {
         }
 
         for(let i = 0; i < input.length; i++) {
-            let item = itemRegistry.get(input[i][0].registryName);
+            let item = ItemRegistry.get(input[i][0].registryName);
             let row = this.CInputList[i + 1].children;
 
             // Update 'total'

@@ -63,9 +63,9 @@ export class TileModel {
     }
 
     // Loop through this tile's drops. Runs when the tile is broken.
-    dropItems(tile, toolType, miningLevel) {
+    dropItems(tile, toolTypes, miningLevel) {
         this.tileDrops.forEach(tileDrop => {
-            const droppedItem = tileDrop.roll(toolType, miningLevel, 1);
+            const droppedItem = tileDrop.roll(toolTypes, miningLevel, 1);
             if(droppedItem) {
                 dropItemFromTile(tile, droppedItem.item, droppedItem.amount, this.world.game);
             }

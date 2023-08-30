@@ -1,10 +1,12 @@
 import { getDescription, getDisplayName, getLang } from "../game/lang.js";
 import { sprites } from "../game/graphics/loadAssets.js";
-import { ITEM_RARITIES, RARITY_COLORS } from "./rarities.js";
+import { RARITY_COLORS } from "./rarities.js";
 
 export default class Item {
-    constructor(registryName) {
+    constructor(registryName, rarity) {
         this.setSprite('missing_texture');
+        this.setRarity(rarity);
+
         this.itemType = null;
         this.stackSize = 99;
         this.sx = 0;
@@ -36,7 +38,7 @@ export default class Item {
      * @param {any} rarity   Item rarity (supports both numbers and names, ex. 0 and "COMMON")
      */
     setRarity(rarity) {
-        this.rarity = ITEM_RARITIES[rarity] ?? 0;
+        this.rarity = rarity ?? 0;
         this.rarityText = getLang("rarity_" + this.rarity);
     }
 

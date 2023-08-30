@@ -9,11 +9,11 @@ export default class MiningAction {
         this.finished = false;
 
         if(item) {
-            this.toolType = item.toolType ? item.toolType : null;
-            this.miningSpeed = item.miningSpeed ? item.miningSpeed : 1;
-            this.miningLevel = item.miningLevel ? item.miningLevel : 0;
+            this.toolType = item.toolType ?? null;
+            this.miningSpeed = item.miningSpeed ?? 1;
+            this.miningLevel = item.miningLevel ?? 0;
         } else {
-            this.toolType = null;
+            this.toolTypes = [];
             this.miningSpeed = 1;
             this.miningLevel = 0;
         }
@@ -23,7 +23,7 @@ export default class MiningAction {
         // Calculate total mining time
         this.totalTime = this.tile.getMiningTime() * 1000;
 
-        if(tile.getToolType() == this.toolType) {
+        if(this.toolType === tile.getToolType()) {
             this.totalTime = Math.floor(this.totalTime / this.miningSpeed);
         }
     }

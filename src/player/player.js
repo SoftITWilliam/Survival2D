@@ -13,7 +13,7 @@ import { sprites } from '../game/graphics/loadAssets.js';
 import CraftingMenu from './crafting.js';
 import { TileInstance } from '../tile/tileInstance.js';
 import { FrameAnimation } from '../game/graphics/animation.js';
-import itemRegistry from '../item/itemRegistry.js';
+import { ItemRegistry } from '../item/itemRegistry.js';
 import { EntityComponent } from '../components/EntityComponent.js';
 import { calculateDistance, clamp } from '../helper/helper.js';
 
@@ -119,10 +119,10 @@ class Player {
 
     addDevKit() {
         console.log(this);
-        this.inventory.addItem(itemRegistry.get("dev_pickaxe"), 1);
-        this.inventory.addItem(itemRegistry.get("dev_axe"), 1);
-        this.inventory.addItem(itemRegistry.get("dev_hammer"), 1);
-        this.inventory.addItem(itemRegistry.get("dev_shovel"), 1);
+        this.inventory.addItem(ItemRegistry.get("dev_pickaxe"), 1);
+        this.inventory.addItem(ItemRegistry.get("dev_axe"), 1);
+        this.inventory.addItem(ItemRegistry.get("dev_hammer"), 1);
+        this.inventory.addItem(ItemRegistry.get("dev_shovel"), 1);
     }
 
     update(m, input, dt) {

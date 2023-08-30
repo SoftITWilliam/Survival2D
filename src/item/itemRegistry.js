@@ -1,61 +1,66 @@
+import { ToolModule } from '../components/ToolModule.js';
+import Item from './item.js';
 import * as item from './itemParent.js';
 
-const itemRegistry = {
-    game: null,
-    items: [],
-    enum: {},
+import { ITEM_RARITIES as rarity }  from './rarities.js';
+import toolTypes from './toolTypesEnum.js';
 
-    initialize: function() {
+class ItemRegistry {
 
-        // List of all items in the game
-        this.items = [
-            new item.Tile("dirt", "COMMON"),                                      // ID 0
-            new item.Tile("stone", "COMMON"),                                     // ID 1
-            new item.Pickaxe("dev_pickaxe", 999, 5, 10, "UNOBTAINABLE"),          // ID 2
-            new item.Axe("dev_axe", 999, 5, 10, "UNOBTAINABLE"),                  // ID 3
-            new item.Shovel("dev_shovel", 999, 5, 10, "UNOBTAINABLE"),            // ID 4
-            new item.Hammer("dev_hammer", 999, 5, 10, "UNOBTAINABLE"),            // ID 5
-            new item.Default("wood", "COMMON"),                                   // ID 6
-            new item.Default("branch", "COMMON"),                                 // ID 7
-            new item.Acorn("acorn", "COMMON"),                                    // ID 8
-            new item.GrassSeeds("grass_seeds", "UNCOMMON"),                       // ID 9
-            new item.Default("plant_fiber", "COMMON"),                            // ID 10
-            new item.ClothSeeds("cloth_seeds", "COMMON"),                         // ID 11
-            new item.Pickaxe("wooden_pickaxe", 1, 2, 4, "UNCOMMON"),              // ID 12
-            new item.Axe("wooden_axe", 1, 2, 4, "UNCOMMON"),                      // ID 13
-            new item.Shovel("wooden_shovel",1, 2, 4, "UNCOMMON"),                 // ID 14
-            new item.Hammer("wooden_hammer", 1, 2, 4, "UNCOMMON"),                // ID 15
+    /* === ITEMS === */
+
+    // Tile items
+    static DIRT = new item.Tile("dirt", rarity.COMMON);
+    static STONE = new item.Tile("stone", rarity.COMMON);
+
+    // Dev toolset
+    static DEV_PICKAXE = new item.Tool("dev_pickaxe", rarity.UNOBTAINABLE, new ToolModule(toolTypes.PICKAXE, 999, 5, 10));
+    static DEV_AXE = new item.Tool("dev_axe", rarity.UNOBTAINABLE, new ToolModule(toolTypes.AXE, 999, 5, 10));
+    static DEV_SHOVEL = new item.Tool("dev_shovel", rarity.UNOBTAINABLE, new ToolModule(toolTypes.SHOVEL, 999, 5, 10));
+    static DEV_HAMMER = new item.Tool("dev_hammer", rarity.UNOBTAINABLE, new ToolModule(toolTypes.HAMMER, 999, 5, 10));
+
+    // Wooden toolset
+    static WOODEN_PICKAXE = new item.Tool("wooden_pickaxe", rarity.UNCOMMON, new ToolModule(toolTypes.PICKAXE, 1, 2, 4))
+    static WOODEN_AXE = new item.Tool("wooden_axe", rarity.UNCOMMON, new ToolModule(toolTypes.AXE, 1, 2, 4));
+    static WOODEN_SHOVEL = new item.Tool("wooden_shovel", rarity.UNCOMMON, new ToolModule(toolTypes.SHOVEL, 1, 2, 4));
+    static WOODEN_HAMMER = new item.Tool("wooden_hammer", rarity.UNCOMMON, new ToolModule(toolTypes.HAMMER, 1, 2, 4));
+
+    // Basic items
+    static WOOD = new item.Default("wood", rarity.COMMON);
+    static BRANCH = new item.Default("branch", rarity.COMMON);
+    static PLANT_FIBER = new item.Default("plant_fiber", rarity.COMMON)
+
+    // Seeds
+    static ACORN = new item.Acorn("acorn", rarity.COMMON);
+    static GRASS_SEEDS = new item.GrassSeeds("grass_seeds", rarity.UNCOMMON);
+    static CLOTH_SEEDS = new item.ClothSeeds("wooden_pickaxe", rarity.COMMON)
+
+    /* === METHODS === */
+
+    /**
+     * Returns item matching the registry name.
+     * If no item is found, return null.
+     * @param {string} registryName Item registry name (ex. "wooden_pickaxe")
+     * @returns {Item} 
+     */
+    static get(registryName) {
+        return this.asArray().find(item => (item.registryName === registryName));
+    }
+
+    static asArray() {
+        return [
+            this.DIRT, 
+            this.STONE,
+            this.DEV_PICKAXE, this.DEV_AXE, this.DEV_SHOVEL, this.DEV_HAMMER,
+            this.WOODEN_PICKAXE, this.WOODEN_AXE, this.WOODEN_SHOVEL, this.WOODEN_HAMMER,
+            this.WOOD,
+            this.BRANCH,
+            this.PLANT_FIBER,
+            this.ACORN,
+            this.GRASS_SEEDS,
+            this.CLOTH_SEEDS,
         ];
-
-        // Assign IDs and set up Enum
-        for(let i = 0; i < this.items.length; i++) {
-            this.items[i].id = i;
-            this.enum[this.items[i].registryName] = i;
-        }
-
-        this.validate();
-    },
-
-    get: function(itemName) {
-        let item = this.items[this.enum[itemName]];
-        if(!item) console.warn("itemRegistry.get() warning: invalid item name");
-        return item ? item : null;
-    },
-
-    getFromId: function(id) {
-        let item = this.items[id];
-        if(!item) console.warn("itemRegistry.getFromId() warning: invalid id");
-        return item ? item : null;
-    },
-    
-    validate: function() {
-        this.items.forEach(item => {
-            if(item.id === undefined || item.registryName === undefined || item.rarity === undefined) {
-                console.log(item);
-                throw new Error("One or more items have invalid properties!");
-            }
-        })
-    },
+    }
 }
 
-export default itemRegistry;
+export { ItemRegistry };

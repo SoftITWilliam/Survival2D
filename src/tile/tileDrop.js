@@ -1,5 +1,5 @@
 import { rng } from "../helper/helper.js";
-import itemRegistry from "../item/itemRegistry.js";
+import { ItemRegistry } from "../item/itemRegistry.js";
 import { TileInstance } from "./tileInstance.js";
 
 // This should be converted into a general drop class later, so that it for example could be used for entity drops.
@@ -44,7 +44,7 @@ export class TileDrop {
             dropAmount = this.amount;
         }
 
-        let item = itemRegistry.get(this.itemName);
+        let item = ItemRegistry.get(this.itemName);
         return {item: item, amount: dropAmount}
     }
 }
@@ -64,7 +64,7 @@ export class SelfDrop extends TileDrop {
             return null;
         }
 
-        let item = itemRegistry.get(this.itemName);
+        let item = ItemRegistry.get(this.itemName);
         return {item: item, amount: this.amount}
     }
 }
