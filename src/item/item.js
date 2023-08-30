@@ -95,7 +95,6 @@ export default class Item {
      * @param {int} offsetY Y offset in pixels
      */
     setSpriteOffset(offsetX, offsetY) {
-        
         if(!offsetX || !offsetY || this.missingTexture) {
             this.sx = 0;
             this.sy = 0;
@@ -104,5 +103,8 @@ export default class Item {
             this.sy = offsetY;
         }
     }
-}
 
+    isItem(item) {
+        return (item instanceof Item && this.registryName === item.registryName);
+    }
+}

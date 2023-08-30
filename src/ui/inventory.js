@@ -135,7 +135,7 @@ export class Inventory {
         if(newStack) {
 
             // If new slot has a different item, insert the held stack and pick up the new one.
-            if(newStack.item.id != this.holdingStack.item.id) {
+            if(newStack.containsItem(this.holdingStack.item)) {
                 let temp = this.holdingStack;
                 this.selectSlot(slot.x, slot.y, false);
                 this.grid[slot.x][slot.y].stack = temp;
@@ -184,14 +184,14 @@ export class Inventory {
     }
 
     // If a stack with the given item already exists and it isn't full, return its grid position
-    findExistingStack(id) {
+    findExistingStack(item) {
         
         for(let x = 0; x < this.w; x++) {
             for(let y = 0; y < this.h; y++) {
                 let stack = this.grid[x][y].stack;
                 if(!stack) continue;
 
-                if(stack.item.id == id && stack.amount < stack.item.stackLimit) {
+                if(stack.containsItem(item) && stack.amount < stack.limit) {
                     return { x: x, y: y };
                 } 
             }
@@ -233,11 +233,9 @@ export class Inventory {
         let amount = 0;
         for(let x = 0; x < this.w; x++) {
             for(let y = 0; y < this.h; y++) {
-                let slot = this.grid[x][y];
-                if(!slot.stack) continue;
-
-                if(slot.stack.item.registryName == item.registryName) {
-                    amount += slot.stack.amount;
+                let stack = this.grid[x][y].stack;
+                if(stack?.item.isItem(item)) {
+                    amount += stack.amount;
                 }
             }
         }
@@ -255,7 +253,7 @@ export class Inventory {
         if(!item) return;
         
         let startAmount = amount;
-        let slot = this.findExistingStack(item.id);
+        let slot = this.findExistingStack(item);
 
         // If a stack with the item already exists, fill it up.
 
@@ -263,7 +261,7 @@ export class Inventory {
             let x = slot.x; 
             let y = slot.y;
 
-            let remainingSpace = this.grid[x][y].stack.getRemainingSpace();
+            let remainingSpace = this.grid[x][y].stack.remainingSpace;
 
             // Add all items to the slot
             if(amount < remainingSpace) {
@@ -284,10 +282,7 @@ export class Inventory {
             }
         }
 
-        while(true) {
-
-            // Break condition
-            if(amount == 0) break;
+        while(amount > 0) {
 
             // Find empty inventory space
             let emptySlot = this.findEmptySlot();
@@ -300,7 +295,8 @@ export class Inventory {
                 return amount;
             }
 
-            let x = emptySlot.x; let y = emptySlot.y;
+            let x = emptySlot.x; 
+            let y = emptySlot.y;
 
             // Creates new item stack
             // (If the item entity picked up still has items left after this, they will be deleted)
@@ -328,9 +324,7 @@ export class Inventory {
 
                 // Loop through inventory until a slot is found that has the given item
                 let slot = this.grid[x][y];
-                if(!slot.stack) continue;
-
-                if(slot.stack.item.registryName !== item.registryName) continue;
+                if(!slot.stack?.containsItem(item)) continue;
 
                 // Delete the given amount from the stack, then return.
                 if(amount < slot.stack.amount) {

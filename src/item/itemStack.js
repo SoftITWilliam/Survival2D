@@ -8,17 +8,28 @@ export class ItemStack {
         this.amount = amount;
     }
 
-    getRemainingSpace() {
-        return this.item.stackLimit - this.amount;
+    get limit() {
+        return this.item.stackLimit;
     }
 
-    
+    get remainingSpace() {
+        return this.limit - this.amount;
+    }
+
+    get isFull() {
+        return this.amount >= this.limit;
+    }
+
+    containsItem(item) {
+        return this.item.isItem(item);
+    }
+
     fillStack(count) {
         this.amount += count;
 
-        if(this.amount > this.item.stackLimit) {
-            let remaining = this.amount - this.item.stackLimit
-            this.amount = this.item.stackLimit;
+        if(this.isFull) {
+            let remaining = this.amount - this.limit
+            this.amount = this.limit;
             return (remaining);
         }
 
@@ -38,7 +49,7 @@ export class ItemStack {
     }
 
     drawAmount(x, y) {
-        if(this.item.stackLimit == 1) return;
+        if(this.limit == 1) return;
         
         Object.assign(ctx, {
             fillStyle: "white", font: "24px Font1", textAlign: "right",
