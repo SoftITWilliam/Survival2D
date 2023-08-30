@@ -1,9 +1,9 @@
 import { TILE_SIZE } from "../../game/global.js";
 import { sprites } from "../../game/graphics/loadAssets.js";
-import { rng } from "../../misc/util.js";
 import { TileDrop } from "../tileDrop.js";
 import TileBase from "../base/TileBase.js";
 import toolTypes from "../../item/toolTypesEnum.js";
+import { rng } from "../../helper/helper.js";
 
 export class GrassModel extends TileBase {
     constructor(world, registryName) {
@@ -20,7 +20,7 @@ export class GrassModel extends TileBase {
 
     checkSpreadCondition(x, y) {
         let tile = this.world.getTile(x, y);
-        if(tile && tile.getRegistryName() == "dirt") {
+        if(tile && tile.registryName == "dirt") {
             y += 1;
             if(!this.world.getTile(x, y)) {
                 return true;
@@ -34,7 +34,7 @@ export class GrassModel extends TileBase {
         let range = 2;
         for(let x = tile.gridX - range; x <= tile.gridX + range; x++) {
             for(let y = tile.gridY - range; y <= tile.gridY + range; y++) {
-                if(!this.checkSpreadCondition(x,y)) continue;
+                if(!this.checkSpreadCondition(x, y)) continue;
                 if(rng(0, 1023) > 0) continue;
                 
                 this.world.setTile(x, y, "grass");

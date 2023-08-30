@@ -1,6 +1,5 @@
 import { ctx } from "../../game/global.js";
-import { rgb, rgbm } from "../../game/graphics/renderUtil.js";
-import { mouseOn } from "../../misc/util.js";
+import { rgb, rgbm } from "../../helper/canvashelper.js";
 import UIElement from "./UIElement.js";
 
 
@@ -45,12 +44,12 @@ export class ClickableElement extends UIElement {
     updateHover(input) {
         
         // If the element is in a scrollable list, it cannot be hovered if it isn't visible.
-        if(this.parent && this.parent.scrollable && !mouseOn(this.parent,input.mouse)) {
+        if(this.parent && this.parent.scrollable && !input.mouse.on(this.parent)) {
             this.hovering = false;
             return;
         }
 
-        this.hovering = mouseOn(this,input.mouse);
+        this.hovering = input.mouse.on(this);
 
         if(this.clickable && this.hovering) {
             document.body.style.cursor = "pointer";
@@ -67,15 +66,12 @@ export class ClickableElement extends UIElement {
     /**
      *  Overwrite of default function, to have different colors when hovered.
      */ 
-    updateColor(fillColor,strokeColor) {
+    updateColor(fillColor, strokeColor) {
         if(fillColor) {
-            if(!this.clickable) {
-                ctx.fillStyle = rgbm(fillColor,0.7);
-            } else if(this.hovering) {
-                ctx.fillStyle = rgbm(fillColor,1.3);
-            } else {
-                ctx.fillStyle = rgb(fillColor);
-            }
+            ctx.fillStyle = 
+                !this.clickable ? rgbm(fillColor, 0.7) :
+                this.hovering ? rgbm(fillColor, 1.3) : 
+                rgb(fillColor);
         }
             
         if(strokeColor) {

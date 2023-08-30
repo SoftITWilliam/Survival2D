@@ -1,6 +1,5 @@
 import { canvas, ctx } from "../../game/global.js";
-import { renderPath, rgb } from "../../game/graphics/renderUtil.js";
-import { drawRounded, setAttributes } from "../../misc/util.js";
+import { drawRounded, renderPath, rgb } from "../../helper/canvashelper.js";
 
 export default class UIElement {
     constructor(game, attributes) {
@@ -59,8 +58,8 @@ export default class UIElement {
         this.textAttributes = {
             lineWidth: 0,
             font: null,
-            textAlign:"left",
-            textBaseline:"Alphabetic",
+            textAlign: "left",
+            textBaseline: "Alphabetic",
         }
 
         this.scrollable = false;
@@ -80,11 +79,11 @@ export default class UIElement {
         }
 
         if(attributes.textAlign) {
-            this.setTextAttribute("textAlign",attributes.textAlign);
+            this.setTextAttribute("textAlign", attributes.textAlign);
         }
 
         if(attributes.textBaseline) {
-            this.setTextAttribute("textBaseline",attributes.textBaseline);
+            this.setTextAttribute("textBaseline", attributes.textBaseline);
         }
     }
 
@@ -93,15 +92,15 @@ export default class UIElement {
      * @param {number} x 
      * @param {number} y 
      */
-    setPos(x,y) {
+    setPos(x, y) {
         this.x = x;
         this.y = y;
     }
 
-    get x() { return this._x }
+    get x() { return Math.round(this._x) }
     set x(value) { if(typeof value == "number") this._x = value }
 
-    get y() { return this._y }
+    get y() { return Math.round(this._y) }
     set y(value) { if(typeof value == "number") this._y = value }
 
     /**
@@ -119,7 +118,7 @@ export default class UIElement {
      * @param {boolean} x Center element on X axis;
      * @param {boolean} y Center element on Y axis;
      */
-    setCentering(x,y) {
+    setCentering(x, y) {
         this.centerX = x;
         this.centerY = y;
     }
@@ -128,33 +127,29 @@ export default class UIElement {
         this.text = text;
     }
 
-    setFont(size,font) {
-        this.setTextAttribute("font",size + "px " + font);
+    setFont(size, font) {
+        this.setTextAttribute("font", size + "px " + font);
     }
 
-    setColor(fill,stroke) {
+    setColor(fill, stroke) {
         this.fillColor = fill;
         this.strokeColor = stroke
     }
 
-    setTextColor(fill,stroke) {
+    setTextColor(fill, stroke) {
         this.textFill = fill;
         this.textStroke = stroke;
     }
 
-    applyAttributes(attributes) {
-        setAttributes(ctx,attributes);
-    }
-
-    setAttribute(attributeName,value) {
+    setAttribute(attributeName, value) {
         this.attributes[attributeName] = value;
     }
 
-    setTextAttribute(attributeName,value) {
+    setTextAttribute(attributeName, value) {
         this.textAttributes[attributeName] = value;
     }
 
-    alignChildren(alignment,direction) {
+    alignChildren(alignment, direction) {
         this.childAlignment = alignment;
         this.childDirection = direction;
     }
@@ -486,36 +481,28 @@ export default class UIElement {
      * Wrapper for ctx.fill(). Only runs if element has a fill color.
      */
     fill() {
-        if(this.fillColor) {
-            ctx.fill();
-        }
+        if(this.fillColor) ctx.fill();
     }
 
     /**
      * Wrapper for ctx.stroke(). Only runs if element has a stroke color.
      */
     stroke() {
-        if(this.strokeColor) {
-            ctx.stroke();
-        }
+        if(this.strokeColor) ctx.stroke();
     }
 
     /**
      * Wrapper for ctx.fillText(). Only runs if element has a stroke color.
      */
-    fillText(text,x,y) {
-        if(this.textFill) {
-            ctx.fillText(text,x,y);
-        }
+    fillText(text, x, y) {
+        if(this.textFill) ctx.fillText(text, x, y);
     }
 
     /**
      * Wrapper for ctx.strokeText(). Only runs if element has a stroke color.
      */
-    strokeText(text,x,y) {
-        if(this.textStroke) {
-            ctx.strokeText(text,x,y);
-        }
+    strokeText(text, x, y) {
+        if(this.textStroke) ctx.strokeText(text, x, y);
     }
 
     /**
@@ -523,13 +510,8 @@ export default class UIElement {
      * Can be overwritten by other elements, to have different colors in different conditions (ex. when hovered)
      */
     updateColor(fillColor, strokeColor) {
-        if(fillColor) {
-            ctx.fillStyle = rgb(fillColor);
-        }
-            
-        if(strokeColor) {
-            ctx.strokeStyle = rgb(strokeColor);
-        }
+        if(fillColor) ctx.fillStyle = rgb(fillColor);
+        if(strokeColor) ctx.strokeStyle = rgb(strokeColor);
     } 
 
     render() {
@@ -541,19 +523,19 @@ export default class UIElement {
      * Render the 'base' of the element, i.e. the basic shape.
     */
     renderBase() {
-        this.applyAttributes(this.attributes);
+        Object.assign(ctx, this.attributes);
         this.updateColor(this.fillColor,this.strokeColor);
 
         if(this.cornerRadius > 0) {
             renderPath(() => {
-                drawRounded(Math.round(this.x),Math.round(this.y),this.w,this.h,this.cornerRadius,ctx);
+                drawRounded(this.x, this.y, this.w, this.h, this.cornerRadius, ctx);
                 this.fill();
                 ctx.restore();
                 this.stroke();
             });
         } else {
             renderPath(() => {
-                ctx.rect(Math.round(this.x),Math.round(this.y),this.w,this.h);
+                ctx.rect(this.x, this.y, this.w, this.h);
                 this.fill();
                 this.stroke();
             })
@@ -564,11 +546,11 @@ export default class UIElement {
      * Render the text contained in the element
      */
     renderText() {
-        this.applyAttributes(this.textAttributes);
-        this.updateColor(this.textFill,this.textStroke);
+        Object.assign(ctx, this.textAttributes);
+        this.updateColor(this.textFill, this.textStroke);
 
-        let textX = Math.round(this.x) + this.textOffsetX;
-        let textY = Math.round(this.y) + this.textOffsetY;
+        let textX = this.x + this.textOffsetX;
+        let textY = this.y + this.textOffsetY;
         
         if(this.textCenterX) {
             textX += this.w / 2;
@@ -579,8 +561,8 @@ export default class UIElement {
         }
 
         renderPath(() => {
-            this.strokeText(this.text,textX,textY);
-            this.fillText(this.text,textX,textY);
+            this.strokeText(this.text, textX, textY);
+            this.fillText(this.text, textX, textY);
         });
     }
 

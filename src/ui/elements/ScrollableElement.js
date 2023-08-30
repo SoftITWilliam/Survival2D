@@ -1,6 +1,6 @@
 
 import { ctx } from "../../game/global.js";
-import { clamp, mouseOn } from "../../misc/util.js";
+import { clamp } from "../../helper/helper.js";
 import UIElement from "./UIElement.js";
 
 /**
@@ -26,8 +26,8 @@ export class ScrollableElement extends UIElement {
     }
     
     updateScroll(input) {
-        if(mouseOn(this,input.mouse) && input.scroll) {
-            this.scrollDistance = clamp(this.scrollDistance + (Math.round(input.scroll / 3)),0,this.scrollableHeight - this.h);
+        if(input.mouse.on(this) && input.scroll) {
+            this.scrollDistance = clamp(this.scrollDistance + (Math.round(input.scroll / 3)), 0, this.scrollableHeight - this.h);
             input.scroll = 0;
         }
     }

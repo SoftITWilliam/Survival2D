@@ -1,4 +1,17 @@
-import { image } from "../../misc/util.js"
+import { PATH } from "../global.js";
+
+export const image = (src) => {
+    let img = new Image;
+    try {
+        img.src = PATH + src + ".png";
+    } 
+    catch {
+        img.src = "assets/missing_texture.png";
+    } 
+    finally {
+        return img;
+    }
+}
 
 export const sprites = {
     

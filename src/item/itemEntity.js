@@ -1,7 +1,7 @@
-import { mouseOn, rng, setAttributes } from "../misc/util.js";
 import { ctx, GRAVITY } from "../game/global.js";
-import { renderItem } from "../game/graphics/renderUtil.js";
 import GameEntity from "../game/gameEntity.js";
+import { renderItem } from "../helper/canvashelper.js";
+import { rng } from "../helper/helper.js";
 
 const VECTOR_RANGE = 20;
 
@@ -40,7 +40,7 @@ export class ItemEntity extends GameEntity {
     draw(input) {
         renderItem(this.item, this.x, this.y, this.w, this.h);
 
-        if(mouseOn(this,input.mouse)) {
+        if(input.mouse.on(this)) {
             this.drawLabel(input);
         }
     }
@@ -52,17 +52,17 @@ export class ItemEntity extends GameEntity {
     }
 
     drawLabel(input) {
-        setAttributes(ctx, {font:"20px Font1", fillStyle:"rgba(0,0,0,0.5)", textAlign:"left"});
+        Object.assign(ctx, { font: "20px Font1", fillStyle: "rgba(0,0,0,0.5)", textAlign: "left" });
         let offset = 20;
         let txt = `${this.item.displayName} (${this.stackSize})`;
         let boxWidth = ctx.measureText(txt).width + offset * 2;
-        ctx.fillRect(input.mouse.mapX, -input.mouse.mapY - 28,boxWidth, 28);
+        ctx.fillRect(input.mouse.mapX, -input.mouse.mapY - 28, boxWidth, 28);
         ctx.fillStyle = "white";
         ctx.fillText(txt, input.mouse.mapX + offset, -input.mouse.mapY - 6);
     }
 
     pickUp(player) {
-        let remaining = player.inventory.addItem(this.item,this.stackSize);
+        let remaining = player.inventory.addItem(this.item, this.stackSize);
 
         // If inventory is full, set stack size to remaining amount
         if(remaining > 0) {

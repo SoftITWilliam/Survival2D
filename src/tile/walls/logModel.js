@@ -24,7 +24,7 @@ export class LogModel extends WallBase {
 
     breakTile(tile, toolType, miningLevel) {
         let tileAbove = this.world.getWall(tile.gridX, tile.gridY + 1);
-        if(tileAbove && tileAbove.getRegistryName() == "log") {
+        if(tileAbove && tileAbove.registryName == "log") {
             tileAbove.breakTile(tileAbove, toolType, miningLevel);
         }
 

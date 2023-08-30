@@ -1,8 +1,7 @@
 import { ctx, TILE_SIZE } from '../game/global.js';
 import { Inventory } from '../ui/inventory.js';
 import MiningAction from './mining.js';
-import { calculateDistance, clamp } from '../misc/util.js';
-import { HEIGHTMAP } from '../world/world.js';
+import { HEIGHTMAP } from '../world/World.js';
 import { overlap } from '../game/collision.js';
 import { PlayerStatBar } from './statBar.js';
 import HotbarText from '../ui/hotbarText.js';
@@ -16,6 +15,7 @@ import { TileInstance } from '../tile/tileInstance.js';
 import { FrameAnimation } from '../game/graphics/animation.js';
 import itemRegistry from '../item/itemRegistry.js';
 import { EntityComponent } from '../components/EntityComponent.js';
+import { calculateDistance, clamp } from '../helper/helper.js';
 
 const PLAYER_WIDTH = 36;
 const PLAYER_HEIGHT = 72;
@@ -204,7 +204,7 @@ class Player {
         }
 
         // Select inventory slot
-        for(let i=1;i<=6;i++) {
+        for(let i = 1; i <= 6; i++) {
             if(input.keys.includes(i.toString())) {
                 this.miningAction = null;
                 this.selectItem(i);
@@ -265,7 +265,7 @@ class Player {
     }
         
 
-    getHorizontalMovement(walkLeft,walkRight) {
+    getHorizontalMovement(walkLeft, walkRight) {
         // If player is holding A, accelerate left.
         if(walkLeft) {
             this.dx -= this.acceleration;
@@ -293,7 +293,7 @@ class Player {
 
         // Limit speed to max running speed
         
-        this.dx = clamp(this.dx,-this.maxSpeed,this.maxSpeed);
+        this.dx = clamp(this.dx, -this.maxSpeed, this.maxSpeed);
     }
 
     // Move player and camera by dx and dy
@@ -325,11 +325,11 @@ class Player {
         let x = input.mouse.gridX;
         let y = input.mouse.gridY;
         // Held item must have a placement preview
-        if(!this.heldItem || !this.heldItem.placementPreview || !this.heldItem.canBePlaced(x,y)) {
+        if(!this.heldItem || !this.heldItem.placementPreview || !this.heldItem.canBePlaced(x, y)) {
             return;
         }
 
-        this.heldItem.placementPreview.draw(x,y);
+        this.heldItem.placementPreview.draw(x, y);
     }
 
     draw() {
@@ -340,44 +340,30 @@ class Player {
             frameSize, frameSize, x, y, frameSize, frameSize);
     }
 
-    placeTile(item,x,y) {
+    placeTile(item, x, y) {
 
         // Placement delay
-        if(this.placeDelay > 0) {
-            return;
-        }
+        if(this.placeDelay > 0) return;
 
         // Check if item is placeable
-        if(!item || !item.placeable) {
-            return;
-        }
+        if(!item || !item.placeable) return;
 
         // X and Y must be within grid
-        if(isNaN(x) || isNaN(y) || this.game.world.outOfBounds(x, y)) {
-            return;
-        }
+        if(isNaN(x) || isNaN(y) || this.game.world.outOfBounds(x, y))  return;
 
         // Must be a valid placement position
-        if(!item.canBePlaced(x,y)) {
-            return;
-        }
+        if(!item.canBePlaced(x, y)) return;
     
         let tile = new TileInstance(this.game.world, x, y, item.place());
-        if(!tile || !tile.model) {
-            return;
-        }
+        if(!tile || !tile.model) return;
 
         // Cannot place out of range
-        if(calculateDistance(this, tile) > this.reach) {
-            return;
-        } 
+        if(calculateDistance(this, tile) > this.reach) return;
 
         // Cannot place a solid tile which overlaps with player
-        if(tile.getType() == "solid" && overlap(this, tile)) {
-            return;
-        }
+        if(tile.getType() == "solid" && overlap(this, tile)) return;
 
-        this.world.setTile(x, y, tile.getRegistryName());
+        this.world.setTile(x, y, tile.registryName);
         
         // Decrease amount in stack by 1
         let heldStack = this.inventory.getSelectedSlot().stack;

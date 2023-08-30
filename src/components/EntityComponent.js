@@ -1,6 +1,6 @@
 import { overlap, surfaceCollision } from "../game/collision.js";
 import { TILE_SIZE } from "../game/global.js";
-import { World } from "../world/world.js";
+import { World } from "../world/World.js";
 import { PositionComponent } from "./positionComponent.js";
 
 export class EntityComponent extends PositionComponent {
@@ -34,7 +34,6 @@ export class EntityComponent extends PositionComponent {
     }
 
     updateCollision(world) {
-        if(!(world instanceof World)) return;
         this.worldEdgeCollision(world);
         this.tileCollision(world);
     }

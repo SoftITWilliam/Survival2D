@@ -1,11 +1,12 @@
-import { setAttributes, gridXfromCoordinate, gridYfromCoordinate, disableShadow } from "../../misc/util.js";
+
+import { World } from '../../world/World.js';
 import { ctx } from "../global.js";
 
 export function drawDebugUI(game) {
-    setAttributes(ctx, { 
+    Object.assign(ctx, {
         fillStyle:"white", font:"20px Font1", textAlign:"left",
-        shadowOffsetX:2, shadowOffsetY:2, shadowColor:"black", shadowBlur:5
-    });
+    })
+    ctx.shadow("black", 5, 2, 2);
 
     let x = game.player.camera.x + canvas.width - 256;
     let y = game.player.camera.y;
@@ -18,8 +19,8 @@ export function drawDebugUI(game) {
     ctx.fillText("Entity Count: " + game.itemEntities.entities.length, x, y + rowHeight * 2);
 
     // Player info
-    let playerX = gridXfromCoordinate(game.player.centerX);
-    let playerY = gridYfromCoordinate(game.player.centerY) -1;
+    let playerX = World.gridXfromCoordinate(game.player.centerX);
+    let playerY = World.gridYfromCoordinate(game.player.centerY) -1;
     ctx.fillText(`Player Pos: X ${playerX}, Y ${playerY}`, x, y + rowHeight * 3); 
     ctx.fillText(`Player State: ${game.player.state.name}`, x, y + rowHeight * 4)
     
@@ -36,5 +37,5 @@ export function drawDebugUI(game) {
         ctx.fillText(`Tile Type: -`, x, y + rowHeight * 6); 
     }
 
-    disableShadow(ctx);
+    ctx.shadow();
 }

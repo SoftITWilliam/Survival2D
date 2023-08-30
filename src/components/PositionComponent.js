@@ -1,4 +1,4 @@
-import { gridXfromCoordinate, gridYfromCoordinate } from "../misc/util.js";
+import { World } from '../world/World.js';
 
 /*
     DEFAULT WRAPPERS
@@ -67,8 +67,8 @@ export class PositionComponent {
     get centerY() { return this.y + (this.height / 2) }
     set centerY(value) { this._y = value - (this.height / 2) }
 
-    get gridX() { return this._gridX ?? gridXfromCoordinate(this.centerX) }
-    get gridY() { return this._gridX ?? gridYfromCoordinate(this.centerY) }
+    get gridX() { return this._gridX ?? World.gridXfromCoordinate(this.centerX) }
+    get gridY() { return this._gridX ?? World.gridYfromCoordinate(this.centerY) }
 
     get width() { return this._w }
     set width(value) { this._w = value }

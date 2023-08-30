@@ -1,5 +1,5 @@
 import { TILE_SIZE } from "../../game/global.js";
-import { rng } from "../../misc/util.js";
+import { rng } from "../../helper/helper.js";
 import { BasicTree } from "../../structure/structureParent.js";
 import ObjectBase from "../base/ObjectBase.js";
 
@@ -9,7 +9,7 @@ export default class SaplingBase extends ObjectBase {
         this.setType("nonSolid");
         this.setMiningProperties("axe", 0, 0.2, true);
 
-        this.tree = new BasicTree(0,0,this.world);
+        this.tree = new BasicTree(0, 0, this.world);
         this.growthValue = 255;
     }
 
@@ -17,7 +17,7 @@ export default class SaplingBase extends ObjectBase {
      * Remove the sapling and grow a tree in its place
      */
     growTree(tile) {
-        this.world.clearTile(tile.gridX,tile.gridY);
+        this.world.clearTile(tile.gridX, tile.gridY);
         if(this.tree) {
             this.tree.gridX = tile.gridX;
             this.tree.gridY = tile.gridY;
@@ -32,7 +32,7 @@ export default class SaplingBase extends ObjectBase {
      * @param {number} n Growth chance (1 in n). 0 guarantees growth.
      */
     tryToGrow(n, tile) {
-        if(rng(0,n) == n) {
+        if(rng(0, n) == n) {
             if(this.checkGrowCondition(tile)) {
                 this.growTree(tile);
             }
@@ -60,7 +60,7 @@ export default class SaplingBase extends ObjectBase {
         for(let x = tile.gridX - logDistanceX; x <= tile.gridX + logDistanceX; x++) {
             for(let y = tile.gridY; y <= tile.gridY + logDistanceY; y++) {
                 let object = this.world.getWall(x,y);
-                if(object && object.getRegistryName() == "log") {
+                if(object && object.registryName == "log") {
                     return false;
                 }
             }

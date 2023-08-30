@@ -19,7 +19,7 @@ export class TileInstance extends GameObject {
     // Override
     get width() { return this.model ? this.model.width : 0 }
 
-    getRegistryName() {
+    get registryName() {
         return this.model ? this.model.registryName : "";
     }
 

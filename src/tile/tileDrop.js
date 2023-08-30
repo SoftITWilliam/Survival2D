@@ -1,5 +1,5 @@
+import { rng } from "../helper/helper.js";
 import itemRegistry from "../item/itemRegistry.js";
-import { rng } from "../misc/util.js";
 import { TileInstance } from "./tileInstance.js";
 
 // This should be converted into a general drop class later, so that it for example could be used for entity drops.
@@ -11,7 +11,7 @@ export class TileDrop {
      * @param {boolean} increasable Whether the drop amount is affected by multipliers
      * @param {boolean} toolRequired Whether or not a tool is required to drop the item
      */
-    constructor(tile,itemName,amount,chance,increasable,requireTool) {
+    constructor(tile, itemName, amount, chance, increasable, requireTool) {
         this.tile = tile;
         this.game = tile.world.game;
         this.itemName = itemName;
@@ -30,23 +30,16 @@ export class TileDrop {
     roll(toolType, miningLevel, multiplier) {
 
         // !! Currently doesn't support gathering multipliers
+        multiplier ??= 1;
 
-        if(!multiplier) {
-            multiplier = 1;
-        }
+        if (this.requireTool && this.validTool(toolType, miningLevel)) return null;
 
-        if (this.requireTool && this.validTool(toolType, miningLevel)) {
-            return null;
-        }
-
-        let dropRNG = rng(1,100);
-        if(dropRNG * multiplier > this.chance){
-            return null;
-        }
+        let dropRNG = rng(1, 100);
+        if(dropRNG * multiplier > this.chance) return null;
 
         let dropAmount;
         if(Array.isArray(this.amount)) {
-            dropAmount = rng(this.amount[0],this.amount[1]);
+            dropAmount = rng(this.amount[0], this.amount[1]);
         } else {
             dropAmount = this.amount;
         }

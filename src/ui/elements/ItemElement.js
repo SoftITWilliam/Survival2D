@@ -1,4 +1,4 @@
-import { renderItem } from "../../game/graphics/renderUtil.js";
+import { renderItem } from "../../helper/canvashelper.js";
 import { ImageElement } from "./ImageElement.js";
 
 /**
@@ -18,7 +18,7 @@ export class ItemElement extends ImageElement {
 
     render() {
         if(this.item) {
-            renderItem(this.item,this.x,this.y,this.w,this.h);
+            renderItem(this.item, this.x, this.y, this.w, this.h);
         }
     }
 }

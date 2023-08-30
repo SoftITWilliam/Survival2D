@@ -1,9 +1,9 @@
 import * as structures from '../structure/structureParent.js';
 import { BASE_TERRAIN_HEIGHT, WORLD_WIDTH } from "../game/global.js";
-import { rng, rollMax } from "../misc/util.js";
-import { HEIGHTMAP } from "./world.js";
+import { HEIGHTMAP } from "./World.js";
 import NoiseMap from './NoiseMap.js';
 import { TileInstance } from '../tile/tileInstance.js';
+import { rng, roll } from '../helper/helper.js';
 
 const worldGenConfig = {
 
@@ -121,17 +121,16 @@ export class WorldGeneration {
         for(let x = 0; x < this.world.width; x++) {
             let y = HEIGHTMAP[x];
             let tile = this.world.getTile(x, y);
-            if(!tile || tile.getRegistryName() != "grass") {
-                continue;
-            }
+            
+            if(!tile || tile.registryName != "grass") continue;
 
-            if(rollMax(treeValue) && (x - lastTree) > treeGap) {
+            if(roll(treeValue) && (x - lastTree) > treeGap) {
                 this.world.structures.push(new structures.BasicTree(x, y + 1, this.world));
                 lastTree = x;
                 continue;
             }
 
-            if(rollMax(clothValue)) {
+            if(roll(clothValue)) {
                 this.world.setTile(x, y + 1, "cloth_plant");
             }
         }

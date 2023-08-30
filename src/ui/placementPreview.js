@@ -1,9 +1,9 @@
 import { ctx, TILE_SIZE } from "../game/global.js";
 import { sprites } from "../game/graphics/loadAssets.js";
-import { calculateDistance } from "../misc/util.js";
+import { calculateDistance } from "../helper/helper.js";
 
 export default class PlacementPreview {
-    constructor(sprite,offsetX,offsetY,item) {
+    constructor(sprite, offsetX, offsetY, item) {
         this.game = item.game;
         this.item = item;
         this.sx = offsetX;
@@ -19,7 +19,7 @@ export default class PlacementPreview {
             this.missingTexture = false;
         }
 
-        this.aRange = [0.4,0.7];
+        this.aRange = [0.4, 0.7];
 
         this.a = this.aRange[0];
         this.aFade = 0.02;
@@ -34,26 +34,32 @@ export default class PlacementPreview {
         }
     }
 
-    draw(gridX,gridY) {
+    draw(gridX, gridY) {
         this.updateAlpha();
 
         // If out of placement range, 
         let pos = {
-            getCenterX: () => gridX * TILE_SIZE + TILE_SIZE / 2,
-            getCenterY: () => -gridY * TILE_SIZE + TILE_SIZE / 2
+            centerX: gridX * TILE_SIZE + TILE_SIZE / 2,
+            centerY: -gridY * TILE_SIZE + TILE_SIZE / 2
         }
 
-        if (calculateDistance(this.game.player,pos) > this.game.player.reach || 
-            !this.item.canBePlaced(gridX,gridY)
-        ) {
-            ctx.globalAlpha = 0.05;
-        } else {
+        let distance = calculateDistance(this.game.player, pos);
+        let inPlacementRange = distance <= this.game.player.reach;
+        
+        if (inPlacementRange && this.item.canBePlaced(gridX, gridY)) {
             ctx.globalAlpha = this.a;
+        } else {
+            ctx.globalAlpha = 0.05;
         }
 
         let x = gridX * TILE_SIZE;
         let y = -gridY * TILE_SIZE;
-        ctx.drawImage(this.sprite,this.sx,this.sy,TILE_SIZE,TILE_SIZE,x,y,TILE_SIZE,TILE_SIZE);
+
+        ctx.drawImage(
+            this.sprite, this.sx, this.sy, TILE_SIZE, TILE_SIZE, 
+            x, y, TILE_SIZE, TILE_SIZE
+        );
+
         ctx.globalAlpha = 1;
     }
 }
@@ -77,9 +83,11 @@ export function validPlacementPosition(gridX,gridY,world) {
     }
 
     // Check for adjacent tile or wall
-    if (world.getTile(gridX-1,gridY) || world.getTile(gridX+1,gridY) ||
-        world.getTile(gridX,gridY-1) || world.getTile(gridX,gridY+1) ||
-        world.getWall(gridX,gridY)) {
+    if (world.getTile(gridX - 1, gridY) || 
+    world.getTile(gridX + 1, gridY) ||
+        world.getTile(gridX, gridY - 1) || 
+        world.getTile(gridX, gridY + 1) ||
+        world.getWall(gridX, gridY)) {
             return true;
     }
     return false;

@@ -1,7 +1,7 @@
 import { drawStatBar } from './ui.js';
 import { ctx, canvas, DRAWDIST, DRAW_LIGHTING, DEBUG_MODE } from '../global.js';
-import { calculateDistance, clamp, setAttributes } from '../../misc/util.js';
 import { drawDebugUI } from './debug.js';
+import { calculateDistance, clamp } from '../../helper/helper.js';
 
 export default function render(game, player) {
     ctx.save();
@@ -86,9 +86,7 @@ function drawHoverEffect(game,input) {
     let wall = game.world.getWall(input.mouse.gridX, input.mouse.gridY);
 
     // Cannot interact with tiles while inventory is open
-    if(game.player.inventory.view) {
-        return;
-    }
+    if(game.player.inventory.view) return;
 
     // Check if player is able to interact with tile or wall using the tool they're currently holding
     let obj;
@@ -103,11 +101,11 @@ function drawHoverEffect(game,input) {
     ctx.beginPath();
 
     // Different look depending on if tile is in range or not
-    if(calculateDistance(game.player,obj) > game.player.reach) {
-        setAttributes(ctx, { lineWidth:1, strokeStyle:"rgba(255,255,255,0.25)", fillStyle:"rgba(0,0,0,0)" });
-    } else {
-        setAttributes(ctx, { lineWidth:3, strokeStyle:"rgba(255,255,255,0.5)", fillStyle:"rgba(255,255,255,0.05)" });
-    }
+    let styling = calculateDistance(game.player,obj) > game.player.reach ?
+        { lineWidth: 1, strokeStyle: "rgba(255,255,255,0.25)", fillStyle: "rgba(0,0,0,0)" } :
+        { lineWidth: 3, strokeStyle: "rgba(255,255,255,0.5)", fillStyle: "rgba(255,255,255,0.05)" }
+
+    Object.assign(ctx, styling);
     
     // Draw hover effect
     ctx.rect(obj.x, obj.y, obj.height, obj.width);

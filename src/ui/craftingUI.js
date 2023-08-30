@@ -1,6 +1,6 @@
 import { colors } from "../game/graphics/colors.js";
+import { getGap } from "../helper/helper.js";
 import itemRegistry from "../item/itemRegistry.js";
-import { getGap } from "../misc/util.js";
 import * as ui from "./elementAggregator.js";
 
 export default class CraftingInterface {
@@ -37,10 +37,10 @@ export default class CraftingInterface {
         this.itemsPerRow = Math.floor(this.sectionWidth / this.craftableSize);
 
         // Calculate gap size between items. Minimum 16.
-        this.itemGap = getGap(this.sectionWidth,this.craftableSize,this.itemsPerRow);
+        this.itemGap = getGap(this.sectionWidth, this.craftableSize, this.itemsPerRow);
         if(this.itemGap < 16) {
             this.itemsPerRow -= 1;
-            this.itemGap = getGap(this.sectionWidth,this.craftableSize,this.itemsPerRow);
+            this.itemGap = getGap(this.sectionWidth, this.craftableSize, this.itemsPerRow);
         }
 
         // ==============
@@ -75,7 +75,7 @@ export default class CraftingInterface {
             position: "ABSOLUTE", offsetY: 48, centerX: true, textAlign: "center",
         });
 
-        this.CPrimary.addChildren([this.CSectionLeft,this.CSectionRight,this.CTopLabel]);
+        this.CPrimary.addChildren([this.CSectionLeft, this.CSectionRight, this.CTopLabel]);
 
         // "No recipe selected" text
         this.CNoRecipe = new ui.Text(this.game, {
@@ -127,9 +127,9 @@ export default class CraftingInterface {
         ];
 
         this.CItemCostLabelList.forEach(label => {
-            label.setFont(14,"Font1");
-            label.setTextAttribute("textBaseline","middle");
-            label.setTextColor(colors.white,null);
+            label.setFont(14, "Font1");
+            label.setTextAttribute("textBaseline", "middle");
+            label.setTextColor(colors.white, null);
             label.textCenterY = true;
             label.h = this.rowHeight;
         });

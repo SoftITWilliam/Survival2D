@@ -1,4 +1,4 @@
-import { rng } from "../misc/util.js";
+import { rng } from "../helper/helper.js";
 
 const testAmount = 1;
 

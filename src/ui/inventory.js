@@ -1,6 +1,12 @@
 import { canvas, ctx, INVENTORY_HEIGHT, INVENTORY_WIDTH } from "../game/global.js";
-import { setAttributes } from "../misc/util.js";
+import { renderPath } from "../helper/canvasHelper.js";
 import { ItemStack } from "../item/itemStack.js";
+
+const HOTBAR_OFFSET_Y = 24;
+const SLOT_SIZE = 64;
+
+// I think inventory needs a full rewrite... 
+// Item container needs to be refactored out to be used in storage tiles etc
 
 export class Inventory {
     constructor(player) {
@@ -10,37 +16,41 @@ export class Inventory {
         // Grid size
         this.w = INVENTORY_WIDTH;
         this.h = INVENTORY_HEIGHT;
-        this.slotSize = 64;
-        this.fullWidth = this.w * this.slotSize;
+        this.fullWidth = this.w * SLOT_SIZE;
 
-        this.topEdge = canvas.height - this.slotSize * this.h - 64;
-        this.leftEdge = canvas.width / 2 - this.slotSize * (this.w / 2);
+        this.topEdge = canvas.height - SLOT_SIZE * this.h - SLOT_SIZE;
+        this.leftEdge = canvas.width / 2 - SLOT_SIZE * (this.w / 2);
 
         this.close();
 
         // Set up grid
         this.grid = [];
-        for(let x=0;x<this.w;x++) {
+        for(let invX = 0; invX < this.w; invX++) {
             let row = [];
-            for(let y=0;y<this.h;y++) {
-                if(y == this.h - 1) {
-                    row.push(new InventorySlot(this.leftEdge + this.slotSize*x,this.topEdge + this.slotSize*y,x,y,this.player));
-                } else {
-                    row.push(new InventorySlot(this.leftEdge + this.slotSize*x,this.topEdge + this.slotSize*y - 24,x,y,this.player));
-                }
+            for(let invY = 0; invY < this.h; invY++) {
+
+                let xPos = this.leftEdge + SLOT_SIZE * invX;
+                let yPos = this.topEdge + SLOT_SIZE * invY;
+                if(invY !== this.h - 1) yPos -= HOTBAR_OFFSET_Y;
+
+                let slot = new InventorySlot(xPos, yPos, invX, invY, this.player);
+                row.push(slot);
             }
             this.grid.push(row);
         }
     }
 
+    get _cameraX() { return this.player.camera.x }
+    get _cameraY() { return this.player.camera.y }
+
     close() {
         if(this.holdingStack) {
-            this.addItem(this.holdingStack.item,this.holdingStack.amount);
+            this.addItem(this.holdingStack.item, this.holdingStack.amount);
         }
 
         this.view = false;
         this.holdingStack = null;
-        this.hoveredSlot = {x:null,y:null}
+        this.hoveredSlot = { x: null, y: null }
     }
 
     update(input) {
@@ -68,46 +78,36 @@ export class Inventory {
     updateInteraction(input) {
         this.hoveredSlot = this.checkHover(input);
 
-        if(!input.mouse.click && !input.mouse.rightClick) {
-            return;
-        }
+        if(!input.mouse.click && !input.mouse.rightClick) return;
 
         const insertAmount = (
             input.mouse.click ? (this.holdingStack ? this.holdingStack.amount : null) : 
             input.mouse.rightClick ? 1 : null
         );
 
-        const split = (
-            input.mouse.rightClick ? true : false 
-        );
+        const split = (input.mouse.rightClick ? true : false);
         
         if(this.holdingStack) {
-            this.insertIntoSlot(this.hoveredSlot,insertAmount);
+            this.insertIntoSlot(this.hoveredSlot, insertAmount);
         } else {
-            this.selectSlot(this.hoveredSlot.x,this.hoveredSlot.y,split);
+            this.selectSlot(this.hoveredSlot.x, this.hoveredSlot.y, split);
         }
 
         input.mouse.click = false;
         input.mouse.rightClick = false;
     }
 
-    selectSlot(x,y,split) {
+    selectSlot(x, y, split) {
         // No slot hovered
-        if(x === null || y === null) {
-            return;
-        }
+        if(x === null || y === null) return;
 
         // Get slot position
         let slot = this.grid[x][y];
-            
-        // Only slots with an item in them are selectable
-        if(!slot.stack) {
-            return;
-        }
+        if(!slot.stack) return;
 
         // Calculate amount and subtract it from source stack
         const a = (split ? Math.ceil(slot.stack.amount / 2) : slot.stack.amount);
-        this.holdingStack = new ItemStack(slot.stack.item,a);
+        this.holdingStack = new ItemStack(slot.stack.item, a);
         slot.stack.subtractAmount(a);
 
         // Delete source stack if empty
@@ -118,11 +118,10 @@ export class Inventory {
 
     /**
      * Try to insert the selected item into a slot
-     * 
-     * @param {object}  slot            New slot
-     * @param {number}  insertAmount    Amount of items to be inserted into slot
+     * @param {object} slot New slot
+     * @param {number} insertAmount Amount of items to be inserted into slot
      */
-    insertIntoSlot(slot,insertAmount) {
+    insertIntoSlot(slot, insertAmount) {
 
         // If player is holding an item and clicks outside the inventory, drop the item.
         if(slot.x === null || slot.y === null) {
@@ -138,7 +137,7 @@ export class Inventory {
             // If new slot has a different item, insert the held stack and pick up the new one.
             if(newStack.item.id != this.holdingStack.item.id) {
                 let temp = this.holdingStack;
-                this.selectSlot(slot.x,slot.y,false);
+                this.selectSlot(slot.x, slot.y, false);
                 this.grid[slot.x][slot.y].stack = temp;
                 return;
             }
@@ -150,7 +149,8 @@ export class Inventory {
 
         } else {
             // Insert stack and remove old stack
-            this.grid[slot.x][slot.y].stack = new ItemStack(this.holdingStack.item,insertAmount);
+            let stack = new ItemStack(this.holdingStack.item, insertAmount);
+            this.grid[slot.x][slot.y].stack = stack;
             this.holdingStack.amount -= insertAmount;
         }
 
@@ -166,39 +166,33 @@ export class Inventory {
     checkHover(input) {
 
         // Get currently hovered inventory grid coordinates
-        let slotX = Math.floor((input.mouse.x - this.leftEdge) / this.slotSize);
-        let slotY = Math.floor((input.mouse.y - this.topEdge + 24) / this.slotSize);
+        let slotX = Math.floor((input.mouse.x - this.leftEdge) / SLOT_SIZE);
+        let slotY = Math.floor((input.mouse.y - this.topEdge + HOTBAR_OFFSET_Y) / SLOT_SIZE);
 
         // Invalid X value
-        if(slotX < 0 || slotX >= this.w) {
-            slotX = null;
-        }
+        if(slotX < 0 || slotX >= this.w) slotX = null;
 
         // Invalid Y value OR in hotbar row
-        if(slotY < 0 || slotY >= this.h - 1) {
-            slotY = null;
-        }
+        if(slotY < 0 || slotY >= this.h - 1) slotY = null;
 
         // Check if hotbar row is hovered
-        if(Math.floor((input.mouse.y - this.topEdge) / this.slotSize) == this.h - 1) {
+        if(Math.floor((input.mouse.y - this.topEdge) / SLOT_SIZE) == this.h - 1) {
             slotY = this.h - 1;
         }
 
-        return {x:slotX,y:slotY};
+        return { x: slotX, y: slotY };
     }
 
     // If a stack with the given item already exists and it isn't full, return its grid position
     findExistingStack(id) {
         
-        for(let x=0;x<this.w;x++) {
-            for(let y=0;y<this.h;y++) {
+        for(let x = 0; x < this.w; x++) {
+            for(let y = 0; y < this.h; y++) {
                 let stack = this.grid[x][y].stack;
-                if(!stack) {
-                    continue;
-                }
+                if(!stack) continue;
 
                 if(stack.item.id == id && stack.amount < stack.item.stackLimit) {
-                    return {x:x,y:y};
+                    return { x: x, y: y };
                 } 
             }
         }
@@ -208,17 +202,17 @@ export class Inventory {
     // If an empty slot exists, return it.
     findEmptySlot() {
         // Search hotbar first
-        for(let x=0;x<this.w;x++) {
+        for(let x = 0; x < this.w; x++) {
             if(!this.grid[x][3].stack) {
-                return {x:x,y:3};
+                return { x: x, y: 3 };
             }
         }
 
         // Search rest of inventory
-        for(let y=0;y<this.h-1;y++) {
-            for(let x=0;x<this.w;x++) {
+        for(let y = 0; y < this.h - 1; y++) {
+            for(let x = 0; x < this.w; x++) {
                 if(!this.grid[x][y].stack) {
-                    return {x:x,y:y};
+                    return { x: x, y: y };
                 }
             }
         }
@@ -234,19 +228,16 @@ export class Inventory {
      * @param {object} item The item to be searched for
      */
     getItemAmount(item) {
-        if(!item) {
-            return;
-        }
+        if(!item) return;
 
         let amount = 0;
         for(let x = 0; x < this.w; x++) {
             for(let y = 0; y < this.h; y++) {
-                let g = this.grid[x][y];
-                if(!g.stack) {
-                    continue;
-                }
-                if(g.stack.item.getRegistryName() == item.getRegistryName()) {
-                    amount += g.stack.amount;
+                let slot = this.grid[x][y];
+                if(!slot.stack) continue;
+
+                if(slot.stack.item.registryName == item.registryName) {
+                    amount += slot.stack.amount;
                 }
             }
         }
@@ -269,7 +260,8 @@ export class Inventory {
         // If a stack with the item already exists, fill it up.
 
         if(slot) {
-            let x = slot.x; let y = slot.y;
+            let x = slot.x; 
+            let y = slot.y;
 
             let remainingSpace = this.grid[x][y].stack.getRemainingSpace();
 
@@ -287,7 +279,7 @@ export class Inventory {
 
             // If there are items left after filling the stack, a new stack will be created.
             if(amount == 0) {
-                this.player.pickupLabels.add(item,startAmount);
+                this.player.pickupLabels.add(item, startAmount);
                 return;
             }
         }
@@ -295,9 +287,7 @@ export class Inventory {
         while(true) {
 
             // Break condition
-            if(amount == 0) {
-                break;
-            }
+            if(amount == 0) break;
 
             // Find empty inventory space
             let emptySlot = this.findEmptySlot();
@@ -305,7 +295,7 @@ export class Inventory {
             // If inventory is full, return the amount of items left.
             if(!emptySlot) {
                 if(startAmount - amount != 0) {
-                    this.player.pickupLabels.add(item,startAmount - amount);
+                    this.player.pickupLabels.add(item, startAmount - amount);
                 }
                 return amount;
             }
@@ -316,21 +306,20 @@ export class Inventory {
             // (If the item entity picked up still has items left after this, they will be deleted)
             // (Unless Tile entities of the same type combine with eachother in the future, this won't be a problem) (IT ENDED UP BEING A PROBLEM)
             if(item.stackLimit < amount) {
-                this.grid[x][y].stack = new ItemStack(item,item.stackLimit);
+                this.grid[x][y].stack = new ItemStack(item, item.stackLimit);
                 amount -= item.stackLimit;
             } else {
-                this.grid[x][y].stack = new ItemStack(item,amount);
+                this.grid[x][y].stack = new ItemStack(item, amount);
                 amount = 0;
             }
-            
-
+        
             // If new stack is placed in the selected hotbar slot, the selection is refreshed.
             if(y + 1 == this.h && x + 1 == this.selectedHotbarSlot) {
                 this.player.selectItem(x + 1);
             }
         }
 
-        this.player.pickupLabels.add(item,startAmount);
+        this.player.pickupLabels.add(item, startAmount);
     }
 
     removeItem(item, amount) {
@@ -339,13 +328,9 @@ export class Inventory {
 
                 // Loop through inventory until a slot is found that has the given item
                 let slot = this.grid[x][y];
-                if(!slot.stack) {
-                    continue;
-                }
+                if(!slot.stack) continue;
 
-                if(slot.stack.item.getRegistryName() !== item.getRegistryName()) {
-                    continue;
-                }
+                if(slot.stack.item.registryName !== item.registryName) continue;
 
                 // Delete the given amount from the stack, then return.
                 if(amount < slot.stack.amount) {
@@ -368,24 +353,33 @@ export class Inventory {
     }
 
     draw() {
-
-        // Draw hotbar
         this.drawHotbar();
 
         // If inventory view is enabled, draw rest of the inventory.
-        if(!this.view) {
-            return;
-        }
+        if(!this.view) return;
 
+        // Draw inventory boxes
         ctx.beginPath();
-        setAttributes(ctx,{strokeStyle:"rgba(0,0,0,0.5)",fillStyle:"rgba(0,0,0,0.25)",lineWidth:3});
-        ctx.rect(this.player.camera.getX() + this.leftEdge-3,this.player.camera.getY() + this.topEdge-27,this.fullWidth+6,this.slotSize*(this.h-1) +6);
+
+        let lineWidth = 3;
+
+        Object.assign(ctx, { 
+            strokeStyle: "rgba(0,0,0,0.5)", fillStyle: "rgba(0,0,0,0.25)", lineWidth: lineWidth
+        });
+
+        let xPos = this._cameraX + this.leftEdge - 3;
+        let yPos = this._cameraY + this.topEdge - 27;
+        let invWidth = this.fullWidth + lineWidth * 2;
+        let invHeight = SLOT_SIZE * (this.h - 1) + lineWidth * 2;
+
+        ctx.rect(xPos, yPos, invWidth, invHeight);
         ctx.fill();
         ctx.stroke();
         ctx.closePath();
 
-        for(let x=0;x<this.w;x++) {
-            for(let y=0;y<this.h-1;y++) {
+        // Draw slots
+        for(let x = 0; x < this.w; x++) {
+            for(let y = 0; y < this.h - 1; y++) {
                 this.grid[x][y].draw();
             }
         }
@@ -395,46 +389,53 @@ export class Inventory {
     drawHotbar() {
 
         ctx.beginPath();
-        setAttributes(ctx,{strokeStyle:"rgba(0,0,0,0.5)",fillStyle:"rgba(0,0,0,0.25)",lineWidth:3});
-        ctx.rect(this.player.camera.getX() + this.leftEdge-3,this.player.camera.getY() + this.topEdge-3 + this.slotSize * 3,this.fullWidth+6,this.slotSize+6);
+        Object.assign(ctx, { strokeStyle: "rgba(0,0,0,0.5)", fillStyle: "rgba(0,0,0,0.25)", lineWidth: 3 });
+        ctx.rect(
+            this._cameraX + this.leftEdge - 3, 
+            this._cameraY + this.topEdge - 3 + SLOT_SIZE * 3, 
+            this.fullWidth + 6, 
+            SLOT_SIZE + 6
+        );
         ctx.fill();
         ctx.stroke();
 
         let y = 3;
-        for(let x=0;x<this.w;x++) {
+        for(let x = 0; x < this.w; x++) {
             this.grid[x][y].draw();
         }
     }
 
     drawSelection() {
-        setAttributes(ctx,{strokeStyle:"white",lineWidth:5});
-        let slot = this.getSelectedSlot();
+        Object.assign(ctx, { 
+            strokeStyle: "white", lineWidth: 5
+        });
 
-        ctx.beginPath();
-        ctx.rect(this.player.camera.getX() + slot.x,this.player.camera.getY() + slot.y,this.slotSize,this.slotSize);
-        ctx.stroke();
-        ctx.closePath();
+        renderPath(() => {
+            let slot = this.getSelectedSlot();
+            ctx.rect(slot.xPos, slot.yPos, this.slotSize, this.slotSize);
+            ctx.stroke();
+        });
     }
 
     drawSelectedStack(input) {
-        this.holdingStack.draw(input.mouse.mapX,-input.mouse.mapY);
-        this.holdingStack.drawAmount(input.mouse.mapX - 16, -input.mouse.mapY - 16);
+        let mx = input.mouse.mapX;
+        let my = -input.mouse.mapY;
+        this.holdingStack.draw(mx, my);
+        this.holdingStack.drawAmount(mx - 16, my - 16);
     }
 
     drawItems(input) {
 
         // Draw items in hotbar
-        for(let x=0;x<this.w;x++) {
+        for(let x = 0; x < this.w; x++) {
             this.grid[x][this.h - 1].drawItem();
         }
 
-        if(!this.view) {
-            return;
-        }
+        if(!this.view) return;
         
         // Draw items in rest inventory
-        for(let x=0;x<this.w;x++) {
-            for(let y=0;y<this.h-1;y++) {
+        for(let x = 0; x < this.w; x++) {
+            for(let y = 0; y < this.h - 1; y++) {
                 this.grid[x][y].drawItem();
             }
         }
@@ -446,27 +447,41 @@ export class Inventory {
 }
 
 class InventorySlot {
-    constructor(x,y,ix,iy,player) {
+    constructor(x, y, invX, invY, player) {
         this.player = player; // Pointer
         this.stack = null;
-        this.ix = ix,
-        this.iy = iy,
+
+        this.invX = invX,
+        this.invY = invY,
+
         this.x = x;
         this.y = y;
+
         this.w = 64;
         this.h = 64;
     }
 
+    get _cameraX() { return this.player.camera.x }
+    get _cameraY() { return this.player.camera.y }
+
+    get xPos() { return this.x + this._cameraX }
+    get yPos() { return this.y + this._cameraY }
+
     isHovered() {
-        return (this.player.inventory.hoveredSlot.x == this.ix && this.player.inventory.hoveredSlot.y == this.iy);
+        return (
+            this.player.inventory.hoveredSlot.x == this.invX && 
+            this.player.inventory.hoveredSlot.y == this.invY
+        );
     }
 
     // Draw slot
     draw() {
-        setAttributes(ctx,{strokeStyle:"rgb(200,200,200)",lineWidth:3})
+        Object.assign(ctx, { 
+            strokeStyle: "rgb(200,200,200)", lineWidth:3 
+        });
 
         ctx.beginPath();
-        ctx.rect(this.x + this.player.camera.getX(),this.y + this.player.camera.getY(),this.w,this.h);
+        ctx.rect(this.xPos, this.yPos, this.w, this.h);
         ctx.stroke();
         ctx.closePath();
 
@@ -475,27 +490,17 @@ class InventorySlot {
 
     // Draw item in slot
     drawItem() {
-
-        if(!this.stack) {
-            return;
-        }
-
-        // Item position
-        let xPos = this.player.camera.getX() + this.x;
-        let yPos = this.player.camera.getY() + this.y;
+        if(!this.stack) return;
 
         // Draw item
-        this.stack.draw(xPos + 16,yPos + 16);
-        this.stack.drawAmount(xPos,yPos);
+        this.stack.draw(this.xPos + 16, this.yPos + 16);
+        this.stack.drawAmount(this.xPos, this.yPos);
     }
     // Draw hover overlay
     drawHoverEffect() {
-
-        if(!this.isHovered() || !this.player.inventory.view) {
-            return;
-        }
+        if(!this.isHovered() || !this.player.inventory.view) return;
 
         ctx.fillStyle = "rgba(255,255,255,0.25)";
-        ctx.fillRect(this.player.camera.getX() + this.x,this.player.camera.getY() + this.y,this.w,this.h)
+        ctx.fillRect(this.xPos, this.yPos, this.w, this.h)
     }
 }

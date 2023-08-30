@@ -3,7 +3,7 @@ import { Player } from "../player/player.js";
 import RecipeManager from "../player/recipe.js";
 import { World } from "../world/world.js";
 import FPSCounter from "./graphics/FPScounter.js";
-import { InputHandler } from "./input.js";
+import { InputHandler } from "./InputHandler.js";
 import { Testing } from "../tests/testing.js";
 import itemRegistry from "../item/itemRegistry.js";
 import tileRegistry from "../tile/tileRegistry.js";

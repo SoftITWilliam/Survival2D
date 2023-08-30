@@ -1,7 +1,8 @@
 
-import LightingGrid from './lighting.js';
+import LightingGrid from './LightingGrid.js';
 import { generateTerrainHeight, WorldGeneration } from './WorldGeneration.js';
 import { TileInstance } from '../tile/tileInstance.js';
+import { TILE_SIZE } from '../game/global.js';
 
 export const HEIGHTMAP = generateTerrainHeight();
 
@@ -149,5 +150,23 @@ export class World {
                 tile.tileUpdate();
             }
         }
+    }
+
+    /**
+     * Takes an X coordinate and return its grid equivalent
+     * @param {int} x canvas X coordinate
+     * @returns {*} grid X coordinate (false if outside grid)
+     */
+    static gridXfromCoordinate(x) {
+        return Math.floor(x / TILE_SIZE);
+    }
+
+    /**
+     * Takes an Y coordinate and return its grid equivalent
+     * @param {int} x canvas X coordinate
+     * @returns {int} grid X coordinate (false if outside grid)
+     */
+    static gridYfromCoordinate(y) {
+        return -Math.floor(y / TILE_SIZE);
     }
 }

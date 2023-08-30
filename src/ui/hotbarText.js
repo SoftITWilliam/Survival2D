@@ -1,5 +1,4 @@
 import { ctx } from "../game/global.js";
-import { setAttributes } from "../misc/util.js";
 
 export default class HotbarText {
     constructor(player) {
@@ -34,15 +33,17 @@ export default class HotbarText {
     draw() {
         this.incrementFrames();
 
-        if(this.player.inventory.view) {
-            return;
-        }
+        if(this.player.inventory.view) return;
 
-        setAttributes(ctx,{font:"24px Font1",textAlign:"center",fillStyle:"rgba(255,255,255," + this.opacity + ")",
-            shadowOffsetX:2,shadowOffsetY:2,shadowColor:"black",shadowBlur:4});
+        Object.assign(ctx, {
+            font: "24px Font1", textAlign: "center", fillStyle: `rgba(255,255,255,${this.opacity})`
+        });
+        ctx.shadow("black", 4, 2, 2);
+
         let x = this.player.camera.getX() + canvas.width / 2;
         let y = this.player.camera.getY() + canvas.height - 144;
-        ctx.fillText(this.text,x,y);
-        setAttributes(ctx,{shadowOffsetX:0,shadowOffsetY:0,shadowColor:0,shadowBlur:0});
+        ctx.fillText(this.text, x, y);
+
+        ctx.shadow();
     }
 }

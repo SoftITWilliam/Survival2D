@@ -1,67 +1,71 @@
 import { getDescription, getDisplayName, getLang } from "../game/lang.js";
 import { sprites } from "../game/graphics/loadAssets.js";
 
+const ITEM_RARITIES = {
+    "COMMON": 0,
+    "UNCOMMON": 1,
+    "RARE": 2,
+    "EPIC": 3,
+    "LEGENDARY": 4,
+    "UNOBTAINABLE": 99,
+}
+
+const RARITY_COLORS = {};
+
+const addRarityColor = (rarityName, rgb) => {
+    let r = ITEM_RARITIES[rarityName];
+    if(r) RARITY_COLORS[r] = rgb;
+}
+
+addRarityColor("COMMON", {r:240, g:240, b:240});
+addRarityColor("UNCOMMON", {r:100, g:200, b:120});
+addRarityColor("RARE", {r:80, g:150, b:220});
+addRarityColor("EPIC", {r:170, g:110, b:255});
+addRarityColor("LEGENDARY", {r:255, g:180, b:0});
+addRarityColor("UNOBTAINABLE", {r:220, g:0, b:30});
+
 export default class Item {
-    constructor(game,registryName) {
+    constructor(game, registryName) {
         this.game = game; // Pointer
-        this.setRegistryName(registryName);
+        
         this.setSprite('missing_texture');
         this.itemType = null;
         this.stackSize = 99;
         this.sx = 0;
         this.sy = 0;
+
+        this._registryname;
+
+        this.registryName = registryName;
     }
 
     // Set the registry name of the item
     // Also gets item ID, display name, and description
-    setRegistryName(name) {
-        this.registryName = name;
+    set registryName(name) {
+        this._registryname = name;
         this.displayName = getDisplayName(name);
-        this.setDescription();
+        this.description = getDescription(this.registryName);
     }
 
-    // Get the item description and assign it to the object
-    // Item descriptions are currently stored in lang.js, as "registryname_description"
-    setDescription() {
-        this.description = getDescription(this.registryName);
+    get registryName() {
+        return this._registryname;
+    }
+
+    get textColor() {
+        return RARITY_COLORS[this.rarity] ?? {r:240, g:240, b:240}
     }
 
     /**
      * Set item rarity and display color
-     * 
      * @param {any} rarity   Item rarity (supports both numbers and names, ex. 0 and "COMMON")
      */
     setRarity(rarity) {
-        let rarityEnum = {
-            "COMMON": 0,
-            "UNCOMMON": 1,
-            "RARE": 2,
-            "EPIC": 3,
-            "LEGENDARY": 4,
-            "UNOBTAINABLE": 99,
-        }
-
-        if(typeof rarity == "number") {
-            this.rarity = rarity;
-        } else {
-            this.rarity = rarityEnum[rarity] ? rarityEnum[rarity] : 0; // Default to 0 if name is invalid
-        }
-        
+        this.rarity = ITEM_RARITIES[rarity] ?? 0;
         this.rarityText = getLang("rarity_" + this.rarity);
-        switch(this.rarity) {
-            case 0: this.textColor = {r:240,g:240,b:240}; break;
-            case 1: this.textColor = {r:100,g:200,b:120}; break;
-            case 2: this.textColor = {r:80,g:150,b:220}; break;
-            case 3: this.textColor = {r:170,g:110,b:255}; break;
-            case 4: this.textColor = {r:255,g:180,b:0}; break;
-            case 99: this.textColor = {r:220,g:0,b:30}; break;
-            default: this.textColor = {r:240,g:240,b:240}; break;
-        }
     }
 
     /**
      * Set the item sprite. If it doesn't exist, 'missing texture' is used instead.
-     * 
      * @param {any} sprite  Sprite image object through 'sprites' import. (ex: 'sprites.item.wood')
      */
     setSprite(sprite) {
@@ -77,10 +81,6 @@ export default class Item {
         }
     }
 
-    getRegistryName() {
-        return this.registryName;
-    }
-
     getDisplayName() {
         return this.displayName;
     }
@@ -92,7 +92,7 @@ export default class Item {
     /** 
      * Return the tile the object is supposed to place.
     */
-    place(gridX,gridY) {
+    place(gridX, gridY) {
         return;
     }
 
@@ -102,22 +102,18 @@ export default class Item {
      * @param {number} y Y grid position
      * @returns 
      */
-    canBePlanted(x,y) {
-        let tileBelow = this.game.world.getTile(x,y-1);
-        if(!tileBelow || (tileBelow.getRegistryName() != "dirt" && tileBelow.getRegistryName() != "grass")) {
-            return false;
-        }
-        return true;
+    canBePlanted(x, y) {
+        let tileBelow = this.game.world.getTile(x, y - 1);
+        return (tileBelow && (tileBelow.registryName == "dirt" || tileBelow.registryName == "grass"));
     }
 
     /**
      * Set sprite offset position
      * (Used for spritesheets)
-     * 
      * @param {int} offsetX X offset in pixels
      * @param {int} offsetY Y offset in pixels
      */
-    setSpriteOffset(offsetX,offsetY) {
+    setSpriteOffset(offsetX, offsetY) {
         
         if(!offsetX || !offsetY || this.missingTexture) {
             this.sx = 0;

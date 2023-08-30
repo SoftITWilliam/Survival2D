@@ -1,6 +1,5 @@
 import { ctx } from "../game/global.js";
-import { renderItem } from "../game/graphics/renderUtil.js";
-import { setAttributes } from "../misc/util.js";
+import { renderItem } from "../helper/canvasHelper.js";
 
 export class ItemStack {
     constructor(item, amount) {
@@ -34,19 +33,19 @@ export class ItemStack {
         this.amount -= count;
     }
 
-    draw(x,y) {
-        renderItem(this.item,x,y,this.size,this.size);
+    draw(x, y) {
+        renderItem(this.item, x, y, this.size, this.size);
     }
 
-    drawAmount(x,y) {
-        if(this.item.stackLimit == 1) {
-            return;
-        }
+    drawAmount(x, y) {
+        if(this.item.stackLimit == 1) return;
         
-        setAttributes(ctx,{fillStyle:"white",font:"24px Font1",textAlign:"right",
-        shadowOffsetX:0,shadowOffsetY:0,shadowColor:"black",shadowBlur:4});
-        ctx.fillText(this.amount,x + 56, y + 58);
+        Object.assign(ctx, {
+            fillStyle: "white", font: "24px Font1", textAlign: "right",
+        });
+        ctx.shadow("black", 4, 0, 0);
+        ctx.fillText(this.amount, x + 56, y + 58);
         ctx.filter = false;
-        setAttributes(ctx,{shadowOffsetX:0,shadowOffsetY:0,shadowColor:0,shadowBlur:0});
+        ctx.shadow();
     }
 }
