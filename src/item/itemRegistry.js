@@ -48,18 +48,13 @@ class ItemRegistry {
     }
 
     static asArray() {
-        return [
-            this.DIRT, 
-            this.STONE,
-            this.DEV_PICKAXE, this.DEV_AXE, this.DEV_SHOVEL, this.DEV_HAMMER,
-            this.WOODEN_PICKAXE, this.WOODEN_AXE, this.WOODEN_SHOVEL, this.WOODEN_HAMMER,
-            this.WOOD,
-            this.BRANCH,
-            this.PLANT_FIBER,
-            this.ACORN,
-            this.GRASS_SEEDS,
-            this.CLOTH_SEEDS,
-        ];
+        const itemArray = [];
+        for(const key in ItemRegistry) {
+            if(ItemRegistry[key] instanceof Item) {
+                itemArray.push(ItemRegistry[key]);
+            }
+        }
+        return itemArray;
     }
 }
 
