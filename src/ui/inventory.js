@@ -412,7 +412,7 @@ export class Inventory {
 
         renderPath(() => {
             let slot = this.getSelectedSlot();
-            ctx.rect(slot.xPos, slot.yPos, this.slotSize, this.slotSize);
+            ctx.rect(slot.xPos, slot.yPos, SLOT_SIZE, SLOT_SIZE);
             ctx.stroke();
         });
     }
