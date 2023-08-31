@@ -1,6 +1,6 @@
 import { EntityComponent } from "../components/EntityComponent.js";
 import { ctx, GRAVITY } from "../game/global.js";
-import { renderItem } from "../helper/canvasHelper.js";
+import { renderItem } from "../helper/canvashelper.js";
 import { rng } from "../helper/helper.js";
 
 const VECTOR_RANGE = 20;

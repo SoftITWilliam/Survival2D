@@ -10,7 +10,7 @@ import PlayerCamera from './camera.js';
 import ItemInfoDisplay from '../ui/itemInfo.js';
 import { PlayerFalling, PlayerJumping, PlayerRunning, PlayerStanding, PlayerSwimming, stateEnum } from './playerStates.js';
 import { sprites } from '../game/graphics/loadAssets.js';
-import CraftingMenu from './crafting.js';
+import CraftingMenu from '../crafting/Crafting.js';
 import { TileInstance } from '../tile/tileInstance.js';
 import { FrameAnimation } from '../game/graphics/animation.js';
 import { ItemRegistry } from '../item/itemRegistry.js';

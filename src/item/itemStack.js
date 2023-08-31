@@ -1,5 +1,5 @@
 import { ctx } from "../game/global.js";
-import { renderItem } from "../helper/canvasHelper.js";
+import { renderItem } from "../helper/canvashelper.js";
 
 export class ItemStack {
     #item;

@@ -1,6 +1,6 @@
 import ItemEntityHandler from "../item/itemEntityHandler.js";
 import { Player } from "../player/player.js";
-import RecipeManager from "../player/recipe.js";
+import { RecipeManager } from "../crafting/RecipeManager.js";
 import { World } from "../world/World.js";
 import FPSCounter from "./graphics/FPScounter.js";
 import { InputHandler } from "./InputHandler.js";

@@ -1,6 +1,5 @@
-import GameObject from "../game/gameObject.js";
 import { canvas, ctx, INVENTORY_HEIGHT, INVENTORY_WIDTH } from "../game/global.js";
-import { renderPath } from "../helper/canvasHelper.js";
+import { renderPath } from "../helper/canvashelper.js";
 import Item from "../item/item.js";
 import { ItemStack } from "../item/itemStack.js";
 
@@ -167,7 +166,7 @@ export class Inventory {
             }
 
             // If it has the same item, fill up the stack as much as possible.
-            let remaining = newStack.fillStack(insertAmount);
+            let remaining = newStack.fill(insertAmount);
             this.holdingStack.amount -= insertAmount;
             this.holdingStack.amount += remaining;
 
