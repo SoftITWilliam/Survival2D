@@ -3,6 +3,7 @@ import { sprites } from "../../game/graphics/loadAssets.js";
 import { TileDrop } from "../tileDrop.js";
 import PlantBase from "../base/PlantBase.js";
 import toolTypes from "../../item/toolTypesEnum.js";
+import { ItemRegistry } from "../../item/itemRegistry.js";
 
 export class ClothPlantModel extends PlantBase {
     constructor(world, registryName) {
@@ -13,8 +14,8 @@ export class ClothPlantModel extends PlantBase {
         this.connective = false;
 
         this.tileDrops = [
-            new TileDrop(this, "plant_fiber", [1,3], 100, true, false),
-            new TileDrop(this, "cloth_seeds", [1,2], 100, false, false),
+            new TileDrop(ItemRegistry.PLANT_FIBER, 1, 3).affectedByMultipliers(),
+            new TileDrop(ItemRegistry.CLOTH_SEEDS, 1, 2),
         ];
     }
 }

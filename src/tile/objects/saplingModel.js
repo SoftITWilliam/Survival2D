@@ -3,6 +3,7 @@ import { BasicTree } from "../../structure/structureParent.js";
 import { TileDrop } from "../tileDrop.js";
 import SaplingBase from "../base/SaplingBase.js";
 import toolTypes from "../../item/toolTypesEnum.js";
+import { ItemRegistry } from "../../item/itemRegistry.js";
 
 export class SaplingModel extends SaplingBase {
     constructor(world, registryName,) {
@@ -11,10 +12,10 @@ export class SaplingModel extends SaplingBase {
         this.setMiningProperties(toolTypes.NONE, 0, 0.5, false);
 
         this.tileDrops = [
-            new TileDrop(this, "acorn", 1, 50, false, false),
+            new TileDrop(ItemRegistry.ACORN).chance(50),
         ];
 
-        this.tree = new BasicTree(0,0,this.world);
+        this.tree = new BasicTree(0, 0, this.world);
         this.growthValue = 255;
     }
 

@@ -2,6 +2,7 @@ import { ctx } from "../../game/global.js";
 import { TileDrop } from "../tileDrop.js";
 import WallBase from "../base/WallBase.js";
 import toolTypes from "../../item/toolTypesEnum.js";
+import { ItemRegistry } from "../../item/itemRegistry.js";
 
 export class LogModel extends WallBase {
     constructor(world, registryName) {
@@ -10,7 +11,7 @@ export class LogModel extends WallBase {
         this.setMiningProperties(toolTypes.AXE, 0, 1.5, false);
 
         this.tileDrops = [
-            new TileDrop(this, "wood", [1,3], 100, true, false),
+            new TileDrop(ItemRegistry.WOOD, 1, 3).affectedByMultipliers(),
         ]
     }
 

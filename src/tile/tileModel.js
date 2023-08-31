@@ -15,6 +15,10 @@ export class TileModel {
     get width() { return this.w }
     get height() { return this.h }
 
+    get miningProperties() {
+
+    }
+
     setRegistryName(name) {
         this.registryName = name;
     }
@@ -63,9 +67,9 @@ export class TileModel {
     }
 
     // Loop through this tile's drops. Runs when the tile is broken.
-    dropItems(tile, toolTypes, miningLevel) {
+    dropItems(tile, toolType, miningLevel) {
         this.tileDrops.forEach(tileDrop => {
-            const droppedItem = tileDrop.roll(toolTypes, miningLevel, 1);
+            const droppedItem = tileDrop.roll(this, toolType, miningLevel, 1);
             if(droppedItem) {
                 dropItemFromTile(tile, droppedItem.item, droppedItem.amount, this.world.game);
             }

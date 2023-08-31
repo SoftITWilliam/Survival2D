@@ -1,8 +1,9 @@
 import { TILE_SIZE } from "../../game/global.js";
 import { sprites } from "../../game/graphics/loadAssets.js";
-import { SelfDrop } from "../tileDrop.js";
+import { TileDrop } from "../tileDrop.js";
 import TileBase from "../base/TileBase.js";
 import toolTypes from "../../item/toolTypesEnum.js";
+import { ItemRegistry } from "../../item/itemRegistry.js";
 
 export class DirtModel extends TileBase {
     constructor(world, registryName) {
@@ -12,7 +13,7 @@ export class DirtModel extends TileBase {
         this.setType("solid");
 
         this.tileDrops = [
-            new SelfDrop(this, false),
+            new TileDrop(ItemRegistry.DIRT),
         ];
     }
 }

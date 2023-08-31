@@ -4,6 +4,7 @@ import { TileDrop } from "../tileDrop.js";
 import TileBase from "../base/TileBase.js";
 import toolTypes from "../../item/toolTypesEnum.js";
 import { rng } from "../../helper/helper.js";
+import { ItemRegistry } from "../../item/itemRegistry.js";
 
 export class GrassModel extends TileBase {
     constructor(world, registryName) {
@@ -13,8 +14,8 @@ export class GrassModel extends TileBase {
         this.setType("solid");
 
         this.tileDrops = [
-            new TileDrop(this, "dirt", 1, 100, false, false),
-            new TileDrop(this, "grass_seeds", 1, 10, true, false),
+            new TileDrop(ItemRegistry.DIRT),
+            new TileDrop(ItemRegistry.GRASS_SEEDS).chance(10).affectedByMultipliers(),
         ]
     }
 
