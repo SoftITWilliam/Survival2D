@@ -1,11 +1,10 @@
 import { overlap, surfaceCollision } from "../game/collision.js";
 import { TILE_SIZE } from "../game/global.js";
-import { World } from "../world/World.js";
 import { PositionComponent } from "./positionComponent.js";
 
 export class EntityComponent extends PositionComponent {
-    constructor(x = 0, y = 0, width = 0, height = 0) {
-        super(x, y, width, height);
+    constructor(x = 0, y = 0, width = 0, height = null) {
+        super(x, y, width, height ?? width);
         this.dx = 0;
         this.dy = 0;
         this.grounded = false;
@@ -18,9 +17,22 @@ export class EntityComponent extends PositionComponent {
         this.onRightCollision = () => { }
     }
 
+    /**
+     * Update position based on deltaX and deltaY.
+     * Also accepts vector in 'deltaX' param
+     * @param {*} multiplier 
+     * @param {*} deltaX 
+     * @param {*} deltaY 
+     */
     move(multiplier, deltaX, deltaY) {
-        this._x += deltaX * multiplier;
-        this._y += deltaY * multiplier;
+        if(typeof deltaX == "object") {
+            let vector = deltaX;
+            this._x += vector.dx * multiplier;
+            this._y += vector.dy * multiplier;
+        } else {
+            this._x += deltaX * multiplier;
+            this._y += deltaY * multiplier;
+        }
     }
 
     get vector() {
@@ -34,11 +46,11 @@ export class EntityComponent extends PositionComponent {
     }
 
     updateCollision(world) {
-        this.worldEdgeCollision(world);
-        this.tileCollision(world);
+        this.#worldEdgeCollision(world);
+        this.#tileCollision(world);
     }
 
-    worldEdgeCollision(world) {
+    #worldEdgeCollision(world) {
         // Left edge
         if(this.x + this.dx < 0) {
             this.dx = 0;
@@ -83,38 +95,33 @@ export class EntityComponent extends PositionComponent {
     }
 
     // Check collision of tiles within a 2 block radius
-    tileCollision(world) {
-        for(let x = this.gridX - 2; x < this.gridX + 2; x++) {
-            for(let y = this.gridY - 2; y < this.gridY + 2; y++) {
-                if(world.outOfBounds(x, y)) continue;
+    #tileCollision(world) {
+        let tiles = world.getTilesInRange(this.gridX, this.gridY, 2);
 
-                let tile = world.tileGrid[x][y];
-                if(!tile) continue;
-
-                if(tile.getType() == "solid") {
-                    if(surfaceCollision("top", this, tile)) {
-                        this.topCollision(tile);
-                    }
-
-                    if(surfaceCollision("bottom", this, tile)) {
-                        this.bottomCollision(tile);
-                    }
-
-                    if(surfaceCollision("left", this, tile)) {
-                        this.leftCollision(tile);
-                    }
-
-                    if(surfaceCollision("right", this, tile)) {
-                        this.rightCollision(tile);
-                    }
+        tiles.forEach(tile => {
+            if(tile.getType() == "solid") {
+                if(surfaceCollision("top", this, tile)) {
+                    this.topCollision(tile);
                 }
 
-                if(tile.getType() == "liquid") {
-                    if(overlap(this, tile)) {
-                        this.inLiquid = true;
-                    }
+                if(surfaceCollision("bottom", this, tile)) {
+                    this.bottomCollision(tile);
+                }
+
+                if(surfaceCollision("left", this, tile)) {
+                    this.leftCollision(tile);
+                }
+
+                if(surfaceCollision("right", this, tile)) {
+                    this.rightCollision(tile);
                 }
             }
-        }
+
+            if(tile.getType() == "liquid") {
+                if(overlap(this, tile)) {
+                    this.inLiquid = true;
+                }
+            }
+        })
     }
 }
