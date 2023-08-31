@@ -1,7 +1,6 @@
 import { canvas } from "../game/global.js";
-import { ItemRegistry } from "../item/itemRegistry.js";
 import CraftingInterface from "../ui/craftingUI.js";
-
+import { CraftingStations } from "./craftingStations.js";
 
 export default class CraftingMenu {
     constructor(player) {
@@ -14,16 +13,15 @@ export default class CraftingMenu {
         this.selectedRecipe = null;
         this.craftingAmount = 1;
 
-        this.labels = {
-            DEFAULT: "Crafting",
-            WORKBENCH: "Workbench"
-        }
+        this.labels = {};
+        this.labels[CraftingStations.DEFAULT] = "Crafting";
+        this.labels[CraftingStations.WORKBENCH] = "Workbench";
 
         this.avalibleResources = {}
     }
 
     open(station) {
-        station ??= "DEFAULT";
+        station ??= CraftingStations.DEFAULT;
 
         this.isOpen = true;
         this.station = station;
@@ -42,15 +40,14 @@ export default class CraftingMenu {
     }
 
     update(input) {
+        this.ui.update();
         if(this.hoveredCraftable !== null) {
             document.body.style.cursor = "pointer";
         }
     }
 
     selectRecipe(index) {
-        if(index === null) {
-            return;
-        }
+        if(index === null) return;
 
         if(index == this.selectedRecipe) {
             this.selectedRecipe = null;
@@ -70,14 +67,19 @@ export default class CraftingMenu {
      */
     refreshResources() {
         this.avalibleResources = {}
+
         this.recipes.forEach(recipe => {
-            recipe.inputList.forEach(i => {
-                if(!this.avalibleResources.hasOwnProperty(i[0])) {
-                    let item = ItemRegistry.get(i[0]);
-                    this.avalibleResources[i[0]] = this.player.inventory.getItemAmount(item);
-                }
+            recipe.inputList.forEach(input => {
+                let item = input.item;
+                if(this.avalibleResources.hasOwnProperty(item.registryName)) return; 
+
+                this.avalibleResources[item.registryName] = this.player.inventory.getItemAmount(item);
             })
         })
+    }
+
+    getAvalibleResources(item) {
+        return this.avalibleResources[item.registryName] ?? null;
     }
 
     minAmount() {
@@ -103,9 +105,9 @@ export default class CraftingMenu {
     maxAmount() {
         let craftingCost = this.getSelectedRecipe().inputList;
         this.craftingAmount = 99;
-        craftingCost.forEach(i => {
-            let avalible = this.avalibleResources[i[0]];
-            let max = Math.floor(avalible / i[1]);
+        craftingCost.forEach(input => {
+            let avalible = this.getAvalibleResources(input.item);
+            let max = Math.floor(avalible / input.amount);
             if(max < this.craftingAmount) {
                 this.craftingAmount = max;
             }
@@ -127,18 +129,7 @@ export default class CraftingMenu {
     */
     loadRecipe(recipe) {
         this.craftingAmount = 1;
-        
-        this.outputItem = ItemRegistry.get(recipe.output);
-        this.inputItems = [];
-
-        recipe.inputList.forEach(i => {
-            this.inputItems.push([ItemRegistry.get(i[0]), i[1]]);
-        })
-
-        this.outputAmount = recipe.outputAmount;
-
-        this.ui.loadRecipe(this.inputItems, this.outputItem, this.outputAmount);
-        
+        this.ui.loadRecipe(recipe.inputList, recipe.output, recipe.outputAmount);
         this.ui.updateCraftingAmount(this.craftingAmount);
         this.updateCraftButton();
     }
@@ -149,14 +140,13 @@ export default class CraftingMenu {
      * @param {number} amount Crafting count 
      * @returns {boolean}
      */
-    ableToCraft(recipe,amount) {
-        if(!recipe) {
-            return false;
-        }
+    ableToCraft(recipe, amount) {
+        if(!recipe) return false;
+        
         let craftingStatus = true;
-        recipe.inputList.forEach(i => {
-            let avalible = this.avalibleResources[i[0]];
-            if(i[1] * amount > avalible) {
+        recipe.inputList.forEach(input => {
+            let avalible = this.avalibleResources[input.item];
+            if(input.amount * amount > avalible) {
                 craftingStatus = false;
             }
         });
@@ -166,12 +156,11 @@ export default class CraftingMenu {
     craftItem() {
         let recipe = this.getSelectedRecipe();
 
-        recipe.inputList.forEach(r => {
-            let item = ItemRegistry.get(r[0]);
-            this.player.inventory.removeItem(item, this.craftingAmount * r[1]);
-        })
+        recipe.inputList.forEach(input => {
+            this.player.inventory.removeItem(input.item, this.craftingAmount * input.amount);
+        });
             
-        this.player.inventory.addItem(this.outputItem, this.craftingAmount * recipe.outputAmount);
+        this.player.inventory.addItem(recipe.output, this.craftingAmount * recipe.outputAmount);
         this.close();
     }
 
@@ -187,7 +176,7 @@ export default class CraftingMenu {
         }
     }
 
-    render(x,y,input) {
+    render(x, y, input) {
         const offsetX = (canvas.width - this.ui.w) / 2;
         const offsetY = (canvas.height - this.ui.h) / 2;
 
