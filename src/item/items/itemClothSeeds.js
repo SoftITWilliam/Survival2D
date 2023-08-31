@@ -13,7 +13,7 @@ export class ItemClothSeeds extends PlaceableBase {
         return (
             !world.outOfBounds(x, y) && 
             !world.getTile(x, y) && 
-            this.canBePlanted(x, y)
+            this.canBePlanted(x, y, world)
         );
     }
 

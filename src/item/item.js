@@ -80,12 +80,9 @@ export default class Item {
      * @param {number} y Y grid position
      * @returns 
      */
-    canBePlanted(x, y) {
-        /*
-        let tileBelow = this.game.world.getTile(x, y - 1);
+    canBePlanted(x, y, world) {
+        let tileBelow = world.getTile(x, y - 1);
         return (tileBelow && (tileBelow.registryName == "dirt" || tileBelow.registryName == "grass"));
-        */
-       return false;
     }
 
     /**
