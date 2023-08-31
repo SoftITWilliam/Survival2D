@@ -62,7 +62,7 @@ export class ScrollableElement extends UIElement {
         this.fill();
         ctx.clip();
         this.children.forEach(child => {
-            child.renderCascading();
+            child.recursiveRender();
         })
         this.renderScrollbar();
         ctx.restore();
@@ -97,7 +97,7 @@ export class ScrollableElement extends UIElement {
     }
 
     // Override default function
-    renderCascading() {
+    recursiveRender() {
         this.render();
     }
 }

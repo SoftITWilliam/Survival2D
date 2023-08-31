@@ -1,6 +1,5 @@
 import { colors } from "../game/graphics/colors.js";
 import { getGap } from "../helper/helper.js";
-import { ItemRegistry } from "../item/itemRegistry.js";
 import * as ui from "./elementAggregator.js";
 
 export default class CraftingInterface {
@@ -189,13 +188,13 @@ export default class CraftingInterface {
         this.buttons[3].setOnClick(() => this.menu.maxAmount());
         this.buttons[4].setOnClick(() => this.menu.craftItem());
 
-        this.CButtonContainer.addChildren([this.buttons[0],this.buttons[1],this.CCraftingAmount,this.buttons[3],this.buttons[2]]);
+        this.CButtonContainer.addChildren([this.buttons[0], this.buttons[1], this.CCraftingAmount, this.buttons[3], this.buttons[2]]);
         this.CLowerContainer.addChildren([this.CButtonContainer, this.buttons[4]]);
-        this.CSectionRight.addChildren([this.CLowerContainer,this.CItemCostList]);
+        this.CSectionRight.addChildren([this.CLowerContainer, this.CItemCostList]);
     }
 
     // Prepare elements for displaying recipe
-    loadRecipe(input,output,amount) {
+    loadRecipe(input, output, amount) {
         this.COutputAmount.setText("x" + amount);
         this.COutputAmount.setSize((this.COutputAmount.getTextWidth() + 16), 24);
         this.COutputAmount.update();
@@ -211,22 +210,20 @@ export default class CraftingInterface {
                 width: this.sectionWidth, height: this.rowHeight,
             });
 
-            let item = i[0];
-            let itemAmount = i[1];
-            let totalAmount = itemAmount * this.menu.craftingAmount;
-            let avalible = this.menu.avalibleResources[item.registryName];
+            let totalAmount = i.amount * this.menu.craftingAmount;
+            let avalible = this.menu.getAvalibleResources(i.item);
 
             let children = [
                 new ui.Default(this.game, {
-                    height: this.rowHeight, width: this.sectionWidth * 0.20, text: itemAmount, textCenterX: true,
+                    height: this.rowHeight, width: this.sectionWidth * 0.20, text: i.amount, textCenterX: true,
                 }),
 
                 new ui.Item(this.game, {
-                    height: 24, width:24, item: item, centerY: true,
+                    height: 24, width:24, item: i.item, centerY: true,
                 }),
 
                 new ui.Default(this.game, {
-                    height: this.rowHeight, width: this.sectionWidth * 0.48 - 32, offsetX: 8, text: i[0].displayName,
+                    height: this.rowHeight, width: this.sectionWidth * 0.48 - 32, offsetX: 8, text: i.item.displayName,
                 }),
 
                 new ui.Default(this.game, {
@@ -261,13 +258,12 @@ export default class CraftingInterface {
     }
 
     update() {
-        if(!this.menu.isOpen) {
-            return;
-        }
-        
-        this.CPrimary.updateCascading();
+        if(!this.menu.isOpen) return;
+        console.log("craftingUI update");
 
-        this.refreshInputItems(this.menu.inputItems,this.menu.outputItem,this.menu.outputAmount);
+        this.CPrimary.recursiveUpdate();
+
+        this.refreshInputItems(this.menu.inputItems);
     }
 
     setPosition(x,y) {
@@ -281,17 +277,19 @@ export default class CraftingInterface {
 
     renderBase(label) {
         this.CPrimary.render();
-        this.CSectionLeft.renderCascading();
+        this.CSectionLeft.recursiveRender();
         this.CSectionRight.render();
         this.CTopLabel.setText(label);
         this.CTopLabel.render();
     }
 
     loadCraftables(recipes, game) {
+
+        console.log(recipes);
         this.craftables = [];
 
         for(let i = 0; i < recipes.length; i++) {
-            let item = ItemRegistry.get(recipes[i].output);
+            let item = recipes[i].output;
 
             let rowHeight = 56;
 
@@ -332,21 +330,19 @@ export default class CraftingInterface {
         this.COutputSprite.render();
         this.COutputName.render();
         this.COutputAmount.render();
-        this.CItemCostList.renderCascading();
-        this.CLowerContainer.renderCascading();
+        this.CItemCostList.recursiveRender();
+        this.CLowerContainer.recursiveRender();
     }
 
-    refreshInputItems(input, output, amount) {
-        if(!input) {
-            return;
-        }
+    refreshInputItems(input) {
+        if(!input) return;
 
         for(let i = 0; i < input.length; i++) {
-            let item = ItemRegistry.get(input[i][0].registryName);
+            let item = input[i].item;
             let row = this.CInputList[i + 1].children;
 
             // Update 'total'
-            let total = this.menu.craftingAmount * input[i][1]
+            let total = this.menu.craftingAmount * input[i].amount
             row[3].setText(total);
 
             // Update 'have'

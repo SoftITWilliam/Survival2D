@@ -103,6 +103,9 @@ export default class UIElement {
     get y() { return Math.round(this._y) }
     set y(value) { if(typeof value == "number") this._y = value }
 
+    get x2() { return this.x + this.width }
+    get y2() { return this.y + this.height }
+
     /**
      * Set width and height of element
      * @param {number} width Element width
@@ -578,21 +581,17 @@ export default class UIElement {
         })
     }
 
-    renderCascading() {
+    recursiveRender() {
         this.render();
-        if(this.children.length > 0) {
-            this.children.forEach(child => {
-                child.renderCascading();
-            })
-        }
+        this.children.forEach(child => {
+            child.recursiveRender();
+        })
     }
 
-    updateCascading() {
+    recursiveUpdate() {
         this.update();
-        if(this.children.length > 0) {
-            this.children.forEach(child => {
-                child.updateCascading();
-            })
-        }
+        this.children.forEach(child => {
+            child.recursiveUpdate();
+        })
     }
 }

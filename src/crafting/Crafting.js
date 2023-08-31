@@ -142,10 +142,12 @@ export default class CraftingMenu {
      */
     ableToCraft(recipe, amount) {
         if(!recipe) return false;
+
+        console.log(recipe, amount);
         
         let craftingStatus = true;
         recipe.inputList.forEach(input => {
-            let avalible = this.avalibleResources[input.item];
+            let avalible = this.getAvalibleResources(input.item);
             if(input.amount * amount > avalible) {
                 craftingStatus = false;
             }
