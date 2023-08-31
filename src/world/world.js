@@ -40,7 +40,7 @@ export class World {
     }
 
     // Return the wall at the given position
-    getWall(x,y) {
+    getWall(x, y) {
         try {
             return this.outOfBounds(x, y) ? null : this.wallGrid[x][y];
         } catch {
@@ -60,6 +60,17 @@ export class World {
         if(!this.outOfBounds(x, y)) {
             this.wallGrid[x][y] = null;
         }
+    }
+    
+    getTilesInRange(gridX, gridY, range) {
+        let tileArray = [];
+        for(let x = gridX - range; x <= gridX + range; x++) {
+            for(let y = gridY - range; y <= gridY + range; y++) {
+                let tile = this.getTile(x, y);
+                if(tile) tileArray.push(tile);
+            }
+        }
+        return tileArray;
     }
 
     setTileIfEmpty(x, y, tileName) {
