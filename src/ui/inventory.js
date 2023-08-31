@@ -1,5 +1,7 @@
+import GameObject from "../game/gameObject.js";
 import { canvas, ctx, INVENTORY_HEIGHT, INVENTORY_WIDTH } from "../game/global.js";
 import { renderPath } from "../helper/canvasHelper.js";
+import Item from "../item/item.js";
 import { ItemStack } from "../item/itemStack.js";
 
 const HOTBAR_OFFSET_Y = 24;
@@ -38,10 +40,34 @@ export class Inventory {
             }
             this.grid.push(row);
         }
+        
+        console.log(this.getRow(this.h - 1));
     }
 
     get _cameraX() { return this.player.camera.x }
     get _cameraY() { return this.player.camera.y }
+
+    getSlot(x, y) {
+        if(x < 0 || x >= this.w || y < 0 || y >= this.h) return null;
+        return this.grid[x][y];
+    }
+
+    getSlotsAsArray() {
+        let slotArray = [];
+        this.grid.forEach(row => {
+            row.forEach(slot => { slotArray.push(slot) })
+        });
+        return slotArray;
+    }
+
+    getRow(y) {
+        if(y < 0 || y >= this.h) return [];
+        return this.grid.map(column => column[y]);
+    }
+
+    getStack(x, y) {
+        return this.getSlot(x, y)?.stack ?? null;
+    }
 
     close() {
         if(this.holdingStack) {
@@ -66,9 +92,9 @@ export class Inventory {
             return;
         }
 
-        let slot = this.grid[this.hoveredSlot.x][this.hoveredSlot.y];
-        if(slot.stack) {
-            this.player.itemInfoDisplay.set(slot.stack.item);
+        let stack = this.getStack(this.hoveredSlot.x, this.hoveredSlot.y);
+        if(stack) {
+            this.player.itemInfoDisplay.set(stack.item);
             return;
         }
         
@@ -102,18 +128,20 @@ export class Inventory {
         if(x === null || y === null) return;
 
         // Get slot position
-        let slot = this.grid[x][y];
-        if(!slot.stack) return;
+        let slot = this.getSlot(x, y);
+        let stack = slot.stack;
+        if(!stack) return;
 
         // Calculate amount and subtract it from source stack
-        const a = (split ? Math.ceil(slot.stack.amount / 2) : slot.stack.amount);
-        this.holdingStack = new ItemStack(slot.stack.item, a);
-        slot.stack.subtractAmount(a);
+        let pickupAmount = (split ? Math.ceil(stack.amount / 2) : stack.amount);
+        this.holdingStack = new ItemStack(stack.item, pickupAmount);
+
+        stack.remove(pickupAmount);
 
         // Delete source stack if empty
-        if(slot.stack.amount <= 0) {
+        if(stack.isEmpty()) {
             slot.stack = null;
-        } 
+        }
     }
 
     /**
@@ -129,16 +157,18 @@ export class Inventory {
             return;
         }
 
+        slot = this.getSlot(slot.x, slot.y);
+
         // Create a reference to the existing stack in the slot
-        let newStack = this.grid[slot.x][slot.y].stack;
+        let newStack = slot.stack;
 
         if(newStack) {
 
             // If new slot has a different item, insert the held stack and pick up the new one.
             if(newStack.containsItem(this.holdingStack.item)) {
                 let temp = this.holdingStack;
-                this.selectSlot(slot.x, slot.y, false);
-                this.grid[slot.x][slot.y].stack = temp;
+                this.selectSlot(slot.invX, slot.invY, false);
+                slot.stack = temp;
                 return;
             }
 
@@ -150,11 +180,11 @@ export class Inventory {
         } else {
             // Insert stack and remove old stack
             let stack = new ItemStack(this.holdingStack.item, insertAmount);
-            this.grid[slot.x][slot.y].stack = stack;
+            slot.stack = stack;
             this.holdingStack.amount -= insertAmount;
         }
 
-        // If entire held stack has been inserted, delete it
+        // If entire fheld stack has been inserted, delete it
         if(this.holdingStack.amount <= 0) {
             this.holdingStack = null;
         }
@@ -166,35 +196,28 @@ export class Inventory {
     checkHover(input) {
 
         // Get currently hovered inventory grid coordinates
-        let slotX = Math.floor((input.mouse.x - this.leftEdge) / SLOT_SIZE);
-        let slotY = Math.floor((input.mouse.y - this.topEdge + HOTBAR_OFFSET_Y) / SLOT_SIZE);
+        let invX = Math.floor((input.mouse.x - this.leftEdge) / SLOT_SIZE);
+        let invY = Math.floor((input.mouse.y - this.topEdge + HOTBAR_OFFSET_Y) / SLOT_SIZE);
 
         // Invalid X value
-        if(slotX < 0 || slotX >= this.w) slotX = null;
+        if(invX < 0 || invX >= this.w) invX = null;
 
         // Invalid Y value OR in hotbar row
-        if(slotY < 0 || slotY >= this.h - 1) slotY = null;
+        if(invY < 0 || invY >= this.h - 1) invY = null;
 
         // Check if hotbar row is hovered
         if(Math.floor((input.mouse.y - this.topEdge) / SLOT_SIZE) == this.h - 1) {
-            slotY = this.h - 1;
+            invY = this.h - 1;
         }
 
-        return { x: slotX, y: slotY };
+        return { x: invX, y: invY };
     }
 
     // If a stack with the given item already exists and it isn't full, return its grid position
     findExistingStack(item) {
-        
-        for(let x = 0; x < this.w; x++) {
-            for(let y = 0; y < this.h; y++) {
-                let stack = this.grid[x][y].stack;
-                if(!stack) continue;
-
-                if(stack.containsItem(item) && stack.amount < stack.limit) {
-                    return { x: x, y: y };
-                } 
-            }
+        for(let invX = 0; invX < this.w; invX++) {
+            let invY = this.grid[invX].findIndex(slot => (slot.stack && slot.stack.containsItem(item) && !slot.stack.isFull()));
+            if(invY != -1) return { x: invX, y: invY };
         }
         return false;
     }
@@ -202,17 +225,18 @@ export class Inventory {
     // If an empty slot exists, return it.
     findEmptySlot() {
         // Search hotbar first
-        for(let x = 0; x < this.w; x++) {
-            if(!this.grid[x][3].stack) {
-                return { x: x, y: 3 };
+        let invY = this.h - 1;
+        for(let invX = 0; invX < this.w; invX++) {
+            if(!this.getStack(invX, invY)) {
+                return { x: invX, y: invY };
             }
         }
 
         // Search rest of inventory
-        for(let y = 0; y < this.h - 1; y++) {
-            for(let x = 0; x < this.w; x++) {
-                if(!this.grid[x][y].stack) {
-                    return { x: x, y: y };
+        for(let invY = 0; invY < this.h - 1; invY++) {
+            for(let invX = 0; invX < this.w; invX++) {
+                if(!this.getStack(invX, invY)) {
+                    return { x: invX, y: invY };
                 }
             }
         }
@@ -220,71 +244,43 @@ export class Inventory {
     }
 
     getSelectedSlot() {
-        return this.grid[this.selectedHotbarSlot - 1][this.h - 1];
+        return this.getSlot(this.selectedHotbarSlot - 1, this.h - 1);
     }
 
     /**
      * Search inventory for a certain item and returns the total amount
-     * @param {object} item The item to be searched for
+     * @param {Item} item The item to be searched for
      */
     getItemAmount(item) {
-        if(!item) return;
-
+        if(!item instanceof Item) return;
         let amount = 0;
-        for(let x = 0; x < this.w; x++) {
-            for(let y = 0; y < this.h; y++) {
-                let stack = this.grid[x][y].stack;
-                if(stack?.item.isItem(item)) {
-                    amount += stack.amount;
-                }
-            }
-        }
+        this.grid.forEach(row => {
+            amount = row.reduce((a, slot) => (a + (slot.stack?.containsItem(item) ? slot.stack.amount : 0)), amount);
+        })
         return amount;
     }
 
     /**
      * Try to add an item into the inventory
-     * 
-     * @param {*} item 
-     * @param {*} amount 
+     * @param {Item} item 
+     * @param {number} amount 
      * @returns 
      */
     addItem(item, amount) {
         if(!item) return;
         
         let startAmount = amount;
-        let slot = this.findExistingStack(item);
 
-        // If a stack with the item already exists, fill it up.
-
-        if(slot) {
-            let x = slot.x; 
-            let y = slot.y;
-
-            let remainingSpace = this.grid[x][y].stack.remainingSpace;
-
-            // Add all items to the slot
-            if(amount < remainingSpace) {
-                this.grid[x][y].stack.increaseAmount(amount);
-                amount = 0;
-            } 
-            
-            // Fill the slot to its limit.
-            else {
-                this.grid[x][y].stack.increaseAmount(remainingSpace);
-                amount -= remainingSpace;
-            }
-
-            // If there are items left after filling the stack, a new stack will be created.
-            if(amount == 0) {
-                this.player.pickupLabels.add(item, startAmount);
-                return;
-            }
+        // Fill existing stacks first
+        while(amount > 0) {
+            let slot = this.findExistingStack(item);
+            if(!slot) break;
+            amount = this.getStack(slot.x, slot.y).fill(amount);
         }
 
+        // If no existing stacks remain, start adding to empty slots
         while(amount > 0) {
 
-            // Find empty inventory space
             let emptySlot = this.findEmptySlot();
 
             // If inventory is full, return the amount of items left.
@@ -302,10 +298,10 @@ export class Inventory {
             // (If the item entity picked up still has items left after this, they will be deleted)
             // (Unless Tile entities of the same type combine with eachother in the future, this won't be a problem) (IT ENDED UP BEING A PROBLEM)
             if(item.stackLimit < amount) {
-                this.grid[x][y].stack = new ItemStack(item, item.stackLimit);
+                this.getSlot(x, y).stack = new ItemStack(item, item.stackLimit);
                 amount -= item.stackLimit;
             } else {
-                this.grid[x][y].stack = new ItemStack(item, amount);
+                this.getSlot(x, y).stack = new ItemStack(item, amount);
                 amount = 0;
             }
         
@@ -316,34 +312,38 @@ export class Inventory {
         }
 
         this.player.pickupLabels.add(item, startAmount);
+        return 0;
     }
 
+    /**
+     * Remove a certain amount of a specific item from the inventory.
+     * Searches through all slots.
+     * @param {Item} item Item type to remove
+     * @param {number} amount Amount of items to remove
+     * @returns True if the full amount of items could be deleted. False if inventory didn't contain enough.
+     */
     removeItem(item, amount) {
-        for(let y = this.h - 1; y >= 0; y--) {
-            for(let x = this.w - 1; x >= 0; x--) {
+        if(!item instanceof Item || typeof amount != "number") return false;
+
+        for(let invY = this.h - 1; invY >= 0; invY--) {
+            for(let invX = this.w - 1; invX >= 0; invX--) {
 
                 // Loop through inventory until a slot is found that has the given item
-                let slot = this.grid[x][y];
+                let slot = this.getSlot(invX, invY);
                 if(!slot.stack?.containsItem(item)) continue;
 
-                // Delete the given amount from the stack, then return.
-                if(amount < slot.stack.amount) {
-                    slot.stack.amount -= amount;
-                    return;
-                }
+                // Delete the given amount from the stack
+                amount = slot.stack.remove(amount);
 
-                // Delete the stack, then return.
-                if(amount == slot.stack.amount) {
+                if(slot.stack.isEmpty()) 
                     slot.stack = null;
-                    return;
-                }
 
-                // Delete the stack, then find the next stack.
-                if(amount >= slot.stack.null) {
-                    slot.stack = null;
-                }
+                // If there are still items to remove after the stack is empty, we continue looking for the stack
+                if(amount == 0) return true;
             }
         }
+
+        return false;
     }
 
     draw() {
@@ -372,12 +372,9 @@ export class Inventory {
         ctx.closePath();
 
         // Draw slots
-        for(let x = 0; x < this.w; x++) {
-            for(let y = 0; y < this.h - 1; y++) {
-                this.grid[x][y].draw();
-            }
-        }
-
+        this.getSlotsAsArray().forEach(slot => {
+            if(slot.invY != this.h - 1) slot.draw();
+        })
     }
 
     drawHotbar() {
@@ -393,10 +390,7 @@ export class Inventory {
         ctx.fill();
         ctx.stroke();
 
-        let y = 3;
-        for(let x = 0; x < this.w; x++) {
-            this.grid[x][y].draw();
-        }
+        this.getRow(this.h - 1).forEach(slot => slot.draw());
     }
 
     drawSelection() {
@@ -421,18 +415,14 @@ export class Inventory {
     drawItems(input) {
 
         // Draw items in hotbar
-        for(let x = 0; x < this.w; x++) {
-            this.grid[x][this.h - 1].drawItem();
-        }
+        this.getRow(this.h - 1).forEach(slot => slot.drawItem());
 
         if(!this.view) return;
         
         // Draw items in rest inventory
-        for(let x = 0; x < this.w; x++) {
-            for(let y = 0; y < this.h - 1; y++) {
-                this.grid[x][y].drawItem();
-            }
-        }
+        this.getSlotsAsArray().forEach(slot => {
+            if(slot.invY != this.h - 1) slot.drawItem();
+        })
 
         if(this.holdingStack) {
             this.drawSelectedStack(input);
@@ -478,6 +468,8 @@ class InventorySlot {
         ctx.rect(this.xPos, this.yPos, this.w, this.h);
         ctx.stroke();
         ctx.closePath();
+
+        ctx.fillText(`x:${this.invX}, y:${this.invY}`, this.xPos + this.w / 2, this.yPos + this.h / 2);
 
         this.drawHoverEffect();
     }

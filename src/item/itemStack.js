@@ -16,32 +16,43 @@ export class ItemStack {
         return this.limit - this.amount;
     }
 
-    get isFull() {
+    isFull() {
         return this.amount >= this.limit;
+    }
+
+    isEmpty() {
+        return this.amount <= 0;
     }
 
     containsItem(item) {
         return this.item.isItem(item);
     }
 
-    fillStack(count) {
+    /**
+     * 
+     * @param {number} count Amount of items to add to the stack
+     * @returns Remaining items
+     */
+    fill(count) {
         this.amount += count;
 
-        if(this.isFull) {
-            let remaining = this.amount - this.limit
+        if(this.isFull()) {
+            let excess = this.amount - this.limit;
             this.amount = this.limit;
-            return (remaining);
+            return excess;
         }
-
         return 0;
     }
 
-    increaseAmount(count) {
-        this.amount += count;
-    }
-
-    subtractAmount(count) {
+    remove(count) {
         this.amount -= count;
+
+        if(this.isEmpty()) {
+            let excess = this.amount * -1;
+            this.amount = 0;
+            return excess;
+        }
+        return 0;
     }
 
     draw(x, y) {
