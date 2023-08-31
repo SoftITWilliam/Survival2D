@@ -369,10 +369,10 @@ class Player {
         
         // Decrease amount in stack by 1
         let heldStack = this.inventory.getSelectedSlot().stack;
-        heldStack.subtractAmount(1);
+        heldStack.remove(1);
 
         // Remove stack if amount reaches 0
-        if(heldStack.amount == 0) {
+        if(heldStack.isEmpty()) {
             this.inventory.getSelectedSlot().stack = null;
             this.heldItem = null;
         }
