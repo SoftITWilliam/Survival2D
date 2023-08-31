@@ -40,8 +40,6 @@ export class Inventory {
             }
             this.grid.push(row);
         }
-        
-        console.log(this.getRow(this.h - 1));
     }
 
     get _cameraX() { return this.player.camera.x }
@@ -132,11 +130,7 @@ export class Inventory {
         let stack = slot.stack;
         if(!stack) return;
 
-        // Calculate amount and subtract it from source stack
-        let pickupAmount = (split ? Math.ceil(stack.amount / 2) : stack.amount);
-        this.holdingStack = new ItemStack(stack.item, pickupAmount);
-
-        stack.remove(pickupAmount);
+        this.holdingStack = split ? stack.split() : stack.extract();
 
         // Delete source stack if empty
         if(stack.isEmpty()) {
@@ -468,8 +462,6 @@ class InventorySlot {
         ctx.rect(this.xPos, this.yPos, this.w, this.h);
         ctx.stroke();
         ctx.closePath();
-
-        ctx.fillText(`x:${this.invX}, y:${this.invY}`, this.xPos + this.w / 2, this.yPos + this.h / 2);
 
         this.drawHoverEffect();
     }

@@ -2,10 +2,15 @@ import { ctx } from "../game/global.js";
 import { renderItem } from "../helper/canvasHelper.js";
 
 export class ItemStack {
+    #item;
     constructor(item, amount) {
-        this.item = item;
+        this.#item = item;
         this.size = 32;
         this.amount = amount;
+    }
+
+    get item() {
+        return this.#item;
     }
 
     get limit() {
@@ -26,6 +31,25 @@ export class ItemStack {
 
     containsItem(item) {
         return this.item.isItem(item);
+    }
+
+    split() {
+        let splitAmount = Math.ceil(this.amount / 2);
+        this.remove(splitAmount);
+        return new ItemStack(this.item, splitAmount);
+    }
+
+    /**
+     * Creates a copy of this stack, with a certain amount of items.
+     * If 'amount' is empty, the copy will receive everything from this stack.
+     * @param {number} amount
+     * @returns {ItemStack}
+     */
+    extract(amount = this.amount) {
+        if(amount < 0 || amount > this.amount) throw new RangeError(`Invalid amount`);
+        let stack = new ItemStack(this.item, amount);
+        this.remove(amount);
+        return stack;
     }
 
     /**
