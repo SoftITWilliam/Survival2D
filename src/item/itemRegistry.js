@@ -33,7 +33,7 @@ class ItemRegistry {
     // Seeds
     static ACORN = new item.Acorn("acorn", rarity.COMMON);
     static GRASS_SEEDS = new item.GrassSeeds("grass_seeds", rarity.UNCOMMON);
-    static CLOTH_SEEDS = new item.ClothSeeds("wooden_pickaxe", rarity.COMMON)
+    static CLOTH_SEEDS = new item.ClothSeeds("cloth_seeds", rarity.COMMON);
 
     /* === METHODS === */
 
