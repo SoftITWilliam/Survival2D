@@ -1,26 +1,23 @@
 import { ctx } from "../../game/global.js";
 import { TileDrop } from "../tileDrop.js";
 import WallBase from "../base/WallBase.js";
-import toolTypes from "../../item/toolTypesEnum.js";
-import { ItemRegistry } from "../../item/itemRegistry.js";
+import { toolTypes as tool } from "../../item/itemTypes.js";
+import { ItemRegistry as Items } from "../../item/itemRegistry.js";
 
 export class LogModel extends WallBase {
     constructor(world, registryName) {
         super(world, registryName);
         this.transparent = true;
-        this.setMiningProperties(toolTypes.AXE, 0, 1.5, false);
+        this.setMiningProperties(tool.AXE, 0, 1.5, false);
 
         this.tileDrops = [
-            new TileDrop(ItemRegistry.WOOD, 1, 3).affectedByMultipliers(),
+            new TileDrop(Items.WOOD, 1, 3).affectedByMultipliers(),
         ]
     }
 
     // Override
     canBeMined(item) {
-        if(item && item.toolType == toolTypes.HAMMER) {
-            return false;
-        }
-        return true;
+        return (!item || item.toolType != tool.HAMMER);
     }
 
     breakTile(tile, toolType, miningLevel) {

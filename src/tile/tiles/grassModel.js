@@ -1,31 +1,27 @@
-import { TILE_SIZE } from "../../game/global.js";
 import { sprites } from "../../game/graphics/loadAssets.js";
 import { TileDrop } from "../tileDrop.js";
 import TileBase from "../base/TileBase.js";
-import toolTypes from "../../item/toolTypesEnum.js";
+import { toolTypes as tool } from "../../item/itemTypes.js";
 import { rng } from "../../helper/helper.js";
-import { ItemRegistry } from "../../item/itemRegistry.js";
+import { ItemRegistry as Items } from "../../item/itemRegistry.js";
 
 export class GrassModel extends TileBase {
     constructor(world, registryName) {
-        super(world, registryName, TILE_SIZE, TILE_SIZE);
+        super(world, registryName);
         this.setSprite(sprites.tiles.tile_grass);
-        this.setMiningProperties(toolTypes.SHOVEL, 0, 1.5, false);
+        this.setMiningProperties(tool.SHOVEL, 0, 1.5, false);
         this.setType("solid");
 
         this.tileDrops = [
-            new TileDrop(ItemRegistry.DIRT),
-            new TileDrop(ItemRegistry.GRASS_SEEDS).chance(10).affectedByMultipliers(),
+            new TileDrop(Items.DIRT),
+            new TileDrop(Items.GRASS_SEEDS).chance(10).affectedByMultipliers(),
         ]
     }
 
-    checkSpreadCondition(x, y) {
-        let tile = this.world.getTile(x, y);
+    static canSpreadTo(x, y, world) {
+        let tile = world.getTile(x, y);
         if(tile && tile.registryName == "dirt") {
-            y += 1;
-            if(!this.world.getTile(x, y)) {
-                return true;
-            }
+            if(!world.getTile(x, y + 1)) return true;
         }
         return false;
     }
@@ -35,7 +31,7 @@ export class GrassModel extends TileBase {
         let range = 2;
         for(let x = tile.gridX - range; x <= tile.gridX + range; x++) {
             for(let y = tile.gridY - range; y <= tile.gridY + range; y++) {
-                if(!this.checkSpreadCondition(x, y)) continue;
+                if(!GrassModel.canSpreadTo(x, y, this.world)) continue;
                 if(rng(0, 1023) > 0) continue;
                 
                 this.world.setTile(x, y, "grass");

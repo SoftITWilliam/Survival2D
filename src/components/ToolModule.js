@@ -1,4 +1,4 @@
-import toolTypes from "../item/toolTypesEnum.js";
+import { toolTypes } from "../item/itemTypes.js";
 
 export class ToolModule {
     constructor(toolType, miningLevel, miningSpeed, tileReach) {

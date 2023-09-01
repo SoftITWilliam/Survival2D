@@ -1,35 +1,25 @@
-import { TILE_SIZE } from "../../game/global.js";
+import { toolTypes as tool } from "../../item/itemTypes.js";
 import { TileModel } from "../tileModel.js";
 
 export default class WallBase extends TileModel {
-    constructor(world, registryName) {
-        super(world, registryName, TILE_SIZE, TILE_SIZE);
+    constructor(world, registryName, width, height) {
+        super(world, registryName, width, height);
         this.setType("wall");
-        this.toolType = "hammer";
-        this.requireTool = true;
+        this.setMiningProperties(tool.HAMMER, 0, 1, true);
         this.transparent = false;
         this.connective = true;
     }
 
     // Override
     canBeMined(item) {
-        if(item && item.placeable) {
+        if (item && item.placeable) 
             return false;
-        }
 
-        if(this.world.getTile(this.gridX,this.gridY) && !this.world.getTile(this.gridX,this.gridY).transparent) {
+        if (this.world.getTile(this.gridX, this.gridY) && !this.world.getTile(this.gridX, this.gridY).transparent) 
             return false;
-        }
 
-        if(this.requireTool) {
-            if(!item) {
-                return false;
-            }
-
-            if(item.toolType != "hammer") {
-                return false;
-            }
-        }
+        if (this.requireTool && (!item || item.toolType != tool.HAMMER)) 
+            return false;
 
         return true;
     }

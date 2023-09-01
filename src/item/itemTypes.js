@@ -1,5 +1,5 @@
 
-const toolTypes = {
+export const toolTypes = {
     NONE: 0,
     PICKAXE: 1,
     AXE: 2,
@@ -7,5 +7,3 @@ const toolTypes = {
     HAMMER: 4,
     SICKLE: 5, // currently unimplemented
 }
-
-export default toolTypes;

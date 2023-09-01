@@ -1,9 +1,9 @@
 import { ctx } from "../game/global.js";
 import { getLang } from "../game/lang.js";
 import { sprites } from "../game/graphics/loadAssets.js";
-import { drawRounded, renderPath, rgb } from "../helper/canvasHelper.js";
+import { drawRounded, renderPath, rgb } from "../helper/canvashelper.js";
 import { splitIntoLines } from "../helper/helper.js";
-import toolTypes from "../item/toolTypesEnum.js";
+import { toolTypes as tool } from "../item/itemTypes.js";
 
 export default class ItemInfoDisplay {
     constructor(player) {
@@ -63,13 +63,13 @@ export default class ItemInfoDisplay {
         switch(item.itemType) {
             case "tool":
                 switch(item.toolType) {
-                    case toolTypes.PICKAXE:
+                    case tool.PICKAXE:
                         return sprites.ui.item_type.icon_pickaxe;
-                    case toolTypes.AXE:
+                    case tool.AXE:
                         return sprites.ui.item_type.icon_axe;
-                    case toolTypes.SHOVEL:
+                    case tool.SHOVEL:
                         return sprites.ui.item_type.icon_shovel;
-                    case toolTypes.HAMMER:
+                    case tool.HAMMER:
                         return sprites.ui.item_type.icon_hammer;
                     default: 
                         return null;

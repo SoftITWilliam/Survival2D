@@ -1,5 +1,6 @@
 import { TILE_SIZE } from "../../game/global.js";
 import { rng } from "../../helper/helper.js";
+import { toolTypes } from "../../item/itemTypes.js";
 import { BasicTree } from "../../structure/structureParent.js";
 import ObjectBase from "../base/ObjectBase.js";
 
@@ -7,7 +8,7 @@ export default class SaplingBase extends ObjectBase {
     constructor(world, registryName) {
         super(world, registryName, TILE_SIZE, TILE_SIZE);
         this.setType("nonSolid");
-        this.setMiningProperties("axe", 0, 0.2, true);
+        this.setMiningProperties(toolTypes.AXE, 0, 0.2, true);
 
         this.tree = new BasicTree(0, 0, this.world);
         this.growthValue = 255;

@@ -1,10 +1,11 @@
+import { toolTypes } from "../../item/itemTypes.js";
 import ObjectBase from "../base/ObjectBase.js";
 
 export default class PlantBase extends ObjectBase {
     constructor(world, registryName, width, height) {
         super(world, registryName, width, height);
         this.setType("nonSolid");
-        this.toolType = "sickle";
+        this.toolType = toolTypes.SICKLE;
     }
 
     // Remove plant if ground below is broken

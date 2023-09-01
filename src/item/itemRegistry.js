@@ -3,9 +3,9 @@ import Item from './item.js';
 import * as item from './itemParent.js';
 
 import { ITEM_RARITIES as rarity }  from './rarities.js';
-import toolTypes from './toolTypesEnum.js';
+import { toolTypes as tool } from './itemTypes.js';
 
-class ItemRegistry {
+export class ItemRegistry {
 
     /* === ITEMS === */
 
@@ -14,16 +14,16 @@ class ItemRegistry {
     static STONE = new item.Tile("stone", rarity.COMMON);
 
     // Dev toolset
-    static DEV_PICKAXE = new item.Tool("dev_pickaxe", rarity.UNOBTAINABLE, new ToolModule(toolTypes.PICKAXE, 999, 5, 10));
-    static DEV_AXE = new item.Tool("dev_axe", rarity.UNOBTAINABLE, new ToolModule(toolTypes.AXE, 999, 5, 10));
-    static DEV_SHOVEL = new item.Tool("dev_shovel", rarity.UNOBTAINABLE, new ToolModule(toolTypes.SHOVEL, 999, 5, 10));
-    static DEV_HAMMER = new item.Tool("dev_hammer", rarity.UNOBTAINABLE, new ToolModule(toolTypes.HAMMER, 999, 5, 10));
+    static DEV_PICKAXE = new item.Tool("dev_pickaxe", rarity.UNOBTAINABLE, new ToolModule(tool.PICKAXE, 999, 5, 10));
+    static DEV_AXE = new item.Tool("dev_axe", rarity.UNOBTAINABLE, new ToolModule(tool.AXE, 999, 5, 10));
+    static DEV_SHOVEL = new item.Tool("dev_shovel", rarity.UNOBTAINABLE, new ToolModule(tool.SHOVEL, 999, 5, 10));
+    static DEV_HAMMER = new item.Tool("dev_hammer", rarity.UNOBTAINABLE, new ToolModule(tool.HAMMER, 999, 5, 10));
 
     // Wooden toolset
-    static WOODEN_PICKAXE = new item.Tool("wooden_pickaxe", rarity.UNCOMMON, new ToolModule(toolTypes.PICKAXE, 1, 2, 4))
-    static WOODEN_AXE = new item.Tool("wooden_axe", rarity.UNCOMMON, new ToolModule(toolTypes.AXE, 1, 2, 4));
-    static WOODEN_SHOVEL = new item.Tool("wooden_shovel", rarity.UNCOMMON, new ToolModule(toolTypes.SHOVEL, 1, 2, 4));
-    static WOODEN_HAMMER = new item.Tool("wooden_hammer", rarity.UNCOMMON, new ToolModule(toolTypes.HAMMER, 1, 2, 4));
+    static WOODEN_PICKAXE = new item.Tool("wooden_pickaxe", rarity.UNCOMMON, new ToolModule(tool.PICKAXE, 1, 2, 4))
+    static WOODEN_AXE = new item.Tool("wooden_axe", rarity.UNCOMMON, new ToolModule(tool.AXE, 1, 2, 4));
+    static WOODEN_SHOVEL = new item.Tool("wooden_shovel", rarity.UNCOMMON, new ToolModule(tool.SHOVEL, 1, 2, 4));
+    static WOODEN_HAMMER = new item.Tool("wooden_hammer", rarity.UNCOMMON, new ToolModule(tool.HAMMER, 1, 2, 4));
 
     // Basic items
     static WOOD = new item.Default("wood", rarity.COMMON);
@@ -57,5 +57,3 @@ class ItemRegistry {
         return itemArray;
     }
 }
-
-export { ItemRegistry };

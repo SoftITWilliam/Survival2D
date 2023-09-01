@@ -3,12 +3,12 @@ import { sprites } from "../game/graphics/loadAssets.js";
 import { dropItemFromTile } from "../item/dropItem.js";
 
 export class TileModel {
-    constructor(world, registryName, width, height) {
+    constructor(world, registryName, width = TILE_SIZE, height = TILE_SIZE) {
         this.world = world;
         this.setRegistryName(registryName);
         this.objectType;
         this.w = width;
-        this.h = height;
+        this.h = height ?? width;
         this.tileDrops = [];
     }
 
@@ -31,13 +31,13 @@ export class TileModel {
      * Set the mining properties of the tile model
      * @param {int} toolType (toolTypes enum) Effective tool type
      * @param {int} toolLevel Which level of tool is required to count as effective
-     * @param {number} miningTime How long the tool takes to mine (by hand)
+     * @param {number} miningTime How long the tool takes to mine by hand, in seconds
      * @param {boolean} requireTool If a tool is required to mine the tile at all.
      */
-    setMiningProperties(toolType, toolLevel, miningTime, requireTool) {
+    setMiningProperties(toolType, toolLevel, miningTimeSeconds, requireTool) {
         this.toolType = toolType ?? null;
         this.toolLevel = toolLevel;
-        this.miningTime = miningTime;
+        this.miningTime = miningTimeSeconds;
         this.requireTool = requireTool;
     }
 

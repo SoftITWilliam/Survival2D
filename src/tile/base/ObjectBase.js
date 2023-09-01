@@ -1,3 +1,4 @@
+import { toolTypes } from "../../item/itemTypes.js";
 import { TileModel } from "../tileModel.js";
 
 export default class ObjectBase extends TileModel {
@@ -16,16 +17,12 @@ export default class ObjectBase extends TileModel {
         }
 
         if(this.requireTool) {
-            if(!item) {
-                return false;
-            }
-
-            if(item.toolType != this.toolType) {
-                return false;
-            }
+            if(!item) return false;
+    
+            if(item.toolType != this.toolType) return false;
         }
         
-        if(item && item.toolType == "hammer") {
+        if(item && item.toolType == toolTypes.HAMMER) {
             return false;
         }
 
