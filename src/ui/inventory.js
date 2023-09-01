@@ -392,8 +392,7 @@ export class Inventory {
         });
 
         renderPath(() => {
-            let slot = this.getSelectedSlot();
-            ctx.rect(slot.xPos, slot.yPos, SLOT_SIZE, SLOT_SIZE);
+            ctx.rectObj(this.getSelectedSlot());
             ctx.stroke();
         });
     }
@@ -433,9 +432,6 @@ class InventorySlot {
 
         this.x = x;
         this.y = y;
-
-        this.w = 64;
-        this.h = 64;
     }
 
     get _cameraX() { return this.player.camera.x }
@@ -443,6 +439,9 @@ class InventorySlot {
 
     get xPos() { return this.x + this._cameraX }
     get yPos() { return this.y + this._cameraY }
+
+    get w() { return SLOT_SIZE }
+    get h() { return SLOT_SIZE }
 
     isHovered() {
         return (

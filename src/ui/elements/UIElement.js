@@ -538,7 +538,7 @@ export default class UIElement {
             });
         } else {
             renderPath(() => {
-                ctx.rect(this.x, this.y, this.w, this.h);
+                ctx.rectObj(this);
                 this.fill();
                 this.stroke();
             })

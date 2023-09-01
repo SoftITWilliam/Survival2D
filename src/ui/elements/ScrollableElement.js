@@ -58,7 +58,7 @@ export class ScrollableElement extends UIElement {
     // Override default function
     render() {
         ctx.save();
-        ctx.rect(this.x, this.y, this.w, this.h);
+        ctx.rectObj(this);
         this.fill();
         ctx.clip();
         this.children.forEach(child => {

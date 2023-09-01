@@ -83,7 +83,7 @@ export function drawRounded(x, y, width, height, radius, ctx) {
     ctx.clip();
 }
 
-// === ctx extension methods ===
+/* === ctx extension methods === */
 
 CanvasRenderingContext2D.prototype.drawOutlinedText = function(text, x, y) {
     this.strokeText(text, x, y);
@@ -104,4 +104,22 @@ CanvasRenderingContext2D.prototype.shadow = function(color = 0, blur = 0, offset
         shadowOffsetX: offsetX, 
         shadowOffsetY: offsetY, 
     });
+}
+
+const getRect = (object, padding) => {
+    let ox = (object.x || object.xPos || 0) - padding;
+    let oy = (object.y || object.yPos || 0) - padding;
+    let ow = (object.width || object. w || 0) + padding * 2;
+    let oh = (object.height || object.h || 0) + padding * 2;
+    return { x: ox, y: oy, w: ow, h: oh };
+}
+
+CanvasRenderingContext2D.prototype.fillRectObj = function(object, padding = 0) {
+    let rect = getRect(object, padding);
+    this.fillRect(rect.x, rect.y, rect.w, rect.h);
+}
+
+CanvasRenderingContext2D.prototype.rectObj = function(object, padding = 0) {
+    let rect = getRect(object, padding);
+    this.rect(rect.x, rect.y, rect.w, rect.h);
 }

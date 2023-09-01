@@ -10,7 +10,7 @@ export default function render(game, player) {
 
     // Background
     ctx.fillStyle = "rgb(150,180,250)";
-    ctx.fillRect(player.camera.x, player.camera.y, canvas.width, canvas.height);
+    ctx.fillRectObj(player.camera);
 
     // Wall Tiles
 
@@ -108,7 +108,7 @@ function drawHoverEffect(game,input) {
     Object.assign(ctx, styling);
     
     // Draw hover effect
-    ctx.rect(obj.x, obj.y, obj.height, obj.width);
+    ctx.rectObj(obj);
     ctx.stroke();
     ctx.fill();
 }

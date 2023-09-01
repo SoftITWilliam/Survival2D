@@ -32,6 +32,14 @@ export default class PlayerCamera {
         return clamp(this._y, -this.player.game.world.height * TILE_SIZE, -canvas.height + TILE_SIZE);
     }
 
+    get width() {
+        return canvas.width;
+    }
+
+    get height() {
+        return canvas.height;
+    }
+
     // Outdated! kept as wrappers for now in order to not accidentally break anything
     getX() { return this.x }
     getY() { return this.y }
