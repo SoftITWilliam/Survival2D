@@ -1,11 +1,11 @@
+import GameObject from "../game/gameObject.js";
 import { canvas, TILE_SIZE } from "../game/global.js";
 import { clamp } from "../helper/helper.js";
 
-export default class PlayerCamera {
+export default class PlayerCamera extends GameObject {
     constructor(player) {
+        super(player.game);
         this.player = player;
-        this._x;
-        this._y;
     }
 
     /**
@@ -32,13 +32,8 @@ export default class PlayerCamera {
         return clamp(this._y, -this.player.game.world.height * TILE_SIZE, -canvas.height + TILE_SIZE);
     }
 
-    get width() {
-        return canvas.width;
-    }
-
-    get height() {
-        return canvas.height;
-    }
+    get width() { return canvas.width }
+    get height() { return canvas.height }
 
     // Outdated! kept as wrappers for now in order to not accidentally break anything
     getX() { return this.x }
