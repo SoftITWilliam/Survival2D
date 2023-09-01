@@ -4,7 +4,6 @@ import { calculateDistance } from "../helper/helper.js";
 
 export default class PlacementPreview {
     constructor(sprite, offsetX, offsetY, item) {
-        this.game = item.game;
         this.item = item;
         this.sx = offsetX;
         this.sy = offsetY;
@@ -84,7 +83,7 @@ export function validPlacementPosition(gridX,gridY,world) {
 
     // Check for adjacent tile or wall
     if (world.getTile(gridX - 1, gridY) || 
-    world.getTile(gridX + 1, gridY) ||
+        world.getTile(gridX + 1, gridY) ||
         world.getTile(gridX, gridY - 1) || 
         world.getTile(gridX, gridY + 1) ||
         world.getWall(gridX, gridY)) {
