@@ -79,7 +79,7 @@ export default class CraftingMenu {
     }
 
     getAvalibleResources(item) {
-        return this.avalibleResources[item.registryName] ?? null;
+        return this.avalibleResources[item.registryName] ?? 0;
     }
 
     minAmount() {

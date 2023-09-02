@@ -241,7 +241,7 @@ export class Inventory {
      * @param {Item} item The item to be searched for
      */
     getItemAmount(item) {
-        if(Item.isItem(item)) return;
+        if(!Item.isItem(item)) return;
         let amount = 0;
         this.grid.forEach(row => {
             amount = row.reduce((a, slot) => (a + (slot.stack?.containsItem(item) ? slot.stack.amount : 0)), amount);
