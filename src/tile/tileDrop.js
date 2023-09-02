@@ -15,11 +15,11 @@ export class TileDrop {
         this._amount = maxAmount ? [amount, maxAmount] : amount;
         this._chance = 100;
         this._increasable = false;
-        this._requireTool = false;
+        this._requiresTool = false;
     }
 
     requireTool() {
-        this._requireTool = true;
+        this._requiresTool = true;
         return this;
     }
 
@@ -33,10 +33,12 @@ export class TileDrop {
         return this;
     }
 
-    #validTool(tile, toolType, miningLevel) {
-        return (!toolType || !miningLevel ||
-            toolType != tile.getToolType() ||
-            miningLevel < tile.getMiningLevel())
+    static #isValidTool(tile, toolType, miningLevel) {
+        return (
+            toolType && miningLevel &&
+            toolType == tile.getToolType() ||
+            miningLevel >= tile.getMiningLevel()
+        );
     }
 
     roll(tile, toolType, miningLevel, multiplier) {
@@ -44,7 +46,7 @@ export class TileDrop {
         // !! Currently doesn't support gathering multipliers
         multiplier ??= 1;
 
-        if (this._requireTool && this.#validTool(tile, toolType, miningLevel)) return null;
+        if (this._requiresTool && !TileDrop.#isValidTool(tile, toolType, miningLevel)) return null;
 
         let dropRNG = rng(1, 100);
         if(dropRNG * multiplier > this._chance) return null;
