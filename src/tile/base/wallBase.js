@@ -1,3 +1,4 @@
+import Item from "../../item/item.js";
 import { toolTypes as tool } from "../../item/itemTypes.js";
 import { TileModel } from "../tileModel.js";
 
@@ -15,11 +16,12 @@ export default class WallBase extends TileModel {
         if (item && item.placeable) 
             return false;
 
-        if (this.world.getTile(this.gridX, this.gridY) && !this.world.getTile(this.gridX, this.gridY).transparent) 
+        if (this.world.getTile(this.gridX, this.gridY)?.transparent) 
             return false;
 
-        if (this.requireTool && (!item || item.toolType != tool.HAMMER)) 
-            return false;
+        if (this.requireTool) {
+            return Item.isTool(item, tool.HAMMER);
+        }
 
         return true;
     }

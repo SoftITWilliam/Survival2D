@@ -3,6 +3,7 @@ import { TileDrop } from "../tileDrop.js";
 import WallBase from "../base/WallBase.js";
 import { toolTypes as tool } from "../../item/itemTypes.js";
 import { ItemRegistry as Items } from "../../item/itemRegistry.js";
+import Item from "../../item/item.js";
 
 export class LogModel extends WallBase {
     constructor(world, registryName) {
@@ -17,7 +18,7 @@ export class LogModel extends WallBase {
 
     // Override
     canBeMined(item) {
-        return (!item || item.toolType != tool.HAMMER);
+        return(!Item.isTool(item, tool.HAMMER));
     }
 
     breakTile(tile, toolType, miningLevel) {

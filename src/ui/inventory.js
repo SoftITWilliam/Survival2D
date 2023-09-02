@@ -245,7 +245,7 @@ export class Inventory {
      * @param {Item} item The item to be searched for
      */
     getItemAmount(item) {
-        if(!item instanceof Item) return;
+        if(Item.isItem(item)) return;
         let amount = 0;
         this.grid.forEach(row => {
             amount = row.reduce((a, slot) => (a + (slot.stack?.containsItem(item) ? slot.stack.amount : 0)), amount);
@@ -259,8 +259,8 @@ export class Inventory {
      * @param {number} amount 
      * @returns 
      */
-    addItem(item, amount) {
-        if(!item) return;
+    addItem(item, amount = 1) {
+        if(!Item.isItem(item) || typeof amount != "number") return;
         
         let startAmount = amount;
 
@@ -316,7 +316,7 @@ export class Inventory {
      * @returns True if the full amount of items could be deleted. False if inventory didn't contain enough.
      */
     removeItem(item, amount) {
-        if(!item instanceof Item || typeof amount != "number") return false;
+        if(!Item.isItem(item) || typeof amount != "number") return false;
 
         for(let invY = this.h - 1; invY >= 0; invY--) {
             for(let invX = this.w - 1; invX >= 0; invX--) {

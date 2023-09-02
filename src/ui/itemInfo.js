@@ -4,6 +4,7 @@ import { sprites } from "../game/graphics/loadAssets.js";
 import { drawRounded, renderPath, rgb } from "../helper/canvashelper.js";
 import { splitIntoLines } from "../helper/helper.js";
 import { toolTypes as tool } from "../item/itemTypes.js";
+import Item from "../item/item.js";
 
 export default class ItemInfoDisplay {
     constructor(player) {
@@ -29,7 +30,7 @@ export default class ItemInfoDisplay {
 
     set(item) {
 
-        if(!item) {
+        if(!Item.isItem(item)) {
             this.displaying = false;
             return;
         }

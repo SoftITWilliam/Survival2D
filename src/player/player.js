@@ -13,7 +13,7 @@ import { sprites } from '../game/graphics/loadAssets.js';
 import CraftingMenu from '../crafting/Crafting.js';
 import { TileInstance } from '../tile/tileInstance.js';
 import { FrameAnimation } from '../game/graphics/animation.js';
-import { ItemRegistry } from '../item/itemRegistry.js';
+import { ItemRegistry as Items } from '../item/itemRegistry.js';
 import { EntityComponent } from '../components/EntityComponent.js';
 import { calculateDistance, clamp } from '../helper/helper.js';
 
@@ -119,10 +119,10 @@ class Player {
 
     addDevKit() {
         console.log(this);
-        this.inventory.addItem(ItemRegistry.get("dev_pickaxe"), 1);
-        this.inventory.addItem(ItemRegistry.get("dev_axe"), 1);
-        this.inventory.addItem(ItemRegistry.get("dev_hammer"), 1);
-        this.inventory.addItem(ItemRegistry.get("dev_shovel"), 1);
+        this.inventory.addItem(Items.DEV_PICKAXE);
+        this.inventory.addItem(Items.DEV_AXE);
+        this.inventory.addItem(Items.DEV_HAMMER);
+        this.inventory.addItem(Items.DEV_SHOVEL);
     }
 
     update(m, input, dt) {
@@ -348,7 +348,7 @@ class Player {
         if(this.placeDelay > 0) return;
 
         // Check if item is placeable
-        if(!item || !item.placeable) return;
+        if(!item?.placeable) return;
 
         // X and Y must be within grid
         if(isNaN(x) || isNaN(y) || this.game.world.outOfBounds(x, y))  return;

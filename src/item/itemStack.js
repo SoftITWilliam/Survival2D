@@ -1,5 +1,6 @@
 import { ctx } from "../game/global.js";
 import { renderItem } from "../helper/canvashelper.js";
+import Item from "./item.js";
 
 export class ItemStack {
     #item;
@@ -30,7 +31,8 @@ export class ItemStack {
     }
 
     containsItem(item) {
-        return this.item.isItem(item);
+        if(!Item.isItem(item)) return false;
+        else return Item.isItem(this.item, item);
     }
 
     split() {

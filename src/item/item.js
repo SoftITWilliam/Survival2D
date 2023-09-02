@@ -101,7 +101,23 @@ export default class Item {
         }
     }
 
-    isItem(item) {
-        return (item instanceof Item && this.registryName === item.registryName);
+    /** 
+     * Returns true if 'arg' is of type Item.
+     * If parameter 'item' is provided, returns true if 'arg' is the same as 'item'
+     * @param {any} arg
+     * @param {Item?} item (Optional) Check if 'arg' is the same item as this
+    */
+    static isItem(arg, item = null) {
+        if(arg instanceof Item) {
+            return (item instanceof Item) ? (arg.registryName === item.registryName) : true;
+        }
+        return false;
+    }
+
+    static isTool(arg, toolType = null) {
+        if(arg instanceof Item && arg.itemType === 'tool') {
+            return (toolType !== null) ? (arg.toolType === toolType) : true;
+        }
+        return false;
     }
 }
