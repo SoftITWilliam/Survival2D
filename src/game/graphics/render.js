@@ -2,17 +2,19 @@ import { drawStatBar } from './ui.js';
 import { ctx, canvas, DRAWDIST, DRAW_LIGHTING, DEBUG_MODE } from '../global.js';
 import { drawDebugUI } from './debug.js';
 import { calculateDistance, clamp } from '../../helper/helper.js';
+import { rgbm } from '../../helper/canvashelper.js';
 
 export default function render(game, player) {
+
+    let camera = player.camera;
+
     ctx.save();
-    ctx.translate(-player.camera.x, -player.camera.y);
-    ctx.clearRect(player.camera.x, player.camera.y, canvas.width, canvas.height);
+    ctx.translate(-camera.x, -camera.y);
+    ctx.clearRect(camera.x, camera.y, canvas.width, canvas.height);
 
-    // Background
-    ctx.fillStyle = "rgb(150,180,250)";
-    ctx.fillRectObj(player.camera);
+    renderSky(camera);
 
-    // Wall Tiles
+    /* === Render walls and tiles === */
 
     let gX = clamp(player.gridX, DRAWDIST.x, game.world.width - DRAWDIST.x);
     let gY = clamp(player.gridY, DRAWDIST.y, game.world.height - DRAWDIST.y);
@@ -22,27 +24,15 @@ export default function render(game, player) {
     // This is a *very* major optimization!
     for(let x = gX - DRAWDIST.x ; x < gX + DRAWDIST.x + 1 ; x++) {
         for(let y = gY - DRAWDIST.y ; y < gY + DRAWDIST.y + 1 ; y++) {
-            if(game.world.outOfBounds(x,y)) {
-                continue;
-            }
-
-            let wall = game.world.wallGrid[x][y];
-            if(wall) {
-                wall.render();
-            }
-            
-            let tile = game.world.getTile(x, y);
-            if(tile) {
-                tile.render();
-            }
+            game.world.getWall(x, y)?.render();
+            game.world.getTile(x, y)?.render();
         }
     }
     
     // Player
     player.draw();
-    if(player.miningAction) {
-        player.miningAction.drawProgress();
-    }
+    player.miningAction?.drawProgress();
+    player.drawPlacementPreview(game.input);
 
     // Item entities
     game.itemEntities.drawAll();
@@ -52,12 +42,11 @@ export default function render(game, player) {
         game.world.lighting.draw(gX, gY);
     }
 
-    player.drawPlacementPreview(game.input);
-
     // Tile hover effect
     drawHoverEffect(game, game.input);
 
-    // UI
+    /* === Render UI === */
+
     drawStatBar("health", player.health.max, player.health.current, "rgb(220,60,50)", 16, player);
     //drawStatBar("hunger",player.hunger.max,player.hunger.current,"rgb(180,120,100)",72);
     //drawStatBar("thirst",player.thirst.max,player.thirst.current,"rgb(80,160,220)",128);
@@ -75,10 +64,24 @@ export default function render(game, player) {
     }
     
     // Debug UI
-    if(DEBUG_MODE) {
-        drawDebugUI(game);
-    }
+    if(DEBUG_MODE) drawDebugUI(game);
+
     ctx.restore();
+}
+
+const SKY_COLOR_1 = { r: 50, g: 160, b: 215 };
+const SKY_COLOR_2 = { r: 250, g: 170, b: 170 };
+
+function renderSky(camera) {
+
+    let brightness = 1;
+
+    const skyGradient = ctx.createLinearGradient(0, camera.y, 0, camera.y2);
+    skyGradient.addColorStop(0, rgbm(SKY_COLOR_1, brightness));
+    skyGradient.addColorStop(1, rgbm(SKY_COLOR_2, brightness));
+
+    ctx.fillStyle = skyGradient;
+    ctx.fillRectObj(camera);
 }
 
 function drawHoverEffect(game,input) {
