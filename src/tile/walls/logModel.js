@@ -34,7 +34,7 @@ export class LogModel extends WallBase {
     }
 
     render(x, y) {
-        ctx.fillStyle = "rgb(200,130,110)";
-        ctx.fillRect(x + 4, y, this.w - 8, this.h);
+        ctx.fillStyle = "rgb(150,100,85)";
+        ctx.fillRect(x + 5, y, this.w - 10, this.h);
     }
 }

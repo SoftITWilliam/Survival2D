@@ -17,7 +17,7 @@ export class LeavesModel extends TileBase {
     }
 
     render(x,y) {
-        ctx.fillStyle = "rgba(60,150,40,0.8)";
+        ctx.fillStyle = "rgba(60,120,35,0.8)";
         ctx.fillRect(x, y, this.w, this.h);
     }
 }
