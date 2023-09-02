@@ -1,4 +1,6 @@
 import { sprites } from "../../game/graphics/loadAssets.js";
+import { Tile } from "../../tile/Tile.js";
+import { TileRegistry as Tiles } from "../../tile/tileRegistry.js";
 import PlacementPreview from "../../ui/placementPreview.js";
 import PlaceableBase from "./base/placeableItemBase.js";
 
@@ -11,7 +13,7 @@ export class ItemGrassSeeds extends PlaceableBase {
     // Return true if the given position is a dirt block with no block above
     canBePlaced(x, y, world) {
         let tile = world.getTile(x, y);
-        return (tile && tile.registryName == "dirt" && !world.getTile(x, y + 1));
+        return (Tile.isTile(tile, Tiles.DIRT) && !world.getTile(x, y + 1));
     }
 
     place(x, y) {

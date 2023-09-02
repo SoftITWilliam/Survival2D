@@ -75,17 +75,6 @@ export default class Item {
     }
 
     /**
-     * Return true if the tile below is either dirt or grass
-     * @param {number} x X grid position
-     * @param {number} y Y grid position
-     * @returns 
-     */
-    canBePlanted(x, y, world) {
-        let tileBelow = world.getTile(x, y - 1);
-        return (tileBelow && (tileBelow.registryName == "dirt" || tileBelow.registryName == "grass"));
-    }
-
-    /**
      * Set sprite offset position
      * (Used for spritesheets)
      * @param {int} offsetX X offset in pixels
