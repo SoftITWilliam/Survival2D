@@ -3,8 +3,8 @@ import { toolTypes as tool } from "../../item/itemTypes.js";
 import WallBase from "../base/WallBase.js";
 
 export class StoneWallModel extends WallBase {
-    constructor(world, registryName) {
-        super(world, registryName);
+    constructor(registryName) {
+        super(registryName);
         this.setMiningProperties(tool.HAMMER, 0, 1.5, true);
     }
 

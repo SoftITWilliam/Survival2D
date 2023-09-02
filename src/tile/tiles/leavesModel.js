@@ -5,8 +5,8 @@ import { toolTypes as tool } from "../../item/itemTypes.js";
 import { ItemRegistry as Items } from "../../item/itemRegistry.js";
 
 export class LeavesModel extends TileBase {
-    constructor(world, registryName) {
-        super(world, registryName);
+    constructor(registryName) {
+        super(registryName);
         this.transparent = true;
         this.setMiningProperties(tool.AXE, 0, 0.6, false);
 

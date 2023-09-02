@@ -31,20 +31,12 @@ export class TileDrop {
         return this;
     }
 
-    static #isValidTool(tile, toolType, miningLevel) {
-        return (
-            toolType && miningLevel &&
-            toolType == tile.getToolType() ||
-            miningLevel >= tile.getMiningLevel()
-        );
-    }
-
-    roll(tile, toolType, miningLevel, multiplier) {
+    roll(tile, item, multiplier) {
 
         // !! Currently doesn't support gathering multipliers
         multiplier ??= 1;
 
-        if (this._requiresTool && !TileDrop.#isValidTool(tile, toolType, miningLevel)) return null;
+        if (this._requiresTool && !tile.isMineableBy(item)) return null;
 
         let dropRNG = rng(1, 100);
         if(dropRNG * multiplier > this._chance) return null;

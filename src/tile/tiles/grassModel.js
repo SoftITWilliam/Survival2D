@@ -6,8 +6,8 @@ import { rng } from "../../helper/helper.js";
 import { ItemRegistry as Items } from "../../item/itemRegistry.js";
 
 export class GrassModel extends TileBase {
-    constructor(world, registryName) {
-        super(world, registryName);
+    constructor(registryName) {
+        super(registryName);
         this.setSprite(sprites.tiles.tile_grass);
         this.setMiningProperties(tool.SHOVEL, 0, 1.5, false);
         this.setType("solid");
@@ -26,26 +26,26 @@ export class GrassModel extends TileBase {
         return false;
     }
 
-    tickUpdate(tile) {
+    tickUpdate(tile, world) {
         // Try to spread grass to surrounding tiles
         let range = 2;
         for(let x = tile.gridX - range; x <= tile.gridX + range; x++) {
             for(let y = tile.gridY - range; y <= tile.gridY + range; y++) {
-                if(!GrassModel.canSpreadTo(x, y, this.world)) continue;
+                if(!GrassModel.canSpreadTo(x, y, world)) continue;
                 if(rng(0, 1023) > 0) continue;
                 
-                this.world.setTile(x, y, "grass");
-                this.world.getTile(x, y).getSpritePosition();
+                world.setTile(x, y, "grass");
+                world.getTile(x, y).getSpritePosition();
             }
         }
     }
 
-    tileUpdate(tile) {
+    tileUpdate(tile, world) {
         // If another tile is placed on top of a grass tile, it is converted into a dirt block
-        let tileAbove = this.world.getTile(tile.gridX, tile.gridY + 1);
+        let tileAbove = world.getTile(tile.gridX, tile.gridY + 1);
         if(tileAbove && !tileAbove.isTransparent()) {
-            this.world.setTile(tile.gridX, tile.gridY, "dirt");
-            this.world.getTile(tile.gridX, tile.gridY).getSpritePosition();
+            world.setTile(tile.gridX, tile.gridY, "dirt");
+            world.getTile(tile.gridX, tile.gridY).getSpritePosition();
         }
     }
 

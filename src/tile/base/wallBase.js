@@ -3,8 +3,8 @@ import { toolTypes as tool } from "../../item/itemTypes.js";
 import { TileModel } from "../tileModel.js";
 
 export default class WallBase extends TileModel {
-    constructor(world, registryName, width, height) {
-        super(world, registryName, width, height);
+    constructor(registryName, width, height) {
+        super(registryName, width, height);
         this.setType("wall");
         this.setMiningProperties(tool.HAMMER, 0, 1, true);
         this.transparent = false;
@@ -12,11 +12,11 @@ export default class WallBase extends TileModel {
     }
 
     // Override
-    canBeMined(item) {
+    canBeMined(item, world) {
         if (item && item.placeable) 
             return false;
 
-        if (this.world.getTile(this.gridX, this.gridY)?.transparent) 
+        if (world.getTile(this.gridX, this.gridY)?.transparent) 
             return false;
 
         if (this.requireTool) {

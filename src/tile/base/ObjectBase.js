@@ -3,8 +3,8 @@ import { toolTypes } from "../../item/itemTypes.js";
 import { TileModel } from "../tileModel.js";
 
 export default class ObjectBase extends TileModel {
-    constructor(world, registryName, width, height) {
-        super(world, registryName, width, height);
+    constructor(registryName, width, height) {
+        super(registryName, width, height);
         this.setType("nonSolid");
         this.transparent = true;
         this.connective = false;

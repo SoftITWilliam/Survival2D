@@ -5,8 +5,8 @@ import { toolTypes as tool } from "../../item/itemTypes.js";
 import { ItemRegistry as Items } from "../../item/itemRegistry.js";
 
 export class StoneModel extends TileBase {
-    constructor(world, registryName) {
-        super(world, registryName);
+    constructor(registryName) {
+        super(registryName);
         this.setSprite(sprites.tiles.tile_stone);
         this.setMiningProperties(tool.PICKAXE, 1, 3.0, true);
         this.setType("solid");

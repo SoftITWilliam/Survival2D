@@ -4,8 +4,8 @@ import { toolTypes } from "../../item/itemTypes.js";
 import { TileModel } from "../tileModel.js";
 
 export default class TileBase extends TileModel {
-    constructor(world, registryName, width, height) {
-        super(world, registryName, width, height);
+    constructor(registryName, width, height) {
+        super(registryName, width, height);
         this.setType("solid");
         this.transparent = false;
         this.connective = true;

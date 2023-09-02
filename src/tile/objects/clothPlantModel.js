@@ -6,8 +6,8 @@ import { toolTypes as tool } from "../../item/itemTypes.js";
 import { ItemRegistry as Items } from "../../item/itemRegistry.js";
 
 export class ClothPlantModel extends PlantBase {
-    constructor(world, registryName) {
-        super(world, registryName, TILE_SIZE);
+    constructor(registryName) {
+        super(registryName, TILE_SIZE);
         this.setSprite(sprites.placeables.cloth_plant);
         this.setMiningProperties(tool.SICKLE, 0, 0.5, false);
         this.transparent = true;

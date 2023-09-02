@@ -6,8 +6,8 @@ import { ItemRegistry as Items } from "../../item/itemRegistry.js";
 import Item from "../../item/item.js";
 
 export class LogModel extends WallBase {
-    constructor(world, registryName) {
-        super(world, registryName);
+    constructor(registryName) {
+        super(registryName);
         this.transparent = true;
         this.setMiningProperties(tool.AXE, 0, 1.5, false);
 
@@ -21,17 +21,12 @@ export class LogModel extends WallBase {
         return(!Item.isTool(item, tool.HAMMER));
     }
 
-    breakTile(tile, toolType, miningLevel) {
-        let tileAbove = this.world.getWall(tile.gridX, tile.gridY + 1);
+    breakTile(tile, item, world) {
+        let tileAbove = world.getWall(tile.gridX, tile.gridY + 1);
         if(tileAbove && tileAbove.registryName == "log") {
-            tileAbove.breakTile(tileAbove, toolType, miningLevel);
+            tileAbove.breakTile(tileAbove, item, world);
         }
-
-        // Remove tile
-        this.world.clearWall(tile.gridX, tile.gridY);
-
-        this.dropItems(tile, toolType, miningLevel);
-        this.world.updateNearbyTiles(tile.gridX, tile.gridY);
+        super.breakTile(tile, item, world);
     }
 
     render(x, y) {

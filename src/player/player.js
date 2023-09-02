@@ -229,9 +229,9 @@ class Player {
 
         // Find object the tool is able to interact with
         let obj;
-        if(tile && tile.canBeMined(this.heldItem)) {
+        if(tile && tile.canBeMined(this.heldItem, this.world)) {
             obj = tile;
-        } else if(wall && wall.canBeMined(this.heldItem)) {
+        } else if(wall && wall.canBeMined(this.heldItem, this.world)) {
             obj = wall;
         } else {
             this.miningAction = null;

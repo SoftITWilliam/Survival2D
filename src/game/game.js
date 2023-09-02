@@ -5,16 +5,13 @@ import { World } from "../world/World.js";
 import FPSCounter from "./graphics/FPScounter.js";
 import { InputHandler } from "./InputHandler.js";
 import { Testing } from "../tests/testing.js";
-import tileRegistry from "../tile/tileRegistry.js";
 
 export class Game {
     constructor() {
         this.physicsMultiplier = 0;
 
         this.world = new World(this, 127, 127);
-        
-        tileRegistry.initialize(this.world);
-        
+
         this.itemEntities = new ItemEntityHandler(this);
 
         this.recipeManager = new RecipeManager(this);

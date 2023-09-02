@@ -5,8 +5,8 @@ import { toolTypes as tool } from "../../item/itemTypes.js";
 import { ItemRegistry as Items } from "../../item/itemRegistry.js";
 
 export class DirtModel extends TileBase {
-    constructor(world, registryName) {
-        super(world, registryName);
+    constructor(registryName) {
+        super(registryName);
         this.setSprite(sprites.tiles.tile_dirt);
         this.setMiningProperties(tool.SHOVEL, 0, 1.0, false);
         this.setType("solid");

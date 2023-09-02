@@ -93,9 +93,9 @@ function drawHoverEffect(game,input) {
 
     // Check if player is able to interact with tile or wall using the tool they're currently holding
     let obj;
-    if(tile && tile.canBeMined(game.player.heldItem)) {
+    if(tile && tile.canBeMined(game.player.heldItem, game.world)) {
         obj = tile;
-    } else if(wall && wall.canBeMined(game.player.heldItem)) {
+    } else if(wall && wall.canBeMined(game.player.heldItem, game.world)) {
         obj = wall;
     } else {
         return;

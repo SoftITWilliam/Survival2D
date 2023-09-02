@@ -1,6 +1,8 @@
 import GameObject from "../game/gameObject.js";
 import { TILE_SIZE } from "../game/global.js";
-import tileRegistry from "./tileRegistry.js";
+import Item from "../item/item.js";
+import { toolTypes as tool } from "../item/itemTypes.js";
+import { TileRegistry } from "./tileRegistry.js";
 
 export class Tile extends GameObject {
     constructor(world, gridX, gridY, model) {
@@ -10,7 +12,7 @@ export class Tile extends GameObject {
     }
 
     setModel(model) {
-        this.model = tileRegistry.get(model);
+        this.model = TileRegistry.get(model);
     }
     
     // Override
@@ -27,21 +29,14 @@ export class Tile extends GameObject {
         return this.model?.displayName ?? "";
     }
 
-    requiresTool() {
-        return this.model?.requiredTool ?? false;
-    }
+    get requiresTool() { return this.model?.requiredTool ?? false }
+    requiresTool() { return this.model?.requiredTool ?? false }
 
-    getMiningTime() {
-        return this.model?.miningTime ?? 0;
-    }
+    get miningTime() { return this.model?.miningTime ?? 0 }
+    getMiningTime() { return this.model?.miningTime ?? 0 }
 
-    getToolType() {
-        return this.model?.toolType ?? null;
-    }
-
-    getID() {
-        return this.model?.id ?? null;
-    }
+    get toolType() { return this.model?.toolType ?? null }
+    getToolType() { return this.model?.toolType ?? null }
 
     getType() {
         return this.model?.objectType ?? null;
@@ -57,20 +52,33 @@ export class Tile extends GameObject {
 
     // Runs whenever the tile is "refreshed", i.e. something happens to an adjacent tile.
     tileUpdate() {
-        this.model.tileUpdate(this);
+        this.model.tileUpdate(this, this.world);
     }
 
     // Runs at a regular interval (not every frame)
     tickUpdate() {
-        this.model.tickUpdate(this);
+        this.model.tickUpdate(this, this.world);
     }
 
-    canBeMined(item) {
-        return this.model ? this.model.canBeMined(item) : false;
+    canBeMined(item, world) {
+        return this.model ? this.model.canBeMined(item, world) : false;
     }
 
-    breakTile(x, y, toolType, miningLevel) {
-        this.model.breakTile(x, y, toolType, miningLevel);
+    breakTile(x, y, item) {
+        this.model.breakTile(x, y, item, this.world);
+    }
+
+    isMineableBy(item) {
+        if (this.toolType === null || this.toolType === tool.NONE) {
+            return true;
+        }
+
+        if (Item.isTool(item, this.toolType) && 
+            item.miningLevel >= this.model.toolLevel) {
+                return true;
+        }
+
+        return false;
     }
 
     getSpritePosition() {

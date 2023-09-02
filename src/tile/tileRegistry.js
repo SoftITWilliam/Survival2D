@@ -1,39 +1,39 @@
+import { TileModel } from './tileModel.js';
 import * as tile from './tileModelParent.js';
 
-const tileRegistry = {
-    world: null,
-    tiles: [],
-    enum: {},
+export class TileRegistry {
 
-    initialize: function(world) {
-        this.world = world;
+    /* === TILES === */
 
-        this.tiles = [
-            new tile.Dirt(world, "dirt"),
-            new tile.Grass(world, "grass"),
-            new tile.Stone(world, "stone"),
-            new tile.DirtWall(world, "dirt_wall"),
-            new tile.StoneWall(world, "stone_wall"),
-            new tile.Log(world, "log"),
-            new tile.Leaves(world, "leaves"),
-            new tile.ClothPlant(world, "cloth_plant"),
-            new tile.Sapling(world, "sapling"),
-        ]
+    static DIRT = new tile.Dirt("dirt");
+    static GRASS = new tile.Grass("grass");
+    static STONE = new tile.Stone("stone");
+    static DIRT_WALL = new tile.DirtWall("dirt_wall");
+    static STONE_WALL = new tile.StoneWall("stone_wall");
+    static LOG = new tile.Log("log");
+    static LEAVES = new tile.Leaves("leaves");
+    static CLOTH_PLANT = new tile.ClothPlant("cloth_plant");
+    static SAPLING = new tile.Sapling("sapling");
 
-        this.enum = {};
+    /* === METHODS === */
 
-        // Assign IDs and set up Enum
-        for(let i = 0; i < this.tiles.length; i++) {
-            this.tiles[i].id = i;
-            this.enum[this.tiles[i].registryName] = i;
+    /**
+     * Returns item matching the registry name.
+     * If no item is found, return null.
+     * @param {string} registryName Item registry name (ex. "wooden_pickaxe")
+     * @returns {Item} 
+     */
+    static get(registryName) {
+        return this.asArray().find(item => (item.registryName === registryName));
+    }
+
+    static asArray() {
+        const tileArray = [];
+        for(const key in TileRegistry) {
+            if(TileRegistry[key] instanceof TileModel) {
+                tileArray.push(TileRegistry[key]);
+            }
         }
-    },
-
-    get: function(tileName) {
-        let tile = this.tiles[this.enum[tileName]];
-        if(!tile) console.warn("tileRegistry.get() warning: invalid tile name");
-        return tile ? tile : null;
+        return tileArray;
     }
 }
-
-export default tileRegistry;

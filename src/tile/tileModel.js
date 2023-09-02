@@ -1,10 +1,10 @@
 import { ctx, TILE_SIZE } from "../game/global.js";
 import { sprites } from "../game/graphics/loadAssets.js";
 import { dropItemFromTile } from "../item/dropItem.js";
+import Item from "../item/item.js";
 
 export class TileModel {
-    constructor(world, registryName, width = TILE_SIZE, height = TILE_SIZE) {
-        this.world = world;
+    constructor(registryName, width = TILE_SIZE, height = TILE_SIZE) {
         this.setRegistryName(registryName);
         this.objectType;
         this.w = width;
@@ -55,23 +55,24 @@ export class TileModel {
     }
 
     // Remove the tile and drop its items.
-    breakTile(tile, toolType = null, miningLevel = null) {
+    breakTile(tile, item = null, world) {
         if(this.objectType == "wall") {
-            this.world.clearWall(tile.gridX, tile.gridY);
+            world.clearWall(tile.gridX, tile.gridY);
         } else {
-            this.world.clearTile(tile.gridX, tile.gridY);
+            world.clearTile(tile.gridX, tile.gridY);
         }
+        
+        this.dropItems(tile, (Item.isTool(item) ? item : null), world);
 
-        this.dropItems(tile, toolType, miningLevel);
-        this.world.updateNearbyTiles(tile.gridX, tile.gridY);
+        world.updateNearbyTiles(tile.gridX, tile.gridY);
     }
 
     // Loop through this tile's drops. Runs when the tile is broken.
-    dropItems(tile, toolType, miningLevel) {
+    dropItems(tile, item, world) {
         this.tileDrops.forEach(tileDrop => {
-            const droppedItem = tileDrop.roll(this, toolType, miningLevel, 1);
-            if(droppedItem) {
-                dropItemFromTile(tile, droppedItem.item, droppedItem.amount, this.world.game);
+            const drop = tileDrop.roll(this, item, 1);
+            if(drop) {
+                dropItemFromTile(tile, drop.item, drop.amount, world.game);
             }
         })
     }
@@ -81,12 +82,12 @@ export class TileModel {
     }
 
     // Runs whenever the tile is "refreshed", i.e. something happens to an adjacent tile.
-    tileUpdate(tile) {
+    tileUpdate(tile, world) {
         
     }
 
     // Runs at a regular interval (not every frame)
-    tickUpdate(tile) {
+    tickUpdate(tile, world) {
         
     }
 

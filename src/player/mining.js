@@ -8,16 +8,11 @@ export default class MiningAction {
         this.tile = tile;
         this.finished = false;
 
-        if(item) {
-            this.toolType = item.toolType ?? null;
-            this.miningSpeed = item.miningSpeed ?? 1;
-            this.miningLevel = item.miningLevel ?? 0;
-        } else {
-            this.toolTypes = [];
-            this.miningSpeed = 1;
-            this.miningLevel = 0;
-        }
-        
+        this.item = item ?? null;
+        this.toolType = item?.toolType ?? null;
+        this.miningSpeed = item?.miningSpeed ?? 1;
+        this.miningLevel = item?.miningLevel ?? 0;
+
         this.timer = 0;
 
         // Calculate total mining time
@@ -43,7 +38,7 @@ export default class MiningAction {
             this.world.getWall(gx, gy) : this.world.getTile(gx, gy);
 
         // Break tile
-        object.breakTile(this.tile, this.toolType, this.miningLevel);
+        object.breakTile(this.tile, this.item, this.world);
 
         this.finished = true;
     }
