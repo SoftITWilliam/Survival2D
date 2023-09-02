@@ -2,7 +2,7 @@ import GameObject from "../game/gameObject.js";
 import { TILE_SIZE } from "../game/global.js";
 import tileRegistry from "./tileRegistry.js";
 
-export class TileInstance extends GameObject {
+export class Tile extends GameObject {
     constructor(world, gridX, gridY, model) {
         super(world.game, gridX * TILE_SIZE, -gridY * TILE_SIZE)
         this.world = world;
@@ -23,7 +23,7 @@ export class TileInstance extends GameObject {
         return this.model?.registryName ?? "";
     }
 
-    getDisplayName() {
+    get displayName() {
         return this.model?.displayName ?? "";
     }
 

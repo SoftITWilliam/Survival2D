@@ -2,7 +2,7 @@ import * as structures from '../structure/structureParent.js';
 import { BASE_TERRAIN_HEIGHT, WORLD_WIDTH } from "../game/global.js";
 import { HEIGHTMAP } from "./World.js";
 import NoiseMap from './NoiseMap.js';
-import { TileInstance } from '../tile/tileInstance.js';
+import { Tile } from '../tile/Tile.js';
 import { rng, roll } from '../helper/helper.js';
 
 const worldGenConfig = {
@@ -13,7 +13,8 @@ const worldGenConfig = {
     MAX_DIRT_DEPTH: 5,
 
     // lower = more trees (1 in x)
-    TREE_FACTOR: 20, 
+    TREE_FACTOR: 6, 
+    CLOTH_FACTOR: 20,
 
     // if noise value for a tile is below the threshold, that tile becomes terrain.
     // Higher values result in fewer caves
@@ -70,7 +71,7 @@ export class WorldGeneration {
             tileName = "stone";
         }
 
-        let tile = new TileInstance(this.world, x, y, tileName);
+        let tile = new Tile(this.world, x, y, tileName);
         return tile.model ? tile : null;
     }
 
@@ -92,7 +93,7 @@ export class WorldGeneration {
             tileName = "stone_wall";
         }
 
-        let tile = new TileInstance(this.world, x, y, tileName);
+        let tile = new Tile(this.world, x, y, tileName);
         return tile.model ? tile : null;
     }
 
@@ -124,13 +125,13 @@ export class WorldGeneration {
             
             if(!tile || tile.registryName != "grass") continue;
 
-            if(roll(treeValue) && (x - lastTree) > treeGap) {
+            if(roll(worldGenConfig.TREE_FACTOR) && (x - lastTree) > treeGap) {
                 this.world.structures.push(new structures.BasicTree(x, y + 1, this.world));
                 lastTree = x;
                 continue;
             }
 
-            if(roll(clothValue)) {
+            if(roll(worldGenConfig.CLOTH_FACTOR)) {
                 this.world.setTile(x, y + 1, "cloth_plant");
             }
         }

@@ -11,7 +11,7 @@ import ItemInfoDisplay from '../ui/itemInfo.js';
 import { PlayerFalling, PlayerJumping, PlayerRunning, PlayerStanding, PlayerSwimming, stateEnum } from './playerStates.js';
 import { sprites } from '../game/graphics/loadAssets.js';
 import CraftingMenu from '../crafting/Crafting.js';
-import { TileInstance } from '../tile/tileInstance.js';
+import { Tile } from '../tile/Tile.js';
 import { FrameAnimation } from '../game/graphics/animation.js';
 import { ItemRegistry as Items } from '../item/itemRegistry.js';
 import { EntityComponent } from '../components/EntityComponent.js';
@@ -356,7 +356,7 @@ class Player {
         // Must be a valid placement position
         if(!item.canBePlaced(x, y, this.world)) return;
     
-        let tile = new TileInstance(this.game.world, x, y, item.place());
+        let tile = new Tile(this.game.world, x, y, item.place());
         if(!tile || !tile.model) return;
 
         // Cannot place out of range

@@ -1,7 +1,5 @@
 import { rng } from "../helper/helper.js";
 import Item from "../item/item.js";
-import { ItemRegistry } from "../item/itemRegistry.js";
-import { TileInstance } from "./tileInstance.js";
 
 // This should be converted into a general drop class later, so that it for example could be used for entity drops.
 export class TileDrop {

@@ -1,7 +1,7 @@
 
 import LightingGrid from './LightingGrid.js';
 import { generateTerrainHeight, WorldGeneration } from './WorldGeneration.js';
-import { TileInstance } from '../tile/tileInstance.js';
+import { Tile } from '../tile/Tile.js';
 import { TILE_SIZE } from '../game/global.js';
 
 export const HEIGHTMAP = generateTerrainHeight();
@@ -82,7 +82,7 @@ export class World {
     setTile(x, y, tileName) {
         if(this.outOfBounds(x, y)) return;
 
-        let tile = new TileInstance(this, x, y, tileName);
+        let tile = new Tile(this, x, y, tileName);
 
         if(tile.model) {
             this.tileGrid[x][y] = tile;
@@ -93,7 +93,7 @@ export class World {
     setWall(x, y, wallName) {
         if(this.outOfBounds(x, y)) return;
 
-        let wall = new TileInstance(this, x, y, wallName);
+        let wall = new Tile(this, x, y, wallName);
 
         if(wall.model) {
             this.wallGrid[x][y] = wall;
