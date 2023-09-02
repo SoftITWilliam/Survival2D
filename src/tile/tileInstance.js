@@ -14,45 +14,45 @@ export class TileInstance extends GameObject {
     }
     
     // Override
-    get height() { return this.model ? this.model.height : 0 }
+    get height() { return this.model?.height ?? 0 }
 
     // Override
-    get width() { return this.model ? this.model.width : 0 }
+    get width() { return this.model?.width ?? 0 }
 
     get registryName() {
-        return this.model ? this.model.registryName : "";
+        return this.model?.registryName ?? "";
     }
 
     getDisplayName() {
-        return this.model ? this.model.displayName : "";
+        return this.model?.displayName ?? "";
     }
 
     requiresTool() {
-        return this.model ? this.model.requiredTool : false;
+        return this.model?.requiredTool ?? false;
     }
 
     getMiningTime() {
-        return this.model ? this.model.miningTime : 0;
+        return this.model?.miningTime ?? 0;
     }
 
     getToolType() {
-        return this.model ? this.model.toolType : null;
+        return this.model?.toolType ?? null;
     }
 
     getID() {
-        return this.model ? this.model.id : null;
+        return this.model?.id ?? null;
     }
 
     getType() {
-        return this.model ? this.model.objectType : null;
+        return this.model?.objectType ?? null;
     }
 
     isTransparent() {
-        return this.model ? this.model.transparent : false;
+        return this.model?.transparent ?? false;
     }
 
     isConnective() {
-        return this.model ? this.model.connective : false;
+        return this.model?.connective ?? false;
     }
 
     // Runs whenever the tile is "refreshed", i.e. something happens to an adjacent tile.
@@ -105,35 +105,27 @@ export class TileInstance extends GameObject {
     }
 
     getAdjacent() {
-        let adjacent = {
-            tl:false,tm:false,tr:false,ml:false,mr:false,bl:false,bm:false,br:false
-        };
 
-        let checkTile = (x,y) => {
-            try {
-                let tile = this.world.getTile(x,y);
-                if(tile && !tile.isTransparent()) {
-                    return true;
-                }
-                return false;
-            } catch {
-                return false;
-            }
+        let checkTile = (x, y) => {
+            let tile = this.world.getTile(x, y);
+            return (tile && !tile.isTransparent());
         }
 
-        adjacent.tl = checkTile(this.gridX -1, this.gridY + 1);
-        adjacent.tm = checkTile(this.gridX, this.gridY + 1);
-        adjacent.tr = checkTile(this.gridX + 1, this.gridY + 1);
-        adjacent.ml = checkTile(this.gridX - 1, this.gridY);
-        adjacent.mr = checkTile(this.gridX + 1, this.gridY);
-        adjacent.bl = checkTile(this.gridX - 1, this.gridY - 1);
-        adjacent.bm = checkTile(this.gridX, this.gridY - 1);
-        adjacent.br = checkTile(this.gridX + 1, this.gridY - 1);
+        let adjacent = {
+            tl: checkTile(this.gridX -1, this.gridY + 1), // Top Left
+            tm: checkTile(this.gridX, this.gridY + 1),
+            tr: checkTile(this.gridX + 1, this.gridY + 1),
+            ml: checkTile(this.gridX - 1, this.gridY),
+            mr: checkTile(this.gridX + 1, this.gridY),
+            bl: checkTile(this.gridX - 1, this.gridY - 1),
+            bm: checkTile(this.gridX, this.gridY - 1),
+            br: checkTile(this.gridX + 1, this.gridY - 1),
+        };
 
         return adjacent;
     }
 
     render() {
-        this.model.render(this.x,this.y,this.sx,this.sy);
+        this.model.render(this.x, this.y, this.sx, this.sy);
     }
 }
