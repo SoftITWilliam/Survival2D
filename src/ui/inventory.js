@@ -150,26 +150,22 @@ export class Inventory {
             return;
         }
 
+        // Create a reference to the existing stack in the clicked slot
         slot = this.getSlot(slot.x, slot.y);
+        let stack = slot.stack;
 
-        // Create a reference to the existing stack in the slot
-        let newStack = slot.stack;
-
-        if(newStack) {
-
-            // If new slot has a different item, insert the held stack and pick up the new one.
-            if(newStack.containsItem(this.holdingStack.item)) {
+        if(stack) {
+            // If clicked slot contains the same item, fill up the stack as much as possible.
+            if(stack.containsItem(this.holdingStack.item)) {
+                let remaining = stack.fill(insertAmount);
+                this.holdingStack.amount -= (insertAmount - remaining);
+            } 
+            // If clicked slot has a different item, insert the held stack and pick up the new one.
+            else {
                 let temp = this.holdingStack;
                 this.selectSlot(slot.invX, slot.invY, false);
                 slot.stack = temp;
-                return;
             }
-
-            // If it has the same item, fill up the stack as much as possible.
-            let remaining = newStack.fill(insertAmount);
-            this.holdingStack.amount -= insertAmount;
-            this.holdingStack.amount += remaining;
-
         } else {
             // Insert stack and remove old stack
             let stack = new ItemStack(this.holdingStack.item, insertAmount);
