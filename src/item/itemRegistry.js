@@ -3,7 +3,8 @@ import Item from './item.js';
 import * as item from './itemParent.js';
 
 import { ITEM_RARITIES as rarity }  from './rarities.js';
-import { toolTypes as tool } from './itemTypes.js';
+
+const tool = Item.toolTypes;
 
 export class ItemRegistry {
 

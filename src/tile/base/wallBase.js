@@ -1,5 +1,4 @@
 import Item from "../../item/item.js";
-import { toolTypes as tool } from "../../item/itemTypes.js";
 import { Tile } from "../Tile.js";
 import { TileModel } from "../tileModel.js";
 
@@ -7,7 +6,7 @@ export default class WallBase extends TileModel {
     constructor(registryName, width, height) {
         super(registryName, width, height);
         this.type = Tile.types.WALL;
-        this.setMiningProperties(tool.HAMMER, 0, 1, true);
+        this.setMiningProperties(Item.toolTypes.HAMMER, 0, 1, true);
         this.transparent = false;
         this.connective = true;
     }
@@ -21,7 +20,7 @@ export default class WallBase extends TileModel {
             return false;
 
         if (this.requireTool) {
-            return Item.isTool(item, tool.HAMMER);
+            return Item.isTool(item, Item.toolTypes.HAMMER);
         }
 
         return true;

@@ -1,7 +1,6 @@
 import { ctx } from "../../game/global.js";
 import { TileDrop } from "../tileDrop.js";
 import WallBase from "../base/WallBase.js";
-import { toolTypes as tool } from "../../item/itemTypes.js";
 import { ItemRegistry as Items } from "../../item/itemRegistry.js";
 import Item from "../../item/item.js";
 import { Tile } from "../Tile.js";
@@ -11,7 +10,7 @@ export class LogModel extends WallBase {
     constructor(registryName) {
         super(registryName);
         this.transparent = true;
-        this.setMiningProperties(tool.AXE, 0, 1.5, false);
+        this.setMiningProperties(Item.toolTypes.AXE, 0, 1.5, false);
 
         this.tileDrops = [
             new TileDrop(Items.WOOD, 1, 3).affectedByMultipliers(),
@@ -20,7 +19,7 @@ export class LogModel extends WallBase {
 
     // Override
     canBeMined(item) {
-        return(!Item.isTool(item, tool.HAMMER));
+        return(!Item.isTool(item, Item.toolTypes.HAMMER));
     }
 
     breakTile(tile, item, world) {

@@ -1,4 +1,4 @@
-import { toolTypes } from "../../item/itemTypes.js";
+import Item from "../../item/item.js";
 import { Tile } from "../Tile.js";
 import ObjectBase from "../base/ObjectBase.js";
 
@@ -6,7 +6,7 @@ export default class PlantBase extends ObjectBase {
     constructor(registryName, width, height) {
         super(registryName, width, height);
         this.type = Tile.types.NON_SOLID;
-        this.toolType = toolTypes.SICKLE;
+        this.toolType = Item.toolTypes.SICKLE;
     }
 
     // Remove plant if ground below is broken

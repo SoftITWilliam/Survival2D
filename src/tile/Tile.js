@@ -1,7 +1,6 @@
 import GameObject from "../game/gameObject.js";
 import { TILE_SIZE } from "../game/global.js";
 import Item from "../item/item.js";
-import { toolTypes as tool } from "../item/itemTypes.js";
 import { TileModel } from "./tileModel.js";
 
 export class Tile extends GameObject {
@@ -69,7 +68,7 @@ export class Tile extends GameObject {
     }
 
     isMineableBy(item) {
-        if (this.toolType === null || this.toolType === tool.NONE) {
+        if (this.toolType === null || this.toolType === Item.toolTypes.NONE) {
             return true;
         }
 

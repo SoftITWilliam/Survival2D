@@ -1,18 +1,18 @@
 import { sprites } from "../../game/graphics/loadAssets.js";
 import { TileDrop } from "../tileDrop.js";
 import TileBase from "../base/TileBase.js";
-import { toolTypes as tool } from "../../item/itemTypes.js";
 import { rng } from "../../helper/helper.js";
 import { ItemRegistry as Items } from "../../item/itemRegistry.js";
 import { Tile } from "../Tile.js";
 import { TileRegistry } from "../tileRegistry.js";
+import Item from "../../item/item.js";
 
 export class GrassModel extends TileBase {
     constructor(registryName) {
         super(registryName);
         this.type = Tile.types.SOLID;
         this.setSprite(sprites.tiles.tile_grass);
-        this.setMiningProperties(tool.SHOVEL, 0, 1.5, false);
+        this.setMiningProperties(Item.toolTypes.SHOVEL, 0, 1.5, false);
 
         this.tileDrops = [
             new TileDrop(Items.DIRT),

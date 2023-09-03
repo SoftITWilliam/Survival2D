@@ -1,4 +1,3 @@
-import { toolTypes } from "../item/itemTypes.js";
 
 export class ToolModule {
     constructor(toolType, miningLevel, miningSpeed, tileReach) {
@@ -20,7 +19,7 @@ export class ToolModule {
     // TOOL TYPE
 
     get toolType() { 
-        return this._tooltype ?? toolTypes.NONE;
+        return this._tooltype ?? 0;
     }
 
     set toolType(type) {

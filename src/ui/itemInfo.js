@@ -3,7 +3,6 @@ import { getLang } from "../game/lang.js";
 import { sprites } from "../game/graphics/loadAssets.js";
 import { drawRounded, renderPath, rgb } from "../helper/canvashelper.js";
 import { splitIntoLines } from "../helper/helper.js";
-import { toolTypes as tool } from "../item/itemTypes.js";
 import Item from "../item/item.js";
 
 export default class ItemInfoDisplay {
@@ -64,13 +63,13 @@ export default class ItemInfoDisplay {
         switch(item.itemType) {
             case "tool":
                 switch(item.toolType) {
-                    case tool.PICKAXE:
+                    case Item.toolTypes.PICKAXE:
                         return sprites.ui.item_type.icon_pickaxe;
-                    case tool.AXE:
+                    case Item.toolTypes.AXE:
                         return sprites.ui.item_type.icon_axe;
-                    case tool.SHOVEL:
+                    case Item.toolTypes.SHOVEL:
                         return sprites.ui.item_type.icon_shovel;
-                    case tool.HAMMER:
+                    case Item.toolTypes.HAMMER:
                         return sprites.ui.item_type.icon_hammer;
                     default: 
                         return null;

@@ -17,6 +17,19 @@ export default class Item {
         this.registryName = registryName;
     }
 
+    static types = {
+        
+    }
+
+    static toolTypes = {
+        NONE: 0,
+        PICKAXE: 1,
+        AXE: 2,
+        SHOVEL: 3,
+        HAMMER: 4,
+        SICKLE: 5, // currently unimplemented
+    }
+
     // Set the registry name of the item
     // Also gets item ID, display name, and description
     set registryName(name) {
