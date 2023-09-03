@@ -10,9 +10,9 @@ import { TileRegistry } from "../tileRegistry.js";
 export class GrassModel extends TileBase {
     constructor(registryName) {
         super(registryName);
+        this.type = Tile.types.SOLID;
         this.setSprite(sprites.tiles.tile_grass);
         this.setMiningProperties(tool.SHOVEL, 0, 1.5, false);
-        this.setType("solid");
 
         this.tileDrops = [
             new TileDrop(Items.DIRT),
@@ -34,7 +34,7 @@ export class GrassModel extends TileBase {
                 if(!GrassModel.canSpreadTo(x, y, world)) continue;
                 if(rng(0, 1023) > 0) continue;
                 
-                world.setTile(x, y, "grass");
+                world.setTile(x, y, TileRegistry.GRASS);
                 world.getTile(x, y).getSpritePosition();
             }
         }
@@ -43,8 +43,8 @@ export class GrassModel extends TileBase {
     tileUpdate(tile, world) {
         // If another tile is placed on top of a grass tile, it is converted into a dirt block
         let tileAbove = world.getTile(tile.gridX, tile.gridY + 1);
-        if(tileAbove && !tileAbove.isTransparent()) {
-            world.setTile(tile.gridX, tile.gridY, "dirt");
+        if(tileAbove && !tileAbove.transparent) {
+            world.setTile(tile.gridX, tile.gridY, TileRegistry.DIRT);
             world.getTile(tile.gridX, tile.gridY).getSpritePosition();
         }
     }

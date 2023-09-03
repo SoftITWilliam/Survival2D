@@ -4,7 +4,7 @@ import { HEIGHTMAP } from "./World.js";
 import NoiseMap from './NoiseMap.js';
 import { Tile } from '../tile/Tile.js';
 import { rng, roll } from '../helper/helper.js';
-import { TileRegistry as Tiles } from '../tile/tileRegistry.js';
+import { TileRegistry, TileRegistry as Tiles } from '../tile/tileRegistry.js';
 
 const worldGenConfig = {
 
@@ -55,47 +55,47 @@ export class WorldGeneration {
         // No blocks or walls are generated above surface height
         if(y > HEIGHTMAP[x] || noiseValue >= this.threshold) return null;
 
-        let tileName = "";
+        let model;
 
         // Grass
         if(HEIGHTMAP[x] == y) {
-            tileName = "grass";
+            model = TileRegistry.GRASS;
         } 
         
         // Dirt
         else if(HEIGHTMAP[x] - this.dirtMap[x] < y) {
-            tileName = "dirt";
+            model = TileRegistry.DIRT;
         } 
         
         // Stone
         else {
-            tileName = "stone";
+            model = TileRegistry.STONE;
         }
 
-        let tile = new Tile(this.world, x, y, tileName);
-        return tile.model ? tile : null;
+        let tile = new Tile(this.world, x, y, model);
+
+        return model ? tile : null;
     }
 
     getTerrainWall(x, y) {
         // No wall
-        if(y > HEIGHTMAP[x]) {
-            return null;
-        }
+        if(y > HEIGHTMAP[x]) return null;
 
-        let tileName = "";
+        let model = "";
 
         // Dirt walls
         if(HEIGHTMAP[x] - this.dirtMap[x] <= y) {
-            tileName = "dirt_wall";
+            model = TileRegistry.DIRT_WALL;
         } 
         
         // Stone walls
         else {
-            tileName = "stone_wall";
+            model = TileRegistry.STONE_WALL;
         }
 
-        let tile = new Tile(this.world, x, y, tileName);
-        return tile.model ? tile : null;
+        let tile = new Tile(this.world, x, y, model);
+
+        return model ? tile : null;
     }
 
     /**
@@ -133,7 +133,7 @@ export class WorldGeneration {
             }
 
             if(roll(worldGenConfig.CLOTH_FACTOR)) {
-                this.world.setTile(x, y + 1, "cloth_plant");
+                this.world.setTile(x, y + 1, TileRegistry.CLOTH_PLANT);
             }
         }
     }

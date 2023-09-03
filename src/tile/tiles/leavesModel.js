@@ -3,10 +3,12 @@ import { TileDrop } from "../tileDrop.js";
 import TileBase from "../base/TileBase.js";
 import { toolTypes as tool } from "../../item/itemTypes.js";
 import { ItemRegistry as Items } from "../../item/itemRegistry.js";
+import { Tile } from "../Tile.js";
 
 export class LeavesModel extends TileBase {
     constructor(registryName) {
         super(registryName);
+        this.type = Tile.types.NON_SOLID;
         this.transparent = true;
         this.setMiningProperties(tool.AXE, 0, 0.6, false);
 

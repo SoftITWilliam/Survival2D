@@ -363,7 +363,7 @@ class Player {
         if(calculateDistance(this, tile) > this.reach) return;
 
         // Cannot place a solid tile which overlaps with player
-        if(tile.getType() == "solid" && overlap(this, tile)) return;
+        if(tile.type == Tile.types.SOLID && overlap(this, tile)) return;
 
         this.world.setTile(x, y, tile.registryName);
         

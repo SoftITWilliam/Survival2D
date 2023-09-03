@@ -1,12 +1,13 @@
 
 import Item from "../../item/item.js";
 import { toolTypes } from "../../item/itemTypes.js";
+import { Tile } from "../Tile.js";
 import { TileModel } from "../tileModel.js";
 
 export default class TileBase extends TileModel {
     constructor(registryName, width, height) {
         super(registryName, width, height);
-        this.setType("solid");
+        this.type = Tile.types.SOLID;
         this.transparent = false;
         this.connective = true;
     }

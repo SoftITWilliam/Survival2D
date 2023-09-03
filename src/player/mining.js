@@ -1,4 +1,5 @@
 import { ctx } from "../game/global.js";
+import { Tile } from "../tile/Tile.js";
 
 const PROGRESS_DISPLAY_RADIUS = 16;
 
@@ -16,9 +17,9 @@ export default class MiningAction {
         this.timer = 0;
 
         // Calculate total mining time
-        this.totalTime = this.tile.getMiningTime() * 1000;
+        this.totalTime = this.tile.miningTime * 1000;
 
-        if(this.toolType === tile.getToolType()) {
+        if(this.toolType === tile.toolType) {
             this.totalTime = Math.floor(this.totalTime / this.miningSpeed);
         }
     }
@@ -34,7 +35,7 @@ export default class MiningAction {
         let gx = this.tile.gridX;
         let gy = this.tile.gridY;
 
-        let object = this.tile.getType() == "wall" ?
+        let object = this.tile.type == Tile.types.WALL ?
             this.world.getWall(gx, gy) : this.world.getTile(gx, gy);
 
         // Break tile

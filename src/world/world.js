@@ -3,6 +3,8 @@ import LightingGrid from './LightingGrid.js';
 import { generateTerrainHeight, WorldGeneration } from './WorldGeneration.js';
 import { Tile } from '../tile/Tile.js';
 import { TILE_SIZE } from '../game/global.js';
+import { TileRegistry } from '../tile/tileRegistry.js';
+import { TileModel } from '../tile/tileModel.js';
 
 export const HEIGHTMAP = generateTerrainHeight();
 
@@ -73,31 +75,32 @@ export class World {
         return tileArray;
     }
 
-    setTileIfEmpty(x, y, tileName) {
-        if(!this.getTile(x, y)) {
-            this.setTile(x, y, tileName);
-        }
+    setTileIfEmpty(x, y, tileModel) {
+        if(this.outOfBounds(x, y) || this.getTile(x, y)) return;
+
+        if(!tileModel instanceof TileModel) return;
+
+        const tile = new Tile(this, x, y, tileModel);
+        this.tileGrid[x][y] = tile;
     }
 
-    setTile(x, y, tileName) {
+    setTile(x, y, tileModel) {
         if(this.outOfBounds(x, y)) return;
 
-        let tile = new Tile(this, x, y, tileName);
-
-        if(tile.model) {
-            this.tileGrid[x][y] = tile;
-        }
+        if(!tileModel instanceof TileModel) return;
+        
+        const tile = new Tile(this, x, y, tileModel);
+        this.tileGrid[x][y] = tile;
     }
 
     // Set the wall at the given position to the given wall
-    setWall(x, y, wallName) {
+    setWall(x, y, wallModel) {
         if(this.outOfBounds(x, y)) return;
 
-        let wall = new Tile(this, x, y, wallName);
+        if(!wallModel instanceof TileModel) return;
 
-        if(wall.model) {
-            this.wallGrid[x][y] = wall;
-        }
+        const wall = new Tile(this, x, y, wallModel);
+        this.wallGrid[x][y] = wall;
     }
 
     // If the given coordinates are outside of the map (ex. an X coordinate of -1), return true

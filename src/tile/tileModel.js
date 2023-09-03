@@ -2,11 +2,12 @@ import { ctx, TILE_SIZE } from "../game/global.js";
 import { sprites } from "../game/graphics/loadAssets.js";
 import { dropItemFromTile } from "../item/dropItem.js";
 import Item from "../item/item.js";
+import { Tile } from "./Tile.js";
 
 export class TileModel {
     constructor(registryName, width = TILE_SIZE, height = TILE_SIZE) {
-        this.setRegistryName(registryName);
-        this.objectType;
+        this.registryName = registryName;
+        this._type = Tile.types.NONE;
         this.w = width;
         this.h = height ?? width;
         this.tileDrops = [];
@@ -15,16 +16,16 @@ export class TileModel {
     get width() { return this.w }
     get height() { return this.h }
 
-    get miningProperties() {
-
+    get type() {
+        return this._type ?? Tile.types.NONE;
     }
 
-    setRegistryName(name) {
-        this.registryName = name;
-    }
-
-    setType(type) {
-        this.objectType = type;
+    // Use 'Tile.types' enum
+    set type(tileType) {
+        if(typeof tileType != "number") {
+            return console.warn("Invalid tile type");
+        }
+        this._type = tileType;
     }
 
     /**
@@ -56,7 +57,7 @@ export class TileModel {
 
     // Remove the tile and drop its items.
     breakTile(tile, item = null, world) {
-        if(this.objectType == "wall") {
+        if(this.type == Tile.types.WALL) {
             world.clearWall(tile.gridX, tile.gridY);
         } else {
             world.clearTile(tile.gridX, tile.gridY);

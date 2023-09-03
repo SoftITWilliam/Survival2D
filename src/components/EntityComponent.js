@@ -1,5 +1,6 @@
 import { overlap, surfaceCollision } from "../game/collision.js";
 import { TILE_SIZE } from "../game/global.js";
+import { Tile } from "../tile/Tile.js";
 import { PositionComponent } from "./positionComponent.js";
 
 export class EntityComponent extends PositionComponent {
@@ -99,7 +100,7 @@ export class EntityComponent extends PositionComponent {
         let tiles = world.getTilesInRange(this.gridX, this.gridY, 2);
 
         tiles.forEach(tile => {
-            if(tile.getType() == "solid") {
+            if(tile.type == Tile.types.SOLID) {
                 if(surfaceCollision("top", this, tile)) {
                     this.topCollision(tile);
                 }
@@ -117,11 +118,13 @@ export class EntityComponent extends PositionComponent {
                 }
             }
 
-            if(tile.getType() == "liquid") {
+            /*
+            if(tile.type == Tile.types.LIQUID) {
                 if(overlap(this, tile)) {
                     this.inLiquid = true;
                 }
             }
+            */
         })
     }
 }

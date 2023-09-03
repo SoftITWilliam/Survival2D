@@ -9,10 +9,8 @@ import { TileRegistry } from "../tileRegistry.js";
 export default class SaplingBase extends ObjectBase {
     constructor(registryName) {
         super(registryName, TILE_SIZE, TILE_SIZE);
-        this.setType("nonSolid");
+        this.type = Tile.types.NON_SOLID;
         this.setMiningProperties(toolTypes.AXE, 0, 0.2, true);
-
-        this.tree = new BasicTree();
         this.growthValue = 255;
     }
 
@@ -21,12 +19,8 @@ export default class SaplingBase extends ObjectBase {
      */
     growTree(tile) {
         tile.world.clearTile(tile.gridX, tile.gridY);
-        if(this.tree) {
-            this.tree.world = tile.world;
-            this.tree.gridX = tile.gridX;
-            this.tree.gridY = tile.gridY;
-            this.tree.generate();
-        }
+        let tree = new BasicTree(tile.gridX, tile.gridY, tile.world);
+        tree.generate();
     }
 
     /**
@@ -53,7 +47,7 @@ export default class SaplingBase extends ObjectBase {
         let minimumSpace = 8;
         for(let y = tile.gridY + 1; y < tile.gridY + minimumSpace; y++) {
             let checkedTile = tile.world.getTile(tile.gridX, y)
-            if(checkedTile && !checkedTile.isTransparent()) {
+            if(checkedTile && !checkedTile.transparent) {
                 return false;
             }
         }

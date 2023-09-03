@@ -110,8 +110,8 @@ export default class LightingGrid {
     // (Currently, the only light source in the game is any coordinate where there is no tile or wall)
     checkLightSource(x, y) {
         return (
-            (!this.world.getTile(x, y) || this.world.getTile(x, y).isTransparent()) && 
-            (!this.world.getWall(x, y) || this.world.getWall(x, y).isTransparent())
+            (!this.world.getTile(x, y) || this.world.getTile(x, y).transparent) && 
+            (!this.world.getWall(x, y) || this.world.getWall(x, y).transparent)
         );
     }
 

@@ -1,5 +1,4 @@
 import { sprites } from "../../game/graphics/loadAssets.js";
-import { BasicTree } from "../../structure/structureParent.js";
 import { TileDrop } from "../tileDrop.js";
 import SaplingBase from "../base/SaplingBase.js";
 import { toolTypes as tool } from "../../item/itemTypes.js";
@@ -15,7 +14,6 @@ export class SaplingModel extends SaplingBase {
             new TileDrop(Items.ACORN).chance(50),
         ];
 
-        this.tree = new BasicTree(0, 0, this.world);
         this.growthValue = 255;
     }
 

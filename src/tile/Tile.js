@@ -2,17 +2,22 @@ import GameObject from "../game/gameObject.js";
 import { TILE_SIZE } from "../game/global.js";
 import Item from "../item/item.js";
 import { toolTypes as tool } from "../item/itemTypes.js";
-import { TileRegistry } from "./tileRegistry.js";
+import { TileModel } from "./tileModel.js";
 
 export class Tile extends GameObject {
     constructor(world, gridX, gridY, model) {
         super(world.game, gridX * TILE_SIZE, -gridY * TILE_SIZE)
         this.world = world;
-        this.setModel(model);
+
+        this.model = (model instanceof TileModel) ? model : null;
     }
 
-    setModel(model) {
-        this.model = TileRegistry.get(model);
+    static types = {
+        NONE: 0, // (No tile should ever actually have this)
+        SOLID: 1,
+        NON_SOLID: 2,
+        WALL: 3,
+        //PLATFORM: 4,
     }
     
     // Override
@@ -30,23 +35,18 @@ export class Tile extends GameObject {
     }
 
     get requiresTool() { return this.model?.requiredTool ?? false }
-    requiresTool() { return this.model?.requiredTool ?? false }
 
     get miningTime() { return this.model?.miningTime ?? 0 }
-    getMiningTime() { return this.model?.miningTime ?? 0 }
 
     get toolType() { return this.model?.toolType ?? null }
-    getToolType() { return this.model?.toolType ?? null }
 
-    getType() {
-        return this.model?.objectType ?? null;
-    }
+    get type() { return this.model?.type ?? Tile.types.NONE }
 
-    isTransparent() {
+    get transparent() {
         return this.model?.transparent ?? false;
     }
 
-    isConnective() {
+    get connective() {
         return this.model?.connective ?? false;
     }
 
@@ -89,7 +89,7 @@ export class Tile extends GameObject {
         let spriteGap = 12;
         this.sx = position.x * (spriteSize + spriteGap);
         this.sy = position.y * (spriteSize + spriteGap);
-        if(this.isConnective()) {
+        if(this.connective) {
             this.sx += spriteGap;
             this.sy += spriteGap;
         }
@@ -116,7 +116,7 @@ export class Tile extends GameObject {
 
         let checkTile = (x, y) => {
             let tile = this.world.getTile(x, y);
-            return (tile && !tile.isTransparent());
+            return (tile && !tile.transparent);
         }
 
         let adjacent = {
@@ -141,7 +141,10 @@ export class Tile extends GameObject {
     */
     static isTile(arg, tile = null) {
         if(arg instanceof Tile) {
-            return (tile instanceof Tile) ? (arg.registryName === tile.registryName) : true;
+            if(tile instanceof Tile || tile instanceof TileModel)
+                return (arg.registryName === tile.registryName)
+            
+            else return true;
         }
         return false;
     }

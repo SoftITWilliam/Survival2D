@@ -1,4 +1,5 @@
 import { rng, roll } from '../../helper/helper.js';
+import { TileRegistry as Tiles } from '../../tile/tileRegistry.js';
 import Structure from '../structure.js';
 
 const LOG_HEIGHT_MIN = 4;
@@ -18,7 +19,7 @@ export class BasicTree extends Structure {
         let logHeight = rng(LOG_HEIGHT_MIN, LOG_HEIGHT_MAX);
         
         for(let i = 0; i < logHeight; i++) {
-            this.world.setWall(this.gridX, this.gridY + i, "log");
+            this.world.setWall(this.gridX, this.gridY + i, Tiles.LOG);
         }
 
         // Generate some values for the leaves
@@ -37,7 +38,7 @@ export class BasicTree extends Structure {
 
         for(let y = 0; y < baseHeight; y++) {
             for(let x = -1; x <= 1; x++) {
-                this.world.setTileIfEmpty(this.gridX + x, leavesTop - y, "leaves");
+                this.world.setTileIfEmpty(this.gridX + x, leavesTop - y, Tiles.LEAVES);
             }
         }
 
@@ -45,7 +46,7 @@ export class BasicTree extends Structure {
         // 3 blocks below the leaf "base". Each has a 50% chance of appearing.
         for(let i = -1; i <= 1; i++) {
             if(roll(2)) {
-                this.world.setTileIfEmpty(this.gridX + i, leavesTop - baseHeight, "leaves");
+                this.world.setTileIfEmpty(this.gridX + i, leavesTop - baseHeight, Tiles.LEAVES);
             }
         }
 
@@ -59,18 +60,18 @@ export class BasicTree extends Structure {
         }
 
         for(let i = 1; i < topAppendCount; i++) {
-            this.world.setTileIfEmpty(this.gridX + i + lean - 1, leavesTop - 1, "leaves");
+            this.world.setTileIfEmpty(this.gridX + i + lean - 1, leavesTop - 1, Tiles.LEAVES);
         }
 
         let aY = rng(1, baseHeight - leftAppendCount);
         for(let i = 0; i < leftAppendCount; i++) {
-            this.world.setTileIfEmpty(this.gridX - 2, leavesTop - aY - i, "leaves");
+            this.world.setTileIfEmpty(this.gridX - 2, leavesTop - aY - i, Tiles.LEAVES);
         }
 
         aY = rng(1, baseHeight - rightAppendCount);
         if(rightAppendCount == 1 && aY == 0) aY == 1; 
         for(let i = 0; i < rightAppendCount; i++) {
-            this.world.setTileIfEmpty(this.gridX + 2, leavesTop - aY - i, "leaves");
+            this.world.setTileIfEmpty(this.gridX + 2, leavesTop - aY - i, Tiles.LEAVES);
         }
 
     }
