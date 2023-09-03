@@ -7,7 +7,7 @@ export default class Item {
         this.setSprite('missing_texture');
         this.setRarity(rarity);
 
-        this.itemType = null;
+        this._type = Item.types.DEFAULT;
         this.stackSize = 99;
         this.sx = 0;
         this.sy = 0;
@@ -18,16 +18,19 @@ export default class Item {
     }
 
     static types = {
-        
+        DEFAULT: 0, // Normal item
+        PLACEABLE: 1, // Can be placed. Cannot break tiles when holding. Each item has to specify what they place.
+        TILE: 2, // Can be placed. Always places the tile with the same registry name as the item
+        TOOL: 3, // Has special effects when used to break tiles.
     }
 
     static toolTypes = {
         NONE: 0,
-        PICKAXE: 1,
-        AXE: 2,
-        SHOVEL: 3,
-        HAMMER: 4,
-        SICKLE: 5, // currently unimplemented
+        PICKAXE: 1, // Stone-like tiles
+        AXE: 2, // Trees & wooden tiles
+        SHOVEL: 3, // Dirt-like tiles
+        HAMMER: 4, // Walls
+        SICKLE: 5, // Currently unused. For plants etc
     }
 
     // Set the registry name of the item
@@ -44,6 +47,17 @@ export default class Item {
 
     get textColor() {
         return RARITY_COLORS[this.rarity] ?? {r:240, g:240, b:240}
+    }
+
+    get type() {
+        return this._type;
+    }
+
+    set type(itemType) {
+        if(typeof itemType != "number") {
+            return console.warn("Invalid item type");
+        }
+        this._type = itemType;
     }
 
     /**
@@ -117,7 +131,7 @@ export default class Item {
     }
 
     static isTool(arg, toolType = null) {
-        if(arg instanceof Item && arg.itemType === 'tool') {
+        if(arg instanceof Item && arg.type === Item.types.TOOL) {
             return (toolType !== null) ? (arg.toolType === toolType) : true;
         }
         return false;

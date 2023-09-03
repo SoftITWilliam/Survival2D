@@ -52,7 +52,7 @@ export default class ItemInfoDisplay {
             this.addAttribute("placeable");
         }
 
-        if(item.itemType == "tool") {
+        if(item.type === Item.types.TOOL) {
             this.addAttribute("tier", item.miningLevel);
             this.addAttribute("toolSpeed", item.miningSpeed);
             this.addAttribute("toolReach", item.reach);
@@ -60,8 +60,8 @@ export default class ItemInfoDisplay {
     }
 
     getItemIcon(item) {
-        switch(item.itemType) {
-            case "tool":
+        switch(item.type) {
+            case Item.types.TOOL:
                 switch(item.toolType) {
                     case Item.toolTypes.PICKAXE:
                         return sprites.ui.item_type.icon_pickaxe;
@@ -74,7 +74,7 @@ export default class ItemInfoDisplay {
                     default: 
                         return null;
                 }
-            case "tile":
+            case Item.types.TILE:
                 return sprites.ui.item_type.icon_tile;
             default: 
                 return null;

@@ -5,7 +5,7 @@ import Item from "../../item.js";
 export class ToolBase extends Item {
     constructor(registryName, rarity, module = null) {
         super(registryName, rarity);
-        this.itemType = 'tool';
+        this.type = Item.types.TOOL;
 
         console.log(rarity);
         this.setRarity(rarity);

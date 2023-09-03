@@ -3,12 +3,13 @@ import { sprites } from "../../../game/graphics/loadAssets.js";
 import { TileModel } from "../../../tile/tileModel.js";
 import { TileRegistry as Tiles } from "../../../tile/tileRegistry.js";
 import PlacementPreview from "../../../ui/placementPreview.js";
+import Item from "../../item.js";
 import { ItemBase } from "./itemBase.js";
 
 export class TileItemBase extends ItemBase {
     constructor(registryName, rarity) {
         super(registryName, rarity);
-        this.itemType = 'tile';
+        this.type = Item.types.TILE;
         this.placeable = true;
         this.stackLimit = 99;
         this.entitySize = ITEM_SIZE;
