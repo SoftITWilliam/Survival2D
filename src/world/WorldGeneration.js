@@ -4,6 +4,7 @@ import { HEIGHTMAP } from "./World.js";
 import NoiseMap from './NoiseMap.js';
 import { Tile } from '../tile/Tile.js';
 import { rng, roll } from '../helper/helper.js';
+import { TileRegistry as Tiles } from '../tile/tileRegistry.js';
 
 const worldGenConfig = {
 
@@ -123,7 +124,7 @@ export class WorldGeneration {
             let y = HEIGHTMAP[x];
             let tile = this.world.getTile(x, y);
             
-            if(!tile || tile.registryName != "grass") continue;
+            if(!Tile.isTile(tile, Tiles.GRASS)) continue;
 
             if(roll(worldGenConfig.TREE_FACTOR) && (x - lastTree) > treeGap) {
                 this.world.structures.push(new structures.BasicTree(x, y + 1, this.world));

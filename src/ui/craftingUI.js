@@ -346,7 +346,7 @@ export default class CraftingInterface {
             row[3].setText(total);
 
             // Update 'have'
-            let avalible = this.menu.avalibleResources[item.registryName];
+            let avalible = this.getAvalibleResources(item);
             row[4].setText(avalible);
 
             if(avalible < total) {

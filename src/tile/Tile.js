@@ -133,6 +133,19 @@ export class Tile extends GameObject {
         return adjacent;
     }
 
+    /** 
+     * Returns true if 'arg' is of type Item.
+     * If parameter 'item' is provided, returns true if 'arg' is the same as 'item'
+     * @param {any} arg
+     * @param {Tile?} tile (Optional) Check if 'arg' is the same tile as this
+    */
+    static isTile(arg, tile = null) {
+        if(arg instanceof Tile) {
+            return (tile instanceof Tile) ? (arg.registryName === tile.registryName) : true;
+        }
+        return false;
+    }
+
     render() {
         this.model.render(this.x, this.y, this.sx, this.sy);
     }

@@ -2,7 +2,9 @@ import { TILE_SIZE } from "../../game/global.js";
 import { rng } from "../../helper/helper.js";
 import { toolTypes } from "../../item/itemTypes.js";
 import { BasicTree } from "../../structure/structureParent.js";
+import { Tile } from "../Tile.js";
 import ObjectBase from "../base/ObjectBase.js";
+import { TileRegistry } from "../tileRegistry.js";
 
 export default class SaplingBase extends ObjectBase {
     constructor(registryName) {
@@ -62,7 +64,7 @@ export default class SaplingBase extends ObjectBase {
         for(let x = tile.gridX - logDistanceX; x <= tile.gridX + logDistanceX; x++) {
             for(let y = tile.gridY; y <= tile.gridY + logDistanceY; y++) {
                 let object = tile.world.getWall(x,y);
-                if(object && object.registryName == "log") {
+                if(Tile.isTile(object, TileRegistry.LOG)) {
                     return false;
                 }
             }

@@ -4,6 +4,8 @@ import TileBase from "../base/TileBase.js";
 import { toolTypes as tool } from "../../item/itemTypes.js";
 import { rng } from "../../helper/helper.js";
 import { ItemRegistry as Items } from "../../item/itemRegistry.js";
+import { Tile } from "../Tile.js";
+import { TileRegistry } from "../tileRegistry.js";
 
 export class GrassModel extends TileBase {
     constructor(registryName) {
@@ -19,11 +21,9 @@ export class GrassModel extends TileBase {
     }
 
     static canSpreadTo(x, y, world) {
-        let tile = world.getTile(x, y);
-        if(tile && tile.registryName == "dirt") {
-            if(!world.getTile(x, y + 1)) return true;
-        }
-        return false;
+        let tileIsDirt = (Tile.isTile(world.getTile(x, y), TileRegistry.DIRT));
+        let noTileAbove = (world.getTile(x, y + 1) == null);
+        return (tileIsDirt && noTileAbove);
     }
 
     tickUpdate(tile, world) {

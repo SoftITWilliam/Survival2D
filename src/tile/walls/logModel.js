@@ -4,6 +4,8 @@ import WallBase from "../base/WallBase.js";
 import { toolTypes as tool } from "../../item/itemTypes.js";
 import { ItemRegistry as Items } from "../../item/itemRegistry.js";
 import Item from "../../item/item.js";
+import { Tile } from "../Tile.js";
+import { TileRegistry } from "../tileRegistry.js";
 
 export class LogModel extends WallBase {
     constructor(registryName) {
@@ -23,7 +25,7 @@ export class LogModel extends WallBase {
 
     breakTile(tile, item, world) {
         let tileAbove = world.getWall(tile.gridX, tile.gridY + 1);
-        if(tileAbove && tileAbove.registryName == "log") {
+        if(Tile.isTile(tileAbove, TileRegistry.LOG)) {
             tileAbove.breakTile(tileAbove, item, world);
         }
         super.breakTile(tile, item, world);
