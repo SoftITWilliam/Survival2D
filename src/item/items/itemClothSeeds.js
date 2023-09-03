@@ -18,7 +18,7 @@ export class ItemClothSeeds extends PlaceableBase {
         return (Tile.isTile(tile, Tiles.DIRT) || Tile.isTile(tile, Tiles.GRASS));
     }
 
-    place(x, y) {
-        return "cloth_plant";
+    place() {
+        return Tiles.CLOTH_PLANT;
     }
 }

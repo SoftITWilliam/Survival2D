@@ -16,7 +16,7 @@ export class ItemGrassSeeds extends PlaceableBase {
         return (Tile.isTile(tile, Tiles.DIRT) && !world.getTile(x, y + 1));
     }
 
-    place(x, y) {
-        return "grass";
+    place() {
+        return Tiles.GRASS;
     }
 }

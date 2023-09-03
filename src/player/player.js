@@ -16,6 +16,7 @@ import { FrameAnimation } from '../game/graphics/animation.js';
 import { ItemRegistry as Items } from '../item/itemRegistry.js';
 import { EntityComponent } from '../components/EntityComponent.js';
 import { calculateDistance, clamp } from '../helper/helper.js';
+import { TileModel } from '../tile/tileModel.js';
 
 const PLAYER_WIDTH = 36;
 const PLAYER_HEIGHT = 72;
@@ -356,16 +357,17 @@ class Player {
         // Must be a valid placement position
         if(!item.canBePlaced(x, y, this.world)) return;
     
-        let tile = new Tile(this.game.world, x, y, item.place());
-        if(!tile || !tile.model) return;
+        let tileModel = item.place();
+        if(!tileModel instanceof TileModel) return;
 
-        // Cannot place out of range
-        if(calculateDistance(this, tile) > this.reach) return;
+        // This 'tile' is purely theoretical, to check placement range and player overlap.
+        // It's actually added to the world through 'this.world.setTile()' later on.
+        let tile = new Tile(this.game.world, x, y, tileModel);
 
-        // Cannot place a solid tile which overlaps with player
-        if(tile.type == Tile.types.SOLID && overlap(this, tile)) return;
+        if(calculateDistance(this, tile) > this.reach) return; // check if player is in placement range
+        if(tile.type == Tile.types.SOLID && overlap(this, tile)) return; // check if tile overlaps with player
 
-        this.world.setTile(x, y, tile.registryName);
+        this.world.setTile(x, y, tileModel);
         
         // Decrease amount in stack by 1
         let heldStack = this.inventory.getSelectedSlot().stack;

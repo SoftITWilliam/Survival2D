@@ -18,7 +18,7 @@ export class ItemAcorn extends PlaceableBase {
         return (Tile.isTile(tile, Tiles.DIRT) || Tile.isTile(tile, Tiles.GRASS));
     }
 
-    place(x, y) {
-        return "sapling";
+    place() {
+        return Tiles.SAPLING
     }
 }

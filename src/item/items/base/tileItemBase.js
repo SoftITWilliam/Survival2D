@@ -1,5 +1,7 @@
 import { ITEM_SIZE } from "../../../game/global.js";
 import { sprites } from "../../../game/graphics/loadAssets.js";
+import { TileModel } from "../../../tile/tileModel.js";
+import { TileRegistry as Tiles } from "../../../tile/tileRegistry.js";
 import PlacementPreview from "../../../ui/placementPreview.js";
 import { ItemBase } from "./itemBase.js";
 
@@ -39,6 +41,7 @@ export class TileItemBase extends ItemBase {
     }
 
     place() {
-        return this.registryName;
+        let tile = Tiles.get(this.registryName);
+        return (tile instanceof TileModel ? tile : null);
     }
 }
