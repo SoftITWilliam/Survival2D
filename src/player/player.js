@@ -159,7 +159,7 @@ class Player {
         if(input.mouse.click && !this.inventory.view) {
 
             if(this.heldItem && this.heldItem.placeable) {
-                this.placeTile(this.heldItem, input.mouse.gridX, input.mouse.gridY);
+                this.placeHeldItem(input.mouse.gridX, input.mouse.gridY);
             } else {
                 this.updateMining(input, dt);
             }
@@ -343,13 +343,18 @@ class Player {
             frameSize, frameSize, x, y, frameSize, frameSize);
     }
 
-    placeTile(item, x, y) {
+    placeHeldItem(x, y) {
+        const slot = this.inventory.getSelectedSlot();
+        const stack = slot?.stack; 
+        const item = stack?.item;
+
+        if(!slot || !stack || !item) return;
 
         // Placement delay
         if(this.placeDelay > 0) return;
 
         // Check if item is placeable
-        if(!item?.placeable) return;
+        if(!item.placeable) return;
 
         // X and Y must be within grid
         if(isNaN(x) || isNaN(y) || this.game.world.outOfBounds(x, y))  return;
@@ -357,7 +362,7 @@ class Player {
         // Must be a valid placement position
         if(!item.canBePlaced(x, y, this.world)) return;
     
-        let tileModel = item.place();
+        let tileModel = item.getPlacedTile();
         if(!tileModel instanceof TileModel) return;
 
         // This 'tile' is purely theoretical, to check placement range and player overlap.
@@ -367,15 +372,11 @@ class Player {
         if(calculateDistance(this, tile) > this.reach) return; // check if player is in placement range
         if(tile.type == Tile.types.SOLID && overlap(this, tile)) return; // check if tile overlaps with player
 
-        this.world.setTile(x, y, tileModel);
-        
-        // Decrease amount in stack by 1
-        let heldStack = this.inventory.getSelectedSlot().stack;
-        heldStack.remove(1);
+        stack.placeItemIntoWorld(x, y, this.world);
 
         // Remove stack if amount reaches 0
-        if(heldStack.isEmpty()) {
-            this.inventory.getSelectedSlot().stack = null;
+        if(stack.isEmpty()) {
+            slot.stack = null;
             this.heldItem = null;
         }
 

@@ -41,8 +41,15 @@ export class TileItemBase extends ItemBase {
         );
     }
 
-    place() {
+    getPlacedTile() {
         let tile = Tiles.get(this.registryName);
         return (tile instanceof TileModel ? tile : null);
+    }
+
+    placeIntoWorld(gridX, gridY, world) {
+        let tile = this.getPlacedTile();
+        if(tile !== null) {
+            world.setTile(gridX, gridY, tile);
+        }
     }
 }

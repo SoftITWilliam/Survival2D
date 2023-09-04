@@ -63,8 +63,8 @@ export class Tile extends GameObject {
         return this.model ? this.model.canBeMined(item, world) : false;
     }
 
-    breakTile(x, y, item) {
-        this.model.breakTile(x, y, item, this.world);
+    breakTile(item) {
+        this.model.breakTile(this, item, this.world);
     }
 
     isMineableBy(item) {

@@ -97,7 +97,11 @@ export default class Item {
     /** 
      * Return the tile the object is supposed to place.
     */
-    place(gridX, gridY) {
+    getPlacedTile(gridX, gridY) {
+        return;
+    }
+
+    placeIntoWorld(gridX, gridY, world) {
         return;
     }
 

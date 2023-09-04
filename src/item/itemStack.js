@@ -81,6 +81,14 @@ export class ItemStack {
         return 0;
     }
 
+    placeItemIntoWorld(gridX, gridY, world) {
+        if(this.isEmpty()) return;
+        let success = this.item.placeIntoWorld(gridX, gridY, world);
+        if(success) {
+            this.remove(1);
+        }
+    }
+
     draw(x, y) {
         renderItem(this.item, x, y, this.size, this.size);
     }
