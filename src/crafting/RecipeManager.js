@@ -14,8 +14,12 @@ export class RecipeManager {
             new Recipe(Stations.DEFAULT, [[Items.WOOD, 5], [Items.PLANT_FIBER, 4], [Items.BRANCH, 4]], Items.WOODEN_AXE, 1),
             new Recipe(Stations.DEFAULT, [[Items.WOOD, 3], [Items.PLANT_FIBER, 3], [Items.BRANCH, 5]], Items.WOODEN_SHOVEL, 1),
             new Recipe(Stations.DEFAULT, [[Items.WOOD, 4], [Items.PLANT_FIBER, 3], [Items.BRANCH, 4]], Items.WOODEN_HAMMER, 1),
-            new Recipe(Stations.DEFAULT, [[Items.STONE, 1]], Items.DIRT, 1),
-            new Recipe(Stations.DEFAULT, [[Items.DIRT, 1]], Items.STONE, 1),
+
+            new Recipe(Stations.DEFAULT, [[Items.STONE, 1]], Items.STONE_WALL, 4),
+            new Recipe(Stations.DEFAULT, [[Items.STONE_WALL, 4]], Items.STONE, 1),
+            new Recipe(Stations.DEFAULT, [[Items.DIRT, 1]], Items.DIRT_WALL, 4),
+            new Recipe(Stations.DEFAULT, [[Items.DIRT_WALL, 4]], Items.DIRT, 1),
+
             new Recipe(Stations.DEFAULT, [[Items.WOOD, 2]], Items.BRANCH, 4),
             new Recipe(Stations.DEFAULT, [[Items.ACORN, 2]], Items.WOOD, 1),
             new Recipe(Stations.WORKBENCH, [[Items.STONE, 8]], Items.ACORN, 1),
