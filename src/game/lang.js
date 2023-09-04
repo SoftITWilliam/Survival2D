@@ -23,11 +23,14 @@ export const LANG = {
         tile_dirt: "Dirt",
         dirt: "Dirt",
 
+        wall_dirt: "Dirt wall",
+        dirt_wall: "Dirt wall",
+
         tile_stone: "Stone",
         stone: "Stone",
 
-        wall_dirt: "Dirt wall",
-        dirt_wall: "Dirt wall",
+        wall_stone: "Stone wall",
+        stone_wall: "Stone wall",
 
         // Items
         dev_pickaxe: "Developer Pickaxe",
