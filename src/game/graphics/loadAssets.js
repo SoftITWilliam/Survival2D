@@ -19,8 +19,11 @@ export const sprites = {
         tile_dirt: image("tiles/tileset_dirt"),
         tile_stone: image("tiles/tileset_stone"),
         tile_grass: image("tiles/tileset_grass"),
-        wall_dirt: image("tiles/tileset_dirt_wall"),
-        wall_stone: image("tiles/tileset_stone_wall"),
+    },
+
+    walls: {
+        dirt_wall: image("tiles/tileset_dirt_wall"),
+        stone_wall: image("tiles/tileset_stone_wall"),
     },
 
     placeables: {
