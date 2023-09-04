@@ -14,6 +14,10 @@ export class ItemRegistry {
     static DIRT = new item.Tile("dirt", rarity.COMMON);
     static STONE = new item.Tile("stone", rarity.COMMON);
 
+    // Walls
+    static DIRT_WALL = new item.Wall("dirt_wall", rarity.COMMON);
+    static STONE_WALL = new item.Wall("stone_wall", rarity.COMMON);
+
     // Dev toolset
     static DEV_PICKAXE = new item.Tool("dev_pickaxe", rarity.UNOBTAINABLE, new ToolModule(tool.PICKAXE, 999, 5, 10));
     static DEV_AXE = new item.Tool("dev_axe", rarity.UNOBTAINABLE, new ToolModule(tool.AXE, 999, 5, 10));

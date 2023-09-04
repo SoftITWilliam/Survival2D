@@ -26,6 +26,9 @@ export const LANG = {
         tile_stone: "Stone",
         stone: "Stone",
 
+        wall_dirt: "Dirt wall",
+        dirt_wall: "Dirt wall",
+
         // Items
         dev_pickaxe: "Developer Pickaxe",
         dev_axe: "Developer Axe",
