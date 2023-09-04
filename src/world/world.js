@@ -144,10 +144,7 @@ export class World {
     updateAllTiles() {
         for(let x = 0; x < this.width; x++) {
             for(let y = 0; y < this.height; y++) {
-                let tile = this.getTile(x, y);
-                if(!tile) continue;
-                tile.getSpritePosition();
-                tile.tileUpdate();
+                this.updateTile(x, y);
             }
         }
     }
@@ -155,14 +152,26 @@ export class World {
     updateNearbyTiles(gridX, gridY) {
         for(let x = gridX - 1; x <= gridX + 1; x++) {
             for(let y = gridY - 1; y <= gridY + 1; y++) {
-                if(this.outOfBounds(x, y)) continue;
-    
-                let tile = this.getTile(x, y);
-                if(!tile) continue;
-                
-                tile.getSpritePosition();
-                tile.tileUpdate();
+                this.updateTile(x, y);
             }
+        }
+    }
+
+    updateTile(gridX, gridY) {
+        if(this.outOfBounds(gridX, gridY)) return;
+
+        try {
+            let tile = this.getTile(gridX, gridY);
+            tile?.getSpritePosition();
+            tile?.tileUpdate();
+
+            let wall = this.getWall(gridX, gridY);
+            wall?.getSpritePosition();
+            wall?.tileUpdate();
+        }
+        catch(error) {
+            console.warn("Tile update failed!");
+            console.warn(error);
         }
     }
 

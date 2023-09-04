@@ -113,8 +113,10 @@ export class Tile extends GameObject {
 
     getAdjacent() {
 
+        let isWall = this.type == Tile.types.WALL;
+
         let checkTile = (x, y) => {
-            let tile = this.world.getTile(x, y);
+            let tile = isWall ? this.world.getWall(x, y) : this.world.getTile(x, y);
             return (tile && !tile.transparent);
         }
 
