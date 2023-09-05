@@ -76,7 +76,9 @@ export class TilePlacement {
 
             stack.placeItemIntoWorld(gridX, gridY, this.world);
 
-            let placedTile = this.world.getTile(gridX, gridY);
+            let placedTile = (tile.type === Tile.types.WALL) ?
+                this.world.getWall(gridX, gridY) : 
+                this.world.getTile(gridX, gridY);
 
             if(!Tile.isTile(placedTile)) {
                 return placementResult(false, "Somehow, despite passing all checks and validation, no tile was placed.");
