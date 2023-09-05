@@ -13,7 +13,7 @@ export class StoneModel extends TileBase {
         this.setMiningProperties(Item.toolTypes.PICKAXE, 1, 3.0, true);
 
         this.tileDrops = [
-            new TileDrop(Items.STONE, true),
+            new TileDrop(Items.STONE),
         ]
     }
 }

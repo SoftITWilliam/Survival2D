@@ -10,6 +10,8 @@ export class TileDrop {
      */
     constructor(item, amount = 1, maxAmount = null) {
         this._item = item;
+
+        if(typeof amount != "number") amount = 1;
         this._amount = maxAmount ? [amount, maxAmount] : amount;
         this._chance = 100;
         this._increasable = false;
@@ -47,6 +49,8 @@ export class TileDrop {
         } else {
             dropAmount = this._amount;
         }
+
+        if(typeof dropAmount != "number" || isNaN(dropAmount)) dropAmount = 1;
 
         return {item: this._item, amount: dropAmount}
     }
