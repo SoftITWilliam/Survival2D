@@ -2,7 +2,6 @@ import { ctx, TILE_SIZE } from '../game/global.js';
 import { Inventory } from '../ui/inventory.js';
 import MiningAction from './mining.js';
 import { HEIGHTMAP } from '../world/World.js';
-import { overlap } from '../game/collision.js';
 import { PlayerStatBar } from './statBar.js';
 import HotbarText from '../ui/hotbarText.js';
 import { PickupLabelHandler } from '../ui/pickupLabels.js';
@@ -11,12 +10,11 @@ import ItemInfoDisplay from '../ui/itemInfo.js';
 import { PlayerFalling, PlayerJumping, PlayerRunning, PlayerStanding, PlayerSwimming, stateEnum } from './playerStates.js';
 import { sprites } from '../game/graphics/loadAssets.js';
 import CraftingMenu from '../crafting/Crafting.js';
-import { Tile } from '../tile/Tile.js';
 import { FrameAnimation } from '../game/graphics/animation.js';
 import { ItemRegistry as Items } from '../item/itemRegistry.js';
 import { EntityComponent } from '../components/EntityComponent.js';
 import { calculateDistance, clamp } from '../helper/helper.js';
-import { TileModel } from '../tile/tileModel.js';
+import { TilePlacement } from '../tile/TilePlacement.js';
 
 const PLAYER_WIDTH = 36;
 const PLAYER_HEIGHT = 72;
@@ -343,47 +341,29 @@ class Player {
             frameSize, frameSize, x, y, frameSize, frameSize);
     }
 
-    placeHeldItem(x, y) {
-        const slot = this.inventory.getSelectedSlot();
-        const stack = slot?.stack; 
-        const item = stack?.item;
+    placeHeldItem(gridX, gridY) {
 
-        if(!slot || !stack || !item) return;
-
-        // Placement delay
         if(this.placeDelay > 0) return;
 
-        // Check if item is placeable
-        if(!item.placeable) return;
+        const slot = this.inventory.getSelectedSlot();
+        const stack = slot?.stack; 
 
-        // X and Y must be within grid
-        if(isNaN(x) || isNaN(y) || this.game.world.outOfBounds(x, y))  return;
+        const placement = new TilePlacement(this.world);
 
-        // Must be a valid placement position
-        if(!item.canBePlaced(x, y, this.world)) return;
-    
-        let tileModel = item.getPlacedTile();
-        if(!tileModel instanceof TileModel) return;
+        // 'result' should contain properties 'success', 'info', and 'tile'
+        let result = placement.placeFromStack(this, stack, gridX, gridY);
 
-        // This 'tile' is purely theoretical, to check placement range and player overlap.
-        // It's actually added to the world through 'this.world.setTile()' later on.
-        let tile = new Tile(this.game.world, x, y, tileModel);
+        if(result.success) {
+            // Remove stack if amount reaches 0
+            if(stack.isEmpty()) {
+                slot.stack = null;
+                this.heldItem = null;
+            }
 
-        if(calculateDistance(this, tile) > this.reach) return; // check if player is in placement range
-        if(tile.type == Tile.types.SOLID && overlap(this, tile)) return; // check if tile overlaps with player
-
-        stack.placeItemIntoWorld(x, y, this.world);
-
-        // Remove stack if amount reaches 0
-        if(stack.isEmpty()) {
-            slot.stack = null;
-            this.heldItem = null;
+            this.placeDelay = 15;
+        } else {
+            console.log(result.info);
         }
-
-        this.placeDelay = 15;
-
-        this.world.updateNearbyTiles(x, y);
-        this.world.lighting.update(this);
     }
 
     // Put the player in the center of the map
