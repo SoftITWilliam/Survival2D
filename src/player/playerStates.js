@@ -94,7 +94,7 @@ export class PlayerJumping extends State {
     constructor(player) {
         super("JUMPING", player);
         this.holdTimer = 0; // in ms
-        this.maxJumpTime = 300; // in ms
+        this.maxJumpTime = 140; // in ms
     }
     
     enter() {
@@ -130,9 +130,15 @@ export class PlayerJumping extends State {
 
     handleInput(input, dt) {
 
-        if((input.keys.includes("W") || input.keys.includes(" ")) && this.holdTimer < this.maxJumpTime) {
-            this.player.dy = -6;
-            this.holdTimer += dt;
+        if(this.holdTimer < this.maxJumpTime) {
+            if(input.keys.includes("W") || input.keys.includes(" ")) {
+                this.player.dy = -6.5;
+                this.holdTimer += dt;
+            }
+            else {
+                this.holdTimer = this.maxJumpTime;
+                this.player.dy = -4;
+            }
         }
 
         if(this.player.dy >= 0) {
