@@ -19,11 +19,12 @@ const PLAYER_WIDTH = 36;
 const PLAYER_HEIGHT = 72;
 
 export class Player {
+    #entity
     constructor(game) {
         this.game = game;
         this.world = game.world;
 
-        this._entity = new EntityComponent();
+        this.#entity = new EntityComponent();
 
         this.inventory = new Inventory(this);
 
@@ -73,40 +74,40 @@ export class Player {
         this.animation = new FrameAnimation();
         this.frameWidth = 96;
 
-        this._entity.onBottomCollision = () => {
+        this.#entity.onBottomCollision = () => {
             this.setState("FALLING");
         }
     }
 
     // Component wrappers
-    get x() { return this._entity.x }
-    set x(value) { this._entity.x = value }
+    get x() { return this.#entity.x }
+    set x(value) { this.#entity.x = value }
 
-    get y() { return this._entity.y }
-    set y(value) { this._entity.y = value }
+    get y() { return this.#entity.y }
+    set y(value) { this.#entity.y = value }
     
-    get x2() { return this._entity.x2 }
-    get y2() { return this._entity.y2 }
+    get x2() { return this.#entity.x2 }
+    get y2() { return this.#entity.y2 }
 
-    get centerX() { return this._entity.centerX }
-    get centerY() { return this._entity.centerY }
+    get centerX() { return this.#entity.centerX }
+    get centerY() { return this.#entity.centerY }
 
-    get gridX() { return this._entity.gridX }
-    get gridY() { return this._entity.gridY }
+    get gridX() { return this.#entity.gridX }
+    get gridY() { return this.#entity.gridY }
 
-    get width() { return this._entity.width }
-    set width(value) { this._entity.width = value }
-    get height() { return this._entity.height }  
-    set height(value ) { this._entity.height = value }
+    get width() { return this.#entity.width }
+    set width(value) { this.#entity.width = value }
+    get height() { return this.#entity.height }  
+    set height(value ) { this.#entity.height = value }
 
-    get dx() { return this._entity.dx }
-    set dx(value) { this._entity.dx = value }
+    get dx() { return this.#entity.dx }
+    set dx(value) { this.#entity.dx = value }
 
-    get dy() { return this._entity.dy }
-    set dy(value) { this._entity.dy = value }
+    get dy() { return this.#entity.dy }
+    set dy(value) { this.#entity.dy = value }
 
-    get gravity() { return this._entity.gravity }
-    get grounded() { return this._entity.grounded }
+    get gravity() { return this.#entity.gravity }
+    get grounded() { return this.#entity.grounded }
 
     get frameX() { 
         return this.animation.currentFrame; 
@@ -127,7 +128,7 @@ export class Player {
 
     update(m, input, dt) {
         this.inLiquid = false;
-        this._entity.grounded = false;
+        this.#entity.grounded = false;
 
         // Handle input
         if(input.keys.includes("X")) {
@@ -142,7 +143,7 @@ export class Player {
         if(right) {this.facing = "right"}
 
         this.getHorizontalMovement(left,right);
-        this._entity.updateCollision(this.world);
+        this.#entity.updateCollision(this.world);
         this.pickupLabels.update();
 
         this.state.handleInput(this.game.input, dt);
@@ -298,7 +299,7 @@ export class Player {
 
     // Move player and camera by dx and dy
     updatePosition(m, input) {
-        this._entity.move(m, this.dx, this.dy);
+        this.#entity.move(m, this.dx, this.dy);
         input.mouse.updateGridPos();
     }
 
