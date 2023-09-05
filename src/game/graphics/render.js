@@ -56,7 +56,7 @@ export default function render(game, player) {
     } else {
         player.inventory.draw();
         player.inventory.drawItems(game.input);
-        player.inventory.drawSelection(game.input);
+        player.selectedSlot.drawSelection();
         
         player.hotbarText.draw();
         player.pickupLabels.draw();
@@ -93,9 +93,9 @@ function drawHoverEffect(game,input) {
 
     // Check if player is able to interact with tile or wall using the tool they're currently holding
     let obj;
-    if(tile && tile.canBeMined(game.player.heldItem, game.world)) {
+    if(tile && tile.canBeMined(game.player.selectedItem, game.world)) {
         obj = tile;
-    } else if(wall && wall.canBeMined(game.player.heldItem, game.world)) {
+    } else if(wall && wall.canBeMined(game.player.selectedItem, game.world)) {
         obj = wall;
     } else {
         return;

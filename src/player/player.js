@@ -14,12 +14,15 @@ import { ItemRegistry as Items } from '../item/itemRegistry.js';
 import { EntityComponent } from '../components/EntityComponent.js';
 import { calculateDistance, clamp } from '../helper/helper.js';
 import { TilePlacement } from '../tile/TilePlacement.js';
+import Item from '../item/item.js';
 
 const PLAYER_WIDTH = 36;
 const PLAYER_HEIGHT = 72;
 
 export class Player {
     #entity
+    #selectedSlotIndex
+    #reach
     constructor(game) {
         this.game = game;
         this.world = game.world;
@@ -61,10 +64,9 @@ export class Player {
 
         this.miningAction = null;
         
-        this.defaultReach = 3;
-        this.reach = 3 * TILE_SIZE;
+        this.#reach = 3;
 
-        this.heldItem = null;
+        this.#selectedSlotIndex = 0;
 
         this.cheetahFrames = 0;
 
@@ -79,7 +81,7 @@ export class Player {
         }
     }
 
-    // Component wrappers
+    //#region Component wrappers
     get x() { return this.#entity.x }
     set x(value) { this.#entity.x = value }
 
@@ -108,9 +110,22 @@ export class Player {
 
     get gravity() { return this.#entity.gravity }
     get grounded() { return this.#entity.grounded }
+    //#endregion
 
     get frameX() { 
         return this.animation.currentFrame; 
+    }
+
+    get selectedSlot() {
+        return this.inventory.getSlot(this.#selectedSlotIndex, this.inventory.hotbarY);
+    }
+
+    get selectedItem() {
+        return this.selectedSlot?.stack?.item ?? null;
+    }
+
+    get reach() {
+        return (this.selectedItem?.reach ?? this.#reach) * TILE_SIZE;
     }
 
     setState(state) {
@@ -158,7 +173,7 @@ export class Player {
         // Tile interaction
         if(input.mouse.click && !this.inventory.view) {
 
-            if(this.heldItem && this.heldItem.placeable) {
+            if(this.selectedItem && this.selectedItem.placeable) {
                 this.placeHeldItem(input.mouse.gridX, input.mouse.gridY);
             } else {
                 this.updateMining(input, dt);
@@ -208,7 +223,7 @@ export class Player {
         for(let i = 1; i <= 6; i++) {
             if(input.keys.includes(i.toString())) {
                 this.miningAction = null;
-                this.selectItem(i);
+                this.#selectItem(i);
                 input.removeKey(i.toString());
             }
         }
@@ -230,9 +245,9 @@ export class Player {
 
         // Find object the tool is able to interact with
         let obj;
-        if(tile && tile.canBeMined(this.heldItem, this.world)) {
+        if(tile && tile.canBeMined(this.selectedItem, this.world)) {
             obj = tile;
-        } else if(wall && wall.canBeMined(this.heldItem, this.world)) {
+        } else if(wall && wall.canBeMined(this.selectedItem, this.world)) {
             obj = wall;
         } else {
             this.miningAction = null;
@@ -241,7 +256,7 @@ export class Player {
 
         // If not currently mining the block, create a new Mining event
         if(!this.miningAction) {
-            this.miningAction = new MiningAction(obj, this.heldItem, this.game);
+            this.miningAction = new MiningAction(obj, this.selectedItem, this.game);
         }
 
         // If not in range of the block, cancel Mining event
@@ -253,7 +268,7 @@ export class Player {
         // If mouse has moved outside the previous block being mined, create new Event
         if(this.miningAction.tile.gridX != input.mouse.gridX || 
             this.miningAction.tile.gridY != input.mouse.gridY) {
-                this.miningAction = new MiningAction(obj, this.heldItem, this.game);
+                this.miningAction = new MiningAction(obj, this.selectedItem, this.game);
         }
 
         // Increase mining progress.
@@ -303,36 +318,25 @@ export class Player {
         input.mouse.updateGridPos();
     }
 
-    selectItem(slot) {
-        this.inventory.selectedHotbarSlot = slot;
-        let selected = this.inventory.getSelectedSlot();
-        if(selected.stack) {
-            this.hotbarText.set(selected.stack.item.displayName);
-
-            if(selected.stack.item.reach) {
-                this.reach = selected.stack.item.reach * TILE_SIZE;
-            } else {
-                this.reach = this.reach;
-            }
-            this.heldItem = selected.stack.item;
+    #selectItem(index) {
+        if(index !== this.#selectedSlotIndex) {
             this.miningAction = null;
-        } else {
-            this.heldItem = null;
-            this.reach = this.reach;
         }
+
+        this.#selectedSlotIndex = index - 1;
     }
 
     drawPlacementPreview(input) {
         let x = input.mouse.gridX;
         let y = input.mouse.gridY;
         // Held item must have a placement preview
-        if (!this.heldItem || 
-            !this.heldItem.placementPreview || 
-            !this.heldItem.canBePlaced(x, y, this.world)) {
+        if (!this.selectedItem || 
+            !this.selectedItem.placementPreview || 
+            !this.selectedItem.canBePlaced(x, y, this.world)) {
                 return;
         }
 
-        this.heldItem.placementPreview.draw(x, y, this);
+        this.selectedItem.placementPreview.draw(x, y, this);
     }
 
     draw() {
@@ -347,23 +351,18 @@ export class Player {
 
         if(this.placeDelay > 0) return;
 
-        const slot = this.inventory.getSelectedSlot();
-        const stack = slot?.stack; 
+        const stack = this.selectedSlot?.stack; 
 
         const placement = new TilePlacement(this.world);
 
         // 'result' should contain properties 'success', 'info', and 'tile'
         let result = placement.placeFromStack(this, stack, gridX, gridY);
+        this.selectedSlot.refreshStack();
 
         if(result.success) {
-            // Remove stack if amount reaches 0
-            if(stack.isEmpty()) {
-                slot.stack = null;
-                this.heldItem = null;
-            }
-
             this.placeDelay = 15;
-        } else {
+        } 
+        else {
             console.log(result.info);
         }
     }

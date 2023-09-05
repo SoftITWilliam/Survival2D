@@ -12,7 +12,6 @@ const SLOT_SIZE = 64;
 export class Inventory {
     constructor(player) {
         this.player = player; // Pointer
-        this.selectedHotbarSlot = 1;
 
         // Grid size
         this.w = INVENTORY_WIDTH;
@@ -32,7 +31,7 @@ export class Inventory {
 
                 let xPos = this.leftEdge + SLOT_SIZE * invX;
                 let yPos = this.topEdge + SLOT_SIZE * invY;
-                if(invY !== this.h - 1) yPos -= HOTBAR_OFFSET_Y;
+                if(invY !== this.hotbarY) yPos -= HOTBAR_OFFSET_Y;
 
                 let slot = new InventorySlot(xPos, yPos, invX, invY, this.player);
                 row.push(slot);
@@ -40,6 +39,8 @@ export class Inventory {
             this.grid.push(row);
         }
     }
+
+    get hotbarY() { return this.h - 1 }
 
     get _cameraX() { return this.player.camera.x }
     get _cameraY() { return this.player.camera.y }
@@ -132,9 +133,7 @@ export class Inventory {
         this.holdingStack = split ? stack.split() : stack.extract();
 
         // Delete source stack if empty
-        if(stack.isEmpty()) {
-            slot.stack = null;
-        }
+        slot.refreshStack();
     }
 
     /**
@@ -192,11 +191,11 @@ export class Inventory {
         if(invX < 0 || invX >= this.w) invX = null;
 
         // Invalid Y value OR in hotbar row
-        if(invY < 0 || invY >= this.h - 1) invY = null;
+        if(invY < 0 || invY >= this.hotbarY) invY = null;
 
         // Check if hotbar row is hovered
-        if(Math.floor((input.mouse.y - this.topEdge) / SLOT_SIZE) == this.h - 1) {
-            invY = this.h - 1;
+        if(Math.floor((input.mouse.y - this.topEdge) / SLOT_SIZE) == this.hotbarY) {
+            invY = this.hotbarY;
         }
 
         return { x: invX, y: invY };
@@ -214,7 +213,7 @@ export class Inventory {
     // If an empty slot exists, return it.
     findEmptySlot() {
         // Search hotbar first
-        let invY = this.h - 1;
+        let invY = this.hotbarY;
         for(let invX = 0; invX < this.w; invX++) {
             if(!this.getStack(invX, invY)) {
                 return { x: invX, y: invY };
@@ -222,7 +221,7 @@ export class Inventory {
         }
 
         // Search rest of inventory
-        for(let invY = 0; invY < this.h - 1; invY++) {
+        for(let invY = 0; invY < this.hotbarY; invY++) {
             for(let invX = 0; invX < this.w; invX++) {
                 if(!this.getStack(invX, invY)) {
                     return { x: invX, y: invY };
@@ -230,10 +229,6 @@ export class Inventory {
             }
         }
         return false;
-    }
-
-    getSelectedSlot() {
-        return this.getSlot(this.selectedHotbarSlot - 1, this.h - 1);
     }
 
     /**
@@ -293,11 +288,6 @@ export class Inventory {
                 this.getSlot(x, y).stack = new ItemStack(item, amount);
                 amount = 0;
             }
-        
-            // If new stack is placed in the selected hotbar slot, the selection is refreshed.
-            if(y + 1 == this.h && x + 1 == this.selectedHotbarSlot) {
-                this.player.selectItem(x + 1);
-            }
         }
 
         this.player.pickupLabels.add(item, startAmount);
@@ -314,7 +304,7 @@ export class Inventory {
     removeItem(item, amount) {
         if(!Item.isItem(item) || typeof amount != "number") return false;
 
-        for(let invY = this.h - 1; invY >= 0; invY--) {
+        for(let invY = this.hotbarY; invY >= 0; invY--) {
             for(let invX = this.w - 1; invX >= 0; invX--) {
 
                 // Loop through inventory until a slot is found that has the given item
@@ -324,8 +314,7 @@ export class Inventory {
                 // Delete the given amount from the stack
                 amount = slot.stack.remove(amount);
 
-                if(slot.stack.isEmpty()) 
-                    slot.stack = null;
+                slot.refreshStack();
 
                 // If there are still items to remove after the stack is empty, we continue looking for the stack
                 if(amount == 0) return true;
@@ -353,7 +342,7 @@ export class Inventory {
         let xPos = this._cameraX + this.leftEdge - 3;
         let yPos = this._cameraY + this.topEdge - 27;
         let invWidth = this.fullWidth + lineWidth * 2;
-        let invHeight = SLOT_SIZE * (this.h - 1) + lineWidth * 2;
+        let invHeight = SLOT_SIZE * (this.hotbarY) + lineWidth * 2;
 
         ctx.rect(xPos, yPos, invWidth, invHeight);
         ctx.fill();
@@ -362,7 +351,7 @@ export class Inventory {
 
         // Draw slots
         this.getSlotsAsArray().forEach(slot => {
-            if(slot.invY != this.h - 1) slot.draw();
+            if(slot.invY != this.hotbarY) slot.draw();
         })
     }
 
@@ -379,19 +368,7 @@ export class Inventory {
         ctx.fill();
         ctx.stroke();
 
-        this.getRow(this.h - 1).forEach(slot => slot.draw());
-    }
-
-    drawSelection() {
-        Object.assign(ctx, { 
-            strokeStyle: "white", lineWidth: 5
-        });
-
-        renderPath(() => {
-            let slot = this.getSelectedSlot();
-            ctx.rect(slot.xPos, slot.yPos, slot.w, slot.h);
-            ctx.stroke();
-        });
+        this.getRow(this.hotbarY).forEach(slot => slot.draw());
     }
 
     drawSelectedStack(input) {
@@ -404,13 +381,13 @@ export class Inventory {
     drawItems(input) {
 
         // Draw items in hotbar
-        this.getRow(this.h - 1).forEach(slot => slot.drawItem());
+        this.getRow(this.hotbarY).forEach(slot => slot.drawItem());
 
         if(!this.view) return;
         
         // Draw items in rest inventory
         this.getSlotsAsArray().forEach(slot => {
-            if(slot.invY != this.h - 1) slot.drawItem();
+            if(slot.invY != this.hotbarY) slot.drawItem();
         })
 
         if(this.holdingStack) {
@@ -439,6 +416,12 @@ class InventorySlot {
 
     get w() { return SLOT_SIZE }
     get h() { return SLOT_SIZE }
+
+    refreshStack() {
+        if(this.stack && this.stack.isEmpty()) {
+            this.stack = null;
+        }
+    }
 
     isHovered() {
         return (
@@ -475,5 +458,16 @@ class InventorySlot {
 
         ctx.fillStyle = "rgba(255,255,255,0.25)";
         ctx.fillRect(this.xPos, this.yPos, this.w, this.h)
+    }
+
+    drawSelection() {
+        Object.assign(ctx, { 
+            strokeStyle: "white", lineWidth: 5
+        });
+
+        renderPath(() => {
+            ctx.rect(this.xPos, this.yPos, this.w, this.h);
+            ctx.stroke();
+        });
     }
 }
