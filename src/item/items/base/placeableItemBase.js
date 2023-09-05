@@ -13,4 +13,16 @@ export default class PlaceableBase extends ItemBase {
     canBePlaced(x, y, world) {
         return false;
     }
+
+    placeIntoWorld(gridX, gridY, world) {
+        try {
+            let placeable = this.getPlacedTile();
+            if(!this.canBePlaced(gridX, gridY, world)) return false; // Cannot place
+            world.setTile(gridX, gridY, placeable);
+            return true;
+        }
+        catch {
+            return false;
+        }
+    }
 }
