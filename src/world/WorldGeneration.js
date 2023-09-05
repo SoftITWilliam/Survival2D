@@ -175,7 +175,28 @@ export function generateTerrainHeight() {
         heightMap[x + 1] = pHeight + c;
     }
 
+    smoothHeightmap(heightMap);
+
     return heightMap;
+}
+
+// Remove all tiles from the heightmap that have air on 3 sides
+function smoothHeightmap(heightmap) {
+
+    const OUT_OF_BOUNDS = -1;
+
+    for(let x = 0; x < heightmap.length; x++) {
+        let height = heightmap[x];
+        let heightLeft = x > 0 ? heightmap[x - 1] : OUT_OF_BOUNDS;
+        let heightRight = x < heightmap.length - 1 ? heightmap[x + 1] : OUT_OF_BOUNDS;
+
+        let hasTileLeft = (heightLeft >= height || heightLeft === OUT_OF_BOUNDS);
+        let hasTileRight = (heightRight >= height || heightRight === OUT_OF_BOUNDS);
+        
+        if(!hasTileLeft && !hasTileRight) {
+            heightmap[x] = Math.max(heightLeft, heightRight);
+        }
+    }
 }
 
 // Has a chance of placing a Tree structure.
