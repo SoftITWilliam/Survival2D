@@ -1,12 +1,9 @@
 
 import LightingGrid from './LightingGrid.js';
-import { generateTerrainHeight, WorldGeneration } from './WorldGeneration.js';
+import { WorldGeneration } from './WorldGeneration.js';
 import { Tile } from '../tile/Tile.js';
 import { TILE_SIZE } from '../game/global.js';
-import { TileRegistry } from '../tile/tileRegistry.js';
 import { TileModel } from '../tile/tileModel.js';
-
-export const HEIGHTMAP = generateTerrainHeight();
 
 export class World {
     constructor(game, width, height) {
@@ -30,6 +27,10 @@ export class World {
 
         this.frameCounter = 0;
         this.ticksPerSecond = 10;
+    }
+
+    get heightmap() {
+        return this.worldGen.heightmap;
     }
 
     // Return the tile at the given position

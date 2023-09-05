@@ -1,6 +1,5 @@
 import * as structures from '../structure/structureParent.js';
-import { BASE_TERRAIN_HEIGHT, WORLD_WIDTH } from "../game/global.js";
-import { HEIGHTMAP } from "./World.js";
+import { BASE_TERRAIN_HEIGHT } from "../game/global.js";
 import NoiseMap from './NoiseMap.js';
 import { Tile } from '../tile/Tile.js';
 import { rng, roll } from '../helper/helper.js';
@@ -26,19 +25,26 @@ export class WorldGeneration {
     constructor(world) {
         this.world = world;
 
+        // empty grid
         for(let x = 0; x < this.world.width; x++) {
             this.world.tileGrid.push([]);
             this.world.wallGrid.push([]);
         }
+
+        this.heightmap = null;
+        this.terrainNoise = null;
+        this.dirtMap = null;
+        this.threshold = worldGenConfig.TERRAIN_NOISE_THRESHOLD;
     }
 
     generate() {
+        this.heightmap = this.generateHeightmap();
+
         this.terrainNoise = new NoiseMap(this.world.width, this.world.height);
         this.terrainNoise.generate(0, 100);
         this.terrainNoise.applyBlur(worldGenConfig.NOISE_BLUR);
 
         this.dirtMap = this.generateDirtDepth(worldGenConfig.MIN_DIRT_DEPTH, worldGenConfig.MAX_DIRT_DEPTH);
-        this.threshold = worldGenConfig.TERRAIN_NOISE_THRESHOLD;
 
         // Place tiles based on noise
         for(let x = 0; x < this.world.width; x++) {
@@ -53,17 +59,17 @@ export class WorldGeneration {
 
     getTerrainTile(x, y, noiseValue) {
         // No blocks or walls are generated above surface height
-        if(y > HEIGHTMAP[x] || noiseValue >= this.threshold) return null;
+        if(y > this.heightmap[x] || noiseValue >= this.threshold) return null;
 
         let model;
 
         // Grass
-        if(HEIGHTMAP[x] == y) {
+        if(this.heightmap[x] == y) {
             model = TileRegistry.GRASS;
         } 
         
         // Dirt
-        else if(HEIGHTMAP[x] - this.dirtMap[x] < y) {
+        else if(this.heightmap[x] - this.dirtMap[x] < y) {
             model = TileRegistry.DIRT;
         } 
         
@@ -79,12 +85,12 @@ export class WorldGeneration {
 
     getTerrainWall(x, y) {
         // No wall
-        if(y > HEIGHTMAP[x]) return null;
+        if(y > this.heightmap[x]) return null;
 
         let model = "";
 
         // Dirt walls
-        if(HEIGHTMAP[x] - this.dirtMap[x] <= y) {
+        if(this.heightmap[x] - this.dirtMap[x] <= y) {
             model = TileRegistry.DIRT_WALL;
         } 
         
@@ -116,12 +122,8 @@ export class WorldGeneration {
         let lastTree = -1;
         let treeGap = 2;
 
-        // 1 in X chance of generating these on each grass tile
-        let treeValue = 10;
-        let clothValue = 16;
-
         for(let x = 0; x < this.world.width; x++) {
-            let y = HEIGHTMAP[x];
+            let y = this.heightmap[x];
             let tile = this.world.getTile(x, y);
             
             if(!Tile.isTile(tile, Tiles.GRASS)) continue;
@@ -137,47 +139,47 @@ export class WorldGeneration {
             }
         }
     }
-}
 
+    generateHeightmap() {
 
-export function generateTerrainHeight() {
-    let heightMap = [];
-    heightMap.push(BASE_TERRAIN_HEIGHT + 6);
+        let heightMap = [];
+        heightMap.push(BASE_TERRAIN_HEIGHT + 6);
 
-    for(let x = 0; x < WORLD_WIDTH; x++) {
-        let pHeight = heightMap[x];
+        for(let x = 0; x < this.world.width; x++) {
+            let pHeight = heightMap[x];
 
-        let rand = rng(1, 100);
+            let rand = rng(1, 100);
 
-        //let highThreshold = [5,10,20,40,16,7,2];
+            //let highThreshold = [5,10,20,40,16,7,2];
 
-        // Down 3: 1%; Down 2: 5%, Down 1: 19%, Equal: 50%, Up 1: 19%, Up 2: 5%, Up 3: 1%
-        //let t = [3,10,26,76,92,99];
-        let t = [2,7,26,76,95,100];
+            // Down 3: 1%; Down 2: 5%, Down 1: 19%, Equal: 50%, Up 1: 19%, Up 2: 5%, Up 3: 1%
+            //let t = [3,10,26,76,92,99];
+            let t = [2,7,26,76,95,100];
 
-        let c;
-        if(rand >= 1 && rand < t[0]) {
-            c = -3;
-        } else if(rand >= t[0] && rand < t[1]) {
-            c = -2
-        } else if(rand >= t[1] && rand < t[2]) {
-            c = -1
-        } else if(rand >= t[2] && rand < t[3]) {
-            c = 0;
-        } else if(rand >= t[3] && rand < t[4]) {
-            c = 1;
-        } else if(rand >= t[4] && rand < t[5]) {
-            c = 2;
-        } else if(rand >= t[5] && rand <= 100) {
-            c = 3;
+            let c;
+            if(rand >= 1 && rand < t[0]) {
+                c = -3;
+            } else if(rand >= t[0] && rand < t[1]) {
+                c = -2
+            } else if(rand >= t[1] && rand < t[2]) {
+                c = -1
+            } else if(rand >= t[2] && rand < t[3]) {
+                c = 0;
+            } else if(rand >= t[3] && rand < t[4]) {
+                c = 1;
+            } else if(rand >= t[4] && rand < t[5]) {
+                c = 2;
+            } else if(rand >= t[5] && rand <= 100) {
+                c = 3;
+            }
+
+            heightMap[x + 1] = pHeight + c;
         }
 
-        heightMap[x + 1] = pHeight + c;
+        smoothHeightmap(heightMap);
+
+        return heightMap;
     }
-
-    smoothHeightmap(heightMap);
-
-    return heightMap;
 }
 
 // Remove all tiles from the heightmap that have air on 3 sides
@@ -196,13 +198,5 @@ function smoothHeightmap(heightmap) {
         if(!hasTileLeft && !hasTileRight) {
             heightmap[x] = Math.max(heightLeft, heightRight);
         }
-    }
-}
-
-// Has a chance of placing a Tree structure.
-export function generateTree(x, y, world) {
-    let n = rng(0, worldGenConfig.TREE_FACTOR);
-    if(n == worldGenConfig.TREE_FACTOR) {
-        world.structures.push(new structures.BasicTree(x, y, world));
     }
 }
