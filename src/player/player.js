@@ -1,7 +1,6 @@
 import { ctx, TILE_SIZE } from '../game/global.js';
 import { Inventory } from '../ui/inventory.js';
 import MiningAction from './mining.js';
-import { HEIGHTMAP } from '../world/World.js';
 import { PlayerStatBar } from './statBar.js';
 import HotbarText from '../ui/hotbarText.js';
 import { PickupLabelHandler } from '../ui/pickupLabels.js';
@@ -19,12 +18,14 @@ import { TilePlacement } from '../tile/TilePlacement.js';
 const PLAYER_WIDTH = 36;
 const PLAYER_HEIGHT = 72;
 
-class Player {
+export class Player {
     constructor(game) {
         this.game = game;
         this.world = game.world;
 
         this._entity = new EntityComponent();
+
+        this.inventory = new Inventory(this);
 
         this.stateList = [
             new PlayerStanding(this), 
@@ -365,14 +366,15 @@ class Player {
             console.log(result.info);
         }
     }
-
-    // Put the player in the center of the map
-    spawn() {
-        let spawnX = Math.floor(this.game.world.width / 2)
-        this.x = Math.round(spawnX * TILE_SIZE - this.width / 2);
-        this.y = Math.round((-HEIGHTMAP[spawnX] - 2) * TILE_SIZE);
-        this.inventory = new Inventory(this);
-        this.setState("FALLING");
-    }
 }
-export { Player }
+
+// Put the player in the center of the map
+export function spawnPlayerInWorld(player, world) {
+
+    let spawnX = Math.floor(world.width / 2);
+
+    player.x = Math.round(spawnX * TILE_SIZE + (TILE_SIZE - player.width) / 2);
+    player.y = Math.round((-world.heightmap[spawnX] - 2) * TILE_SIZE);
+
+    player.setState("FALLING");
+}

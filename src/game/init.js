@@ -1,6 +1,7 @@
 import render from "./graphics/render.js";
 import { canvas } from "./global.js";
 import { Game } from "./game.js";
+import { spawnPlayerInWorld } from "../player/player.js";
 
 const game = new Game();
 
@@ -12,7 +13,7 @@ function init() {
     setCanvasSize();
     game.world.generate();
     game.testing.run();
-    game.player.spawn();
+    spawnPlayerInWorld(game.player, game.world);
     window.requestAnimationFrame(gameLoop);
 }
 
