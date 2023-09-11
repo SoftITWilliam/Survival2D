@@ -10,7 +10,7 @@ export class Game {
     constructor() {
         this.physicsMultiplier = 0;
 
-        this.world = new World(this, 127, 127);
+        this.world = new World(this, 512, 127);
 
         this.itemEntities = new ItemEntityHandler(this);
 

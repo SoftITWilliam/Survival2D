@@ -19,9 +19,13 @@ function init() {
 
 // Set canvas to cover whole screen
 function setCanvasSize() {
-    canvas.setAttribute("height",Math.round(window.innerHeight));
-    canvas.setAttribute("width",Math.round(window.innerWidth));
+    canvas.setAttribute("height", Math.round(window.innerHeight));
+    canvas.setAttribute("width", Math.round(window.innerWidth));
 }
+
+window.addEventListener("resize", function(event) {
+    setCanvasSize();
+})
 
 function gameLoop(timestamp) {
     // Calculate time since last frame
@@ -29,6 +33,6 @@ function gameLoop(timestamp) {
     previousTime = timestamp;
 
     game.update(deltaTime);
-    render(game,game.player);
+    render(game, game.player);
     window.requestAnimationFrame(gameLoop);
 }
