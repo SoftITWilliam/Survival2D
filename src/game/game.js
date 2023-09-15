@@ -17,7 +17,7 @@ export class Game {
         this.recipeManager = new RecipeManager(this);
         this.player = new Player(this);
         this.input = new InputHandler(this);
-        this.fpsCounter = new FPSCounter(this);
+        this.fpsCounter = new FPSCounter();
 
         this.testing = new Testing(this);
     }
