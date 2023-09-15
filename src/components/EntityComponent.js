@@ -1,5 +1,6 @@
 import { overlap, surfaceCollision } from "../game/collision.js";
 import { TILE_SIZE } from "../game/global.js";
+import { dropItemFromTile } from "../item/dropItem.js";
 import { Tile } from "../tile/Tile.js";
 import { PositionComponent } from "./positionComponent.js";
 
@@ -11,11 +12,11 @@ export class EntityComponent extends PositionComponent {
         this.grounded = false;
         this.gravity = 0.35;
 
-        // Callbacks
-        this.onTopCollision = () => { }
-        this.onBottomCollision = () => { }
-        this.onLeftCollision = () => { }
-        this.onRightCollision = () => { }
+        // Callbacks for customizing behaviour in classes using this component
+        this.onTopCollision = (tile) => { }
+        this.onBottomCollision = (tile) => { }
+        this.onLeftCollision = (tile) => { }
+        this.onRightCollision = (tile) => { }
     }
 
     /**
@@ -71,28 +72,28 @@ export class EntityComponent extends PositionComponent {
         this.grounded = true;
         this.dy = 0;
         this.y = tile.y - this.height;
-        this.onTopCollision();
+        this.onTopCollision(tile);
     }
 
     // Runs when colliding with the bottom side of a solid tile
     bottomCollision(tile) {
         this.dy = 0;
         this.y = tile.y2;
-        this.onBottomCollision();
+        this.onBottomCollision(tile);
     }
 
     // Runs when colliding with the left side of a solid tile
     leftCollision(tile) {
         this.dx = 0;
         this.x = tile.x - this.width;
-        this.onLeftCollision();
+        this.onLeftCollision(tile);
     }
 
     // Runs when colliding with the right side of a solid tile
     rightCollision(tile) {
         this.dx = 0;
         this.x = tile.x2;
-        this.onRightCollision();
+        this.onRightCollision(dropItemFromTile);
     }
 
     // Check collision of tiles within a 2 block radius
