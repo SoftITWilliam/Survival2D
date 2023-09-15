@@ -1,5 +1,5 @@
 import GameObject from "../game/gameObject.js";
-import { TILE_SIZE } from "../game/global.js";
+import { TILE_SIZE, ctx } from "../game/global.js";
 import Item from "../item/item.js";
 import { TileModel } from "./tileModel.js";
 
@@ -9,6 +9,9 @@ export class Tile extends GameObject {
         this.world = world;
 
         this.model = (model instanceof TileModel) ? model : null;
+
+        this.sheetX = 0;
+        this.sheetY = 0;
     }
 
     static types = {
@@ -84,6 +87,9 @@ export class Tile extends GameObject {
         let adjacent = this.getAdjacent();
         let position = this.model.getSpritePosition(adjacent);
 
+        this.sheetX = position.x;
+        this.sheetY = position.y;
+
         let spriteSize = 48;
         let spriteGap = 12;
         this.sx = position.x * (spriteSize + spriteGap);
@@ -151,6 +157,6 @@ export class Tile extends GameObject {
     }
 
     render() {
-        this.model.render(this.x, this.y, this.sx, this.sy);
+        this.model.render(ctx, this, this.sheetX, this.sheetY);
     }
 }

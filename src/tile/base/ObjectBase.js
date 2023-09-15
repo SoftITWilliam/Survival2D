@@ -9,19 +9,36 @@ export default class ObjectBase extends TileModel {
         this.transparent = true;
         this.connective = false;
         this.requireTool = false;
+
+        this._spriteRenderer.setSpriteSize(48, 48);
     }
 
-    // Override
-    canBeMined(item) {
-        if(item && item.placeable)
+    /**
+     * Returns true if this type of tile can be mined using a certain tool
+     * @override
+     * @param {Item} toolItem 
+     * @returns {boolean}
+     */
+    canBeMined(toolItem) {
+        if(toolItem && toolItem.placeable)
             return false;
 
-        if(this.requireTool && !Item.isTool(item, this.toolType)) 
+        if(this.requireTool && !Item.isTool(toolItem, this.toolType)) 
             return false;
         
-        if(Item.isTool(item, Item.toolTypes.HAMMER)) 
+        if(Item.isTool(toolItem, Item.toolTypes.HAMMER)) 
             return false;
 
         return true;
+    }
+
+    /**
+     * Renders t
+     * @override
+     * @param {CanvasRenderingContext2D} ctx 
+     * @param {Tile} tile The tile being rendered
+     */
+    render(ctx, tile) {
+        this._spriteRenderer.draw(ctx, tile.x, tile.y);
     }
 }

@@ -1,8 +1,11 @@
-import { ctx, TILE_SIZE } from "../game/global.js";
+import { TILE_SIZE } from "../game/global.js";
+import { SpriteRenderer } from "../game/graphics/SpriteRenderer.js";
 import { sprites } from "../game/graphics/loadAssets.js";
 import { dropItemFromTile } from "../item/dropItem.js";
 import Item from "../item/item.js";
 import { Tile } from "./Tile.js";
+
+const SPRITE_PADDING = 6;
 
 export class TileModel {
     constructor(registryName, width = TILE_SIZE, height = TILE_SIZE) {
@@ -11,6 +14,9 @@ export class TileModel {
         this.w = width;
         this.h = height ?? width;
         this.tileDrops = [];
+
+        this._spriteRenderer = new SpriteRenderer();
+        this._spriteRenderer.setSpriteSize(60, 60);
     }
 
     get width() { return this.w }
@@ -53,6 +59,8 @@ export class TileModel {
             this.sprite = sprites.misc.missing_texture;
             this.missingTexture = true;
         }
+
+        this._spriteRenderer.setSource(this.sprite);
     }
 
     // Remove the tile and drop its items.
@@ -97,7 +105,6 @@ export class TileModel {
         if(this.connective == false) {
             return {x:0, y:0};
         }
-
         
         // Top Left
         if(!a.ml && !a.tm && a.mr && a.bm) {
@@ -205,9 +212,8 @@ export class TileModel {
         }
     }
 
-    render(x, y, sx, sy) {
-        ctx.drawImage(
-            this.sprite, sx, sy, TILE_SIZE, TILE_SIZE, x, y, TILE_SIZE, TILE_SIZE
-        );
+    render(ctx, tile, sheetX, sheetY) {
+        this._spriteRenderer.setSheetPosition(sheetX, sheetY);
+        this._spriteRenderer.drawFromObject(ctx, tile);
     }
 }

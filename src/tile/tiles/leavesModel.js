@@ -1,4 +1,3 @@
-import { ctx } from "../../game/global.js";
 import { TileDrop } from "../tileDrop.js";
 import TileBase from "../base/TileBase.js";
 import { ItemRegistry as Items } from "../../item/itemRegistry.js";
@@ -18,8 +17,8 @@ export class LeavesModel extends TileBase {
         ]
     }
 
-    render(x,y) {
+    render(ctx, tile) {
         ctx.fillStyle = "rgba(60,120,35,0.8)";
-        ctx.fillRect(x, y, this.w, this.h);
+        ctx.fillRect(tile.x, tile.y, this.w, this.h);
     }
 }

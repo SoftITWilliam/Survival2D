@@ -1,4 +1,3 @@
-import { ctx } from "../../game/global.js";
 import { TileDrop } from "../tileDrop.js";
 import WallBase from "../base/WallBase.js";
 import { ItemRegistry as Items } from "../../item/itemRegistry.js";
@@ -30,8 +29,8 @@ export class LogModel extends WallBase {
         super.breakTile(tile, item, world);
     }
 
-    render(x, y) {
+    render(ctx, tile) {
         ctx.fillStyle = "rgb(150,100,85)";
-        ctx.fillRect(x + 5, y, this.w - 10, this.h);
+        ctx.fillRect(tile.x + 5, tile.y, this.w - 10, this.h);
     }
 }

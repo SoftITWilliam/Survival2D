@@ -19,18 +19,23 @@ export default function render(game, player) {
     let gX = clamp(player.gridX, DRAWDIST.x, game.world.width - DRAWDIST.x);
     let gY = clamp(player.gridY, DRAWDIST.y, game.world.height - DRAWDIST.y);
 
-    // If player is near the edge of the map, render all tiles on screen instead of within a radius.
-    // Only tiles on screen are drawn
-    // This is a *very* major optimization!
+    // Wall layer
     for(let x = gX - DRAWDIST.x ; x < gX + DRAWDIST.x + 1 ; x++) {
         for(let y = gY - DRAWDIST.y ; y < gY + DRAWDIST.y + 1 ; y++) {
             game.world.getWall(x, y)?.render();
+        }
+    }
+
+    // Player
+    player.draw();
+
+    // Tile layer
+    for(let x = gX - DRAWDIST.x ; x < gX + DRAWDIST.x + 1 ; x++) {
+        for(let y = gY - DRAWDIST.y ; y < gY + DRAWDIST.y + 1 ; y++) {
             game.world.getTile(x, y)?.render();
         }
     }
-    
-    // Player
-    player.draw();
+
     player.miningAction?.drawProgress();
     player.drawPlacementPreview(game.input);
 
