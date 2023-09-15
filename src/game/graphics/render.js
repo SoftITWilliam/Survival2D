@@ -1,6 +1,6 @@
 
 import { canvas, RENDER_LIGHTING, DEBUG_MODE, TILE_SIZE } from '../global.js';
-import { renderDebugUI } from './debug.js';
+import { renderDebugUI } from '../../ui/debugUI.js';
 import { calculateDistance, clamp } from '../../helper/helper.js';
 import { rgbm } from '../../helper/canvashelper.js';
 import { Tile } from '../../tile/Tile.js';

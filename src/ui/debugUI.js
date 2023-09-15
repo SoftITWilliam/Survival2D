@@ -1,5 +1,5 @@
 
-import { World } from '../../world/World.js';
+import { World } from '../world/World.js';
 
 export function renderDebugUI(ctx, game) {
     Object.assign(ctx, {
