@@ -89,3 +89,9 @@ export function getGap(totalSize, size, amount) {
     let gap = (totalSize - (size * amount)) / (amount + 1);
     return(gap > 0 ? gap : 0);
 }
+
+export function validIndex(index, array) {
+    return (typeof index == "number" && index != NaN &&
+            Array.isArray(array) &&
+            index >= 0 && index < array.length);
+}
