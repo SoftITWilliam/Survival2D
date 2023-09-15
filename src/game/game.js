@@ -1,4 +1,4 @@
-import ItemEntityHandler from "../item/itemEntityHandler.js";
+import ItemEntityManager from "../item/itemEntityManager.js";
 import { Player } from "../player/player.js";
 import { RecipeManager } from "../crafting/RecipeManager.js";
 import { World } from "../world/World.js";
@@ -12,7 +12,7 @@ export class Game {
 
         this.world = new World(this, 512, 127);
 
-        this.itemEntities = new ItemEntityHandler(this);
+        this.itemEntities = new ItemEntityManager(this);
 
         this.recipeManager = new RecipeManager(this);
         this.player = new Player(this);

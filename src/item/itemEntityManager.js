@@ -2,7 +2,7 @@ import { overlap } from "../game/collision.js";
 import { ItemEntity } from "./itemEntity.js";
 import { ItemStack } from "./itemStack.js";
 
-export default class ItemEntityHandler {
+export default class ItemEntityManager {
     constructor(game) {
         this.game = game; // Pointer
         this.entities = [];
