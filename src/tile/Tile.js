@@ -1,4 +1,4 @@
-import GameObject from "../game/gameObject.js";
+import GameObject from "../class/GameObject.js";
 import { TILE_SIZE } from "../game/global.js";
 import Item from "../item/item.js";
 import { TileModel } from "./tileModel.js";

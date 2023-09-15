@@ -1,4 +1,4 @@
-import GameObject from "../game/gameObject.js";
+import GameObject from "../class/GameObject.js";
 import { canvas, TILE_SIZE } from "../game/global.js";
 import { clamp } from "../helper/helper.js";
 
