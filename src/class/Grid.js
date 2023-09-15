@@ -113,33 +113,95 @@ export class Grid {
         }
     }
 
-    asArray() {
-        const arr = [];
-        for(var column of this.#grid) for (var e of column) arr.push(e);
-        return arr;
-    }
+    /**
+     * Get all grid items as an array
+     * @overload
+     * @returns {Array}
+     */
 
     /**
-     * Returns items in grid
+     * @overload
+     * @param {boolean} ignoreDefaultValues
+     * @returns {Array}
+     */
+
+    /**
+     * @overload
+     * @param {Function} filterExpression 
+     * @returns {Array}
+     */
+
+    /**
+     * @overload
      * @param {number} x 
      * @param {number} y 
      * @param {number} width 
      * @param {number} height 
-     * @param {boolean} ignoreDefaults If true, 'default' values aren't included 
-     * @returns 
+     * @returns {Array[]}
      */
-    selection(x, y, width, height, ignoreDefaults = false) {
-        let selectionArray = [];
 
-        this.column(x, width).forEach(column => {
-            selectionArray = selectionArray.concat(column.slice(y, height));
-        });
+    /**
+     * @overload
+     * @param {number} x 
+     * @param {number} y 
+     * @param {number} width 
+     * @param {number} height 
+     * @param {boolean} ignoreDefaultValues
+     * @returns {Array[]}
+     */
 
-        if(ignoreDefaults) {
-            selectionArray = selectionArray.filter(value => value != this.#default);
+    /**
+     * @overload
+     * @param {number} x 
+     * @param {number} y 
+     * @param {number} width 
+     * @param {number} height 
+     * @param {Function} filterExpression
+     * @returns {Array[]}
+     */
+    asArray(arg1, arg2, arg3, arg4, arg5) {
+        let arr = [];
+
+        // Overload 1-3
+        var getAll = () => {
+            let a = [];
+            for(var column of this.#grid) for (var e of column) a.push(e);
+            return a;
         }
 
-        return selectionArray;
+        // Overload 4-5
+        var getSelection = (x, y, width, height) => {
+            let a = [];
+            for(let gx = x; gx < x + width; gx++) {
+
+                let column = this.column(gx);
+                if(!column) continue;
+    
+                for(let gy = y; gy < y + height; gy++) {
+                    if(gy >= 0 && gy < column.length) a.push(column[gy]);
+                }
+            }
+            return a;
+        }
+
+        // Overload routing
+        if(arg1 != null && arg2 != null && arg3 != null && arg4 != null) {
+            arr = getSelection(arg1, arg2, arg3, arg4);
+            var filterExpression = arg5;
+        }
+        else {
+            arr = getAll();
+            var filterExpression = arg1;
+        }
+
+        // Filtering
+        if(typeof filterExpression == "function") 
+            arr = arr.filter(filterExpression);
+        
+        else if(filterExpression === true) 
+            arr = arr.filter(value => value != this.#default);
+
+        return arr;
     }
 
     //#endregion
