@@ -1,5 +1,6 @@
 import { renderPath } from '../helper/canvashelper.js';
 
+
 export class PlayerStatBar {
     constructor(max,startValue) {
         this.max = max;
