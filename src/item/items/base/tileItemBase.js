@@ -31,14 +31,14 @@ export class TileItemBase extends ItemBase {
 
     // Return true if position has no tile, is adjacent to another time or on top of a wall.
     canBePlaced(x, y, world) {
-        if(world.outOfBounds(x, y) || world.getTile(x, y)) { return false } 
+        if(world.outOfBounds(x, y) || world.tiles.get(x, y)) { return false } 
 
         return (
-            world.getTile(x - 1, y) ||
-            world.getTile(x, y + 1) ||
-            world.getTile(x + 1, y) ||
-            world.getTile(x, y - 1) ||
-            world.getWall(x, y)
+            world.tiles.get(x - 1, y) ||
+            world.tiles.get(x, y + 1) ||
+            world.tiles.get(x + 1, y) ||
+            world.tiles.get(x, y - 1) ||
+            world.walls.get(x, y)
         );
     }
 
@@ -52,7 +52,7 @@ export class TileItemBase extends ItemBase {
             let tile = this.getPlacedTile();
             if(tile == null || world.outOfBounds(gridX, gridY)) return false; // Cannot place
             
-            if(world.getTile(gridX, gridY)) return false; // Already has tile
+            if(world.tiles.get(gridX, gridY)) return false; // Already has tile
 
             world.setTile(gridX, gridY, tile);
 

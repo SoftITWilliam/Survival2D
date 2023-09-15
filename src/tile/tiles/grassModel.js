@@ -21,8 +21,8 @@ export class GrassModel extends TileBase {
     }
 
     static canSpreadTo(x, y, world) {
-        let tileIsDirt = (Tile.isTile(world.getTile(x, y), TileRegistry.DIRT));
-        let noTileAbove = (world.getTile(x, y + 1) == null);
+        let tileIsDirt = (Tile.isTile(world.tiles.get(x, y), TileRegistry.DIRT));
+        let noTileAbove = (world.tiles.get(x, y + 1) == null);
         return (tileIsDirt && noTileAbove);
     }
 
@@ -35,17 +35,17 @@ export class GrassModel extends TileBase {
                 if(rng(0, 1023) > 0) continue;
                 
                 world.setTile(x, y, TileRegistry.GRASS);
-                world.getTile(x, y).getSpritePosition();
+                world.tiles.get(x, y).getSpritePosition();
             }
         }
     }
 
     tileUpdate(tile, world) {
         // If another tile is placed on top of a grass tile, it is converted into a dirt block
-        let tileAbove = world.getTile(tile.gridX, tile.gridY + 1);
+        let tileAbove = world.tiles.get(tile.gridX, tile.gridY + 1);
         if(tileAbove && !tileAbove.transparent) {
             world.setTile(tile.gridX, tile.gridY, TileRegistry.DIRT);
-            world.getTile(tile.gridX, tile.gridY).getSpritePosition();
+            world.tiles.get(tile.gridX, tile.gridY).getSpritePosition();
         }
     }
 

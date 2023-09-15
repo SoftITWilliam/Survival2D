@@ -46,7 +46,7 @@ export default class SaplingBase extends ObjectBase {
         // Check for solid blocks above sapling
         let minimumSpace = 8;
         for(let y = tile.gridY + 1; y < tile.gridY + minimumSpace; y++) {
-            let checkedTile = tile.world.getTile(tile.gridX, y)
+            let checkedTile = tile.world.tiles.get(tile.gridX, y)
             if(checkedTile && !checkedTile.transparent) {
                 return false;
             }
@@ -57,7 +57,7 @@ export default class SaplingBase extends ObjectBase {
         let logDistanceY = 5;
         for(let x = tile.gridX - logDistanceX; x <= tile.gridX + logDistanceX; x++) {
             for(let y = tile.gridY; y <= tile.gridY + logDistanceY; y++) {
-                let object = tile.world.getWall(x,y);
+                let object = tile.world.walls.get(x,y);
                 if(Tile.isTile(object, TileRegistry.LOG)) {
                     return false;
                 }
@@ -72,7 +72,7 @@ export default class SaplingBase extends ObjectBase {
     }
 
     tileUpdate(tile, world) {
-        if(!world.getTile(tile.gridX, tile.gridY - 1)) {
+        if(!world.tiles.get(tile.gridX, tile.gridY - 1)) {
             this.breakTile(tile, null, world);
         }
     }

@@ -11,7 +11,7 @@ export default class PlantBase extends ObjectBase {
 
     // Remove plant if ground below is broken
     tileUpdate(tile, world) {
-        if(!world.getTile(tile.gridX, tile.gridY - 1)) {
+        if(!world.tiles.get(tile.gridX, tile.gridY - 1)) {
             this.breakTile(tile, null, world);
         }
     }

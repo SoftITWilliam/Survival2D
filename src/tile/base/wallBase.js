@@ -16,7 +16,7 @@ export default class WallBase extends TileModel {
         if (item && item.placeable) 
             return false;
 
-        if (world.getTile(this.gridX, this.gridY)?.transparent) 
+        if (world.tiles.get(this.gridX, this.gridY)?.transparent) 
             return false;
 
         if (this.requireTool) {

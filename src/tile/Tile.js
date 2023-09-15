@@ -122,7 +122,7 @@ export class Tile extends GameObject {
         let isWall = this.type == Tile.types.WALL;
 
         let checkTile = (x, y) => {
-            let tile = isWall ? this.world.getWall(x, y) : this.world.getTile(x, y);
+            let tile = isWall ? this.world.walls.get(x, y) : this.world.tiles.get(x, y);
             return (tile && !tile.transparent);
         }
 

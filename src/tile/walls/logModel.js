@@ -22,7 +22,7 @@ export class LogModel extends WallBase {
     }
 
     breakTile(tile, item, world) {
-        let tileAbove = world.getWall(tile.gridX, tile.gridY + 1);
+        let tileAbove = world.walls.get(tile.gridX, tile.gridY + 1);
         if(Tile.isTile(tileAbove, TileRegistry.LOG)) {
             tileAbove.breakTile(tileAbove, item, world);
         }

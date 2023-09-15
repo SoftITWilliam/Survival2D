@@ -12,9 +12,9 @@ export class ItemAcorn extends PlaceableBase {
 
     // Return true if position isn't occupied and tile below is either dirt or grass
     canBePlaced(x, y, world) {
-        if(world.outOfBounds(x, y) || world.getTile(x, y)) return false;
+        if(world.outOfBounds(x, y) || world.tiles.get(x, y)) return false;
 
-        let tile = world.getTile(x, y - 1);
+        let tile = world.tiles.get(x, y - 1);
         return (Tile.isTile(tile, Tiles.DIRT) || Tile.isTile(tile, Tiles.GRASS));
     }
 

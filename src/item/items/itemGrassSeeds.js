@@ -12,8 +12,8 @@ export class ItemGrassSeeds extends PlaceableBase {
 
     // Return true if the given position is a dirt block with no block above
     canBePlaced(x, y, world) {
-        let tile = world.getTile(x, y);
-        return (Tile.isTile(tile, Tiles.DIRT) && !world.getTile(x, y + 1));
+        let tile = world.tiles.get(x, y);
+        return (Tile.isTile(tile, Tiles.DIRT) && !world.tiles.get(x, y + 1));
     }
 
     getPlacedTile() {

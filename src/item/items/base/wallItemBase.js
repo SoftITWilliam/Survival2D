@@ -34,21 +34,21 @@ export class WallItemBase extends ItemBase {
     canBePlaced(x, y, world) {
         if(world.outOfBounds(x, y)) return false;
 
-        let existingWall = world.getWall(x, y);
+        let existingWall = world.walls.get(x, y);
         if(Tile.isTile(existingWall, this.getPlacedTile()));
 
         let hasAdjacentWall = (
-            world.getWall(x - 1, y) ||
-            world.getWall(x, y + 1) ||
-            world.getWall(x + 1, y) ||
-            world.getWall(x, y - 1)
+            world.walls.get(x - 1, y) ||
+            world.walls.get(x, y + 1) ||
+            world.walls.get(x + 1, y) ||
+            world.walls.get(x, y - 1)
         );
         let hasAdjacentTile = (
-            world.getTile(x - 1, y) ||
-            world.getTile(x, y + 1) ||
-            world.getTile(x + 1, y) ||
-            world.getTile(x, y - 1) ||
-            world.getTile(x, y)
+            world.tiles.get(x - 1, y) ||
+            world.tiles.get(x, y + 1) ||
+            world.tiles.get(x + 1, y) ||
+            world.tiles.get(x, y - 1) ||
+            world.tiles.get(x, y)
         );
 
         return (hasAdjacentTile || hasAdjacentWall);
@@ -65,7 +65,7 @@ export class WallItemBase extends ItemBase {
 
             if(wall == null || world.outOfBounds(gridX, gridY)) return false; // Cannot place
             
-            let existingWall = world.getWall(gridX, gridY);
+            let existingWall = world.walls.get(gridX, gridY);
 
             // Replace existing wall
             if(Tile.isTile(existingWall)) {

@@ -77,16 +77,16 @@ export default class PlacementPreview {
 export function validPlacementPosition(gridX,gridY,world) {
 
     // Check if tile is already occupied
-    if (world.getTile(gridX,gridY)) {
+    if (world.tiles.get(gridX,gridY)) {
         return false;
     }
 
     // Check for adjacent tile or wall
-    if (world.getTile(gridX - 1, gridY) || 
-        world.getTile(gridX + 1, gridY) ||
-        world.getTile(gridX, gridY - 1) || 
-        world.getTile(gridX, gridY + 1) ||
-        world.getWall(gridX, gridY)) {
+    if (world.tiles.get(gridX - 1, gridY) || 
+        world.tiles.get(gridX + 1, gridY) ||
+        world.tiles.get(gridX, gridY - 1) || 
+        world.tiles.get(gridX, gridY + 1) ||
+        world.walls.get(gridX, gridY)) {
             return true;
     }
     return false;

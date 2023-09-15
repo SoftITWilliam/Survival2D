@@ -240,8 +240,8 @@ export class Player {
     }
 
     updateMining(input, dt) {
-        let tile = this.world.getTile(input.mouse.gridX, input.mouse.gridY);
-        let wall = this.world.getWall(input.mouse.gridX, input.mouse.gridY);
+        let tile = this.world.tiles.get(input.mouse.gridX, input.mouse.gridY);
+        let wall = this.world.walls.get(input.mouse.gridX, input.mouse.gridY);
 
         // Find object the tool is able to interact with
         let obj;

@@ -36,7 +36,7 @@ export default class MiningAction {
         let gy = this.tile.gridY;
 
         let object = this.tile.type == Tile.types.WALL ?
-            this.world.getWall(gx, gy) : this.world.getTile(gx, gy);
+            this.world.walls.get(gx, gy) : this.world.tiles.get(gx, gy);
 
         // Break tile
         object.breakTile(this.tile, this.item, this.world);

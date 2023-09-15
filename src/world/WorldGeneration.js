@@ -49,7 +49,7 @@ export class WorldGeneration {
                 this.world.walls.set(x, y, wall);
             }
         }
-        
+
         this.generateVegetation();
     }
 
@@ -75,7 +75,6 @@ export class WorldGeneration {
         }
 
         let tile = new Tile(this.world, x, y, model);
-        console.log(tile);
 
         return model ? tile : null;
     }
@@ -121,7 +120,7 @@ export class WorldGeneration {
 
         for(let x = 0; x < this.world.width; x++) {
             let y = this.heightmap[x];
-            let tile = this.world.getTile(x, y);
+            let tile = this.world.tiles.get(x, y);
             
             if(!Tile.isTile(tile, Tiles.GRASS)) continue;
 

@@ -25,7 +25,7 @@ export function drawDebugUI(game) {
     ctx.fillText(`Player State: ${game.player.state.name}`, x, y + rowHeight * 4)
     
     // Tile info
-    let tile = game.world.getTile(game.input.mouse.gridX, game.input.mouse.gridY);
+    let tile = game.world.tiles.get(game.input.mouse.gridX, game.input.mouse.gridY);
 
     let tilePosText, tileTypeText;
 

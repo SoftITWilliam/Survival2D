@@ -92,8 +92,8 @@ function renderSky(camera) {
 }
 
 function drawHoverEffect(game,input) {
-    let tile = game.world.getTile(input.mouse.gridX, input.mouse.gridY);
-    let wall = game.world.getWall(input.mouse.gridX, input.mouse.gridY);
+    let tile = game.world.tiles.get(input.mouse.gridX, input.mouse.gridY);
+    let wall = game.world.walls.get(input.mouse.gridX, input.mouse.gridY);
 
     // Cannot interact with tiles while inventory is open
     if(game.player.inventory.view) return;

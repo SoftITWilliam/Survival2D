@@ -29,16 +29,6 @@ export class World {
         return this.worldGen.heightmap;
     }
 
-    // Return the tile at the given position
-    getTile(x, y) {
-        return this.tiles.get(x, y);
-    }
-
-    // Return the wall at the given position
-    getWall(x, y) {
-        return this.walls.get(x, y);
-    }
-
     // Clear the given tile
     clearTile(x, y) {
         this.tiles.clear(x, y);
