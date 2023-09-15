@@ -1,4 +1,3 @@
-import { ctx } from "../game/global.js";
 
 export default class HotbarText {
     constructor(player) {
@@ -30,7 +29,7 @@ export default class HotbarText {
         }
     }
 
-    draw() {
+    render(ctx) {
         this.incrementFrames();
 
         if(this.player.inventory.view) return;

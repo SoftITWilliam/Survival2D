@@ -1,6 +1,4 @@
 
-
-
 export class SpriteRenderer {
     #sx;
     #sy;
@@ -54,7 +52,7 @@ export class SpriteRenderer {
         return this;
     }
 
-    draw(ctx, x, y) {
+    render(ctx, x, y) {
         ctx.drawImage(this.source, 
             this.sx, this.sy, 
             this.width, this.height,
@@ -63,15 +61,15 @@ export class SpriteRenderer {
         );
     }
 
-    drawCentered(ctx, x, y) {
-        this.draw(ctx, x - (this.width / 2), y - (this.height / 2));
+    renderCentered(ctx, x, y) {
+        this.render(ctx, x - (this.width / 2), y - (this.height / 2));
     }
 
-    drawFromObject(ctx, obj) {
+    renderFromObject(ctx, obj) {
 
         let widthDiff = this.width - obj.width;
         let heightDiff = this.height - obj.height;
 
-        this.draw(ctx, obj.x - (widthDiff / 2), obj.y - (heightDiff / 2));
+        this.render(ctx, obj.x - (widthDiff / 2), obj.y - (heightDiff / 2));
     }
 }

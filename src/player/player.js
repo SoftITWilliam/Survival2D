@@ -1,4 +1,4 @@
-import { ctx, TILE_SIZE } from '../game/global.js';
+import { TILE_SIZE } from '../game/global.js';
 import { Inventory } from '../ui/inventory.js';
 import MiningAction from './mining.js';
 import { PlayerStatBar } from './statBar.js';
@@ -14,7 +14,6 @@ import { ItemRegistry as Items } from '../item/itemRegistry.js';
 import { EntityComponent } from '../components/EntityComponent.js';
 import { calculateDistance, clamp } from '../helper/helper.js';
 import { TilePlacement } from '../tile/TilePlacement.js';
-import Item from '../item/item.js';
 
 const PLAYER_WIDTH = 36;
 const PLAYER_HEIGHT = 72;
@@ -272,7 +271,7 @@ export class Player {
         }
 
         // Increase mining progress.
-        this.miningAction.increaseProgress(dt);
+        this.miningAction.update(dt);
 
         if(this.miningAction.finished) {
             this.game.world.lighting.update(this);
@@ -326,7 +325,7 @@ export class Player {
         this.#selectedSlotIndex = index - 1;
     }
 
-    drawPlacementPreview(input) {
+    renderPlacementPreview(ctx, input) {
         let x = input.mouse.gridX;
         let y = input.mouse.gridY;
         // Held item must have a placement preview
@@ -336,10 +335,10 @@ export class Player {
                 return;
         }
 
-        this.selectedItem.placementPreview.draw(x, y, this);
+        this.selectedItem.placementPreview.render(ctx, x, y, this);
     }
 
-    draw() {
+    render(ctx) {
         let frameSize = 96;
         let x = this.x - (frameSize - this.width) / 2;
         let y = this.y + this.height - frameSize;

@@ -1,5 +1,4 @@
-import { ctx } from "../game/global.js";
-import { rgba } from "../helper/canvasHelper.js";
+import { rgba } from "../helper/canvashelper.js";
 
 export class PickupLabelHandler {
     constructor(player) {
@@ -38,10 +37,10 @@ export class PickupLabelHandler {
         );
     }
 
-    draw() {
+    render(ctx) {
         for(let i = 0; i < this.labels.length; i++) {
             let yPos = 16 + i * 24;
-            this.labels[i].draw(yPos);
+            this.labels[i].render(ctx, yPos);
         }
     }
 }
@@ -71,7 +70,7 @@ class PickupLabel {
         this.alpha = 1;
     }
     
-    draw(yPos) {
+    render(ctx, yPos) {
         let txt = `${this.itemName} (${this.amount})`;
         let clrFill = rgba(this.color, this.alpha);
         let clrStroke = `rgba(0,0,0,${this.alpha})`;

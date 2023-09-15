@@ -143,8 +143,6 @@ export default class CraftingMenu {
     ableToCraft(recipe, amount) {
         if(!recipe) return false;
 
-        console.log(recipe, amount);
-        
         let craftingStatus = true;
         recipe.inputList.forEach(input => {
             let avalible = this.getAvalibleResources(input.item);
@@ -178,20 +176,20 @@ export default class CraftingMenu {
         }
     }
 
-    render(x, y, input) {
+    render(ctx, x, y, input) {
         const offsetX = (canvas.width - this.ui.w) / 2;
         const offsetY = (canvas.height - this.ui.h) / 2;
 
         this.ui.setPosition(x + offsetX, y + offsetY);
     
-        this.ui.renderBase(this.labels[this.station]);
+        this.ui.renderBase(ctx, this.labels[this.station]);
 
         this.ui.updateButtons(input);
 
         if(this.selectedRecipe !== null) {
-            this.ui.renderRecipeInfo();
+            this.ui.renderRecipeInfo(ctx);
         } else {
-            this.ui.renderNoRecipe();
+            this.ui.renderNoRecipe(ctx);
         }
     }
 }

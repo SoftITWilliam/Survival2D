@@ -1,4 +1,4 @@
-import { ctx, TILE_SIZE } from "../game/global.js";
+import { TILE_SIZE } from "../game/global.js";
 import { sprites } from "../game/graphics/loadAssets.js";
 import { calculateDistance } from "../helper/helper.js";
 
@@ -33,7 +33,7 @@ export default class PlacementPreview {
         }
     }
 
-    draw(gridX, gridY, player) {
+    render(ctx, gridX, gridY, player) {
         this.updateAlpha();
 
         // If out of placement range, 

@@ -1,5 +1,5 @@
 import GameObject from "../game/gameObject.js";
-import { TILE_SIZE, ctx } from "../game/global.js";
+import { TILE_SIZE } from "../game/global.js";
 import Item from "../item/item.js";
 import { TileModel } from "./tileModel.js";
 
@@ -14,13 +14,19 @@ export class Tile extends GameObject {
         this.sheetY = 0;
     }
 
+    //#region Enums
+
     static types = {
         NONE: 0, // (No tile should ever actually have this)
         SOLID: 1,
         NON_SOLID: 2,
         WALL: 3,
-        //PLATFORM: 4,
+        PLATFORM: 4,
     }
+
+    //#endregion
+
+    //#region Property getters/setters
     
     // Override
     get height() { return this.model?.height ?? 0 }
@@ -51,6 +57,10 @@ export class Tile extends GameObject {
     get connective() {
         return this.model?.connective ?? false;
     }
+
+    //#endregion
+
+    //#region Public methods
 
     // Runs whenever the tile is "refreshed", i.e. something happens to an adjacent tile.
     tileUpdate() {
@@ -140,6 +150,14 @@ export class Tile extends GameObject {
         return adjacent;
     }
 
+    render(ctx) {
+        this.model.render(ctx, this, this.sheetX, this.sheetY);
+    }
+
+    //#endregion
+
+    //#region Static methods
+
     /** 
      * Returns true if 'arg' is of type Item.
      * If parameter 'item' is provided, returns true if 'arg' is the same as 'item'
@@ -156,7 +174,5 @@ export class Tile extends GameObject {
         return false;
     }
 
-    render() {
-        this.model.render(ctx, this, this.sheetX, this.sheetY);
-    }
+    //#endregion
 }

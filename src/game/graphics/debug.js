@@ -1,8 +1,7 @@
 
 import { World } from '../../world/World.js';
-import { ctx } from "../global.js";
 
-export function drawDebugUI(game) {
+export function renderDebugUI(ctx, game) {
     Object.assign(ctx, {
         fillStyle:"white", font:"20px Font1", textAlign:"left",
     })

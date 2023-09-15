@@ -1,5 +1,5 @@
 import render from "./graphics/render.js";
-import { canvas } from "./global.js";
+import { canvas, ctx } from "./global.js";
 import { Game } from "./game.js";
 import { spawnPlayerInWorld } from "../player/player.js";
 
@@ -33,6 +33,6 @@ function gameLoop(timestamp) {
     previousTime = timestamp;
 
     game.update(deltaTime);
-    render(game, game.player);
+    render(ctx, game, game.player);
     window.requestAnimationFrame(gameLoop);
 }

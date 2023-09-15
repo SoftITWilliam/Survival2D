@@ -1,22 +1,19 @@
-import { ctx } from "../game/global.js";
 import { Tile } from "../tile/Tile.js";
 
 const PROGRESS_DISPLAY_RADIUS = 16;
 
 export default class MiningAction {
+    #timer
     constructor(tile, item, game) {
         this.world = game.world;
         this.tile = tile;
-        this.finished = false;
 
         this.item = item ?? null;
         this.toolType = item?.toolType ?? null;
         this.miningSpeed = item?.miningSpeed ?? 1;
         this.miningLevel = item?.miningLevel ?? 0;
 
-        this.timer = 0;
-
-        // Calculate total mining time
+        this.#timer = 0;
         this.totalTime = this.tile.miningTime * 1000;
 
         if(this.toolType === tile.toolType) {
@@ -24,28 +21,21 @@ export default class MiningAction {
         }
     }
 
-    increaseProgress(dt) {
-        this.timer += dt;
-        if(this.timer >= this.totalTime) {
-            this.finish();
+    get finished() {
+        return this.#timer >= this.totalTime;
+    }
+
+    //#region Public methods
+
+    update(dt) {
+        this.#timer += dt;
+        if(this.finished) {
+            this.#finish();
         }
     }
 
-    finish() {
-        let gx = this.tile.gridX;
-        let gy = this.tile.gridY;
-
-        let object = this.tile.type == Tile.types.WALL ?
-            this.world.walls.get(gx, gy) : this.world.tiles.get(gx, gy);
-
-        // Break tile
-        object.breakTile(this.tile, this.item, this.world);
-
-        this.finished = true;
-    }
-
-    drawProgress() {
-        let p = 1.5 + this.timer / this.totalTime * 2;
+    renderProgress(ctx) {
+        let p = 1.5 + this.#timer / this.totalTime * 2;
         let cx = this.tile.centerX;
         let cy = this.tile.centerY;
 
@@ -57,4 +47,20 @@ export default class MiningAction {
         ctx.lineTo(cx, cy);
         ctx.fill();
     }
+
+    //#endregion
+
+    //#region Private methods
+
+    #finish() {
+
+        let object = this.tile.type == Tile.types.WALL ?
+            this.world.walls.get(this.tile.gridX, this.tile.gridY) : 
+            this.world.tiles.get(this.tile.gridX, this.tile.gridY);
+
+        // Break tile
+        object.breakTile(this.item);
+    }
+
+    //#endregion
 }

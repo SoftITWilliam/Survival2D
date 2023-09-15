@@ -33,12 +33,12 @@ export default class ObjectBase extends TileModel {
     }
 
     /**
-     * Renders t
+     * Renders the object
      * @override
      * @param {CanvasRenderingContext2D} ctx 
      * @param {Tile} tile The tile being rendered
      */
     render(ctx, tile) {
-        this._spriteRenderer.draw(ctx, tile.x, tile.y);
+        this._spriteRenderer.render(ctx, tile.x, tile.y);
     }
 }

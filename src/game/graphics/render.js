@@ -1,11 +1,19 @@
-import { drawStatBar } from './ui.js';
-import { ctx, canvas, DRAW_LIGHTING, DEBUG_MODE, TILE_SIZE } from '../global.js';
-import { drawDebugUI } from './debug.js';
+
+import { canvas, RENDER_LIGHTING, DEBUG_MODE, TILE_SIZE } from '../global.js';
+import { renderDebugUI } from './debug.js';
 import { calculateDistance, clamp } from '../../helper/helper.js';
 import { rgbm } from '../../helper/canvashelper.js';
 import { Tile } from '../../tile/Tile.js';
+import { Game } from '../game.js';
+import { Player } from '../../player/player.js';
 
-export default function render(game, player) {
+/**
+ * Renders everything in the game
+ * @param {CanvasRenderingContext2D} ctx 
+ * @param {Game} game 
+ * @param {Player} player 
+ */
+export default function render(ctx, game, player) {
 
     let camera = player.camera;
 
@@ -13,11 +21,8 @@ export default function render(game, player) {
     ctx.translate(-camera.x, -camera.y);
     ctx.clearRect(camera.x, camera.y, canvas.width, canvas.height);
 
-    renderSky(camera);
+    renderSky(ctx, camera);
 
-    /* === Render walls and tiles === */
-
-    
     let vW = Math.ceil(canvas.width / TILE_SIZE / 2 + 1) * 2;
     let vH = Math.ceil(canvas.height / TILE_SIZE / 2 + 1) * 2;
     let vX = clamp(player.gridX - vW / 2, 0, game.world.width - vW);
@@ -27,51 +32,51 @@ export default function render(game, player) {
     const visibleTiles = game.world.tiles.asArray(vX, vY, vW, vH, true);
 
     // Walls
-    visibleWalls.forEach(wall => wall.render());
+    visibleWalls.forEach(wall => wall.render(ctx));
 
     // Non-solid tiles
-    visibleTiles.filter(tile => tile.type != Tile.types.SOLID).forEach(tile => tile.render());
+    visibleTiles.filter(tile => tile.type != Tile.types.SOLID).forEach(tile => tile.render(ctx));
     
     // Player
-    player.draw();
+    player.render(ctx);
 
     // Solid Tiles
-    visibleTiles.filter(tile => tile.type == Tile.types.SOLID).forEach(tile => tile.render());
+    visibleTiles.filter(tile => tile.type == Tile.types.SOLID).forEach(tile => tile.render(ctx));
 
-    player.miningAction?.drawProgress();
-    player.drawPlacementPreview(game.input);
+    player.miningAction?.renderProgress(ctx);
+    player.renderPlacementPreview(ctx, game.input);
 
     // Item entities
-    game.itemEntities.render(camera);
+    game.itemEntities.render(ctx, camera, game.input);
 
     // Lighting
-    if(DRAW_LIGHTING) {  
-        game.world.lighting.draw(vX, vY, vW, vH);
+    if(RENDER_LIGHTING) {  
+        game.world.lighting.render(ctx, vX, vY, vW, vH);
     }
 
     // Tile hover effect
-    drawHoverEffect(game, game.input);
+    renderHoverEffect(ctx, game, game.input);
 
     /* === Render UI === */
 
-    //drawStatBar("health", player.health.max, player.health.current, "rgb(220,60,50)", 16, player);
-    //drawStatBar("hunger",player.hunger.max,player.hunger.current,"rgb(180,120,100)",72);
-    //drawStatBar("thirst",player.thirst.max,player.thirst.current,"rgb(80,160,220)",128);
+    //renderStatBar(ctx, "health", player.health.max, player.health.current, "rgb(220,60,50)", 16, player);
+    //renderStatBar(ctx, "hunger",player.hunger.max,player.hunger.current,"rgb(180,120,100)",72);
+    //renderStatBar(ctx, "thirst",player.thirst.max,player.thirst.current,"rgb(80,160,220)",128);
 
     if(player.craftingMenu.isOpen) {
-        player.craftingMenu.render(player.camera.x, player.camera.y, game.input);
+        player.craftingMenu.render(ctx, player.camera.x, player.camera.y, game.input);
     } else {
-        player.inventory.draw();
-        player.inventory.drawItems(game.input);
-        player.selectedSlot.drawSelection();
+        player.inventory.render(ctx);
+        player.inventory.renderItems(ctx, game.input);
+        player.selectedSlot.renderSelection(ctx);
         
-        player.hotbarText.draw();
-        player.pickupLabels.draw();
-        player.itemInfoDisplay.draw(game.input);
+        player.hotbarText.render(ctx);
+        player.pickupLabels.render(ctx);
+        player.itemInfoDisplay.render(ctx, game.input);
     }
     
     // Debug UI
-    if(DEBUG_MODE) drawDebugUI(game);
+    if(DEBUG_MODE) renderDebugUI(ctx, game);
 
     ctx.restore();
 }
@@ -79,7 +84,7 @@ export default function render(game, player) {
 const SKY_COLOR_1 = { r: 50, g: 160, b: 215 };
 const SKY_COLOR_2 = { r: 250, g: 170, b: 170 };
 
-function renderSky(camera) {
+function renderSky(ctx, camera) {
 
     let brightness = 1;
 
@@ -91,7 +96,7 @@ function renderSky(camera) {
     ctx.fillRectObj(camera);
 }
 
-function drawHoverEffect(game,input) {
+function renderHoverEffect(ctx, game,input) {
     let tile = game.world.tiles.get(input.mouse.gridX, input.mouse.gridY);
     let wall = game.world.walls.get(input.mouse.gridX, input.mouse.gridY);
 
@@ -117,7 +122,6 @@ function drawHoverEffect(game,input) {
 
     Object.assign(ctx, styling);
     
-    // Draw hover effect
     ctx.rectObj(obj);
     ctx.stroke();
     ctx.fill();

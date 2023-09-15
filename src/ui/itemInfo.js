@@ -1,4 +1,3 @@
-import { ctx } from "../game/global.js";
 import { getLang } from "../game/lang.js";
 import { sprites } from "../game/graphics/loadAssets.js";
 import { drawRounded, renderPath, rgb } from "../helper/canvashelper.js";
@@ -122,7 +121,9 @@ export default class ItemInfoDisplay {
         this.attributes.push(a);
     }
 
-    draw(input) {
+    //#region Render methods
+
+    render(ctx, input) {
         if(!this.displaying || !this.player.inventory.view || this.player.inventory.holdingStack) return;
 
         this.x = input.mouse.mapX;
@@ -179,26 +180,26 @@ export default class ItemInfoDisplay {
         // Draw attribute box
         if(this.attributeCount > 0) {
             Object.assign(ctx, { fillStyle: "rgb(25,25,40)", lineWidth: 2 });
-            renderPath(() => {
+            renderPath(ctx, () => {
                 ctx.rect(this.x + 1, this.y + attributePosition, this.boxWidth - 2, this.attributeCount * this.attributeLineHeight);
                 ctx.fill();
                 ctx.stroke();
             })
         }
 
-        this.drawItemName();
-        this.drawDescription(desc);
-        this.drawAttributes(attributePosition);
-        this.drawFooter(footerPosition);
+        this.#renderItemName(ctx);
+        this.#renderDescription(ctx, desc);
+        this.#renderAttributes(ctx, attributePosition);
+        this.#renderFooter(ctx, footerPosition);
     }
 
-    drawItemName() {
+    #renderItemName(ctx) {
         let clr = rgb(this.rarityColor);
         Object.assign(ctx, { font: "24px Font1", fillStyle: clr, strokeStyle: "black", lineWidth: 5 });
         ctx.drawOutlinedText(this.itemName, this.x + this.offset, this.y + 32);
     }
 
-    drawDescription(desc) {
+    #renderDescription(ctx, desc) {
         Object.assign(ctx, { font:"18px Font1", fillStyle:"white" });
         for(let i = 0; i < desc.length; i++) {
             let y = this.y + this.descPos + i * this.descLineHeight + 2;
@@ -206,7 +207,7 @@ export default class ItemInfoDisplay {
         }
     }
 
-    drawAttributes(position) {
+    #renderAttributes(ctx, position) {
         Object.assign(ctx, { font: "18px Font1", fillStyle: "rgb(220,220,220)" });
         for(let i = 0; i < this.attributes.length; i++) {
             let attr = this.attributes[i];
@@ -220,7 +221,7 @@ export default class ItemInfoDisplay {
         }
     }
 
-    drawFooter(position) {
+    #renderFooter(ctx, position) {
         // Rarity text
         Object.assign(ctx, { font: "18px Font1", fillStyle: "rgb(165,165,165)", textAlign: "left" });
         ctx.fillText(this.rarity, this.x + this.offset, this.y + position + 24);
@@ -235,4 +236,6 @@ export default class ItemInfoDisplay {
             }
         }
     }
+
+    //#endregion
 }

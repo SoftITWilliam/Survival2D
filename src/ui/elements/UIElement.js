@@ -221,6 +221,8 @@ export default class UIElement {
         return this.y + this.height / 2;
     }
 
+    //#region Update position
+
     update() {
         this.updatePositionX();
         this.updatePositionY();
@@ -394,6 +396,17 @@ export default class UIElement {
         }
     }
 
+    recursiveUpdate() {
+        this.update();
+        this.children.forEach(child => {
+            child.recursiveUpdate();
+        })
+    }
+
+    //#endregion
+
+    //#region Positioning methods
+
     /**
      * Return the adjacent 'sibling' element.
      */
@@ -480,67 +493,43 @@ export default class UIElement {
         }
     }
 
-    /**
-     * Wrapper for ctx.fill(). Only runs if element has a fill color.
-     */
-    fill() {
-        if(this.fillColor) ctx.fill();
-    }
+    //#endregion
 
-    /**
-     * Wrapper for ctx.stroke(). Only runs if element has a stroke color.
-     */
-    stroke() {
-        if(this.strokeColor) ctx.stroke();
-    }
-
-    /**
-     * Wrapper for ctx.fillText(). Only runs if element has a stroke color.
-     */
-    fillText(text, x, y) {
-        if(this.textFill) ctx.fillText(text, x, y);
-    }
-
-    /**
-     * Wrapper for ctx.strokeText(). Only runs if element has a stroke color.
-     */
-    strokeText(text, x, y) {
-        if(this.textStroke) ctx.strokeText(text, x, y);
-    }
+    //#region Rendering methods
 
     /**
      * Set the fill & stroke colors (if they are set)
      * Can be overwritten by other elements, to have different colors in different conditions (ex. when hovered)
      */
-    updateColor(fillColor, strokeColor) {
+    updateColor(ctx, fillColor, strokeColor) {
         if(fillColor) ctx.fillStyle = rgb(fillColor);
         if(strokeColor) ctx.strokeStyle = rgb(strokeColor);
     } 
 
-    render() {
-        this.renderBase();
-        this.renderText();
+    render(ctx) {
+        this.#renderBase(ctx);
+        this.#renderText(ctx);
     }
 
     /** 
      * Render the 'base' of the element, i.e. the basic shape.
     */
-    renderBase() {
+    #renderBase(ctx) {
         Object.assign(ctx, this.attributes);
-        this.updateColor(this.fillColor,this.strokeColor);
+        this.updateColor(ctx, this.fillColor,this.strokeColor);
 
         if(this.cornerRadius > 0) {
-            renderPath(() => {
+            renderPath(ctx, () => {
                 drawRounded(this.x, this.y, this.w, this.h, this.cornerRadius, ctx);
-                this.fill();
+                if(this.fillColor) ctx.fill();
                 ctx.restore();
-                this.stroke();
+                if(this.strokeColor) ctx.stroke();
             });
         } else {
-            renderPath(() => {
+            renderPath(ctx, () => {
                 ctx.rectObj(this);
-                this.fill();
-                this.stroke();
+                if(this.fillColor) ctx.fill();
+                if(this.strokeColor) ctx.stroke();
             })
         }
     }
@@ -548,9 +537,9 @@ export default class UIElement {
     /**
      * Render the text contained in the element
      */
-    renderText() {
+    #renderText(ctx) {
         Object.assign(ctx, this.textAttributes);
-        this.updateColor(this.textFill, this.textStroke);
+        this.updateColor(ctx, this.textFill, this.textStroke);
 
         let textX = this.x + this.textOffsetX;
         let textY = this.y + this.textOffsetY;
@@ -563,35 +552,18 @@ export default class UIElement {
             textY += this.h / 2;
         }
 
-        renderPath(() => {
-            this.strokeText(this.text, textX, textY);
-            this.fillText(this.text, textX, textY);
+        renderPath(ctx, () => {
+            if(this.textStroke) ctx.strokeText(this.text, textX, textY);
+            if(this.textFill) ctx.fillText(this.text, textX, textY);
         });
     }
 
-    renderChildren() {
+    recursiveRender(ctx) {
+        this.render(ctx);
         this.children.forEach(child => {
-            child.render();
+            child.recursiveRender(ctx);
         })
     }
 
-    updateChildren() {
-        this.children.forEach(child => {
-            child.update();
-        })
-    }
-
-    recursiveRender() {
-        this.render();
-        this.children.forEach(child => {
-            child.recursiveRender();
-        })
-    }
-
-    recursiveUpdate() {
-        this.update();
-        this.children.forEach(child => {
-            child.recursiveUpdate();
-        })
-    }
+    //#endregion
 }

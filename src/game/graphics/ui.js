@@ -1,8 +1,6 @@
-
-import { ctx } from '../global.js';
 import { renderPath } from '../../helper/canvashelper.js';
 
-export function drawStatBar(barType, max, current, color, y, player) {
+export function renderStatBar(ctx, barType, max, current, color, y, player) {
     let m = 8;
     let barLength = max * m;
     let barHeight = 32;

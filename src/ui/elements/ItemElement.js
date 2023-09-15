@@ -16,9 +16,9 @@ export class ItemElement extends ImageElement {
         this.item = item;
     }
 
-    render() {
+    render(ctx) {
         if(this.item) {
-            renderItem(this.item, this.x, this.y, this.w, this.h);
+            renderItem(ctx, this.item, this.x, this.y, this.w, this.h);
         }
     }
 }

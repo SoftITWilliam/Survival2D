@@ -1,5 +1,3 @@
-
-import { ctx } from "../../game/global.js";
 import { clamp } from "../../helper/helper.js";
 import UIElement from "./UIElement.js";
 
@@ -56,17 +54,17 @@ export class ScrollableElement extends UIElement {
     }
 
     // Override default function
-    render() {
+    render(ctx) {
         ctx.save();
         ctx.rectObj(this);
-        this.fill();
+        if(this.fillColor) ctx.fill();
         ctx.clip();
         this.children.forEach(child => {
-            child.recursiveRender();
+            child.recursiveRender(ctx);
         })
-        this.renderScrollbar();
+        this.renderScrollbar(ctx);
         ctx.restore();
-        this.stroke();
+        if(this.strokeColor) ctx.stroke();
     }
 
     refreshScrollbar() {
@@ -83,21 +81,24 @@ export class ScrollableElement extends UIElement {
         }
     }
 
-    renderScrollbar() {
+    renderScrollbar(ctx) {
 
         let thumbY = Math.floor((this.trackHeight - this.thumbHeight) * this.scrollDistance / (this.scrollableHeight - this.h));
 
-        // Draw Track
+        // Render Track
         ctx.fillStyle = "rgb(127,127,127)";
         ctx.fillRect(this.x + this.trackX, this.y, this.trackWidth, this.trackHeight + this.trackPadding * 2);
 
-        // Draw Thumb
+        // Render Thumb
         ctx.fillStyle = "rgb(63,63,63)";
         ctx.fillRect(this.x + this.trackX + this.trackPadding, this.y + this.trackPadding + thumbY, this.thumbWidth, this.thumbHeight);
     }
 
-    // Override default function
-    recursiveRender() {
-        this.render();
+    /**
+     * @override
+     * @param {CanvasRenderingContext2D} ctx 
+     */
+    recursiveRender(ctx) {
+        this.render(ctx);
     }
 }

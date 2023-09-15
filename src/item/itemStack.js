@@ -1,4 +1,3 @@
-import { ctx } from "../game/global.js";
 import { renderItem } from "../helper/canvashelper.js";
 import Item from "./item.js";
 
@@ -9,6 +8,8 @@ export class ItemStack {
         this.size = 32;
         this.amount = amount;
     }
+
+    //#region Property getters
 
     get item() {
         return this.#item;
@@ -21,6 +22,10 @@ export class ItemStack {
     get remainingSpace() {
         return this.limit - this.amount;
     }
+
+    //#endregion
+
+    //#region Methods
 
     isFull() {
         return this.amount >= this.limit;
@@ -89,19 +94,29 @@ export class ItemStack {
         }
     }
 
-    draw(x, y) {
-        renderItem(this.item, x, y, this.size, this.size);
+    //#endregion
+
+    //#region Rendering methods
+
+    render(ctx, x, y) {
+        renderItem(ctx, this.item, x, y, this.size, this.size);
+
+        if(this.limit !== 1) {
+            this.#renderAmount(ctx, x, y);
+        }
     }
 
-    drawAmount(x, y) {
-        if(this.limit == 1) return;
-        
+    #renderAmount(ctx, x, y) {
+
         Object.assign(ctx, {
             fillStyle: "white", font: "24px Font1", textAlign: "right",
         });
+
         ctx.shadow("black", 4, 0, 0);
-        ctx.fillText(this.amount, x + 56, y + 58);
+        ctx.fillText(this.amount, x + 40, y + 40);
         ctx.filter = false;
         ctx.shadow();
     }
+
+    //#endregion
 }

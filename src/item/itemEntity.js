@@ -1,5 +1,5 @@
 import { EntityComponent } from "../components/EntityComponent.js";
-import { ctx, GRAVITY } from "../game/global.js";
+import { GRAVITY } from "../game/global.js";
 import { renderItem } from "../helper/canvashelper.js";
 import { rng } from "../helper/helper.js";
 
@@ -70,7 +70,7 @@ export class ItemEntity {
 
     //#endregion
 
-    //#region Public Methods
+    //#region Methods
 
     update(m, world) {
         this.inLiquid = false;
@@ -83,23 +83,11 @@ export class ItemEntity {
         this._entity.move(m, this.vector);
     }
 
-    render(input) {
-        renderItem(this.item, this.x, this.y, this.width, this.height);
-
-        if(input.mouse.on(this)) {
-            this.#renderLabel(input);
-        }
-    }
-
     pickUp(player) {
         let remaining = player.inventory.addItem(this.item, this.amount);
         this.stack.amount = remaining;
         return (this.stack.amount == 0);
     }
-
-    //#endregion
-
-    //#region Private methods
 
     #bounce() {
         if(this.dy < 1) {
@@ -107,17 +95,6 @@ export class ItemEntity {
             this.vector = { dx: 0, dy: 0 };
         }
         this.dy = -this.dy * 0.5;
-    }
-
-    #renderLabel(input) {
-        // Todo this should probably be refactored out of this class
-        Object.assign(ctx, { font: "20px Font1", fillStyle: "rgba(0,0,0,0.5)", textAlign: "left" });
-        let offset = 20;
-        let txt = `${this.item.displayName} (${this.amount})`;
-        let boxWidth = ctx.measureText(txt).width + offset * 2;
-        ctx.fillRect(input.mouse.mapX, -input.mouse.mapY - 28, boxWidth, 28);
-        ctx.fillStyle = "white";
-        ctx.fillText(txt, input.mouse.mapX + offset, -input.mouse.mapY - 6);
     }
 
     //#endregion
@@ -128,6 +105,29 @@ export class ItemEntity {
         let dx = rng(-VECTOR_RANGE, VECTOR_RANGE) / 10;
         let dy = rng(-VECTOR_RANGE, 0) / 10;
         return { dx: dx, dy: dy }
+    }
+
+    //#endregion
+
+    //#region Rendering methods
+
+    render(ctx, input) {
+        renderItem(ctx, this.item, this.x, this.y, this.width, this.height);
+
+        if(input.mouse.on(this)) {
+            this.#renderLabel(ctx, input);
+        }
+    }
+
+    #renderLabel(ctx, input) {
+        // Todo this should probably be refactored out of this class
+        Object.assign(ctx, { font: "20px Font1", fillStyle: "rgba(0,0,0,0.5)", textAlign: "left" });
+        let padding = 20;
+        let txt = `${this.item.displayName} (${this.amount})`;
+        let boxWidth = ctx.measureText(txt).width + padding * 2;
+        ctx.fillRect(input.mouse.mapX, -input.mouse.mapY - 28, boxWidth, 28);
+        ctx.fillStyle = "white";
+        ctx.fillText(txt, input.mouse.mapX + padding, -input.mouse.mapY - 8);
     }
 
     //#endregion

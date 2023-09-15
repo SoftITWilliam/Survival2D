@@ -1,4 +1,4 @@
-import { TILE_SIZE, ctx } from "../game/global.js";
+import { TILE_SIZE } from "../game/global.js";
 import { clamp } from "./helper.js";
 
 /**
@@ -41,13 +41,16 @@ export function rgba(color, alpha) {
 
 /**
  * Take an item object, and render it on the canvas.
- * If the sprite is incorrect, a "missing texture" is drawn instead.
- * @param {Object} item 2
+ * If the sprite is incorrect, a "missing texture" is rendered instead.
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {Object} item
+ * @param {number} x
+ * @param {}
  */
-export function renderItem(item, x, y, w, h) {
+export function renderItem(ctx, item, x, y, w, h) {
 
     if(!item.sprite || item.sx === undefined || item.sy === undefined) {
-        console.log("Cannot draw item");
+        console.log("Cannot render item");
         return;
     }
 
@@ -61,7 +64,7 @@ export function renderItem(item, x, y, w, h) {
 /**
  * Wrapper for ctx.beginPath() & ctx.closePath();
  */
-export function renderPath(renderingFunction) {
+export function renderPath(ctx, renderingFunction) {
     ctx.beginPath();
     renderingFunction();
     ctx.closePath();
@@ -107,11 +110,12 @@ CanvasRenderingContext2D.prototype.shadow = function(color = 0, blur = 0, offset
 }
 
 const getRect = (object, padding) => {
-    let ox = (object.x || object.xPos || 0) - padding;
-    let oy = (object.y || object.yPos || 0) - padding;
-    let ow = (object.width || object. w || 0) + padding * 2;
-    let oh = (object.height || object.h || 0) + padding * 2;
-    return { x: ox, y: oy, w: ow, h: oh };
+    return {
+        x: (object.x || object.xPos || 0) - padding,
+        y: (object.y || object.yPos || 0) - padding,
+        w: (object.width || object. w || 0) + padding * 2,
+        h: (object.height || object.h || 0) + padding * 2,
+    }
 }
 
 CanvasRenderingContext2D.prototype.fillRectObj = function(object, padding = 0) {

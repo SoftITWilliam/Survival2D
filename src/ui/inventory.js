@@ -1,4 +1,4 @@
-import { canvas, ctx, INVENTORY_HEIGHT, INVENTORY_WIDTH } from "../game/global.js";
+import { canvas, INVENTORY_HEIGHT, INVENTORY_WIDTH } from "../game/global.js";
 import { renderPath } from "../helper/canvashelper.js";
 import { dropItemFromPlayer } from "../item/dropItem.js";
 import Item from "../item/item.js";
@@ -43,12 +43,17 @@ export class Inventory {
 
     get hotbarY() { return this.h - 1 }
 
-    get _cameraX() { return this.player.camera.x }
-    get _cameraY() { return this.player.camera.y }
+    get _cameraX() { return this._camera.x }
+    get _cameraY() { return this._camera.y }
+
+    get _camera() { return this.player.camera }
 
     getSlot(x, y) {
-        if(x < 0 || x >= this.w || y < 0 || y >= this.h) return null;
-        return this.grid[x][y];
+        if (typeof x == "number" && typeof y == "number" &&
+            x >= 0 && x < this.w && y >= 0 && y < this.h) {
+                return this.grid[x][y]
+            }
+        return null;
     }
 
     getSlotsAsArray() {
@@ -328,76 +333,74 @@ export class Inventory {
         return false;
     }
 
-    draw() {
-        this.drawHotbar();
+    //#region Rendering
 
-        // If inventory view is enabled, draw rest of the inventory.
-        if(!this.view) return;
-
-        // Draw inventory boxes
-        ctx.beginPath();
-
-        let lineWidth = 3;
+    render(ctx) {
 
         Object.assign(ctx, { 
-            strokeStyle: "rgba(0,0,0,0.5)", fillStyle: "rgba(0,0,0,0.25)", lineWidth: lineWidth
+            strokeStyle: "rgba(0,0,0,0.5)", fillStyle: "rgba(0,0,0,0.25)", lineWidth: 3
         });
 
-        let xPos = this._cameraX + this.leftEdge - 3;
-        let yPos = this._cameraY + this.topEdge - 27;
-        let invWidth = this.fullWidth + lineWidth * 2;
-        let invHeight = SLOT_SIZE * (this.hotbarY) + lineWidth * 2;
+        // todo refactor inventory positions to be dynamic
+        let bgX = this._camera.x + this.leftEdge;
+        let bgY = this._camera.y + this.topEdge + SLOT_SIZE * 3; 
+        this.#renderBackground(ctx, bgX, bgY, this.w, 1);
 
-        ctx.rect(xPos, yPos, invWidth, invHeight);
-        ctx.fill();
-        ctx.stroke();
-        ctx.closePath();
+        // If inventory view is enabled, render rest of the inventory.
+        if(this.view) {
+            // Render inventory boxes
+            bgY = this._cameraY + this.topEdge - 24;
+            this.#renderBackground(ctx, bgX, bgY, this.w, this.hotbarY);
+        }
 
-        // Draw slots
-        this.getSlotsAsArray().forEach(slot => {
-            if(slot.invY != this.hotbarY) slot.draw();
-        })
+        this.#renderSlots(ctx);
     }
 
-    drawHotbar() {
+    #renderBackground(ctx, xPos, yPos, slotsPerRow, rowCount) {
+        
+        const padding = 3;
 
         ctx.beginPath();
-        Object.assign(ctx, { strokeStyle: "rgba(0,0,0,0.5)", fillStyle: "rgba(0,0,0,0.25)", lineWidth: 3 });
+
+        let width = slotsPerRow * SLOT_SIZE + (padding * 2);
+        let height = SLOT_SIZE * rowCount + (padding * 2);
+        //let x = this._camera.centerX - (width / 2);
+
         ctx.rect(
-            this._cameraX + this.leftEdge - 3, 
-            this._cameraY + this.topEdge - 3 + SLOT_SIZE * 3, 
-            this.fullWidth + 6, 
-            SLOT_SIZE + 6
+            xPos - padding, yPos - padding, width, height
         );
         ctx.fill();
         ctx.stroke();
-
-        this.getRow(this.hotbarY).forEach(slot => slot.draw());
+        ctx.closePath();
     }
 
-    drawSelectedStack(input) {
+    #renderSlots(ctx) {
+        let visibleSlots = this.view ? this.getSlotsAsArray() : this.getRow(this.hotbarY);
+        visibleSlots.forEach(slot => {
+            slot.render(ctx);
+        })
+    }
+
+    #renderHoldingStack(ctx, input) {
         let mx = input.mouse.mapX;
         let my = -input.mouse.mapY;
-        this.holdingStack.draw(mx, my);
-        this.holdingStack.drawAmount(mx - 16, my - 16);
+        this.holdingStack.render(ctx, mx, my);
     }
 
-    drawItems(input) {
+    renderItems(ctx, input) {
 
-        // Draw items in hotbar
-        this.getRow(this.hotbarY).forEach(slot => slot.drawItem());
-
-        if(!this.view) return;
-        
-        // Draw items in rest inventory
-        this.getSlotsAsArray().forEach(slot => {
-            if(slot.invY != this.hotbarY) slot.drawItem();
-        })
+        let visibleSlots = this.view ? this.getSlotsAsArray() : this.getRow(this.hotbarY);
+        visibleSlots.forEach(slot => slot.renderItem(ctx));
 
         if(this.holdingStack) {
-            this.drawSelectedStack(input);
+            this.#renderHoldingStack(ctx, input);
         }
+
+        let hovered = this.getSlot(this.hoveredSlot.x, this.hoveredSlot.y);
+        hovered?.renderHoverEffect(ctx);
     }
+
+    //#endregion
 }
 
 class InventorySlot {
@@ -434,8 +437,9 @@ class InventorySlot {
         );
     }
 
-    // Draw slot
-    draw() {
+    //#region Rendering methods
+
+    render(ctx) {
         Object.assign(ctx, { 
             strokeStyle: "rgb(200,200,200)", lineWidth:3 
         });
@@ -444,34 +448,27 @@ class InventorySlot {
         ctx.rect(this.xPos, this.yPos, this.w, this.h);
         ctx.stroke();
         ctx.closePath();
-
-        this.drawHoverEffect();
     }
 
-    // Draw item in slot
-    drawItem() {
-        if(!this.stack) return;
-
-        // Draw item
-        this.stack.draw(this.xPos + 16, this.yPos + 16);
-        this.stack.drawAmount(this.xPos, this.yPos);
+    renderItem(ctx) {
+        this.stack?.render(ctx, this.xPos + 16, this.yPos + 16);
     }
-    // Draw hover overlay
-    drawHoverEffect() {
-        if(!this.isHovered() || !this.player.inventory.view) return;
 
+    renderHoverEffect(ctx) {
         ctx.fillStyle = "rgba(255,255,255,0.25)";
         ctx.fillRect(this.xPos, this.yPos, this.w, this.h)
     }
 
-    drawSelection() {
+    renderSelection(ctx) {
         Object.assign(ctx, { 
             strokeStyle: "white", lineWidth: 5
         });
 
-        renderPath(() => {
+        renderPath(ctx, () => {
             ctx.rect(this.xPos, this.yPos, this.w, this.h);
             ctx.stroke();
         });
     }
+
+    //#endregion
 }

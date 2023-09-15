@@ -11,8 +11,6 @@ export const ctx = canvas.getContext('2d');
 export const TILE_SIZE = 48;
 export const ITEM_SIZE = 16;
 
-export const WORLD_WIDTH = 1023;
-export const WORLD_HEIGHT = 127;
 export const BASE_TERRAIN_HEIGHT = 32;
 
 export const INVENTORY_WIDTH = 6;
@@ -28,5 +26,5 @@ export const DRAWDIST = {
 }
 
 // Debugging and testing variables
-export const DRAW_LIGHTING = true;
+export const RENDER_LIGHTING = true;
 export const DEBUG_MODE = true;

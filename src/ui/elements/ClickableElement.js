@@ -1,4 +1,3 @@
-import { ctx } from "../../game/global.js";
 import { rgb, rgbm } from "../../helper/canvashelper.js";
 import UIElement from "./UIElement.js";
 
@@ -66,7 +65,7 @@ export class ClickableElement extends UIElement {
     /**
      *  Overwrite of default function, to have different colors when hovered.
      */ 
-    updateColor(fillColor, strokeColor) {
+    updateColor(ctx, fillColor, strokeColor) {
         if(fillColor) {
             ctx.fillStyle = 
                 !this.clickable ? rgbm(fillColor, 0.7) :

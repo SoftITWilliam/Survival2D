@@ -48,9 +48,9 @@ export default class ItemEntityManager {
     /**
      * Render all visible item entities
      */
-    render(camera) {
+    render(ctx, camera, input) {
         this.getVisible(camera).forEach(entity => {
-            entity.render(this.game.input)
+            entity.render(ctx, input)
         });
     }
 }

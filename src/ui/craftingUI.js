@@ -259,7 +259,6 @@ export default class CraftingInterface {
 
     update() {
         if(!this.menu.isOpen) return;
-        console.log("craftingUI update");
 
         this.CPrimary.recursiveUpdate();
 
@@ -275,17 +274,16 @@ export default class CraftingInterface {
         this.CCraftingAmount.setText(amount);
     }
 
-    renderBase(label) {
-        this.CPrimary.render();
-        this.CSectionLeft.recursiveRender();
-        this.CSectionRight.render();
+    renderBase(ctx, label) {
+        this.CPrimary.render(ctx);
+        this.CSectionLeft.recursiveRender(ctx);
+        this.CSectionRight.render(ctx);
         this.CTopLabel.setText(label);
-        this.CTopLabel.render();
+        this.CTopLabel.render(ctx);
     }
 
     loadCraftables(recipes, game) {
 
-        console.log(recipes);
         this.craftables = [];
 
         for(let i = 0; i < recipes.length; i++) {
@@ -326,12 +324,12 @@ export default class CraftingInterface {
         this.CCraftableList.refreshScrollbar();
     }
 
-    renderRecipeInfo() {
-        this.COutputSprite.render();
-        this.COutputName.render();
-        this.COutputAmount.render();
-        this.CItemCostList.recursiveRender();
-        this.CLowerContainer.recursiveRender();
+    renderRecipeInfo(ctx) {
+        this.COutputSprite.render(ctx);
+        this.COutputName.render(ctx);
+        this.COutputAmount.render(ctx);
+        this.CItemCostList.recursiveRender(ctx);
+        this.CLowerContainer.recursiveRender(ctx);
     }
 
     refreshInputItems(input) {
@@ -364,7 +362,7 @@ export default class CraftingInterface {
     /** 
      * Draw "No recipe selected" text in the middle of the recipe section, if no recipe is selected
     */
-    renderNoRecipe() {
-        this.CNoRecipe.render();
+    renderNoRecipe(ctx) {
+        this.CNoRecipe.render(ctx);
     }
 }

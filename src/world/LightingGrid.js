@@ -1,5 +1,5 @@
 
-import { ctx, DRAWDIST, TILE_SIZE } from "../game/global.js";
+import { DRAWDIST, TILE_SIZE } from "../game/global.js";
 import { clamp } from "../helper/helper.js";
 
 export default class LightingGrid {
@@ -126,7 +126,7 @@ export default class LightingGrid {
         }     
     }
 
-    draw(gx, gy, width, height) {
+    render(ctx, gx, gy, width, height) {
         for(let x = gx; x < gx + width; x++) {
             for(let y = gy; y < gy + height; y++) {
 
