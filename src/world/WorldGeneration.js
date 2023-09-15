@@ -25,12 +25,6 @@ export class WorldGeneration {
     constructor(world) {
         this.world = world;
 
-        // empty grid
-        for(let x = 0; x < this.world.width; x++) {
-            this.world.tileGrid.push([]);
-            this.world.wallGrid.push([]);
-        }
-
         this.heightmap = null;
         this.terrainNoise = null;
         this.dirtMap = null;
@@ -49,11 +43,13 @@ export class WorldGeneration {
         // Place tiles based on noise
         for(let x = 0; x < this.world.width; x++) {
             for(let y = 0; y < this.world.height; y++) {
-                this.world.tileGrid[x].push(this.getTerrainTile(x, y, this.terrainNoise.get(x, y)));
-                this.world.wallGrid[x].push(this.getTerrainWall(x, y));
+                let tile = this.getTerrainTile(x, y, this.terrainNoise.get(x, y));
+                let wall = this.getTerrainWall(x, y);
+                this.world.tiles.set(x, y, tile);
+                this.world.walls.set(x, y, wall);
             }
         }
-
+        
         this.generateVegetation();
     }
 
@@ -79,6 +75,7 @@ export class WorldGeneration {
         }
 
         let tile = new Tile(this.world, x, y, model);
+        console.log(tile);
 
         return model ? tile : null;
     }

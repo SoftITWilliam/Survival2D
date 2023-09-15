@@ -4,6 +4,7 @@ import { WorldGeneration } from './WorldGeneration.js';
 import { Tile } from '../tile/Tile.js';
 import { TILE_SIZE } from '../game/global.js';
 import { TileModel } from '../tile/tileModel.js';
+import { Grid } from '../class/Grid.js';
 
 export class World {
     constructor(game, width, height) {
@@ -11,17 +12,12 @@ export class World {
         this.width = width; // World width in tiles
         this.height = height; // World height in tiles
 
-        this.tileGrid = [];
-        this.wallGrid = [];
+        this.tiles = new Grid(width, height);
+        this.walls = new Grid(width, height);
 
         this.lighting = new LightingGrid(this);
 
         this.worldGen = new WorldGeneration(this);
-
-        for(let x = 0; x < this.width; x++) {
-            this.tileGrid.push([]);
-            this.wallGrid.push([]);
-        }
 
         this.structures = [];
 
@@ -35,41 +31,29 @@ export class World {
 
     // Return the tile at the given position
     getTile(x, y) {
-        try {
-            return this.outOfBounds(x, y) ? null : this.tileGrid[x][y];
-        } catch {
-            return null;
-        }
+        return this.tiles.get(x, y);
     }
 
     // Return the wall at the given position
     getWall(x, y) {
-        try {
-            return this.outOfBounds(x, y) ? null : this.wallGrid[x][y];
-        } catch {
-            return null;
-        }
+        return this.walls.get(x, y);
     }
 
     // Clear the given tile
     clearTile(x, y) {
-        if(!this.outOfBounds(x, y)) {
-            this.tileGrid[x][y] = null;
-        }
+        this.tiles.clear(x, y);
     }
 
     // Clear the given wall
     clearWall(x, y) {
-        if(!this.outOfBounds(x, y)) {
-            this.wallGrid[x][y] = null;
-        }
+        this.walls.clear(x, y);
     }
     
     getTilesInRange(gridX, gridY, range) {
         let tileArray = [];
         for(let x = gridX - range; x <= gridX + range; x++) {
             for(let y = gridY - range; y <= gridY + range; y++) {
-                let tile = this.getTile(x, y);
+                let tile = this.tiles.get(x, y);
                 if(tile) tileArray.push(tile);
             }
         }
@@ -77,31 +61,25 @@ export class World {
     }
 
     setTileIfEmpty(x, y, tileModel) {
-        if(this.outOfBounds(x, y) || this.getTile(x, y)) return;
-
-        if(!tileModel instanceof TileModel) return;
-
-        const tile = new Tile(this, x, y, tileModel);
-        this.tileGrid[x][y] = tile;
+        if(tileModel instanceof TileModel) {
+            const tile = new Tile(this, x, y, tileModel);
+            this.tiles.set(x, y, tile);
+        }
     }
 
     setTile(x, y, tileModel) {
-        if(this.outOfBounds(x, y)) return;
-
-        if(!tileModel instanceof TileModel) return;
-        
-        const tile = new Tile(this, x, y, tileModel);
-        this.tileGrid[x][y] = tile;
+        if(tileModel instanceof TileModel) {
+            const tile = new Tile(this, x, y, tileModel);
+            this.tiles.set(x, y, tile);
+        }
     }
 
     // Set the wall at the given position to the given wall
     setWall(x, y, wallModel) {
-        if(this.outOfBounds(x, y)) return;
-
-        if(!wallModel instanceof TileModel) return;
-
-        const wall = new Tile(this, x, y, wallModel);
-        this.wallGrid[x][y] = wall;
+        if(wallModel instanceof TileModel) {
+            const wall = new Tile(this, x, y, wallModel);
+            this.walls.set(x, y, wall);
+        }
     }
 
     // If the given coordinates are outside of the map (ex. an X coordinate of -1), return true
@@ -122,11 +100,8 @@ export class World {
     }
 
     tick() {
-        for(let x = 0; x < this.width; x++) {
-            for(let y = 0; y < this.height; y++) {
-                this.getTile(x, y)?.tickUpdate();
-            }
-        }
+        // If performance becomes an issue, this should be optimized using world chunks
+        this.tiles.asArray().forEach(tile => tile?.tickUpdate());
     }
 
     generate() {
@@ -159,14 +134,12 @@ export class World {
     }
 
     updateTile(gridX, gridY) {
-        if(this.outOfBounds(gridX, gridY)) return;
-
         try {
-            let tile = this.getTile(gridX, gridY);
+            let tile = this.tiles.get(gridX, gridY);
             tile?.getSpritePosition();
             tile?.tileUpdate();
 
-            let wall = this.getWall(gridX, gridY);
+            let wall = this.walls.get(gridX, gridY);
             wall?.getSpritePosition();
             wall?.tileUpdate();
         }
