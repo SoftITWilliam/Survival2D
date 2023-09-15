@@ -1,4 +1,4 @@
-import { overlap } from "../game/collision.js";
+import { overlap } from "../helper/collisionhelper.js";
 import { calculateDistance } from "../helper/helper.js";
 import { ItemStack } from "../item/itemStack.js";
 import { Player } from "../player/player.js";

@@ -1,4 +1,4 @@
-import { overlap, surfaceCollision } from "../game/collision.js";
+import { surfaceCollision } from "../helper/collisionhelper.js";
 import { TILE_SIZE } from "../game/global.js";
 import { dropItemFromTile } from "../item/dropItem.js";
 import { Tile } from "../tile/Tile.js";

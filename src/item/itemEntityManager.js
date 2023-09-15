@@ -1,4 +1,4 @@
-import { overlap } from "../game/collision.js";
+import { overlap } from "../helper/collisionhelper.js";
 import PlayerCamera from "../player/camera.js";
 import { ItemEntity } from "./itemEntity.js";
 import { ItemStack } from "./itemStack.js";
