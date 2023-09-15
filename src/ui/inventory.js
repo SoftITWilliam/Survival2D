@@ -1,5 +1,6 @@
 import { canvas, ctx, INVENTORY_HEIGHT, INVENTORY_WIDTH } from "../game/global.js";
 import { renderPath } from "../helper/canvashelper.js";
+import { dropItemFromPlayer } from "../item/dropItem.js";
 import Item from "../item/item.js";
 import { ItemStack } from "../item/itemStack.js";
 
@@ -145,7 +146,10 @@ export class Inventory {
 
         // If player is holding an item and clicks outside the inventory, drop the item.
         if(slot.x === null || slot.y === null) {
-            console.log("TODO drop item");
+            if(this.holdingStack) {
+                dropItemFromPlayer(this.player, this.holdingStack.item, this.holdingStack.amount, this.player.game);
+                this.holdingStack = null;
+            }
             return;
         }
 
