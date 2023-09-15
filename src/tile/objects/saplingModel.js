@@ -1,4 +1,4 @@
-import { sprites } from "../../game/graphics/loadAssets.js";
+import { sprites } from "../../game/graphics/assets.js";
 import { TileDrop } from "../tileDrop.js";
 import SaplingBase from "../base/SaplingBase.js";
 import { ItemRegistry as Items } from "../../item/itemRegistry.js";

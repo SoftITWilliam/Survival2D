@@ -1,5 +1,5 @@
 import { ToolModule } from "../../../components/ToolModule.js";
-import { sprites } from "../../../game/graphics/loadAssets.js";
+import { sprites } from "../../../game/graphics/assets.js";
 import Item from "../../item.js";
 
 export class ToolBase extends Item {

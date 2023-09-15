@@ -1,6 +1,6 @@
 import { TILE_SIZE } from "../game/global.js";
 import { SpriteRenderer } from "../game/graphics/SpriteRenderer.js";
-import { sprites } from "../game/graphics/loadAssets.js";
+import { sprites } from "../game/graphics/assets.js";
 import { dropItemFromTile } from "../item/dropItem.js";
 import Item from "../item/item.js";
 import { Tile } from "./Tile.js";

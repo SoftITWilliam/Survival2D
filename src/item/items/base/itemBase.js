@@ -1,4 +1,4 @@
-import { sprites } from "../../../game/graphics/loadAssets.js";
+import { sprites } from "../../../game/graphics/assets.js";
 import Item from "../../../item/item.js";
 
 export class ItemBase extends Item {

@@ -1,5 +1,5 @@
 import { TILE_SIZE } from "../game/global.js";
-import { sprites } from "../game/graphics/loadAssets.js";
+import { sprites } from "../game/graphics/assets.js";
 import { calculateDistance } from "../helper/helper.js";
 
 export default class PlacementPreview {

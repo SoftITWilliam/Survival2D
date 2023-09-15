@@ -1,5 +1,5 @@
 import { getDescription, getDisplayName, getLang } from "../game/lang.js";
-import { sprites } from "../game/graphics/loadAssets.js";
+import { sprites } from "../game/graphics/assets.js";
 import { RARITY_COLORS } from "./rarities.js";
 
 export default class Item {
