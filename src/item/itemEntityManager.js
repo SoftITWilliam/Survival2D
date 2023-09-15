@@ -1,4 +1,5 @@
 import { overlap } from "../game/collision.js";
+import PlayerCamera from "../player/camera.js";
 import { ItemEntity } from "./itemEntity.js";
 import { ItemStack } from "./itemStack.js";
 
@@ -35,9 +36,21 @@ export default class ItemEntityManager {
         }
     }
 
-    drawAll() {
-        this.entities.forEach(entity => {
-            entity.draw(this.game.input)
+    /**
+     * Get all item entities on screen
+     * @param {PlayerCamera} camera Player camera
+     * @returns {ItemEntity[]}
+     */
+    getVisible(camera) {
+        return this.entities.filter(entity => overlap(camera, entity));
+    }
+
+    /**
+     * Render all visible item entities
+     */
+    render(camera) {
+        this.getVisible(camera).forEach(entity => {
+            entity.render(this.game.input)
         });
     }
 }

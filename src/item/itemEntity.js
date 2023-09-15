@@ -83,11 +83,11 @@ export class ItemEntity {
         this._entity.move(m, this.vector);
     }
 
-    draw(input) {
+    render(input) {
         renderItem(this.item, this.x, this.y, this.width, this.height);
 
         if(input.mouse.on(this)) {
-            this.#drawLabel(input);
+            this.#renderLabel(input);
         }
     }
 
@@ -109,7 +109,8 @@ export class ItemEntity {
         this.dy = -this.dy * 0.5;
     }
 
-    #drawLabel(input) {
+    #renderLabel(input) {
+        // Todo this should probably be refactored out of this class
         Object.assign(ctx, { font: "20px Font1", fillStyle: "rgba(0,0,0,0.5)", textAlign: "left" });
         let offset = 20;
         let txt = `${this.item.displayName} (${this.amount})`;

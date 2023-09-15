@@ -1,5 +1,5 @@
 import { drawStatBar } from './ui.js';
-import { ctx, canvas, DRAWDIST, DRAW_LIGHTING, DEBUG_MODE, TILE_SIZE } from '../global.js';
+import { ctx, canvas, DRAW_LIGHTING, DEBUG_MODE, TILE_SIZE } from '../global.js';
 import { drawDebugUI } from './debug.js';
 import { calculateDistance, clamp } from '../../helper/helper.js';
 import { rgbm } from '../../helper/canvashelper.js';
@@ -17,9 +17,9 @@ export default function render(game, player) {
 
     /* === Render walls and tiles === */
 
+    
     let vW = Math.ceil(canvas.width / TILE_SIZE / 2 + 1) * 2;
     let vH = Math.ceil(canvas.height / TILE_SIZE / 2 + 1) * 2;
-
     let vX = clamp(player.gridX - vW / 2, 0, game.world.width - vW);
     let vY = clamp(player.gridY - vH / 2, 0, game.world.height - vH);
 
@@ -42,7 +42,7 @@ export default function render(game, player) {
     player.drawPlacementPreview(game.input);
 
     // Item entities
-    game.itemEntities.drawAll();
+    game.itemEntities.render(camera);
 
     // Lighting
     if(DRAW_LIGHTING) {  
