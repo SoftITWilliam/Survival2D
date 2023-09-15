@@ -95,3 +95,14 @@ export function validIndex(index, array) {
             Array.isArray(array) &&
             index >= 0 && index < array.length);
 }
+
+/**
+ * Returns true if all values in args are valid numbers
+ * @param  {...any} args 
+ * @returns 
+ */
+export function validNumbers(...args) {
+    return Array.from(args)
+        .filter(arg => typeof arg != "number" || arg == NaN)
+        .length === 0
+}

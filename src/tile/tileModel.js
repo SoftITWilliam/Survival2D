@@ -214,6 +214,6 @@ export class TileModel {
 
     render(ctx, tile, sheetX, sheetY) {
         this._spriteRenderer.setSheetPosition(sheetX, sheetY);
-        this._spriteRenderer.renderFromObject(ctx, tile);
+        this._spriteRenderer.render(ctx, tile);
     }
 }
