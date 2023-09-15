@@ -9,9 +9,9 @@ export default class LightingGrid {
         this.grid = [];
 
         // Create grid
-        for(let x=0;x<world.width;x++) {
+        for(let x = 0; x < world.width; x++) {
             let row = [];
-            for(let y=0;y<world.height;y++) {
+            for(let y = 0;y < world.height; y++) {
                 row.push(null)
             }
             this.grid.push(row);
@@ -88,14 +88,14 @@ export default class LightingGrid {
 
         if(level == 16) {
             this.grid[x][y] = {level:15}
-        } else if(this.world.getTile(x,y)) {
+        } else if(this.world.tiles.get(x, y)) {
             this.grid[x][y] = {level: clamp(level - 3, 0, 15)}
         } else {
             this.grid[x][y] = {level: clamp(level - 1, 0, 15)}
         }
     }
 
-    setLightSources(x1,y1,x2,y2) {
+    setLightSources(x1, y1, x2, y2) {
         // Set light sources
         for(let x = x1; x < x2; x++) {
             for(let y = y1; y < y2; y++) {
@@ -110,8 +110,8 @@ export default class LightingGrid {
     // (Currently, the only light source in the game is any coordinate where there is no tile or wall)
     checkLightSource(x, y) {
         return (
-            (!this.world.getTile(x, y) || this.world.getTile(x, y).transparent) && 
-            (!this.world.getWall(x, y) || this.world.getWall(x, y).transparent)
+            (!this.world.tiles.get(x, y) || this.world.tiles.get(x, y).transparent) && 
+            (!this.world.walls.get(x, y) || this.world.walls.get(x, y).transparent)
         );
     }
 
@@ -126,9 +126,9 @@ export default class LightingGrid {
         }     
     }
 
-    draw(gX, gY) {
-        for(let x = gX - DRAWDIST.x ; x < gX + DRAWDIST.x + 1 ; x++) {
-            for(let y = gY - DRAWDIST.y ; y < gY + DRAWDIST.y + 1 ; y++) {
+    draw(gx, gy, width, height) {
+        for(let x = gx; x < gx + width; x++) {
+            for(let y = gy; y < gy + height; y++) {
 
                 // Cannot draw outside map
                 if(this.world.outOfBounds(x, y)) continue;

@@ -1,8 +1,9 @@
 import { drawStatBar } from './ui.js';
-import { ctx, canvas, DRAWDIST, DRAW_LIGHTING, DEBUG_MODE } from '../global.js';
+import { ctx, canvas, DRAWDIST, DRAW_LIGHTING, DEBUG_MODE, TILE_SIZE } from '../global.js';
 import { drawDebugUI } from './debug.js';
 import { calculateDistance, clamp } from '../../helper/helper.js';
 import { rgbm } from '../../helper/canvashelper.js';
+import { Tile } from '../../tile/Tile.js';
 
 export default function render(game, player) {
 
@@ -16,25 +17,26 @@ export default function render(game, player) {
 
     /* === Render walls and tiles === */
 
-    let gX = clamp(player.gridX, DRAWDIST.x, game.world.width - DRAWDIST.x);
-    let gY = clamp(player.gridY, DRAWDIST.y, game.world.height - DRAWDIST.y);
+    let vW = Math.ceil(canvas.width / TILE_SIZE / 2 + 1) * 2;
+    let vH = Math.ceil(canvas.height / TILE_SIZE / 2 + 1) * 2;
 
-    // Wall layer
-    for(let x = gX - DRAWDIST.x ; x < gX + DRAWDIST.x + 1 ; x++) {
-        for(let y = gY - DRAWDIST.y ; y < gY + DRAWDIST.y + 1 ; y++) {
-            game.world.getWall(x, y)?.render();
-        }
-    }
+    let vX = clamp(player.gridX - vW / 2, 0, game.world.width - vW);
+    let vY = clamp(player.gridY - vH / 2, 0, game.world.height - vH);
 
+    const visibleWalls = game.world.walls.asArray(vX, vY, vW, vH, true);
+    const visibleTiles = game.world.tiles.asArray(vX, vY, vW, vH, true);
+
+    // Walls
+    visibleWalls.forEach(wall => wall.render());
+
+    // Non-solid tiles
+    visibleTiles.filter(tile => tile.type != Tile.types.SOLID).forEach(tile => tile.render());
+    
     // Player
     player.draw();
 
-    // Tile layer
-    for(let x = gX - DRAWDIST.x ; x < gX + DRAWDIST.x + 1 ; x++) {
-        for(let y = gY - DRAWDIST.y ; y < gY + DRAWDIST.y + 1 ; y++) {
-            game.world.getTile(x, y)?.render();
-        }
-    }
+    // Solid Tiles
+    visibleTiles.filter(tile => tile.type == Tile.types.SOLID).forEach(tile => tile.render());
 
     player.miningAction?.drawProgress();
     player.drawPlacementPreview(game.input);
@@ -44,7 +46,7 @@ export default function render(game, player) {
 
     // Lighting
     if(DRAW_LIGHTING) {  
-        game.world.lighting.draw(gX, gY);
+        game.world.lighting.draw(vX, vY, vW, vH);
     }
 
     // Tile hover effect
@@ -52,7 +54,7 @@ export default function render(game, player) {
 
     /* === Render UI === */
 
-    drawStatBar("health", player.health.max, player.health.current, "rgb(220,60,50)", 16, player);
+    //drawStatBar("health", player.health.max, player.health.current, "rgb(220,60,50)", 16, player);
     //drawStatBar("hunger",player.hunger.max,player.hunger.current,"rgb(180,120,100)",72);
     //drawStatBar("thirst",player.thirst.max,player.thirst.current,"rgb(80,160,220)",128);
 
