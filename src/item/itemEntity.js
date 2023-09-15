@@ -11,14 +11,26 @@ export class ItemEntity {
 
         let size = stack.item.entitySize;
         this._entity = new EntityComponent(x - size / 2, y - size / 2, size);
+
+        this._entity.topCollision = (tile) => {
+            this.y = tile.y - this.height;
+
+            if(this.dy > 0) 
+                this.#bounce();
+            if(this.dy == 0) 
+                this.grounded = true;
+        }
     }
 
-    get item() { return this.stack.item }
+    //#region Property getters/setters
 
+    get item() { return this.stack.item }
     get amount() { return this.stack.amount }
     set amount(val) { if(typeof val == "number") this.stack.amount = val }
 
-    /* === EntityComponent wrappers === */
+    //#endregion
+
+    //#region EntityComponent wrappers
 
     get x() { return this._entity.x }
     set x(value) { this._entity.x = value }
@@ -56,20 +68,40 @@ export class ItemEntity {
     get vector() { return this._entity.vector }
     set vector(value) { this._entity.vector = value }
 
-    /* === Methods === */
+    //#endregion
+
+    //#region Public Methods
 
     update(m, world) {
         this.inLiquid = false;
         this.grounded = false;
 
         this.dy += (GRAVITY * 0.6 * m);
-        this.dx *= 1 - (0.1 * m);
+        this.dx *= 1 - (0.05 * m);
 
         this._entity.updateCollision(world);
         this._entity.move(m, this.vector);
     }
 
-    bounce() {
+    draw(input) {
+        renderItem(this.item, this.x, this.y, this.width, this.height);
+
+        if(input.mouse.on(this)) {
+            this.#drawLabel(input);
+        }
+    }
+
+    pickUp(player) {
+        let remaining = player.inventory.addItem(this.item, this.amount);
+        this.stack.amount = remaining;
+        return (this.stack.amount == 0);
+    }
+
+    //#endregion
+
+    //#region Private methods
+
+    #bounce() {
         if(this.dy < 1) {
             this.grounded = true;
             this.vector = { dx: 0, dy: 0 };
@@ -77,21 +109,7 @@ export class ItemEntity {
         this.dy = -this.dy * 0.5;
     }
 
-    draw(input) {
-        renderItem(this.item, this.x, this.y, this.width, this.height);
-
-        if(input.mouse.on(this)) {
-            this.drawLabel(input);
-        }
-    }
-
-    // Override
-    onTopCollision(tile) {
-        this.y = tile.y - this.h;
-        this.bounce();
-    }
-
-    drawLabel(input) {
+    #drawLabel(input) {
         Object.assign(ctx, { font: "20px Font1", fillStyle: "rgba(0,0,0,0.5)", textAlign: "left" });
         let offset = 20;
         let txt = `${this.item.displayName} (${this.amount})`;
@@ -101,15 +119,15 @@ export class ItemEntity {
         ctx.fillText(txt, input.mouse.mapX + offset, -input.mouse.mapY - 6);
     }
 
-    pickUp(player) {
-        let remaining = player.inventory.addItem(this.item, this.amount);
-        this.stack.amount = remaining;
-        return (this.stack.amount == 0);
-    }
+    //#endregion
+
+    //#region Static methods
 
     static generateVector() {
         let dx = rng(-VECTOR_RANGE, VECTOR_RANGE) / 10;
         let dy = rng(-VECTOR_RANGE, 0) / 10;
         return { dx: dx, dy: dy }
     }
+
+    //#endregion
 }
