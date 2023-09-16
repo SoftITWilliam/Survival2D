@@ -19,6 +19,8 @@ export class SpriteRenderer {
         this.#width = 0;
         this.#height = 0;
 
+        this.scaleToFitSize = false;
+
         this.setSource(source, true);
     }
 
@@ -166,10 +168,22 @@ export class SpriteRenderer {
                 this.width, this.height);
         }
 
+        var renderScaled = (x, y, w, h) => {
+            ctx.drawImage(this.source, 
+                this.sx, this.sy, 
+                this.width, this.height,
+                x, y, w, h);
+        }
+
         var renderWithSize = (x, y, w, h) => {
-            let widthDiff = this.width - w;
-            let heightDiff = this.height - h;
-            renderDefault(x - (widthDiff / 2), y - (heightDiff / 2));
+            if(this.scaleToFitSize) {
+                renderScaled(x, y, w, h);
+            } 
+            else {
+                let widthDiff = this.width - w;
+                let heightDiff = this.height - h;
+                renderDefault(x - (widthDiff / 2), y - (heightDiff / 2));
+            }
         }
 
         var renderFromObject = (obj) => {

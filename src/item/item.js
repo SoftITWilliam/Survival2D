@@ -1,24 +1,17 @@
 import { getDescription, getDisplayName, getLang } from "../game/lang.js";
 import { isMissingTexture, sprites } from "../game/graphics/assets.js";
 import { RARITY_COLORS } from "./rarities.js";
-import { TILE_SIZE } from "../game/global.js";
 import { World } from "../world/World.js";
 import { TileModel } from "../tile/tileModel.js";
-import { isPositiveInteger } from "../helper/helper.js";
+import { isPositiveInteger, validNumbers } from "../helper/helper.js";
 import { SpriteRenderer } from "../game/graphics/SpriteRenderer.js";
+import { TILE_SIZE } from "../game/global.js";
 
 export default class Item {
     constructor(registryName, rarity) {
-        this.setSprite(null);
-
         this._type = Item.types.DEFAULT;
         this.stackSize = 99;
-        this.sx = 0;
-        this.sy = 0;
 
-        this.sw = TILE_SIZE;
-        this.sh = TILE_SIZE;
-        
         this._registryname;
         this._rarity;
         this._rarityText;
@@ -26,8 +19,12 @@ export default class Item {
         this._itemRenderer = new SpriteRenderer();
         this._previewRenderer = new SpriteRenderer();
 
+        this._itemRenderer.scaleToFitSize = true;
+        this._itemRenderer.setSpriteSize(TILE_SIZE);
+
         this.registryName = registryName;
         this.rarity = rarity;
+        this.setSprite(null);
     }
 
     //#region Enums
@@ -122,6 +119,8 @@ export default class Item {
             this.sprite = sprite;
         else
             this.sprite = sprites.misc["missing_texture"];
+
+        this._itemRenderer.setSource(this.sprite);
     }
 
     /** 
@@ -172,6 +171,38 @@ export default class Item {
      */
     placeIntoWorld(gridX, gridY, world) { 
         return false; 
+    }
+
+    //#endregion
+
+    //#region Rendering methods
+
+    /**
+     * Render item in world.
+     * @param {CanvasRenderingContext2D} ctx 
+     * @param {number} x x coordinate (in pixels)
+     * @param {number} y y coordinate (in pixels)
+     * @param {number} width Rendering width (in pixels)
+     * @param {number} height Rendering height (in pixels)
+     */
+    render(ctx, x, y, width, height) {
+        if(validNumbers(x, y, width, height)) {
+            this._itemRenderer.render(ctx, x, y, width, height);
+        }
+    }
+
+    /**
+     * Render item in world.
+     * @param {CanvasRenderingContext2D} ctx 
+     * @param {number} centerX Center X coordinate (in pixels)
+     * @param {number} centerY Center Y coordinate (in pixels)
+     * @param {number} width Rendering width (in pixels)
+     * @param {number} height Rendering height (in pixels)
+     */
+    renderCentered(ctx, centerX, centerY, width, height) {
+        if(validNumbers(centerX, centerY, width, height)) {
+            this._itemRenderer.renderCentered(ctx, centerX, centerY, width, height);
+        }
     }
 
     //#endregion

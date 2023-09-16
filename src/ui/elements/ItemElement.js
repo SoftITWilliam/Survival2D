@@ -1,4 +1,3 @@
-import { renderItem } from "../../helper/canvashelper.js";
 import { ImageElement } from "./ImageElement.js";
 
 /**
@@ -17,8 +16,6 @@ export class ItemElement extends ImageElement {
     }
 
     render(ctx) {
-        if(this.item) {
-            renderItem(ctx, this.item, this.x, this.y, this.w, this.h);
-        }
+        this.item?.render(ctx, this.x, this.y, this.w, this.h);
     }
 }

@@ -1,6 +1,5 @@
 import { EntityComponent } from "../components/EntityComponent.js";
 import { GRAVITY } from "../game/global.js";
-import { renderItem } from "../helper/canvashelper.js";
 import { rng } from "../helper/helper.js";
 
 const VECTOR_RANGE = 20;
@@ -112,7 +111,7 @@ export class ItemEntity {
     //#region Rendering methods
 
     render(ctx, input) {
-        renderItem(ctx, this.item, this.x, this.y, this.width, this.height);
+        this.item.render(ctx, this.x, this.y, this.width, this.height);
 
         if(input.mouse.on(this)) {
             this.#renderLabel(ctx, input);

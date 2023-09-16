@@ -1,4 +1,3 @@
-import { renderItem } from "../helper/canvashelper.js";
 import Item from "./item.js";
 
 export class ItemStack {
@@ -99,7 +98,7 @@ export class ItemStack {
     //#region Rendering methods
 
     render(ctx, x, y) {
-        renderItem(ctx, this.item, x, y, this.size, this.size);
+        this.item.render(ctx, x, y, this.size, this.size);
 
         if(this.limit !== 1) {
             this.#renderAmount(ctx, x, y);

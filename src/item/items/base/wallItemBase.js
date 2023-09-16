@@ -19,10 +19,14 @@ export class WallItemBase extends ItemBase {
 
 
         const spritesheet = sprites.walls[this.registryName];
+
         this.setSprite(spritesheet);
         this._previewRenderer.setSource(spritesheet);
-        this.setSpritePosition(72, 72, 60, 60);
-        this.placementPreview = PlacementPreview.fromItem(this, spritesheet);
+
+        this.setItemSpritePosition(66, 66, 48, 48);
+        this.setPreviewSpritePosition(60, 60, 60, 60);
+
+        this.placementPreview = new PlacementPreview(this, this._previewRenderer);
     }
 
     // Return true if position has no tile, is adjacent to another time or on top of a wall.

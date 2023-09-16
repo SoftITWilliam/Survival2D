@@ -1,4 +1,3 @@
-import { TILE_SIZE } from "../game/global.js";
 import { clamp } from "./helper.js";
 
 /**
@@ -37,28 +36,6 @@ export function rgbm(color, brightness) {
  */
 export function rgba(color, alpha) {
     return `rgba(${color.r},${color.g},${color.b},${alpha})`;
-}
-
-/**
- * Take an item object, and render it on the canvas.
- * If the sprite is incorrect, a "missing texture" is rendered instead.
- * @param {CanvasRenderingContext2D} ctx
- * @param {Object} item
- * @param {number} x
- * @param {}
- */
-export function renderItem(ctx, item, x, y, w, h) {
-
-    if(!item.sprite || item.sx === undefined || item.sy === undefined) {
-        console.log("Cannot render item");
-        return;
-    }
-
-    ctx.drawImage(
-        item.sprite,
-        item.sx, item.sy, TILE_SIZE, TILE_SIZE,
-        x, y, w, h
-    );
 }
 
 /**
