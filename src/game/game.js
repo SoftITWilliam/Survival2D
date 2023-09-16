@@ -5,6 +5,7 @@ import { World } from "../world/World.js";
 import FPSCounter from "./graphics/FPScounter.js";
 import { InputHandler } from "./InputHandler.js";
 import { Testing } from "../tests/testing.js";
+import PlacementPreview from "../ui/placementPreview.js";
 
 export class Game {
     constructor() {
@@ -31,6 +32,9 @@ export class Game {
         this.fpsCounter.increment();
         this.player.update(this.physicsMultiplier, this.input, deltaTime);
         this.player.craftingMenu.ui.update();
+       
+        PlacementPreview.updateAlpha(this.physicsMultiplier);
+
         this.itemEntities.update(this.physicsMultiplier);
     }
 }

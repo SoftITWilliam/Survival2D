@@ -4,28 +4,59 @@ import { sprites } from "../game/graphics/assets.js";
 import { calculateDistance } from "../helper/helper.js";
 import Item from "../item/item.js";
 
+const ALPHA_RANGE = [0.4, 0.7];
+const ALPHA_FADE_SPEED = 0.02;
+const ALPHA_OUT_OF_RANGE = 0.05;
+
 export default class PlacementPreview {
-    constructor(sprite, sx, sy, spriteWidth, spriteHeight, item) {
-        this.item = item;
-        this.renderer = new SpriteRenderer(sprite);
+    /**
+     * @overload
+     * @param {Item} item
+     * @param {SpriteRenderer} renderer
+     */
+    /**
+     * @overload
+     * @param {Item} item
+     * @param {Image} sprite 
+     * @param {SpriteRenderer} renderer
+     */
+    /**
+     * @overload
+     * @param {Item} item
+     * @param {Image} sprite 
+     */
+    /**
+     * @overload
+     * @param {Item} item
+     * @param {Image} sprite 
+     * @param {number} sx
+     * @param {number} sy
+     * @param {number} sWidth
+     * @param {number} sHeight
+     */
+    constructor(...args) {
 
-        // If sprite is missing, use 'missing texture'
-        if(!this.sprite) {
-            this.sprite = sprites.misc["missing_texture"];
+        this.renderer = args.find(arg => arg instanceof SpriteRenderer) || new SpriteRenderer();
+        this.item = args.find(arg => arg instanceof Item);
+        let img = args.find(arg => arg instanceof Image);
+        if(img) this.sprite = img;
+
+        if(args.length === 6) {
+            this.setSpriteOffset(args[2], args[3]);
+            this.setSpriteSize(args[4], args[5]);
         }
-        this.aRange = [0.4, 0.7];
-
-        this.a = this.aRange[0];
-        this.aFade = 0.02;
-
-        this.setSpriteOffset(sx, sy);
-        this.setSpriteSize(spriteWidth, spriteHeight);
     }
-    
+
+    static alpha = ALPHA_RANGE[0];
+    static alphaDelta = ALPHA_FADE_SPEED;
+
     //#region Getters/setters
 
-    set sprite(sourceImage) { 
-        this.renderer.setSource(sourceImage) 
+    set sprite(img) { 
+        if(img instanceof Image && img.src)
+            this.renderer.setSource(img);
+        else
+            this.renderer.setSource(sprites.misc.missing_texture);
     }
 
     get sprite() { 
@@ -46,23 +77,9 @@ export default class PlacementPreview {
 
     //#endregion
 
-    //#region Methods
-
-    // Alpha (a) goes back and forth between the lower and higher points in this.aRange
-    updateAlpha() {
-        this.a += this.aFade;
-        if((this.aFade > 0 && this.a >= this.aRange[1]) || 
-            (this.aFade < 0 && this.a <= this.aRange[0])) {
-                this.aFade *= -1;
-        }
-    }
-
-    //#endregion
-
     //#region Render methods
 
     render(ctx, gridX, gridY, player) {
-        this.updateAlpha();
 
         // If out of placement range, 
         let pos = {
@@ -70,14 +87,11 @@ export default class PlacementPreview {
             centerY: -gridY * TILE_SIZE + TILE_SIZE / 2
         }
 
-        let distance = calculateDistance(player, pos);
-        let inPlacementRange = distance <= player.reach;
+        let inPlacementRange = calculateDistance(player, pos) <= player.reach;
+        let canBePlaced = this.item.canBePlaced(gridX, gridY, player.world);
         
-        if (inPlacementRange && this.item.canBePlaced(gridX, gridY, player.world)) {
-            ctx.globalAlpha = this.a;
-        } else {
-            ctx.globalAlpha = 0.05;
-        }
+        ctx.globalAlpha = (inPlacementRange && canBePlaced) ? 
+            PlacementPreview.alpha : ALPHA_OUT_OF_RANGE;
 
         this.renderer.render(ctx, gridX * TILE_SIZE, -gridY * TILE_SIZE, 48, 48);
 
@@ -87,6 +101,16 @@ export default class PlacementPreview {
     //#endregion
 
     //#region Static methods 
+
+    // Alpha value goes back and forth between the lower and higher points in ALPHA_RANGE
+    // todo: use delta time
+    static updateAlpha(m) {
+        this.alpha += (this.alphaDelta * m);
+        if((this.alphaDelta > 0 && this.alpha >= ALPHA_RANGE[1]) || 
+            (this.alphaDelta < 0 && this.alpha <= ALPHA_RANGE[0])) {
+                this.alphaDelta *= -1;
+        }
+    }
     
     /**
      * Automatically create a PlacementPreview instance using an item's sx, sy, sw, and sh properties.
@@ -98,8 +122,6 @@ export default class PlacementPreview {
     }
     //#endregion
 }
-
-
 
 /**
  * If a tile can be placed in the given position return true.
