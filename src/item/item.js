@@ -5,11 +5,11 @@ import { TILE_SIZE } from "../game/global.js";
 import { World } from "../world/World.js";
 import { TileModel } from "../tile/tileModel.js";
 import { isPositiveInteger } from "../helper/helper.js";
+import { SpriteRenderer } from "../game/graphics/SpriteRenderer.js";
 
 export default class Item {
     constructor(registryName, rarity) {
         this.setSprite('missing_texture');
-        this.setRarity(rarity);
 
         this._type = Item.types.DEFAULT;
         this.stackSize = 99;
@@ -24,6 +24,7 @@ export default class Item {
         this._rarityText;
 
         this.registryName = registryName;
+        this.rarity = rarity;
     }
 
     //#region Enums
@@ -85,7 +86,7 @@ export default class Item {
         if(!isPositiveInteger(value))
             return console.warn(`Invalid rarity (${value})`);
 
-        this._rarity = rarity ?? 0;
+        this._rarity = value;
         this._rarityText = getLang("rarity_" + this._rarity);
     }
 
@@ -104,14 +105,6 @@ export default class Item {
     //#endregion
 
     //#region Getter/Setter methods
-
-    /**
-     * Set item rarity and display color
-     * @param {any} rarity   Item rarity (supports both numbers and names, ex. 0 and "COMMON")
-     */
-    setRarity(rarity) {
-        
-    }
 
     /**
      * Set the item sprite. If it doesn't exist, 'missing texture' is used instead.

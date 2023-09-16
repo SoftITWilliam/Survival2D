@@ -7,8 +7,6 @@ export class ToolBase extends Item {
         super(registryName, rarity);
         this.type = Item.types.TOOL;
 
-        console.log(rarity);
-        this.setRarity(rarity);
         this.setSprite(sprites.items[this.registryName]);
 
         this.entitySize = 32;

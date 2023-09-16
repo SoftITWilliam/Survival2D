@@ -8,7 +8,6 @@ export class ItemBase extends Item {
         this.miningLevel;
         this.miningSpeed;
 
-        this.setRarity(rarity);
         this.setSprite(sprites.items[this.registryName]);
 
         this.entitySize = 32;
