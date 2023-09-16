@@ -7,7 +7,9 @@ import PlaceableBase from "./base/placeableItemBase.js";
 export class ItemGrassSeeds extends PlaceableBase {
     constructor(registryName, rarity) {
         super(registryName, rarity);
-        this.placementPreview = new PlacementPreview(sprites.tiles.tile_grass, 72, 12, this);
+        
+        this.setDefaultSpritePosition(60, 0, 60, 60);
+        this.placementPreview = PlacementPreview.fromItem(this, sprites.tiles.tile_grass);
     }
 
     // Return true if the given position is a dirt block with no block above

@@ -1,13 +1,12 @@
 import { sprites } from "../../game/graphics/assets.js";
 import { Tile } from "../../tile/Tile.js";
 import { TileRegistry as Tiles } from "../../tile/tileRegistry.js";
-import PlacementPreview from "../../ui/placementPreview.js";
 import PlaceableBase from "./base/placeableItemBase.js";
 
 export class ItemAcorn extends PlaceableBase {
     constructor(registryName, rarity) {
         super(registryName, rarity);
-        this.placementPreview = new PlacementPreview(sprites.placeables.sapling, 0, 0, this);
+        this.placementPreview.sprite = sprites.placeables.sapling;
     }
 
     // Return true if position isn't occupied and tile below is either dirt or grass

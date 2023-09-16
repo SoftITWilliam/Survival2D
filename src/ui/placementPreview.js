@@ -1,15 +1,14 @@
 import { TILE_SIZE } from "../game/global.js";
+import { SpriteRenderer } from "../game/graphics/SpriteRenderer.js";
 import { sprites } from "../game/graphics/assets.js";
 import { calculateDistance } from "../helper/helper.js";
+import Item from "../item/item.js";
 
 export default class PlacementPreview {
-    constructor(sprite, offsetX, offsetY, item) {
+    constructor(sprite, sx, sy, spriteWidth, spriteHeight, item) {
         this.item = item;
-        this.sx = offsetX;
-        this.sy = offsetY;
+        this.renderer = new SpriteRenderer(sprite);
 
-        this.sprite = sprite;
-        
         // If sprite is missing, use 'missing texture'
         if(!this.sprite) {
             this.sprite = sprites.misc["missing_texture"];
@@ -22,7 +21,28 @@ export default class PlacementPreview {
 
         this.a = this.aRange[0];
         this.aFade = 0.02;
+
+        this.setSpriteOffset(sx, sy);
+        this.setSpriteSize(spriteWidth, spriteHeight);
     }
+    
+    //#region Getters/setters
+
+    set sprite(sourceImage) { this.renderer.setSource(sourceImage) }
+
+    get sprite() { return this.renderer.source }
+
+    setSpriteOffset(sx, sy) {
+        this.renderer.setSourcePosition(sx, sy);
+    }
+
+    setSpriteSize(width, height) {
+        this.renderer.setSpriteSize(width, height);
+    }
+
+    //#endregion
+
+    //#region Methods
 
     // Alpha (a) goes back and forth between the lower and higher points in this.aRange
     updateAlpha() {
@@ -32,6 +52,10 @@ export default class PlacementPreview {
                 this.aFade *= -1;
         }
     }
+
+    //#endregion
+
+    //#region Render methods
 
     render(ctx, gridX, gridY, player) {
         this.updateAlpha();
@@ -51,16 +75,24 @@ export default class PlacementPreview {
             ctx.globalAlpha = 0.05;
         }
 
-        let x = gridX * TILE_SIZE;
-        let y = -gridY * TILE_SIZE;
-
-        ctx.drawImage(
-            this.sprite, this.sx, this.sy, TILE_SIZE, TILE_SIZE, 
-            x, y, TILE_SIZE, TILE_SIZE
-        );
+        this.renderer.render(ctx, gridX * TILE_SIZE, -gridY * TILE_SIZE, 48, 48);
 
         ctx.globalAlpha = 1;
     }
+
+    //#endregion
+
+    //#region Static methods 
+    
+    /**
+     * Automatically create a PlacementPreview instance using an item's sx, sy, sw, and sh properties.
+     * @param {Item} item 
+     * @param {Image} sprite 
+     */
+    static fromItem(item, sprite) {
+        return new PlacementPreview(sprite, item.sx, item.sy, item.sw, item.sh, item);
+    }
+    //#endregion
 }
 
 

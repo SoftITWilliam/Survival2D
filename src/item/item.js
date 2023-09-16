@@ -1,6 +1,10 @@
 import { getDescription, getDisplayName, getLang } from "../game/lang.js";
 import { sprites } from "../game/graphics/assets.js";
 import { RARITY_COLORS } from "./rarities.js";
+import { TILE_SIZE } from "../game/global.js";
+import { World } from "../world/World.js";
+import { TileModel } from "../tile/tileModel.js";
+import { isPositiveInteger } from "../helper/helper.js";
 
 export default class Item {
     constructor(registryName, rarity) {
@@ -11,11 +15,18 @@ export default class Item {
         this.stackSize = 99;
         this.sx = 0;
         this.sy = 0;
+
+        this.sw = TILE_SIZE;
+        this.sh = TILE_SIZE;
         
         this._registryname;
+        this._rarity;
+        this._rarityText;
 
         this.registryName = registryName;
     }
+
+    //#region Enums
 
     static types = {
         DEFAULT: 0, // Normal item
@@ -32,6 +43,10 @@ export default class Item {
         HAMMER: 4, // Walls
         SICKLE: 5, // Currently unused. For plants etc
     }
+
+    //#endregion
+
+    //#region Property getters/setters
 
     // Set the registry name of the item
     // Also gets item ID, display name, and description
@@ -53,20 +68,45 @@ export default class Item {
         return this._type;
     }
 
+    /**
+     * @param {number} itemType From Item.types enum
+     */
     set type(itemType) {
-        if(typeof itemType != "number") {
-            return console.warn("Invalid item type");
-        }
+        if(!isPositiveInteger(itemType))
+            return console.warn(`Invalid item type (${itemType})`);
+
         this._type = itemType;
     }
+
+    /**
+     * @param {number} value From Rarity enum
+     */
+    set rarity(value) {
+        if(!isPositiveInteger(value))
+            return console.warn(`Invalid rarity (${value})`);
+
+        this._rarity = rarity ?? 0;
+        this._rarityText = getLang("rarity_" + this._rarity);
+    }
+
+    get rarity() {
+        return this._rarity;
+    }
+
+    get rarityText() {
+        return this._rarityText;
+    }
+
+    //#endregion
+
+    //#region Getter/Setter methods
 
     /**
      * Set item rarity and display color
      * @param {any} rarity   Item rarity (supports both numbers and names, ex. 0 and "COMMON")
      */
     setRarity(rarity) {
-        this.rarity = rarity ?? 0;
-        this.rarityText = getLang("rarity_" + this.rarity);
+        
     }
 
     /**
@@ -86,23 +126,14 @@ export default class Item {
         }
     }
 
-    getDisplayName() {
-        return this.displayName;
-    }
-
-    getDescription() {
-        return this.description;
-    }
-
     /** 
      * Return the tile the object is supposed to place.
+     * Cannot be a property in the constructor since that causes
+     * mutual dependency between ItemRegistry and TileRegistry (which is bad!)
+     * @returns {null | TileModel}
     */
-    getPlacedTile(gridX, gridY) {
-        return;
-    }
-
-    placeIntoWorld(gridX, gridY, world) {
-        return;
+    getPlacedTile() { 
+        return false;
     }
 
     /**
@@ -111,15 +142,45 @@ export default class Item {
      * @param {int} offsetX X offset in pixels
      * @param {int} offsetY Y offset in pixels
      */
-    setSpriteOffset(offsetX, offsetY) {
-        if(!offsetX || !offsetY || this.missingTexture) {
-            this.sx = 0;
-            this.sy = 0;
-        } else {
-            this.sx = offsetX;
-            this.sy = offsetY;
+    setDefaultSpritePosition(offsetX, offsetY, sWidth, sHeight) {
+        if(offsetX == null || offsetY == null || this.missingTexture) {
+            this.resetSpritePosition();
+            return;
         }
+        this.sx = offsetX;
+        this.sy = offsetY;
+
+        if(sWidth != null) this.sw = sWidth;
+        if(sHeight != null) this.sh = sHeight;
     }
+
+    resetSpritePosition() {
+        this.sx = 0;
+        this.sy = 0;
+        this.sw = TILE_SIZE;
+        this.sh = TILE_SIZE;
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    /**
+     * (To be overridden by subclasses. It does nothing here.)
+     * Try to place a tile at the given coordinates world, 
+     * based on the class' getPlacedTile() method
+     * @param {number} gridX Grid X coordinate (Positive integer)
+     * @param {number} gridY Grid Y coordinate (Positive integer)
+     * @param {World} world World object
+     * @returns {boolean}
+     */
+    placeIntoWorld(gridX, gridY, world) { 
+        return false; 
+    }
+
+    //#endregion
+
+    //#region Static methods
 
     /** 
      * Returns true if 'arg' is of type Item.
@@ -140,4 +201,6 @@ export default class Item {
         }
         return false;
     }
+
+    //#endregion
 }
