@@ -1,4 +1,5 @@
 import { ITEM_SIZE } from "../../../game/global.js";
+import { SpriteRenderer } from "../../../game/graphics/SpriteRenderer.js";
 import { sprites } from "../../../game/graphics/assets.js";
 import { Tile } from "../../../tile/Tile.js";
 import { TileModel } from "../../../tile/tileModel.js";
@@ -15,11 +16,12 @@ export class WallItemBase extends ItemBase {
         this.placeable = true;
         this.stackLimit = 99;
         this.entitySize = ITEM_SIZE * 2;
-        
-        this.setDefaultSpritePosition(72, 72, 60, 60);
+
 
         const spritesheet = sprites.walls[this.registryName];
         this.setSprite(spritesheet);
+        this._previewRenderer.setSource(spritesheet);
+        this.setSpritePosition(72, 72, 60, 60);
         this.placementPreview = PlacementPreview.fromItem(this, spritesheet);
     }
 

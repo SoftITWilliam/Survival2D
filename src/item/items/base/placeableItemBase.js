@@ -1,4 +1,5 @@
-import { sprites } from "../../../game/graphics/assets.js";
+import { TILE_SIZE } from "../../../game/global.js";
+import { SpriteRenderer } from "../../../game/graphics/SpriteRenderer.js";
 import PlacementPreview from "../../../ui/placementPreview.js";
 import Item from "../../item.js";
 import { ItemBase } from "./itemBase.js";
@@ -11,8 +12,11 @@ export default class PlaceableBase extends ItemBase {
         this.stackLimit = 99;
         this.entitySize = 32;
 
-        this.setDefaultSpritePosition(0, 0, 48, 48);
-        this.placementPreview = PlacementPreview.fromItem(this, sprites.misc.missing_texture);
+        this._previewRenderer = new SpriteRenderer();
+        this._previewRenderer.setSpriteSize(TILE_SIZE);
+        this._itemRenderer.setSpriteSize(TILE_SIZE);
+
+        this.placementPreview = new PlacementPreview(this, this._previewRenderer);
     }
 
     canBePlaced(x, y, world) {

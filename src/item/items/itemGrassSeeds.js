@@ -1,3 +1,4 @@
+import { TILE_SIZE } from "../../game/global.js";
 import { sprites } from "../../game/graphics/assets.js";
 import { Tile } from "../../tile/Tile.js";
 import { TileRegistry as Tiles } from "../../tile/tileRegistry.js";
@@ -8,8 +9,10 @@ export class ItemGrassSeeds extends PlaceableBase {
     constructor(registryName, rarity) {
         super(registryName, rarity);
         
-        this.setDefaultSpritePosition(60, 0, 60, 60);
-        this.placementPreview = PlacementPreview.fromItem(this, sprites.tiles.tile_grass);
+        this.setItemSpritePosition(0, 0, TILE_SIZE, TILE_SIZE);
+        this.setPreviewSpritePosition(60, 0, 60, 60);
+        this._previewRenderer.setSource(sprites.tiles.tile_grass);
+        this.placementPreview = new PlacementPreview(this, this._previewRenderer);
     }
 
     // Return true if the given position is a dirt block with no block above

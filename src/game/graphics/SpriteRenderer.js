@@ -1,12 +1,14 @@
-import { validNumbers } from "../../helper/helper.js";
+import { isPositiveInteger, validNumbers } from "../../helper/helper.js";
+import { isMissingTexture, sprites } from "./assets.js";
 
 export class SpriteRenderer {
     #sx;
     #sy;
+    #width;
+    #height;
+    #source;
     constructor(source = null) {
-        if(source instanceof Image) {
-            this.source = source;
-        }
+        this.#source;
 
         this.#sx;
         this.#sy;
@@ -14,8 +16,10 @@ export class SpriteRenderer {
         this.sheetX = 0;
         this.sheetY = 0;
 
-        this.height = 0;
-        this.width = 0;
+        this.#width = 0;
+        this.#height = 0;
+
+        this.setSource(source, true);
     }
 
     //#region Getters
@@ -28,6 +32,22 @@ export class SpriteRenderer {
         return this.#sy || (this.sheetY * this.height);
     }
 
+    get height() {
+        return this.#height;
+    }
+
+    get width() {
+        return this.#width;
+    }
+
+    get source() {
+        return this.#source;
+    }
+
+    get hasMissingTexture() {
+        return isMissingTexture(this.source);
+    }
+
     //#endregion
 
     //#region Setters
@@ -37,12 +57,23 @@ export class SpriteRenderer {
      * @param {Image} source Sprite source image
      * @returns {SpriteRenderer} this
      */
-    setSource(source) {
-        if(source instanceof Image) {
-            this.source = source;
-        } else {
-            console.warn("SpriteRenderer.setSource(): 'source' is not a valid image");
+    setSource(source, suppressWarnings = false) {
+
+        var sourceError = (msg) => {
+            this.#source = sprites.misc.missing_texture;
+            if(!suppressWarnings)
+                console.warn("SpriteRenderer.setSource(): " + msg);
         }
+
+        if(source == null)
+            sourceError("No source provided");
+
+        else if(!source instanceof Image && !source.src)
+            sourceError("'source' is not a valid image");
+
+        else
+            this.#source = source;
+        
         return this;
     }
 
@@ -65,9 +96,25 @@ export class SpriteRenderer {
         return this;
     }
 
-    setSpriteSize(width, height) {
-        this.width = width;
-        this.height = height;
+    /**
+     * Set width and height of sprite
+     * @overload
+     * @param {number} width Sprite width
+     * @param {number} height Sprite height
+     * @returns 
+     */
+    /**
+     * Set size of sprite (equal width and height)
+     * @overload
+     * @param {number} size Sprite size (Equal width and height)
+     * @returns 
+     */
+    setSpriteSize(arg1, arg2) {
+        if(isPositiveInteger(arg1)) {
+            if(!isPositiveInteger(arg2)) arg2 = arg1;
+            this.#width = arg1;
+            this.#height = arg2;
+        }
         return this;
     }
 
@@ -108,6 +155,10 @@ export class SpriteRenderer {
     render(ctx, arg1, arg2, arg3, arg4) {
 
         var renderDefault = (x, y) => {
+            if(!this.source instanceof Image) {
+                console.warn("SpriteRenderer does not have a valid image");
+                return;
+            }
             ctx.drawImage(this.source, 
                 this.sx, this.sy, 
                 this.width, this.height,

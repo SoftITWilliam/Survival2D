@@ -23,6 +23,9 @@ export default class Item {
         this._rarity;
         this._rarityText;
 
+        this._itemRenderer = new SpriteRenderer();
+        this._previewRenderer = new SpriteRenderer();
+
         this.registryName = registryName;
         this.rarity = rarity;
     }
@@ -102,6 +105,10 @@ export default class Item {
         return isMissingTexture(this.sprite);
     }
 
+    get isPlaceable() {
+        return (this.type === Item.types.PLACEABLE || this.type === Item.types.TILE);
+    }
+
     //#endregion
 
     //#region Getter/Setter methods
@@ -127,29 +134,27 @@ export default class Item {
         return false;
     }
 
-    /**
-     * Set sprite offset position
-     * (Used for spritesheets)
-     * @param {int} offsetX X offset in pixels
-     * @param {int} offsetY Y offset in pixels
-     */
-    setDefaultSpritePosition(offsetX, offsetY, sWidth, sHeight) {
-        if(offsetX == null || offsetY == null || this.hasMissingTexture) {
-            this.resetSpritePosition();
-            return;
+    setSpritePosition(sx, sy, sWidth, sHeight) {
+        this.setItemSpritePosition(sx, sy, sWidth, sHeight);
+        if(this.isPlaceable) {
+            this.setPreviewSpritePosition(sx, sy, sWidth, sHeight);
         }
-        this.sx = offsetX;
-        this.sy = offsetY;
-
-        if(sWidth != null) this.sw = sWidth;
-        if(sHeight != null) this.sh = sHeight;
     }
 
-    resetSpritePosition() {
-        this.sx = 0;
-        this.sy = 0;
-        this.sw = TILE_SIZE;
-        this.sh = TILE_SIZE;
+    setItemSpritePosition(sx, sy, sWidth, sHeight) {
+        if(isPositiveInteger(sx, sy))
+            this._itemRenderer.setSourcePosition(sx, sy);
+
+        if(isPositiveInteger(sWidth, sHeight))
+            this._itemRenderer.setSpriteSize(sWidth, sHeight);
+    }
+
+    setPreviewSpritePosition(sx, sy, sWidth, sHeight) {
+        if(isPositiveInteger(sx, sy))
+            this._previewRenderer.setSourcePosition(sx, sy);
+
+        if(isPositiveInteger(sWidth, sHeight))
+            this._previewRenderer.setSpriteSize(sWidth, sHeight);
     }
 
     //#endregion

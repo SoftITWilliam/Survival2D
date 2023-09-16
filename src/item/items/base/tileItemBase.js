@@ -1,4 +1,5 @@
 import { ITEM_SIZE } from "../../../game/global.js";
+import { SpriteRenderer } from "../../../game/graphics/SpriteRenderer.js";
 import { sprites } from "../../../game/graphics/assets.js";
 import { TileModel } from "../../../tile/tileModel.js";
 import { TileRegistry as Tiles } from "../../../tile/tileRegistry.js";
@@ -18,8 +19,9 @@ export class TileItemBase extends ItemBase {
 
         this.setSprite(spritesheet);
 
-        this.setDefaultSpritePosition(180, 180, 60, 60);
-        this.placementPreview = PlacementPreview.fromItem(this, spritesheet);
+        this._previewRenderer.setSource(spritesheet);
+        this.setSpritePosition(180, 180, 60, 60);
+        this.placementPreview = new PlacementPreview(this, this._previewRenderer);
     }
 
     // Return true if position has no tile, is adjacent to another time or on top of a wall.
