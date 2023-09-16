@@ -1,16 +1,18 @@
 import { PATH } from "../global.js";
 
 export const image = (src) => {
-    let img = new Image;
-    try {
-        img.src = PATH + src + ".png";
-    } 
-    catch {
-        img.src = "assets/missing_texture.png";
-    } 
-    finally {
-        return img;
+    const img = new Image;
+
+    const url = PATH + src + ".png";
+
+    img.onerror = () => { 
+        console.warn(`Failed to load sprite (${url})`);
+        img.src = "assets/missing_texture.png" 
     }
+
+    img.src = url;
+    
+    return img;
 }
 
 export function isMissingTexture(img) {

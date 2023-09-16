@@ -9,7 +9,7 @@ import { SpriteRenderer } from "../game/graphics/SpriteRenderer.js";
 
 export default class Item {
     constructor(registryName, rarity) {
-        this.setSprite('missing_texture');
+        this.setSprite(null);
 
         this._type = Item.types.DEFAULT;
         this.stackSize = 99;
@@ -108,16 +108,13 @@ export default class Item {
 
     /**
      * Set the item sprite. If it doesn't exist, 'missing texture' is used instead.
-     * @param {any} sprite  Sprite image object through 'sprites' import. (ex: 'sprites.item.wood')
+     * @param {Image} sprite  Sprite image object through 'sprites' import. (ex: 'sprites.item.wood')
      */
     setSprite(sprite) {
-    
-        this.sprite = sprite;
-        
-        // If texture is missing, use 'missing texture'
-        if(!this.sprite) {
+        if(sprite instanceof Image && sprite.src) 
+            this.sprite = sprite;
+        else
             this.sprite = sprites.misc["missing_texture"];
-        }
     }
 
     /** 

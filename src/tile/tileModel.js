@@ -5,8 +5,6 @@ import { dropItemFromTile } from "../item/dropItem.js";
 import Item from "../item/item.js";
 import { Tile } from "./Tile.js";
 
-const SPRITE_PADDING = 6;
-
 export class TileModel {
     constructor(registryName, width = TILE_SIZE, height = TILE_SIZE) {
         this.registryName = registryName;
@@ -15,8 +13,12 @@ export class TileModel {
         this.h = height ?? width;
         this.tileDrops = [];
 
+        this._sprite;
+
         this._spriteRenderer = new SpriteRenderer();
         this._spriteRenderer.setSpriteSize(60, 60);
+
+        this.setSprite(null);
     }
 
     //#region Property getters/setters
@@ -40,6 +42,14 @@ export class TileModel {
         return isMissingTexture(this.sprite);
     }
 
+    set sprite(img) {
+        this._spriteRenderer.setSource(img);
+    }
+
+    get sprite() {
+        return this._spriteRenderer.source;
+    }
+
     //#endregion
 
     //#region Getter/setter methods
@@ -60,15 +70,14 @@ export class TileModel {
 
     // Set the tile sprite.
     setSprite(sprite) {
+        if(sprite instanceof Image && sprite.src) 
+            this.sprite = sprite;
+        else
+            this.sprite = sprites.misc["missing_texture"];
+    }
 
-        this.sprite = sprite;
-
-        // If texture is missing, use 'missing texture'
-        if(!this.sprite) {
-            this.sprite = sprites.misc.missing_texture;
-        }
-
-        this._spriteRenderer.setSource(this.sprite);
+    canBeMined() {
+        return false;
     }
 
     //#endregion
@@ -96,10 +105,6 @@ export class TileModel {
                 dropItemFromTile(tile, drop.item, drop.amount, world.game);
             }
         })
-    }
-
-    canBeMined() {
-        return false;
     }
 
     // Runs whenever the tile is "refreshed", i.e. something happens to an adjacent tile.
