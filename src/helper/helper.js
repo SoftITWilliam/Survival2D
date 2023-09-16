@@ -99,10 +99,25 @@ export function validIndex(index, array) {
 /**
  * Returns true if all values in args are valid numbers
  * @param  {...any} args 
- * @returns 
+ * @returns {boolean}
  */
 export function validNumbers(...args) {
-    return Array.from(args)
-        .filter(arg => typeof arg != "number" || arg == NaN)
+    return Array.from(args).filter(arg => 
+            typeof arg != "number" || 
+            arg == NaN)
+        .length === 0
+}
+
+/**
+ * Returns true if all values in args are positive integers
+ * @param  {...any} args 
+ * @returns {boolean}
+ */
+export function isPositiveInteger(...args) {
+    return Array.from(args).filter(arg => 
+            typeof arg != "number" || 
+            arg == NaN || 
+            arg < 0 || 
+            !Number.isInteger(arg))
         .length === 0
 }
