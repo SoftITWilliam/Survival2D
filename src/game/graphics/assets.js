@@ -13,6 +13,10 @@ export const image = (src) => {
     }
 }
 
+export function isMissingTexture(img) {
+    return (typeof img != Image || img.src.contains("missing_texture"));
+}
+
 export const sprites = {
     
     tiles: {

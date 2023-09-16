@@ -19,6 +19,8 @@ export class TileModel {
         this._spriteRenderer.setSpriteSize(60, 60);
     }
 
+    //#region Property getters/setters
+
     get width() { return this.w }
     get height() { return this.h }
 
@@ -33,6 +35,14 @@ export class TileModel {
         }
         this._type = tileType;
     }
+
+    get hasMissingTexture() {
+        return isMissingTexture(this.sprite);
+    }
+
+    //#endregion
+
+    //#region Getter/setter methods
 
     /**
      * Set the mining properties of the tile model
@@ -51,17 +61,19 @@ export class TileModel {
     // Set the tile sprite.
     setSprite(sprite) {
 
-        this.missingTexture = false;
         this.sprite = sprite;
 
         // If texture is missing, use 'missing texture'
         if(!this.sprite) {
             this.sprite = sprites.misc.missing_texture;
-            this.missingTexture = true;
         }
 
         this._spriteRenderer.setSource(this.sprite);
     }
+
+    //#endregion
+
+    //#region Methods
 
     // Remove the tile and drop its items.
     breakTile(tile, item = null, world) {
@@ -212,8 +224,14 @@ export class TileModel {
         }
     }
 
+    //#endregion
+
+    //#region Rendering methods
+
     render(ctx, tile, sheetX, sheetY) {
         this._spriteRenderer.setSheetPosition(sheetX, sheetY);
         this._spriteRenderer.render(ctx, tile);
     }
+
+    //#endregion
 }

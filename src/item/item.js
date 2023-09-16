@@ -1,5 +1,5 @@
 import { getDescription, getDisplayName, getLang } from "../game/lang.js";
-import { sprites } from "../game/graphics/assets.js";
+import { isMissingTexture, sprites } from "../game/graphics/assets.js";
 import { RARITY_COLORS } from "./rarities.js";
 import { TILE_SIZE } from "../game/global.js";
 import { World } from "../world/World.js";
@@ -97,6 +97,10 @@ export default class Item {
         return this._rarityText;
     }
 
+    get hasMissingTexture() {
+        return isMissingTexture(this.sprite);
+    }
+
     //#endregion
 
     //#region Getter/Setter methods
@@ -120,9 +124,6 @@ export default class Item {
         // If texture is missing, use 'missing texture'
         if(!this.sprite) {
             this.sprite = sprites.misc["missing_texture"];
-            this.missingTexture = true;
-        } else {
-            this.missingTexture = false;
         }
     }
 
@@ -143,7 +144,7 @@ export default class Item {
      * @param {int} offsetY Y offset in pixels
      */
     setDefaultSpritePosition(offsetX, offsetY, sWidth, sHeight) {
-        if(offsetX == null || offsetY == null || this.missingTexture) {
+        if(offsetX == null || offsetY == null || this.hasMissingTexture) {
             this.resetSpritePosition();
             return;
         }

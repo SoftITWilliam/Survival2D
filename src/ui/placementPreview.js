@@ -12,11 +12,7 @@ export default class PlacementPreview {
         // If sprite is missing, use 'missing texture'
         if(!this.sprite) {
             this.sprite = sprites.misc["missing_texture"];
-            this.missingTexture = true;
-        } else {
-            this.missingTexture = false;
         }
-
         this.aRange = [0.4, 0.7];
 
         this.a = this.aRange[0];
@@ -28,9 +24,17 @@ export default class PlacementPreview {
     
     //#region Getters/setters
 
-    set sprite(sourceImage) { this.renderer.setSource(sourceImage) }
+    set sprite(sourceImage) { 
+        this.renderer.setSource(sourceImage) 
+    }
 
-    get sprite() { return this.renderer.source }
+    get sprite() { 
+        return this.renderer.source 
+    }
+
+    get hasMissingTexture() {
+        return isMissingTexture(this.sprite);
+    }
 
     setSpriteOffset(sx, sy) {
         this.renderer.setSourcePosition(sx, sy);
