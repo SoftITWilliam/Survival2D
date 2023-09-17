@@ -1,14 +1,96 @@
-import { clamp } from "./helper.js";
+import { clamp, objectHasProperties, validNumbers } from "./helper.js";
 
 /**
- * Take an object of RGB values and format into a string usable by the canvas - ex. {r:50,g:50,b:50} => "rgb(50,50,50)"
- * @param {object} color RGB object (ex. {r:50,g:50,b:50})
- * @returns 
+ * @typedef {object} rgb
+ * @property {number} r Red (0-255)
+ * @property {number} g Green (0-255)
+ * @property {number} b Blue (0-255)
  */
-export function rgb(color) {
-    if(!color) return "rgb(0,0,0)";
+
+/**
+ * @typedef {object} rgba
+ * @property {number} r Red (0-255)
+ * @property {number} g Green (0-255)
+ * @property {number} b Blue (0-255)
+ * @property {number} a Alpha / Opacity (0-1)
+ */
+
+/**
+ * Take an RGB object and format its values into a string usable by the canvas
+ * @overload
+ * @param {rgb} rgbColor 
+ * @example
+ * // returns "rgb(200,50,50)"
+ * rgb({r: 200, g: 50, b: 50});
+ * @returns {string} RGB string usable by canvas
+ */
+/**
+ * Take RGB values and format into a string usable by the canvas
+ * @overload
+ * @param {number} r Red (0-255)
+ * @param {number} g Green (0-255)
+ * @param {number} b Blue (0-255)
+ * @example
+ * // returns "rgb(200,50,50)"
+ * rgb(200, 50, 50);
+ * @returns {string} RGB string usable by canvas
+ */
+export function rgb(arg1, arg2, arg3) {
+    if(validNumbers(arg1, arg2, arg3)) 
+        var color = { r: arg1, g: arg2, b: arg3 };
+
+    else if (typeof arg1 == "object" && objectHasProperties(arg1, "r", "g", "b"))
+        var color = arg1;
+
+    else
+        return "rgb(0,0,0)";
 
     return `rgb(${color.r},${color.g},${color.b})`;
+}
+
+/**
+ * Take an RGBA object and format its values into a string usable by the canvas
+ * @param {rgba} color RGBA object (contanins properties r, g, b, a)
+ * @example
+ * // returns "rgba(255,255,255,0.5)"
+ * rgba({r: 255, g: 255, b: 255, a: 0:5})
+ * @returns {string} RGBA string usable by canvas
+ * //**
+ * @overload
+ * @param {rgb} color RGB object (contanins properties r, g, b)
+ * @param {number} alpha Alpha / Opacity (0-1)
+ * @example
+ * // returns "rgba(255,255,255,0.5)"
+ * rgba({r: 255, g: 255, b: 255}, 0.5})
+ * @returns {string} RGBA string usable by canvas
+ * //**
+ * @overload
+ * @param {number} r Red (0-255)
+ * @param {number} g Green (0-255)
+ * @param {number} b Blue (0-255)
+ * @param {number} alpha Alpha / Opacity (0-1)
+ * @example
+ * // returns "rgba(255,255,255,0.5)"
+ * rgba(255, 255, 255, 0.5})
+ * @returns {string} RGBA string usable by canvas
+ */
+export function rgba(...args) {
+
+    var rgbaString = (r, g, b, alpha) => {
+        if(!validNumbers(alpha)) alpha = 0;
+        return `rgba(${r},${g},${b},${alpha})`;
+    }
+
+    if(args.length == 1 && objectHasProperties(args[0], "r", "g", "b")) {
+        return rgbaString(args[0].r, args[0].g, args[0].b, args[0].a);
+    }
+    else if(args.length == 2 && objectHasProperties(args[0], "r", "g", "b")) {
+        return rgbaString(args[0].r, args[0].g, args[0].b, args[1]);
+    }
+    else if(args.length >= 3 && validNumbers(...args)) {
+        return rgbaString(args[0], args[1], args[2], args[3] ?? 0);
+    }
+    return "rgba(0,0,0,0)";
 }
 
 /**
@@ -19,23 +101,13 @@ export function rgb(color) {
  */
 export function rgbm(color, brightness) {
     if(!color) return "rgb(0,0,0)";
+    rgba()
 
     let r = clamp(color.r * brightness, 0, 255);
     let g = clamp(color.g * brightness, 0, 255);
     let b = clamp(color.b * brightness, 0, 255);   
 
     return `rgb(${r},${g},${b})`;
-}
-
-
-/**
- * Take an object of RGB values and an alpha value and format into a string usable by the canvas - ex. {r:0,g:0,b:0}, 0.5 => "rgba(50,50,50)"
- * @param {object} color RGB object (ex. {r:50,g:50,b:50})
- *  * @param {Number} alpha Opacity given as separate argument. (0 < alpha < 1)
- * @returns 
- */
-export function rgba(color, alpha) {
-    return `rgba(${color.r},${color.g},${color.b},${alpha})`;
 }
 
 /**
