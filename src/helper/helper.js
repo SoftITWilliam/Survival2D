@@ -52,7 +52,7 @@ export function calculateDistance(obj1, obj2) {
  * @param {int} maxWidth The maximum length per line (in pixels)
  * @returns {array} An array of strings
  */
-export function splitIntoLines(string,maxWidth) {
+export function splitIntoLines(string, maxWidth) {
 
     if(!string || isNaN(maxWidth) || maxWidth < 0) return [];
 
@@ -120,4 +120,24 @@ export function isPositiveInteger(...args) {
             arg < 0 || 
             !Number.isInteger(arg))
         .length === 0
+}
+
+/**
+ * Returns true if the object has all the given properties
+ * @param {object} object 
+ * @param  {...string} properties 
+ * @returns {boolean}
+ */
+export function objectHasProperties(object, ...properties) {
+    return (typeof object == "object" && Array.from(properties).filter(
+        p => Object.keys(object).indexOf(p) === -1).length === 0)
+}
+
+/**
+ * @param {object} obj
+ * @param {any} value
+ * @returns {boolean}
+ */
+export function objectHasValue(obj, value) {
+    return (typeof obj != "object" && Object.values(obj).indexOf(value) > -1);
 }
