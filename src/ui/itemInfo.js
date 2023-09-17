@@ -1,5 +1,5 @@
 import { getLang } from "../game/lang.js";
-import { sprites } from "../game/graphics/assets.js";
+import { sprites } from "../graphics/assets.js";
 import { drawRounded, renderPath, rgb } from "../helper/canvashelper.js";
 import { splitIntoLines } from "../helper/helper.js";
 import Item from "../item/item.js";

@@ -1,5 +1,5 @@
 import { TILE_SIZE } from "../../game/global.js";
-import { sprites } from "../../game/graphics/assets.js";
+import { sprites } from "../../graphics/assets.js";
 import { TileDrop } from "../tileDrop.js";
 import PlantBase from "../base/PlantBase.js";
 import { ItemRegistry as Items } from "../../item/itemRegistry.js";

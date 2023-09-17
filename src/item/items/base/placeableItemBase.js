@@ -1,5 +1,5 @@
 import { TILE_SIZE } from "../../../game/global.js";
-import { SpriteRenderer } from "../../../game/graphics/SpriteRenderer.js";
+import { SpriteRenderer } from "../../../graphics/SpriteRenderer.js";
 import PlacementPreview from "../../../ui/placementPreview.js";
 import Item from "../../item.js";
 import { ItemBase } from "./itemBase.js";

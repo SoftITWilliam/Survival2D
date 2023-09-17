@@ -1,6 +1,5 @@
 import { ITEM_SIZE } from "../../../game/global.js";
-import { SpriteRenderer } from "../../../game/graphics/SpriteRenderer.js";
-import { sprites } from "../../../game/graphics/assets.js";
+import { sprites } from "../../../graphics/assets.js";
 import { TileModel } from "../../../tile/tileModel.js";
 import { TileRegistry as Tiles } from "../../../tile/tileRegistry.js";
 import PlacementPreview from "../../../ui/placementPreview.js";

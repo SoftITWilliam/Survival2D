@@ -1,4 +1,4 @@
-import render from "./graphics/render.js";
+import render from "../graphics/render.js";
 import { canvas, ctx } from "./global.js";
 import { Game } from "./game.js";
 import { spawnPlayerInWorld } from "../player/player.js";

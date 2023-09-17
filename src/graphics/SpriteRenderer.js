@@ -1,4 +1,4 @@
-import { isPositiveInteger, validNumbers } from "../../helper/helper.js";
+import { isPositiveInteger, validNumbers } from "../helper/helper.js";
 import { isMissingTexture, sprites } from "./assets.js";
 
 export class SpriteRenderer {

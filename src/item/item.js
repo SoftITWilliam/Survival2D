@@ -1,10 +1,10 @@
 import { getDescription, getDisplayName, getLang } from "../game/lang.js";
-import { isMissingTexture, sprites } from "../game/graphics/assets.js";
+import { isMissingTexture, sprites } from "../graphics/assets.js";
 import { RARITY_COLORS } from "./rarities.js";
 import { World } from "../world/World.js";
 import { TileModel } from "../tile/tileModel.js";
 import { isPositiveInteger, validNumbers } from "../helper/helper.js";
-import { SpriteRenderer } from "../game/graphics/SpriteRenderer.js";
+import { SpriteRenderer } from "../graphics/SpriteRenderer.js";
 import { TILE_SIZE } from "../game/global.js";
 
 export default class Item {

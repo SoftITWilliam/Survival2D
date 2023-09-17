@@ -1,4 +1,4 @@
-import { PATH } from "../global.js";
+import { PATH } from "../game/global.js";
 
 export const image = (src) => {
     const img = new Image;

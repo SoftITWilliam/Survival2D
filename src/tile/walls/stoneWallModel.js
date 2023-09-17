@@ -1,4 +1,4 @@
-import { sprites } from "../../game/graphics/assets.js";
+import { sprites } from "../../graphics/assets.js";
 import Item from "../../item/item.js";
 import { ItemRegistry } from "../../item/itemRegistry.js";
 import WallBase from "../base/WallBase.js";

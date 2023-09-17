@@ -1,4 +1,4 @@
-import { colors } from "../../game/graphics/colors.js";
+import { colors } from "../../graphics/colors.js";
 import UIElement from "./UIElement.js";
 
 export class CraftingSection extends UIElement {

@@ -2,7 +2,7 @@ import ItemEntityManager from "../item/itemEntityManager.js";
 import { Player } from "../player/player.js";
 import { RecipeManager } from "../crafting/RecipeManager.js";
 import { World } from "../world/World.js";
-import FPSCounter from "./graphics/FPScounter.js";
+import FPSCounter from "../graphics/FPScounter.js";
 import { InputHandler } from "./InputHandler.js";
 import { Testing } from "../tests/testing.js";
 import PlacementPreview from "../ui/placementPreview.js";

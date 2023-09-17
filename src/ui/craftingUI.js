@@ -1,4 +1,4 @@
-import { colors } from "../game/graphics/colors.js";
+import { colors } from "../graphics/colors.js";
 import { getGap } from "../helper/helper.js";
 import * as ui from "./elementAggregator.js";
 

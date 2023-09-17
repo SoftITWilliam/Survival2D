@@ -1,11 +1,11 @@
 
-import { canvas, RENDER_LIGHTING, DEBUG_MODE, TILE_SIZE } from '../global.js';
-import { renderDebugUI } from '../../ui/debugUI.js';
-import { calculateDistance, clamp } from '../../helper/helper.js';
-import { rgbm } from '../../helper/canvashelper.js';
-import { Tile } from '../../tile/Tile.js';
-import { Game } from '../game.js';
-import { Player } from '../../player/player.js';
+import { canvas, RENDER_LIGHTING, DEBUG_MODE, TILE_SIZE } from '../game/global.js';
+import { renderDebugUI } from '../ui/debugUI.js';
+import { calculateDistance, clamp } from '../helper/helper.js';
+import { rgbm } from '../helper/canvashelper.js';
+import { Tile } from '../tile/Tile.js';
+import { Game } from '../game/game.js';
+import { Player } from '../player/player.js';
 
 /**
  * Renders everything in the game
