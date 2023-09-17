@@ -1,39 +1,44 @@
 
+import { rgba } from '../helper/canvashelper.js';
 import { World } from '../world/World.js';
+
+const ROW_HEIGHT_PX = 32;
+const TEXT_COLOR = { r: 255, g: 255, b: 255, a: 0.8 };
 
 export function renderDebugUI(ctx, game) {
     Object.assign(ctx, {
-        fillStyle:"white", font:"20px Font1", textAlign:"left",
+        fillStyle: rgba(TEXT_COLOR), font: "20px Font1", textAlign: "left", textBaseline: "middle",
     })
     ctx.shadow("black", 5, 2, 2);
 
-    let x = game.player.camera.x + canvas.width - 256;
-    let y = game.player.camera.y;
-    let rowHeight = 32;
+    const x = game.player.camera.x + ROW_HEIGHT_PX;
+    const y = game.player.camera.y + ROW_HEIGHT_PX;
 
-    // FPS counter
-    ctx.fillText("FPS: " + game.fpsCounter.display, x, y + rowHeight);
+    const rows = [];
 
-    // Entity Count
-    ctx.fillText("Entity Count: " + game.itemEntities.entities.length, x, y + rowHeight * 2);
+    const addInfoRow = (name, value) => rows.push({ name: name, value: value });
+
+    addInfoRow("FPS", game.fpsCounter.display);
+    addInfoRow("Entity Count", game.itemEntities.entities.length);
 
     // Player info
     let playerX = World.gridXfromCoordinate(game.player.centerX);
     let playerY = World.gridYfromCoordinate(game.player.centerY) -1;
-    ctx.fillText(`Player Pos: X ${playerX}, Y ${playerY}`, x, y + rowHeight * 3); 
-    ctx.fillText(`Player State: ${game.player.state.name}`, x, y + rowHeight * 4)
-    
-    // Tile info
-    let tile = game.world.tiles.get(game.input.mouse.gridX, game.input.mouse.gridY);
+    addInfoRow("Player Pos", `X ${playerX}, Y ${playerY}`);
+    addInfoRow("Player State", game.player.state.name);
 
-    let tilePosText, tileTypeText;
+    // Hovered tile info
+    const tile = game.world.tiles.get(game.input.mouse.gridX, game.input.mouse.gridY);
 
-    if(tile) {
-        ctx.fillText(`Tile Pos: X ${tile.gridX}, Y ${tile.gridY}`, x, y + rowHeight * 5); 
-        ctx.fillText(`Tile Type: ${tile.registryName}`, x, y + rowHeight * 6); 
-    } else {
-        ctx.fillText(`Tile Pos: -`, x, y + rowHeight * 5); 
-        ctx.fillText(`Tile Type: -`, x, y + rowHeight * 6); 
+    addInfoRow("Tile Pos", tile ? `X ${tile.gridX}, Y ${tile.gridY}` : null);
+    addInfoRow("Tile Type", tile?.registryName);
+    addInfoRow("Tile Variant", tile?.spriteVariantName);
+
+    // Draw all rows
+    for(let i = 0; i < rows.length; i++) {
+        let val = rows[i].value;
+        if(val == "") val = null;
+        ctx.fillText(`${rows[i].name}: ${val ?? "-"}`, x, y + ROW_HEIGHT_PX * i);
     }
 
     ctx.shadow();

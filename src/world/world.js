@@ -126,11 +126,11 @@ export class World {
     updateTile(gridX, gridY) {
         try {
             let tile = this.tiles.get(gridX, gridY);
-            tile?.getSpritePosition();
+            tile?.updateSpritePosition();
             tile?.tileUpdate();
 
             let wall = this.walls.get(gridX, gridY);
-            wall?.getSpritePosition();
+            wall?.updateSpritePosition();
             wall?.tileUpdate();
         }
         catch(error) {

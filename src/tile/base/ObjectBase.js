@@ -1,11 +1,14 @@
 import Item from "../../item/item.js";
 import { Tile } from "../Tile.js";
 import { TileModel } from "../tileModel.js";
+import { Tileset } from "../Tileset.js";
 
 export default class ObjectBase extends TileModel {
     constructor(registryName, width, height) {
         super(registryName, width, height);
         this.type = Tile.types.NON_SOLID;
+        this.tilesetTemplate = Tileset.templates.NONE;
+
         this.transparent = true;
         this.connective = false;
         this.requireTool = false;
@@ -30,15 +33,5 @@ export default class ObjectBase extends TileModel {
             return false;
 
         return true;
-    }
-
-    /**
-     * Renders the object
-     * @override
-     * @param {CanvasRenderingContext2D} ctx 
-     * @param {Tile} tile The tile being rendered
-     */
-    render(ctx, tile) {
-        this._spriteRenderer.render(ctx, tile.x, tile.y);
     }
 }

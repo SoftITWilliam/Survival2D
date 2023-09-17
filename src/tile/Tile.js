@@ -2,6 +2,7 @@ import GameObject from "../class/GameObject.js";
 import { TILE_SIZE } from "../game/global.js";
 import Item from "../item/item.js";
 import { TileModel } from "./tileModel.js";
+import { Tileset } from "./Tileset.js";
 
 export class Tile extends GameObject {
     constructor(world, gridX, gridY, model) {
@@ -12,6 +13,7 @@ export class Tile extends GameObject {
 
         this.sheetX = 0;
         this.sheetY = 0;
+        this._spriteVariant;
     }
 
     //#region Enums
@@ -58,6 +60,11 @@ export class Tile extends GameObject {
         return this.model?.connective ?? false;
     }
 
+    get spriteVariantName() {
+        let index = Object.values(Tileset.variants).indexOf(this._spriteVariant);
+        return index != null ? Object.keys(Tileset.variants)[index] : "";
+    }
+
     //#endregion
 
     //#region Public methods
@@ -93,61 +100,38 @@ export class Tile extends GameObject {
         return false;
     }
 
-    getSpritePosition() {
+    updateSpritePosition() {
         let adjacent = this.getAdjacent();
-        let position = this.model.getSpritePosition(adjacent);
 
-        this.sheetX = position.x;
-        this.sheetY = position.y;
-
-        let spriteSize = 48;
-        let spriteGap = 12;
-        this.sx = position.x * (spriteSize + spriteGap);
-        this.sy = position.y * (spriteSize + spriteGap);
-        if(this.connective) {
-            this.sx += spriteGap;
-            this.sy += spriteGap;
-        }
-    }
-
-    /**
-     * Set sprite offset position
-     * (Used for spritesheets)
-     * 
-     * @param {int} offsetX // X offset in pixels
-     * @param {int} offsetY // Y offset in pixels
-     */
-     setSpriteOffset(offsetX,offsetY) {
-        if(!offsetX || !offsetY) {
-            this.sx = 0;
-            this.sy = 0;
-        } else {
-            this.sx = offsetX;
-            this.sy = offsetY;
-        }
+        this._spriteVariant = Tileset.getVariant(adjacent);
+        let position = Tileset.getSpritesheetPosition(this._spriteVariant, this.model.tilesetTemplate);
+        
+        this.sheetX = position?.x;
+        this.sheetY = position?.y;
     }
 
     getAdjacent() {
 
-        let isWall = this.type == Tile.types.WALL;
+        var check = (this.type == Tile.types.WALL ? 
 
-        let checkTile = (x, y) => {
-            let tile = isWall ? this.world.walls.get(x, y) : this.world.tiles.get(x, y);
-            return (tile && !tile.transparent);
-        }
+            (x, y) => (this.world.walls.get(x, y) != null) :
 
-        let adjacent = {
-            tl: checkTile(this.gridX -1, this.gridY + 1), // Top Left
-            tm: checkTile(this.gridX, this.gridY + 1),
-            tr: checkTile(this.gridX + 1, this.gridY + 1),
-            ml: checkTile(this.gridX - 1, this.gridY),
-            mr: checkTile(this.gridX + 1, this.gridY),
-            bl: checkTile(this.gridX - 1, this.gridY - 1),
-            bm: checkTile(this.gridX, this.gridY - 1),
-            br: checkTile(this.gridX + 1, this.gridY - 1),
+            (x, y) => {
+                let tile = this.world.tiles.get(x, y);
+                return (tile && !tile.transparent)
+            }
+        );
+
+        return {
+            top: check(this.gridX, this.gridY + 1),
+            left: check(this.gridX - 1, this.gridY),
+            right: check(this.gridX + 1, this.gridY),
+            bottom: check(this.gridX, this.gridY - 1),
+            top_left: check(this.gridX -1, this.gridY + 1),
+            top_right: check(this.gridX + 1, this.gridY + 1),
+            bottom_left: check(this.gridX - 1, this.gridY - 1),
+            bottom_right: check(this.gridX + 1, this.gridY - 1),
         };
-
-        return adjacent;
     }
 
     render(ctx) {

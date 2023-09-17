@@ -6,11 +6,14 @@ import { ItemRegistry as Items } from "../../item/itemRegistry.js";
 import { Tile } from "../Tile.js";
 import { TileRegistry } from "../tileRegistry.js";
 import Item from "../../item/item.js";
+import { Tileset } from "../Tileset.js";
 
 export class GrassModel extends TileBase {
     constructor(registryName) {
         super(registryName);
         this.type = Tile.types.SOLID;
+        this.tilesetTemplate = Tileset.templates.NO_TILE_ABOVE;
+
         this.setSprite(sprites.tiles.tile_grass);
         this.setMiningProperties(Item.toolTypes.SHOVEL, 0, 1.5, false);
 
@@ -35,7 +38,7 @@ export class GrassModel extends TileBase {
                 if(rng(0, 1023) > 0) continue;
                 
                 world.setTile(x, y, TileRegistry.GRASS);
-                world.tiles.get(x, y).getSpritePosition();
+                world.tiles.get(x, y).updateSpritePosition();
             }
         }
     }
@@ -45,32 +48,7 @@ export class GrassModel extends TileBase {
         let tileAbove = world.tiles.get(tile.gridX, tile.gridY + 1);
         if(tileAbove && !tileAbove.transparent) {
             world.setTile(tile.gridX, tile.gridY, TileRegistry.DIRT);
-            world.tiles.get(tile.gridX, tile.gridY).getSpritePosition();
-        }
-    }
-
-    // Grass uses a different tileset from other tiles
-    getSpritePosition(a) {
-        if(!a.ml && a.mr) {
-            return !a.bm ? {x:0, y:1} : a.br ? {x:0, y:0} : {x:0, y:2}
-        }
-
-        if(a.ml && a.mr) {
-            if(!a.bm) {return {x:1, y:1}}
-            else if(a.bl && a.br) {return {x:1, y:0}}
-            else if(!a.bl && a.br) {return {x:1, y:2}}
-            else if(!a.bl && !a.br) {return {x:2, y:2}}
-            else if(a.bl && !a.br) {return {x:3, y:2}}
-        }
-
-        if(a.ml && !a.mr) {
-            if(!a.bm) {return {x:2, y:1}}
-            else if(a.bl) {return {x:2, y:0}}
-            else if(!a.bl) {return {x:4, y:2}}
-        }
-
-        if(!a.ml && !a.mr) {
-            return !a.bm ? {x:3, y:1} : {x:3, y:0}
+            world.tiles.get(tile.gridX, tile.gridY).updateSpritePosition();
         }
     }
 }
