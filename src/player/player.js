@@ -70,7 +70,7 @@ export class Player {
         this.#reach = 3;
         this.#selectedSlotIndex = 0;
         this.#placementCooldown = new Cooldown(TILE_PLACEMENT_DELAY_MS);
-        
+
         this.cheetahFrames = 0;
 
         // Sprite and Animation variables

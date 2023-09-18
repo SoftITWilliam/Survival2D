@@ -1,7 +1,6 @@
 import { validNumbers } from "../helper/helper.js";
 
 export class Cooldown {
-
     // private fields
     #duration
     #startTime
@@ -85,6 +84,6 @@ export class Cooldown {
      */
     getProgressDecimal() {
         if(this.isFinished()) return 1;
-        else return (this.getProgressMs() / this.#duration)
+        else return (this.getProgressMs() / this.#duration);
     }
 }
