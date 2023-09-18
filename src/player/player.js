@@ -3,7 +3,7 @@ import { Inventory } from '../ui/inventory.js';
 import MiningAction from './mining.js';
 import { PlayerStatBar } from './statBar.js';
 import HotbarText from '../ui/hotbarText.js';
-import { PickupLabelHandler } from '../ui/pickupLabels.js';
+import { PickupLabelManager } from '../ui/pickupLabels.js';
 import PlayerCamera from './camera.js';
 import ItemInfoDisplay from '../ui/itemInfo.js';
 import { PlayerFalling, PlayerJumping, PlayerRunning, PlayerStanding, PlayerSwimming, stateEnum } from './playerStates.js';
@@ -59,7 +59,7 @@ export class Player {
         this.hunger = new PlayerStatBar(50, 20);
         this.thirst = new PlayerStatBar(50, 20);
 
-        this.pickupLabels = new PickupLabelHandler(this);
+        this.pickupLabels = new PickupLabelManager();
         this.hotbarText = new HotbarText(this); 
         this.itemInfoDisplay = new ItemInfoDisplay(this);
         this.camera = new PlayerCamera(this);
@@ -154,7 +154,8 @@ export class Player {
 
         this.getHorizontalMovement(left, right);
         this.#entity.updateCollision(this.world);
-        this.pickupLabels.update();
+        
+        this.pickupLabels.update(deltaTime);
 
         this.state.handleInput(this.game.input, deltaTime);
         this.state.updatePhysics(deltaTime);

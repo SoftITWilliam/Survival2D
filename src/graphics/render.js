@@ -71,7 +71,7 @@ export default function render(ctx, game, player) {
         player.selectedSlot.renderSelection(ctx);
         
         player.hotbarText.render(ctx);
-        player.pickupLabels.render(ctx);
+        player.pickupLabels.render(ctx, player);
         player.itemInfoDisplay.render(ctx, game.input);
     }
     

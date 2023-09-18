@@ -1,15 +1,23 @@
 import { rgba } from "../helper/canvashelper.js";
+import { getPhysicsMultiplier } from "../helper/helper.js";
+import { Player } from "../player/player.js";
 
-export class PickupLabelHandler {
-    constructor(player) {
-        this.player = player // Pointer
+const LABEL_DURATION_MS = 2000;
+const LABEL_HEIGHT_PX = 24;
+const LABEL_FADE_DELTA = 0.05;
+const LABEL_FONT_SIZE = 24;
+
+export class PickupLabelManager {
+
+    constructor() {
+        /** @type {PickupLabel} */
         this.labels = [];
     }   
 
     // Increment the frame counters for all visible labels
-    update() {
+    update(deltaTime) {
         for(let i = 0; i < this.labels.length; i++) {
-            this.labels[i].incrementCounter();
+            this.labels[i].update(deltaTime);
             if(this.labels[i].alpha <= 0) {
                 this.labels.splice(i, 1);
             }
@@ -18,72 +26,96 @@ export class PickupLabelHandler {
 
     // When an item is picked up that doesn't currenty have a label, add a new one to the list.
     add(item, amount) {
-
         // Look for already existing label
-        for(let i = 0; i < this.labels.length; i++) {
-
-            // If one is found, its amount is increased and it's moved to the front of the list.
-            if(this.labels[i].itemName == item.displayName) {
-                this.labels[i].increaseAmount(amount);
-                this.labels.unshift(this.labels[i]);
-                this.labels.splice(i + 1, 1);
-                return;
-            }
-        }
+        if(this.#findExisting(item, amount)) return;
 
         // If no existing label is found, add a new one.
         this.labels.unshift(
-            new PickupLabel(item, amount, this.player)
+            new PickupLabel(item, amount)
         );
     }
 
-    render(ctx) {
+    #findExisting(item, amount) {
         for(let i = 0; i < this.labels.length; i++) {
-            let yPos = 16 + i * 24;
-            this.labels[i].render(ctx, yPos);
+
+            // If existing label is found, its counter is increased and it's moved to the front of the list.
+            if(this.labels[i].itemName == item.displayName) {
+                const label = this.labels.splice(i, 1)[0];
+                label.increaseItemCounter(amount);
+                this.labels.unshift(label);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    render(ctx, player) {
+        for(let i = 0; i < this.labels.length; i++) {
+            let yPos = (i * LABEL_HEIGHT_PX) + 16;
+            this.labels[i].render(ctx, player, yPos);
         }
     }
 }
 
 class PickupLabel {
-    constructor(item, amount, player) {
-        this.player = player; // Pointer
-        this.itemName = item.displayName;
-        this.color = item.textColor;
-        this.amount = amount;
+    #amount
+    #timer
+    #fade
+    constructor(item, amount) {
+        this.item = item;
 
-        this.displayFrames = 120; // start fading out the label after this many frames
-        this.frameCounter = 0;
-        this.alpha = 1;
+        this.#amount = amount;
+        this.#timer = LABEL_DURATION_MS;
+        this.#fade = 1;
     }
 
-    incrementCounter() {
-        this.frameCounter += 1;
-        if(this.frameCounter >= this.displayFrames) {
-            this.alpha -= 0.05;
+    get itemName() {
+        return this.item.displayName;
+    }
+
+    get textColor() {
+        return this.item.textColor;
+    }
+
+    get amount() {
+        return this.#amount;
+    }
+
+    resetDuration() {
+        this.#timer = LABEL_DURATION_MS;
+        this.#fade = 1;
+    }
+
+    update(deltaTime) {
+        this.#timer -= deltaTime;
+        if(this.#timer <= 0) {
+            this.#fade -= LABEL_FADE_DELTA * getPhysicsMultiplier(deltaTime);
         }
     }
 
-    increaseAmount(amount) {
-        this.amount += amount;
-        this.frameCounter = 0;
-        this.alpha = 1;
+    increaseItemCounter(amount) {
+        this.#amount += amount;
+        this.resetDuration();
     }
     
-    render(ctx, yPos) {
-        let txt = `${this.itemName} (${this.amount})`;
-        let clrFill = rgba(this.color, this.alpha);
-        let clrStroke = `rgba(0,0,0,${this.alpha})`;
+    /**
+     * @param {CanvasRenderingContext2D} ctx 
+     * @param {Player} player 
+     * @param {number} yPos 
+     */
+    render(ctx, player, yPos) {
+        let clrFill = rgba(this.textColor, this.#fade);
+        let clrStroke = `rgba(0,0,0,${this.#fade})`;
+        let font = LABEL_FONT_SIZE * this.#fade + "px Font1";
 
-        // Styling
         Object.assign(ctx, {
-            font: "24px Font1", lineWidth: 5, textAlign: "center",
             fillStyle: clrFill, strokeStyle: clrStroke,
+            font: font, lineWidth: 5, textAlign: "center",
         });
 
-        let x = this.player.x + this.player.width / 2;
-        let y = this.player.y - yPos;
+        let x = player.centerX;
+        let y = player.y - yPos;
 
-        ctx.drawOutlinedText(txt, x, y);
+        ctx.drawOutlinedText(`${this.itemName} (${this.amount})`, x, y);
     }
 }
