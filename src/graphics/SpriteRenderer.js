@@ -1,4 +1,5 @@
 import { isPositiveInteger, validNumbers } from "../helper/helper.js";
+import { AlignmentX, AlignmentY, getAlignedX, getAlignedY } from "../misc/alignment.js";
 import { isMissingTexture, sprites } from "./assets.js";
 
 export class SpriteRenderer {
@@ -18,6 +19,9 @@ export class SpriteRenderer {
 
         this.#width = 0;
         this.#height = 0;
+
+        this.alignX = AlignmentX.MIDDLE;
+        this.alignY = AlignmentY.MIDDLE;
 
         this.scaleToFitSize = false;
 
@@ -178,12 +182,13 @@ export class SpriteRenderer {
         var renderWithSize = (x, y, w, h) => {
             if(this.scaleToFitSize) {
                 renderScaled(x, y, w, h);
+                return;
             } 
-            else {
-                let widthDiff = this.width - w;
-                let heightDiff = this.height - h;
-                renderDefault(x - (widthDiff / 2), y - (heightDiff / 2));
-            }
+
+            x = getAlignedX(x, w, this.width, this.alignX);
+            y = getAlignedY(y, h, this.height, this.alignY);
+
+            renderDefault(x, y);
         }
 
         var renderFromObject = (obj) => {
