@@ -317,7 +317,7 @@ export class Player {
             this.#selectedSlotIndex = index;
             let item = this.selectedSlot?.stack?.item ?? null;
             if(item) {
-                this.hotbarText.set(item);
+                this.hotbarText.item = item;
             }
         }
     }

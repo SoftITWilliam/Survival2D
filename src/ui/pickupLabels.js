@@ -1,10 +1,9 @@
-import { rgba } from "../helper/canvashelper.js";
-import { getPhysicsMultiplier } from "../helper/helper.js";
 import { Player } from "../player/player.js";
+import { FadingText } from "./FadingText.js";
 
-const LABEL_DURATION_MS = 2000;
+const LABEL_DURATION_MS = 1500;
 const LABEL_HEIGHT_PX = 24;
-const LABEL_FADE_DELTA = 0.05;
+const LABEL_FADE_DELTA = 0.03;
 const LABEL_FONT_SIZE = 24;
 
 export class PickupLabelManager {
@@ -18,7 +17,7 @@ export class PickupLabelManager {
     update(deltaTime) {
         for(let i = 0; i < this.labels.length; i++) {
             this.labels[i].update(deltaTime);
-            if(this.labels[i].alpha <= 0) {
+            if(this.labels[i].fade <= 0) {
                 this.labels.splice(i, 1);
             }
         }
@@ -41,7 +40,7 @@ export class PickupLabelManager {
             // If existing label is found, its counter is increased and it's moved to the front of the list.
             if(this.labels[i].itemName == item.displayName) {
                 const label = this.labels.splice(i, 1)[0];
-                label.increaseItemCounter(amount);
+                label.increaseItemCount(amount);
                 this.labels.unshift(label);
                 return true;
             }
@@ -51,51 +50,32 @@ export class PickupLabelManager {
 
     render(ctx, player) {
         for(let i = 0; i < this.labels.length; i++) {
-            let yPos = (i * LABEL_HEIGHT_PX) + 16;
+            let yPos = LABEL_HEIGHT_PX * (i + 1);
             this.labels[i].render(ctx, player, yPos);
         }
     }
 }
 
-class PickupLabel {
-    #amount
-    #timer
-    #fade
-    constructor(item, amount) {
-        this.item = item;
+class PickupLabel extends FadingText {
+    constructor(item, count) {
+        super(LABEL_DURATION_MS);
 
-        this.#amount = amount;
-        this.#timer = LABEL_DURATION_MS;
-        this.#fade = 1;
+        this.style.fontSize = LABEL_FONT_SIZE;
+        this.style.textColor = item.textColor;
+        this.fadeDelta = LABEL_FADE_DELTA;
+        this.itemName = item.displayName;
+        this.itemCount = count;
+
+        this.resetFade();
     }
 
-    get itemName() {
-        return this.item.displayName;
+    get text() {
+        return `${this.itemName} (${this.itemCount})`;
     }
 
-    get textColor() {
-        return this.item.textColor;
-    }
-
-    get amount() {
-        return this.#amount;
-    }
-
-    resetDuration() {
-        this.#timer = LABEL_DURATION_MS;
-        this.#fade = 1;
-    }
-
-    update(deltaTime) {
-        this.#timer -= deltaTime;
-        if(this.#timer <= 0) {
-            this.#fade -= LABEL_FADE_DELTA * getPhysicsMultiplier(deltaTime);
-        }
-    }
-
-    increaseItemCounter(amount) {
-        this.#amount += amount;
-        this.resetDuration();
+    increaseItemCount(n) {
+        this.itemCount += n;
+        this.resetFade();
     }
     
     /**
@@ -104,18 +84,6 @@ class PickupLabel {
      * @param {number} yPos 
      */
     render(ctx, player, yPos) {
-        let clrFill = rgba(this.textColor, this.#fade);
-        let clrStroke = `rgba(0,0,0,${this.#fade})`;
-        let font = LABEL_FONT_SIZE * this.#fade + "px Font1";
-
-        Object.assign(ctx, {
-            fillStyle: clrFill, strokeStyle: clrStroke,
-            font: font, lineWidth: 5, textAlign: "center",
-        });
-
-        let x = player.centerX;
-        let y = player.y - yPos;
-
-        ctx.drawOutlinedText(`${this.itemName} (${this.amount})`, x, y);
+        super.render(ctx, player.centerX, player.y - yPos);
     }
 }
