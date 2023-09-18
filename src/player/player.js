@@ -2,7 +2,7 @@ import { TILE_SIZE } from '../game/global.js';
 import { Inventory } from '../ui/inventory.js';
 import MiningAction from './mining.js';
 import { PlayerStatBar } from './statBar.js';
-import HotbarText from '../ui/hotbarText.js';
+import { HotbarText } from '../ui/HotbarText.js';
 import { PickupLabelManager } from '../ui/pickupLabels.js';
 import PlayerCamera from './camera.js';
 import ItemInfoDisplay from '../ui/itemInfo.js';
@@ -60,7 +60,7 @@ export class Player {
         this.thirst = new PlayerStatBar(50, 20);
 
         this.pickupLabels = new PickupLabelManager();
-        this.hotbarText = new HotbarText(this); 
+        this.hotbarText = new HotbarText(); 
         this.itemInfoDisplay = new ItemInfoDisplay(this);
         this.camera = new PlayerCamera(this);
         this.craftingMenu = new CraftingMenu(this);
@@ -154,8 +154,9 @@ export class Player {
 
         this.getHorizontalMovement(left, right);
         this.#entity.updateCollision(this.world);
-        
+
         this.pickupLabels.update(deltaTime);
+        this.hotbarText.update(deltaTime);
 
         this.state.handleInput(this.game.input, deltaTime);
         this.state.updatePhysics(deltaTime);
@@ -300,7 +301,6 @@ export class Player {
         }
 
         // Limit speed to max running speed
-        
         this.dx = clamp(this.dx, -this.maxSpeed, this.maxSpeed);
     }
 
@@ -311,11 +311,15 @@ export class Player {
     }
 
     #selectItem(index) {
+        index--;
         if(index !== this.#selectedSlotIndex) {
             this.miningAction = null;
+            this.#selectedSlotIndex = index;
+            let item = this.selectedSlot?.stack?.item ?? null;
+            if(item) {
+                this.hotbarText.set(item);
+            }
         }
-
-        this.#selectedSlotIndex = index - 1;
     }
 
     renderPlacementPreview(ctx, input) {

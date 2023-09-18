@@ -1,47 +1,73 @@
+import { rgba } from "../helper/canvashelper.js";
+import { getPhysicsMultiplier } from "../helper/helper.js";
+import Item from "../item/item.js";
+import { Player } from "../player/player.js";
 
-export default class HotbarText {
-    constructor(player) {
-        this.player = player;
-        this.text = "";
-        this.opacity = 0;
-        this.frameCounter = 0;
-        this.displayDuration = 100;
-        this.fadeDuration = 50;
+const TEXT_DURATION_MS = 1000;
+const FONT_SIZE = 28;
+const FADE_DELTA = 0.02;
+
+export class HotbarText {
+    #text
+    #fade
+    #timer
+    constructor() {
+        this.#text;
+        this.#fade = 0;
+        this.#timer = 0;
     }
 
-    set(text) {
-        this.text = text;
-        this.opacity = 1;
-        this.frameCounter = 0;
-    }
-
-    incrementFrames() {
-        // For the first (100) frames of being displayed, the hotbar text is at full opacity.
-        if(this.frameCounter < this.displayDuration) {
-            this.frameCounter += 1;
-            return;
+    /**
+     * @overload
+     * @param {string} text 
+     */
+    /**
+     * 
+     * @overload
+     * @param {Item} selectedItem
+     */
+    set(arg) {
+        if(typeof arg == "string") {
+            this.#text = arg;
+            this.reset();
         }
-
-        // After the display duration has passed, the text starts to fade out.
-        this.opacity -= (1 / this.displayDuration);
-        if(this.opacity <= 0) {
-            this.text = "";
+        else if(arg instanceof Item) {
+            this.#text = arg.displayName;
+            this.reset();
         }
     }
 
-    render(ctx) {
-        this.incrementFrames();
+    reset() {
+        this.#timer = TEXT_DURATION_MS;
+        this.#fade = 1;
+    }
 
-        if(this.player.inventory.view) return;
+    update(deltaTime) {
+        this.#timer -= deltaTime;
+        if(this.#timer <= 0) {
+            this.#fade -= FADE_DELTA * getPhysicsMultiplier(deltaTime);
+        }
+    }
+
+    /**
+     * @param {CanvasRenderingContext2D} ctx 
+     * @param {Player} player 
+     */
+    render(ctx, player) {
+        if(player.inventory.view) return;
+
+        let clrFill = rgba(255, 255, 255, this.#fade);
+        let font = FONT_SIZE * this.#fade + "px Font1";
 
         Object.assign(ctx, {
-            font: "24px Font1", textAlign: "center", fillStyle: `rgba(255,255,255,${this.opacity})`
+            font: font, textAlign: "center", fillStyle: clrFill
         });
+
         ctx.shadow("black", 4, 2, 2);
 
-        let x = this.player.camera.getX() + canvas.width / 2;
-        let y = this.player.camera.getY() + canvas.height - 144;
-        ctx.fillText(this.text, x, y);
+        let x = player.camera.centerX;
+        let y = player.camera.y2 - 120;
+        ctx.fillText(this.#text, x, y);
 
         ctx.shadow();
     }
