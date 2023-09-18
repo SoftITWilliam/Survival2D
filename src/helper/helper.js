@@ -141,3 +141,26 @@ export function objectHasProperties(object, ...properties) {
 export function objectHasValue(obj, value) {
     return (typeof obj != "object" && Object.values(obj).indexOf(value) > -1);
 }
+
+/**
+ * Takes a deltaTime value (ms) and converts it to a 'physics multiplier' relative to 60fps.
+ * Used to make physics that were originally written for 60 fps work with different framerates.
+ * @param {number} deltaTime Time since last frame (ms)
+ * @returns {number}
+ * @example
+ * var dt = 1000 / 30; // 30 fps
+ * getPhysicsMultiplier(dt); // returns 2
+ *
+ * var dt = 1000 / 60; // 60 fps
+ * getPhysicsMultiplier(dt); // returns 1
+ *
+ * var dt = 1000 / 144; // 144 fps
+ * getPhysicsMultiplier(dt); // returns 0.41666666666666663
+ *
+ * var dt = 1000 / 240; // 240 fps
+ * getPhysicsMultiplier(dt) // returns 0.25
+ */
+export function getPhysicsMultiplier(deltaTime) {
+    if(!validNumbers(deltaTime)) return 1;
+    else return (deltaTime / (1000 / 60));
+}

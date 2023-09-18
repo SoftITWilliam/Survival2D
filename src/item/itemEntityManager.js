@@ -1,3 +1,5 @@
+import { InputHandler } from "../game/InputHandler.js";
+import { Game } from "../game/game.js";
 import { overlap } from "../helper/collisionhelper.js";
 import PlayerCamera from "../player/camera.js";
 import { ItemEntity } from "./itemEntity.js";
@@ -5,7 +7,11 @@ import { ItemStack } from "./itemStack.js";
 
 export default class ItemEntityManager {
     constructor(game) {
-        this.game = game; // Pointer
+
+        /** @type {Game} */
+        this.game = game;
+
+        /** @type {ItemEntity[]} */
         this.entities = [];
     }
 
@@ -22,15 +28,17 @@ export default class ItemEntityManager {
         return entity;
     }
 
-    update(m) {
+    /**
+     * Updates physics and pickups of all item entities
+     * @param {number} deltaTime Time since last frame (ms)
+     */
+    update(deltaTime) {
         for(let i = 0; i < this.entities.length; i++) {
-            this.entities[i].update(m, this.game.world);
+            this.entities[i].update(deltaTime, this.game.world);
     
             if(overlap(this.entities[i], this.game.player)) {
-                let removed = this.entities[i].pickUp(this.game.player);
-                if(removed) {
-                    this.entities.splice(i,1);
-                    break;
+                if(this.entities[i].tryPickUp(this.game.player)) {
+                    this.entities.splice(i, 1);
                 }
             }
         }
@@ -47,6 +55,9 @@ export default class ItemEntityManager {
 
     /**
      * Render all visible item entities
+     * @param {CanvasRenderingContext2D} ctx
+     * @param {PlayerCamera} camera Renders all entities which overlap with the camera view
+     * @param {InputHandler} input
      */
     render(ctx, camera, input) {
         this.getVisible(camera).forEach(entity => {

@@ -1,4 +1,4 @@
-
+import { getPhysicsMultiplier } from "../helper/helper.js";
 
 export const stateEnum = {
     STANDING: 0,
@@ -16,7 +16,7 @@ class State {
 
     enter() { }
     updateAnimation() { }
-    updatePhysics(m, dt) { }
+    updatePhysics(dt) { }
     handleInput(input) { }
 }
 
@@ -118,7 +118,9 @@ export class PlayerJumping extends State {
         }
     }
 
-    updatePhysics(m, dt) { 
+    updatePhysics(dt) { 
+        let m = getPhysicsMultiplier(dt);
+
         // Do gravity
         this.player.dy += this.player.gravity * m;
             
@@ -168,7 +170,9 @@ export class PlayerFalling extends State {
         }
     }
 
-    updatePhysics(m) { 
+    updatePhysics(dt) { 
+        let m = getPhysicsMultiplier(dt);
+
         if(this.player.cheetahFrames > 0) {
             this.player.cheetahFrames -= 1;
         }

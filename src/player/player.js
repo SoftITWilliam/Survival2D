@@ -12,7 +12,7 @@ import CraftingMenu from '../crafting/Crafting.js';
 import { FrameAnimation } from '../graphics/animation.js';
 import { ItemRegistry as Items } from '../item/itemRegistry.js';
 import { EntityComponent } from '../components/EntityComponent.js';
-import { calculateDistance, clamp } from '../helper/helper.js';
+import { calculateDistance, clamp, getPhysicsMultiplier } from '../helper/helper.js';
 import { TilePlacement } from '../tile/TilePlacement.js';
 
 const PLAYER_WIDTH = 36;
@@ -132,21 +132,13 @@ export class Player {
         this.state.enter();
     }
 
-    addDevKit() {
-        console.log(this);
-        this.inventory.addItem(Items.DEV_PICKAXE);
-        this.inventory.addItem(Items.DEV_AXE);
-        this.inventory.addItem(Items.DEV_HAMMER);
-        this.inventory.addItem(Items.DEV_SHOVEL);
-    }
-
-    update(m, input, dt) {
+    update(deltaTime, input) {
         this.inLiquid = false;
         this.#entity.grounded = false;
 
         // Handle input
         if(input.keys.includes("X")) {
-            this.addDevKit();
+            giveDevTools(this);
             input.removeKey("X");
         }
 
@@ -156,14 +148,14 @@ export class Player {
         if(left) {this.facing = "left"}
         if(right) {this.facing = "right"}
 
-        this.getHorizontalMovement(left,right);
+        this.getHorizontalMovement(left, right);
         this.#entity.updateCollision(this.world);
         this.pickupLabels.update();
 
-        this.state.handleInput(this.game.input, dt);
-        this.state.updatePhysics(m, dt);
+        this.state.handleInput(this.game.input, deltaTime);
+        this.state.updatePhysics(deltaTime);
         this.state.updateAnimation();
-        this.animation.update(dt);
+        this.animation.update(deltaTime);
 
         if(this.placeDelay > 0) {
             this.placeDelay -= 1;
@@ -175,13 +167,13 @@ export class Player {
             if(this.selectedItem && this.selectedItem.placeable) {
                 this.placeHeldItem(input.mouse.gridX, input.mouse.gridY);
             } else {
-                this.updateMining(input, dt);
+                this.updateMining(input, deltaTime);
             }
         } else {
             this.miningAction = null;
         }
 
-        this.updatePosition(m, input);
+        this.updatePosition(deltaTime, input);
         this.updateInventory(input);
         this.camera.update();
 
@@ -312,8 +304,8 @@ export class Player {
     }
 
     // Move player and camera by dx and dy
-    updatePosition(m, input) {
-        this.#entity.move(m, this.dx, this.dy);
+    updatePosition(deltaTime, input) {
+        this.#entity.move(this.dx, this.dy, deltaTime);
         input.mouse.updateGridPos();
     }
 
@@ -376,4 +368,17 @@ export function spawnPlayerInWorld(player, world) {
     player.y = Math.round((-world.heightmap[spawnX] - 2) * TILE_SIZE);
 
     player.setState("FALLING");
+}
+
+/**
+ * Add the Dev toolset to the player's inventory
+ * (Dev pickaxe, axe, hammer, and shovel)
+ * @param {Player} player
+ */
+function giveDevTools(player) {
+    console.log("Giving player developer tools...");
+    player.inventory.addItem(Items.DEV_PICKAXE);
+    player.inventory.addItem(Items.DEV_AXE);
+    player.inventory.addItem(Items.DEV_HAMMER);
+    player.inventory.addItem(Items.DEV_SHOVEL);
 }

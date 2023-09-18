@@ -9,7 +9,7 @@ import PlacementPreview from "../ui/placementPreview.js";
 
 export class Game {
     constructor() {
-        this.physicsMultiplier = 0;
+        this.deltaTime = 0;
 
         this.world = new World(this, 512, 127);
 
@@ -24,17 +24,17 @@ export class Game {
     }
 
     update(deltaTime) {
+        this.deltaTime = deltaTime;
         if(deltaTime > 500) return;
-        this.physicsMultiplier = deltaTime / (1000 / 60);
 
         document.body.style.cursor = "default";
         this.world.tickCounter();
         this.fpsCounter.increment();
-        this.player.update(this.physicsMultiplier, this.input, deltaTime);
+        this.player.update(deltaTime, this.input);
         this.player.craftingMenu.ui.update();
        
-        PlacementPreview.updateAlpha(this.physicsMultiplier);
+        PlacementPreview.updateAlpha(deltaTime);
 
-        this.itemEntities.update(this.physicsMultiplier);
+        this.itemEntities.update(deltaTime);
     }
 }

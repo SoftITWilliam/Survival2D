@@ -3,6 +3,7 @@ import { TILE_SIZE } from "../game/global.js";
 import { dropItemFromTile } from "../item/dropItem.js";
 import { Tile } from "../tile/Tile.js";
 import { PositionComponent } from "./positionComponent.js";
+import { getPhysicsMultiplier, objectHasProperties, validNumbers } from "../helper/helper.js";
 
 export class EntityComponent extends PositionComponent {
     constructor(x = 0, y = 0, width = 0, height = null) {
@@ -20,21 +21,39 @@ export class EntityComponent extends PositionComponent {
     }
 
     /**
-     * Update position based on deltaX and deltaY.
-     * Also accepts vector in 'deltaX' param
-     * @param {*} multiplier 
-     * @param {*} deltaX 
-     * @param {*} deltaY 
+     * @typedef {object} Vector
+     * @property {number} dx Delta X
+     * @property {number} dy Delta Y
      */
-    move(multiplier, deltaX, deltaY) {
-        if(typeof deltaX == "object") {
-            let vector = deltaX;
-            this._x += vector.dx * multiplier;
-            this._y += vector.dy * multiplier;
-        } else {
-            this._x += deltaX * multiplier;
-            this._y += deltaY * multiplier;
+
+    /**
+     * Update position based on deltaX, deltaY, and deltaTime
+     * @overload
+     * @param {number} deltaX 
+     * @param {number} deltaY 
+     * @param {number} deltaTime Time since last frame (ms)
+     */
+    /**
+     * Update position based on {@link Vector} object
+     * @overload
+     * @param {Vector} vector 
+     * @param {number} deltaTime 
+     */
+    move(arg1, arg2, arg3) {
+
+        var moveFn = (dx, dy, dt) => {
+            let m = getPhysicsMultiplier(dt);
+            this._x += dx * m;
+            this._y += dy * m;
         }
+
+        if(typeof arg1 === "object" && typeof arg2 === "number") {
+            moveFn(arg1.dx, arg1.dy, arg2);
+        } 
+        else if(validNumbers(arg1, arg2, arg3)) {
+            moveFn(arg1, arg2, arg3);
+        }
+        // Do nothing if args are invalid
     }
 
     get vector() {
@@ -42,9 +61,10 @@ export class EntityComponent extends PositionComponent {
     }
 
     set vector(vector) {
-        if(vector.dx === undefined || vector.dy === undefined) return;
-        this.dx = vector.dx ?? 0;
-        this.dy = vector.dy ?? 0;
+        if(objectHasProperties(vector, "dx", "dy")) {
+            this.dx = vector.dx ?? 0;
+            this.dy = vector.dy ?? 0;
+        }
     }
 
     updateCollision(world) {

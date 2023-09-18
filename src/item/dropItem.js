@@ -18,7 +18,7 @@ export function dropItemFromTile(tile, item, amount, game) {
     
     // Create an item entity and assign a randomzied movement vector to it
     let entity = game.itemEntities.addEntity(tile.centerX, tile.centerY, new ItemStack(item, amount));
-    let v = ItemEntity.generateVector(game.physicsMultiplier);
+    let v = ItemEntity.generateVector();
     entity.vector = v;
 }
 

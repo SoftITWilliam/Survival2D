@@ -1,6 +1,6 @@
 import { EntityComponent } from "../components/EntityComponent.js";
 import { GRAVITY } from "../game/global.js";
-import { rng } from "../helper/helper.js";
+import { getPhysicsMultiplier, rng } from "../helper/helper.js";
 
 const VECTOR_RANGE = 20;
 
@@ -71,7 +71,9 @@ export class ItemEntity {
 
     //#region Methods
 
-    update(m, world) {
+    update(deltaTime, world) {
+        let m = getPhysicsMultiplier(deltaTime);
+        
         this.inLiquid = false;
         this.grounded = false;
 
@@ -79,10 +81,10 @@ export class ItemEntity {
         this.dx *= 1 - (0.05 * m);
 
         this._entity.updateCollision(world);
-        this._entity.move(m, this.vector);
+        this._entity.move(this.vector, deltaTime);
     }
 
-    pickUp(player) {
+    tryPickUp(player) {
         let remaining = player.inventory.addItem(this.item, this.amount);
         this.stack.amount = remaining;
         return (this.stack.amount == 0);

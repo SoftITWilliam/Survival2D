@@ -1,7 +1,7 @@
 import { TILE_SIZE } from "../game/global.js";
 import { SpriteRenderer } from "../graphics/SpriteRenderer.js";
 import { sprites } from "../graphics/assets.js";
-import { calculateDistance } from "../helper/helper.js";
+import { calculateDistance, getPhysicsMultiplier } from "../helper/helper.js";
 import Item from "../item/item.js";
 
 const ALPHA_RANGE = [0.4, 0.7];
@@ -104,8 +104,8 @@ export default class PlacementPreview {
 
     // Alpha value goes back and forth between the lower and higher points in ALPHA_RANGE
     // todo: use delta time
-    static updateAlpha(m) {
-        this.alpha += (this.alphaDelta * m);
+    static updateAlpha(deltaTime) {
+        this.alpha += (this.alphaDelta * getPhysicsMultiplier(deltaTime));
         if((this.alphaDelta > 0 && this.alpha >= ALPHA_RANGE[1]) || 
             (this.alphaDelta < 0 && this.alpha <= ALPHA_RANGE[0])) {
                 this.alphaDelta *= -1;
