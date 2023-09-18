@@ -279,7 +279,7 @@ export class Inventory {
             // If inventory is full, return the amount of items left.
             if(!emptySlot) {
                 if(startAmount - amount != 0) {
-                    this.player.pickupLabels.add(item, startAmount - amount);
+                    this.player.onItemPickup(item, startAmount - amount);
                 }
                 return amount;
             }
@@ -297,9 +297,14 @@ export class Inventory {
                 this.getSlot(x, y).stack = new ItemStack(item, amount);
                 amount = 0;
             }
+
+            let selected = this.player.selectedSlot;
+            if(x === selected.invX && y === selected.invY) {
+                this.player.onItemSelectionChanged();
+            }
         }
 
-        this.player.pickupLabels.add(item, startAmount);
+        this.player.onItemPickup(item, startAmount);
         return 0;
     }
 

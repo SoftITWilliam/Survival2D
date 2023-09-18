@@ -320,16 +320,30 @@ export class Player {
         input.mouse.updateGridPos();
     }
     //#endregion
+    //#region onThing methods
+
+    onItemPickup(item, amount) {
+        this.pickupLabels.add(item, amount);
+    }
+
+    /**
+     * Runs when selecting a new slot or the item in the selected slot changes
+     */
+    onItemSelectionChanged() {
+        this.miningAction = null;
+        let item = this.selectedSlot?.stack?.item ?? null;
+        if(item) {
+            this.hotbarText.item = item;
+        }
+    }
+
+    //#endregion
 
     #selectItem(index) {
         index--;
         if(index !== this.#selectedSlotIndex) {
-            this.miningAction = null;
             this.#selectedSlotIndex = index;
-            let item = this.selectedSlot?.stack?.item ?? null;
-            if(item) {
-                this.hotbarText.item = item;
-            }
+            this.onItemSelectionChanged();
         }
     }
 
