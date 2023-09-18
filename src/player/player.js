@@ -15,6 +15,8 @@ import { EntityComponent } from '../components/EntityComponent.js';
 import { calculateDistance, clamp } from '../helper/helper.js';
 import { TilePlacement } from '../tile/TilePlacement.js';
 import { Cooldown } from '../class/Cooldown.js';
+import { SpriteRenderer } from '../graphics/SpriteRenderer.js';
+import { AlignmentY } from '../misc/alignment.js';
 
 const PLAYER_WIDTH = 36;
 const PLAYER_HEIGHT = 72;
@@ -26,6 +28,7 @@ export class Player {
     #selectedSlotIndex
     #reach
     #placementCooldown
+    #renderer
     constructor(game) {
         this.game = game;
         this.world = game.world;
@@ -79,6 +82,10 @@ export class Player {
         this.animation = new FrameAnimation();
         this.frameWidth = 96;
 
+        this.#renderer = new SpriteRenderer(this.spriteSheet);
+        this.#renderer.setSpriteSize(96);
+        this.#renderer.alignY = AlignmentY.BOTTOM;
+
         this.#entity.onBottomCollision = () => {
             this.setState("FALLING");
         }
@@ -114,6 +121,7 @@ export class Player {
     get gravity() { return this.#entity.gravity }
     get grounded() { return this.#entity.grounded }
     //#endregion
+    //#region Getters/setters
 
     get frameX() { 
         return this.animation.currentFrame; 
@@ -135,6 +143,9 @@ export class Player {
         this.state = this.stateList[stateEnum[state]];
         this.state.enter();
     }
+
+    //#endregion
+    //#region Update methods
 
     update(deltaTime, input) {
         this.inLiquid = false;
@@ -273,7 +284,6 @@ export class Player {
         }
     }
         
-
     getHorizontalMovement(walkLeft, walkRight) {
         // If player is holding A, accelerate left.
         if(walkLeft) {
@@ -309,6 +319,7 @@ export class Player {
         this.#entity.move(this.dx, this.dy, deltaTime);
         input.mouse.updateGridPos();
     }
+    //#endregion
 
     #selectItem(index) {
         index--;
@@ -320,27 +331,6 @@ export class Player {
                 this.hotbarText.item = item;
             }
         }
-    }
-
-    renderPlacementPreview(ctx, input) {
-        let x = input.mouse.gridX;
-        let y = input.mouse.gridY;
-        // Held item must have a placement preview
-        if (!this.selectedItem || 
-            !this.selectedItem.placementPreview || 
-            !this.selectedItem.canBePlaced(x, y, this.world)) {
-                return;
-        }
-
-        this.selectedItem.placementPreview.render(ctx, x, y, this);
-    }
-
-    render(ctx) {
-        let frameSize = 96;
-        let x = this.x - (frameSize - this.width) / 2;
-        let y = this.y + this.height - frameSize;
-        ctx.drawImage(this.spriteSheet, frameSize * this.frameX, frameSize * this.frameY, 
-            frameSize, frameSize, x, y, frameSize, frameSize);
     }
 
     placeHeldItem(gridX, gridY) {
@@ -361,6 +351,26 @@ export class Player {
         else {
             console.log(result.info);
         }
+    }
+
+    //#region Rendering methods
+
+    render(ctx) {
+        this.#renderer.setSheetPosition(this.frameX, this.frameY);
+        this.#renderer.render(ctx, this);
+    }
+
+    renderPlacementPreview(ctx, input) {
+        let x = input.mouse.gridX;
+        let y = input.mouse.gridY;
+        // Held item must have a placement preview
+        if (!this.selectedItem || 
+            !this.selectedItem.placementPreview || 
+            !this.selectedItem.canBePlaced(x, y, this.world)) {
+                return;
+        }
+
+        this.selectedItem.placementPreview.render(ctx, x, y, this);
     }
 }
 
