@@ -12,16 +12,20 @@ import CraftingMenu from '../crafting/Crafting.js';
 import { FrameAnimation } from '../graphics/animation.js';
 import { ItemRegistry as Items } from '../item/itemRegistry.js';
 import { EntityComponent } from '../components/EntityComponent.js';
-import { calculateDistance, clamp, getPhysicsMultiplier } from '../helper/helper.js';
+import { calculateDistance, clamp } from '../helper/helper.js';
 import { TilePlacement } from '../tile/TilePlacement.js';
+import { Cooldown } from '../class/Cooldown.js';
 
 const PLAYER_WIDTH = 36;
 const PLAYER_HEIGHT = 72;
+
+const TILE_PLACEMENT_DELAY_MS = 250;
 
 export class Player {
     #entity
     #selectedSlotIndex
     #reach
+    #placementCooldown
     constructor(game) {
         this.game = game;
         this.world = game.world;
@@ -64,8 +68,8 @@ export class Player {
         this.miningAction = null;
         
         this.#reach = 3;
-
         this.#selectedSlotIndex = 0;
+        this.#placementCooldown = new Cooldown(TILE_PLACEMENT_DELAY_MS);
 
         this.cheetahFrames = 0;
 
@@ -157,10 +161,6 @@ export class Player {
         this.state.updateAnimation();
         this.animation.update(deltaTime);
 
-        if(this.placeDelay > 0) {
-            this.placeDelay -= 1;
-        }
-            
         // Tile interaction
         if(input.mouse.click && !this.inventory.view) {
 
@@ -340,7 +340,7 @@ export class Player {
 
     placeHeldItem(gridX, gridY) {
 
-        if(this.placeDelay > 0) return;
+        if(this.#placementCooldown.isFinished() === false) return;
 
         const stack = this.selectedSlot?.stack; 
 
@@ -351,7 +351,7 @@ export class Player {
         this.selectedSlot.refreshStack();
 
         if(result.success) {
-            this.placeDelay = 15;
+            this.#placementCooldown.start();
         } 
         else {
             console.log(result.info);
