@@ -1,4 +1,4 @@
-import { surfaceCollision } from "../helper/collisionhelper.js";
+import { Collision } from "../misc/Collision.js";
 import { TILE_SIZE } from "../game/global.js";
 import { dropItemFromTile } from "../item/dropItem.js";
 import { Tile } from "../tile/Tile.js";
@@ -122,30 +122,22 @@ export class EntityComponent extends PositionComponent {
 
         tiles.forEach(tile => {
             if(tile.type == Tile.types.SOLID) {
-                if(surfaceCollision("top", this, tile)) {
+                if(Collision.topSurface(this, tile)) {
                     this.topCollision(tile);
                 }
 
-                if(surfaceCollision("bottom", this, tile)) {
+                if(Collision.bottomSurface(this, tile)) {
                     this.bottomCollision(tile);
                 }
 
-                if(surfaceCollision("left", this, tile)) {
+                if(Collision.leftSurface(this, tile)) {
                     this.leftCollision(tile);
                 }
 
-                if(surfaceCollision("right", this, tile)) {
+                if(Collision.rightSurface(this, tile)) {
                     this.rightCollision(tile);
                 }
             }
-
-            /*
-            if(tile.type == Tile.types.LIQUID) {
-                if(overlap(this, tile)) {
-                    this.inLiquid = true;
-                }
-            }
-            */
         })
     }
 }

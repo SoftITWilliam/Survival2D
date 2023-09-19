@@ -1,6 +1,7 @@
-import { overlap } from "../helper/collisionhelper.js";
+
 import { calculateDistance } from "../helper/helper.js";
 import { ItemStack } from "../item/itemStack.js";
+import { Collision } from "../misc/Collision.js";
 import { Player } from "../player/player.js";
 import { World } from "../world/World.js";
 import { Tile } from "./Tile.js";
@@ -37,6 +38,12 @@ export class TilePlacement {
     }
 
     /**
+     * @typedef {object} PlacementResult
+     * @property {boolean} success
+     * @property {(string | null)} info
+     * @property {(Tile | null)} tile
+     */
+    /**
      * Try to place an item from the stack in the world.
      * 
      * Note: Will deduct one item from the stack if successful,
@@ -45,7 +52,7 @@ export class TilePlacement {
      * @param {ItemStack} stack 
      * @param {number} gridX
      * @param {number} gridY
-     * @returns {object}
+     * @returns {PlacementResult}
      */
     placeFromStack(player, stack = null, gridX, gridY) {
         try {
@@ -70,7 +77,7 @@ export class TilePlacement {
             if(calculateDistance(player, tile) > player.reach) {
                 return placementResult(false, "Player is out of range.");
             } 
-            if(tile.type == Tile.types.SOLID && overlap(player, tile)) {
+            if(tile.type == Tile.types.SOLID && Collision.rectangleOverlap(player, tile)) {
                 return placementResult(false, "Tile cannot be placed on top of player.");
             }
 

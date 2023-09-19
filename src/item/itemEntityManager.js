@@ -1,6 +1,6 @@
 import { InputHandler } from "../game/InputHandler.js";
 import { Game } from "../game/game.js";
-import { overlap } from "../helper/collisionhelper.js";
+import { Collision } from "../misc/Collision.js";
 import PlayerCamera from "../player/camera.js";
 import { ItemEntity } from "./itemEntity.js";
 import { ItemStack } from "./itemStack.js";
@@ -36,7 +36,7 @@ export default class ItemEntityManager {
         for(let i = 0; i < this.entities.length; i++) {
             this.entities[i].update(deltaTime, this.game.world);
     
-            if(overlap(this.entities[i], this.game.player)) {
+            if(Collision.rectangleOverlap(this.entities[i], this.game.player)) {
                 if(this.entities[i].tryPickUp(this.game.player)) {
                     this.entities.splice(i, 1);
                 }
@@ -50,7 +50,7 @@ export default class ItemEntityManager {
      * @returns {ItemEntity[]}
      */
     getVisible(camera) {
-        return this.entities.filter(entity => overlap(camera, entity));
+        return this.entities.filter(entity => Collision.rectangleOverlap(camera, entity));
     }
 
     /**
