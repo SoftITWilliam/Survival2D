@@ -6,7 +6,7 @@ import { HotbarText } from '../ui/HotbarText.js';
 import { PickupLabelManager } from '../ui/pickupLabels.js';
 import PlayerCamera from './camera.js';
 import ItemInfoDisplay from '../ui/itemInfo.js';
-import { PlayerFalling, PlayerJumping, PlayerRunning, PlayerStanding, PlayerSwimming, stateEnum } from './playerStates.js';
+import { PlayerFalling, PlayerJumping, PlayerRunning, PlayerStanding, PlayerState } from './playerStates.js';
 import { sprites } from '../graphics/assets.js';
 import CraftingMenu from '../crafting/Crafting.js';
 import { FrameAnimation } from '../graphics/animation.js';
@@ -20,7 +20,6 @@ import { AlignmentY } from '../misc/alignment.js';
 
 const PLAYER_WIDTH = 36;
 const PLAYER_HEIGHT = 72;
-
 const TILE_PLACEMENT_DELAY_MS = 250;
 
 export class Player {
@@ -29,6 +28,7 @@ export class Player {
     #reach
     #placementCooldown
     #renderer
+    #state
     constructor(game) {
         this.game = game;
         this.world = game.world;
@@ -36,14 +36,6 @@ export class Player {
         this.#entity = new EntityComponent();
 
         this.inventory = new Inventory(this);
-
-        this.stateList = [
-            new PlayerStanding(this), 
-            new PlayerRunning(this), 
-            new PlayerJumping(this),
-            new PlayerFalling(this), 
-            new PlayerSwimming(this)
-        ];
 
         this.width = PLAYER_WIDTH;
         this.height = PLAYER_HEIGHT;
@@ -70,6 +62,8 @@ export class Player {
 
         this.miningAction = null;
         
+        this.#state;
+        
         this.#reach = 3;
         this.#selectedSlotIndex = 0;
         this.#placementCooldown = new Cooldown(TILE_PLACEMENT_DELAY_MS);
@@ -87,9 +81,21 @@ export class Player {
         this.#renderer.alignY = AlignmentY.BOTTOM;
 
         this.#entity.onBottomCollision = () => {
-            this.setState("FALLING");
+            this.setState(Player.States.FALLING);
         }
     }
+
+    //#region Enums
+
+    static States = {
+        STANDING: new PlayerStanding(), 
+        RUNNING: new PlayerRunning(), 
+        JUMPING: new PlayerJumping(),
+        FALLING: new PlayerFalling(), 
+        //SWIMMING: new PlayerSwimming(this)
+    }
+
+    //#endregion
 
     //#region Component wrappers
     get x() { return this.#entity.x }
@@ -139,9 +145,15 @@ export class Player {
         return (this.selectedItem?.reach ?? this.#reach) * TILE_SIZE;
     }
 
+    get state() {
+        return this.#state;
+    }
+
     setState(state) {
-        this.state = this.stateList[stateEnum[state]];
-        this.state.enter();
+        if(state instanceof PlayerState) {
+            this.#state = state;
+            this.#state.enter(this);
+        }
     }
 
     //#endregion
@@ -396,7 +408,7 @@ export function spawnPlayerInWorld(player, world) {
     player.x = Math.round(spawnX * TILE_SIZE + (TILE_SIZE - player.width) / 2);
     player.y = Math.round((-world.heightmap[spawnX] - 2) * TILE_SIZE);
 
-    player.setState("FALLING");
+    player.setState(Player.States.FALLING);
 }
 
 /**

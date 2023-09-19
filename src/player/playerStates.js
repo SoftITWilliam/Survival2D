@@ -1,17 +1,9 @@
 import { getPhysicsMultiplier } from "../helper/helper.js";
+import { Player } from "./player.js";
 
-export const stateEnum = {
-    STANDING: 0,
-    RUNNING: 1,
-    JUMPING: 2,
-    FALLING: 3,
-}
-
-// Super class
-class State {
-    constructor(stateName, player) {
+export class PlayerState {
+    constructor(stateName) {
         this.name = stateName;
-        this.player = player;
     }
 
     enter() { }
@@ -20,12 +12,13 @@ class State {
     handleInput(input) { }
 }
 
-export class PlayerStanding extends State {
-    constructor(player) {
-        super("STANDING", player);
+export class PlayerStanding extends PlayerState {
+    constructor() {
+        super("STANDING");
     }
     
-    enter() {
+    enter(player) {
+        this.player = player;
         const anim = this.player.animation;
         anim.currentFrame = 0;
         anim.frameCount = 2;
@@ -42,24 +35,25 @@ export class PlayerStanding extends State {
 
     handleInput(input) {
         if(input.keys.includes("W") || input.keys.includes(" ")) {
-            this.player.setState("JUMPING");
+            this.player.setState(Player.States.JUMPING);
         }
         if(input.keys.includes("A") || input.keys.includes("D")) {
-            this.player.setState("RUNNING");
+            this.player.setState(Player.States.RUNNING);
         }
         if(!this.player.grounded) {
             this.player.cheetahFrames = 3;
-            this.player.setState("FALLING");
+            this.player.setState(Player.States.FALLING);
         }
     }
 }
 
-export class PlayerRunning extends State {
-    constructor(player) {
-        super("RUNNING", player);
+export class PlayerRunning extends PlayerState {
+    constructor() {
+        super("RUNNING");
     }
     
-    enter() {
+    enter(player) {
+        this.player = player;
         const anim = this.player.animation;
         anim.currentFrame = 3;
         anim.frameCount = 8;
@@ -76,28 +70,29 @@ export class PlayerRunning extends State {
 
     handleInput(input) {
         if(input.keys.includes("W") || input.keys.includes(" ")) {
-            this.player.setState("JUMPING");
+            this.player.setState(Player.States.JUMPING);
         }
 
         if(!input.keys.includes("A") && !input.keys.includes("D")) {
-            this.player.setState("STANDING");
+            this.player.setState(Player.States.STANDING);
         }
 
         if(!this.player.grounded) {
             this.player.cheetahFrames = 3;
-            this.player.setState("FALLING");
+            this.player.setState(Player.States.FALLING);
         }
     }
 }
 
-export class PlayerJumping extends State {
-    constructor(player) {
-        super("JUMPING", player);
+export class PlayerJumping extends PlayerState {
+    constructor() {
+        super("JUMPING");
         this.holdTimer = 0; // in ms
         this.maxJumpTime = 140; // in ms
     }
     
-    enter() {
+    enter(player) {
+        this.player = player;
         this.player.dy = -6.5;
         this.player.cheetahFrames = 0;
 
@@ -144,17 +139,19 @@ export class PlayerJumping extends State {
         }
 
         if(this.player.dy >= 0) {
-            this.player.setState("FALLING");
+            this.player.setState(Player.States.FALLING);
         }
     }
 }
 
-export class PlayerFalling extends State {
-    constructor(player) {
-        super("FALLING", player);
+export class PlayerFalling extends PlayerState {
+    constructor() {
+        super("FALLING");
     }
 
-    enter() {
+    enter(player) {
+        this.player = player;
+
         const anim = this.player.animation;
         anim.currentFrame = 2;
         anim.frameCount = 3;
@@ -188,20 +185,20 @@ export class PlayerFalling extends State {
 
     handleInput(input) {
         if((input.keys.includes("W") || input.keys.includes(" ")) && this.player.cheetahFrames > 0) {
-            this.player.setState("JUMPING");
+            this.player.setState(Player.States.JUMPING);
         }
 
         if(this.player.grounded) {
             if(this.player.dx == 0) {
-                this.player.setState("STANDING");
+                this.player.setState(Player.States.STANDING);
             } else {
-                this.player.setState("RUNNING");
+                this.player.setState(Player.States.RUNNING );
             }
         }
     }
 }
 
-export class PlayerSwimming extends State {
+export class PlayerSwimming extends PlayerState {
     constructor(player) {
         super("SWIMMING", player);
     }
