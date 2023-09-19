@@ -2,7 +2,7 @@ import { ToolModule } from '../components/ToolModule.js';
 import Item from './item.js';
 import * as item from './itemParent.js';
 
-import { ITEM_RARITIES as rarity }  from './rarities.js';
+import { ItemRarities as rarity }  from './rarities.js';
 
 const tool = Item.toolTypes;
 

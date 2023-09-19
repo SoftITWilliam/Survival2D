@@ -1,6 +1,6 @@
 import { getDescription, getDisplayName, getLang } from "../game/lang.js";
 import { isMissingTexture, sprites } from "../graphics/assets.js";
-import { RARITY_COLORS } from "./rarities.js";
+import { RarityColors } from "./rarities.js";
 import { World } from "../world/World.js";
 import { TileModel } from "../tile/tileModel.js";
 import { isPositiveInteger, validNumbers } from "../helper/helper.js";
@@ -62,7 +62,7 @@ export default class Item {
     }
 
     get textColor() {
-        return RARITY_COLORS[this.rarity] ?? {r:240, g:240, b:240}
+        return RarityColors[this.rarity] ?? {r:240, g:240, b:240}
     }
 
     get type() {
