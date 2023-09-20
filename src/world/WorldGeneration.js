@@ -139,7 +139,7 @@ export class WorldGeneration {
     generateHeightmap() {
 
         let heightMap = [];
-        heightMap.push(BASE_TERRAIN_HEIGHT + 6);
+        heightMap.push(Math.ceil(this.world.height / 2));
 
         for(let x = 0; x < this.world.width; x++) {
             let pHeight = heightMap[x];
