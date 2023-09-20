@@ -17,7 +17,7 @@ export class WallItemBase extends ItemBase {
         this.entitySize = ITEM_SIZE * 2;
 
 
-        const spritesheet = sprites.walls[this.registryName];
+        const spritesheet = sprites.tilesets[this.registryName];
 
         this.setSprite(spritesheet);
         this._previewRenderer.setSource(spritesheet);

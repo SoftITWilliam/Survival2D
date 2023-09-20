@@ -95,17 +95,19 @@ export class World {
         this.tiles.asArray().forEach(tile => tile?.tickUpdate());
     }
 
-    generate() {
-        this.worldGen.generate();
+    async generate() {
+        return new Promise(async (resolve) => {
+            await this.worldGen.generate();
 
-        // Convert all generated 'structures' into actual tiles
-        this.structures.forEach(structure => {
-            structure.generate();
-        })
+            // Convert all generated 'structures' into actual tiles
+            this.structures.forEach(structure => {
+                structure.generate();
+            })
 
-        this.lighting.initialize();
+            this.updateAllTiles();
 
-        this.updateAllTiles();
+            resolve();
+        });
     }    
 
     updateAllTiles() {

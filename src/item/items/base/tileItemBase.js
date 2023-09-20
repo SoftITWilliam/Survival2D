@@ -14,13 +14,14 @@ export class TileItemBase extends ItemBase {
         this.stackLimit = 99;
         this.entitySize = ITEM_SIZE;
 
-        const spritesheet = sprites.tiles[`tile_${this.registryName}`];
+        const spritesheet = sprites.tilesets[`${this.registryName}`];
 
         this.setSprite(spritesheet);
 
         this._previewRenderer.setSource(spritesheet);
         this.setSpritePosition(180, 180, 60, 60);
         this.placementPreview = new PlacementPreview(this, this._previewRenderer);
+        console.log(this._itemRenderer);
     }
 
     // Return true if position has no tile, is adjacent to another time or on top of a wall.

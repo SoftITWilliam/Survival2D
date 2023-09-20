@@ -11,7 +11,7 @@ export class ItemGrassSeeds extends PlaceableBase {
         
         this.setItemSpritePosition(0, 0, TILE_SIZE, TILE_SIZE);
         this.setPreviewSpritePosition(60, 0, 60, 60);
-        this._previewRenderer.setSource(sprites.tiles.tile_grass);
+        this._previewRenderer.setSource(sprites.tilesets.grass);
         this.placementPreview = new PlacementPreview(this, this._previewRenderer);
     }
 

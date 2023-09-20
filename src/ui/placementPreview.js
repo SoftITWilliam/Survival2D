@@ -1,6 +1,6 @@
 import { TILE_SIZE } from "../game/global.js";
 import { SpriteRenderer } from "../graphics/SpriteRenderer.js";
-import { sprites } from "../graphics/assets.js";
+import { MISSING_TEXTURE, getImageCallback, sprites } from "../graphics/assets.js";
 import { calculateDistance, getPhysicsMultiplier } from "../helper/helper.js";
 import Item from "../item/item.js";
 
@@ -53,10 +53,9 @@ export default class PlacementPreview {
     //#region Getters/setters
 
     set sprite(img) { 
-        if(img instanceof Image && img.src)
-            this.renderer.setSource(img);
-        else
-            this.renderer.setSource(sprites.misc.missing_texture);
+        getImageCallback(img, (result) => {
+            this.renderer.setSource(result);
+        })
     }
 
     get sprite() { 

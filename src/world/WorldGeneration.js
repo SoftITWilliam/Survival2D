@@ -31,26 +31,30 @@ export class WorldGeneration {
         this.threshold = worldGenConfig.TERRAIN_NOISE_THRESHOLD;
     }
 
-    generate() {
-        this.heightmap = this.generateHeightmap();
+    async generate() {
+        return new Promise((resolve) => {
+            this.heightmap = this.generateHeightmap();
 
-        this.terrainNoise = new NoiseMap(this.world.width, this.world.height);
-        this.terrainNoise.generate(0, 100);
-        this.terrainNoise.applyBlur(worldGenConfig.NOISE_BLUR);
+            this.terrainNoise = new NoiseMap(this.world.width, this.world.height);
+            this.terrainNoise.generate(0, 100);
+            this.terrainNoise.applyBlur(worldGenConfig.NOISE_BLUR);
 
-        this.dirtMap = this.generateDirtDepth(worldGenConfig.MIN_DIRT_DEPTH, worldGenConfig.MAX_DIRT_DEPTH);
+            this.dirtMap = this.generateDirtDepth(worldGenConfig.MIN_DIRT_DEPTH, worldGenConfig.MAX_DIRT_DEPTH);
 
-        // Place tiles based on noise
-        for(let x = 0; x < this.world.width; x++) {
-            for(let y = 0; y < this.world.height; y++) {
-                let tile = this.getTerrainTile(x, y, this.terrainNoise.get(x, y));
-                let wall = this.getTerrainWall(x, y);
-                this.world.tiles.set(x, y, tile);
-                this.world.walls.set(x, y, wall);
+            // Place tiles based on noise
+            for(let x = 0; x < this.world.width; x++) {
+                for(let y = 0; y < this.world.height; y++) {
+                    let tile = this.getTerrainTile(x, y, this.terrainNoise.get(x, y));
+                    let wall = this.getTerrainWall(x, y);
+                    this.world.tiles.set(x, y, tile);
+                    this.world.walls.set(x, y, wall);
+                }
             }
-        }
 
-        this.generateVegetation();
+            this.generateVegetation();
+
+            resolve();
+        })
     }
 
     getTerrainTile(x, y, noiseValue) {

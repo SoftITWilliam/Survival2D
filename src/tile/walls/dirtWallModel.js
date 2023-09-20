@@ -7,7 +7,7 @@ import { TileDrop } from "../tileDrop.js";
 export class DirtWallModel extends WallBase {
     constructor(registryName) {
         super(registryName);
-        this.setSprite(sprites.walls.dirt_wall);
+        this.setSprite(sprites.tilesets.dirt_wall);
         this.setMiningProperties(Item.toolTypes.HAMMER, 0, 0.8, true);
 
         this.tileDrops = [

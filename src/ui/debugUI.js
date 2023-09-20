@@ -32,7 +32,7 @@ export function renderDebugUI(ctx, game) {
 
     addInfoRow("Tile Pos", tile ? `X ${tile.gridX}, Y ${tile.gridY}` : null);
     addInfoRow("Tile Type", tile?.registryName);
-    addInfoRow("Tile Variant", tile?.spriteVariantName);
+    addInfoRow("Tile Variant", tile ? `${tile.spriteVariantName} (${tile.sheetX},${tile.sheetY}) ` : null);
 
     // Draw all rows
     for(let i = 0; i < rows.length; i++) {

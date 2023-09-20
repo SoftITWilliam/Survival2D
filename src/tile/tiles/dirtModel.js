@@ -9,7 +9,7 @@ export class DirtModel extends TileBase {
     constructor(registryName) {
         super(registryName);
         this.type = Tile.types.SOLID;
-        this.setSprite(sprites.tiles.tile_dirt);
+        this.setSprite(sprites.tilesets.dirt);
         this.setMiningProperties(Item.toolTypes.SHOVEL, 0, 1.0, false);
 
         this.tileDrops = [

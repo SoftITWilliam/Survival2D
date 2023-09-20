@@ -1,6 +1,6 @@
 import { TILE_SIZE } from "../game/global.js";
 import { SpriteRenderer } from "../graphics/SpriteRenderer.js";
-import { sprites } from "../graphics/assets.js";
+import { MISSING_TEXTURE, isMissingTexture, sprites } from "../graphics/assets.js";
 import { dropItemFromTile } from "../item/dropItem.js";
 import Item from "../item/item.js";
 import { Tile } from "./Tile.js";
@@ -20,7 +20,6 @@ export class TileModel {
 
         this.connectivity = Tile.connectTo.NONE;
 
-        this._sprite;
         this._spriteRenderer = new SpriteRenderer();
         this._spriteRenderer.setSpriteSize(60, 60);
 
@@ -76,10 +75,15 @@ export class TileModel {
 
     // Set the tile sprite.
     setSprite(sprite) {
-        if(sprite instanceof Image && sprite.src) 
+        if(sprite instanceof Promise) {
+            sprite.then(result => this.sprite = result);
+        } 
+        else if(sprite instanceof Image && sprite.src) {
             this.sprite = sprite;
-        else
-            this.sprite = sprites.misc["missing_texture"];
+        }
+        else {
+            this.sprite = MISSING_TEXTURE;
+        }
     }
 
     canBeMined() {

@@ -1,6 +1,7 @@
+import { TILE_SIZE } from "../game/global.js";
 import { isPositiveInteger, validNumbers } from "../helper/helper.js";
 import { AlignmentX, AlignmentY, getAlignedX, getAlignedY } from "../misc/alignment.js";
-import { isMissingTexture, sprites } from "./assets.js";
+import { MISSING_TEXTURE, getImageCallback, isMissingTexture, sprites } from "./assets.js";
 
 export class SpriteRenderer {
     #sx;
@@ -8,8 +9,11 @@ export class SpriteRenderer {
     #width;
     #height;
     #source;
+    #scale;
+    #imageError
     constructor(source = null) {
-        this.#source;
+
+        this.#source = MISSING_TEXTURE;
 
         this.#sx;
         this.#sy;
@@ -23,35 +27,54 @@ export class SpriteRenderer {
         this.alignX = AlignmentX.MIDDLE;
         this.alignY = AlignmentY.MIDDLE;
 
-        this.scaleToFitSize = false;
+        this.#scale = false;
 
-        this.setSource(source, true);
+        this.#imageError = false;
+
+        this.setSource(source);
     }
 
     //#region Getters
 
+    /** @returns {number} */
     get sx() {
-        return this.#sx || (this.sheetX * this.width);
+        return this.#imageError ? 0 : (this.#sx || (this.sheetX * this.width));
     }
 
+    /** @returns {number} */
     get sy() {
-        return this.#sy || (this.sheetY * this.height);
+        return this.#imageError ? 0 : (this.#sy || (this.sheetY * this.height));
     }
 
+    /** @returns {number} */
     get height() {
-        return this.#height;
+        return this.#imageError ? TILE_SIZE : this.#height;
     }
 
+    /** @returns {number} */
     get width() {
-        return this.#width;
+        return this.#imageError ? TILE_SIZE : this.#width;
     }
 
+    /** @returns {Image} */
     get source() {
         return this.#source;
     }
 
+    /** @returns {boolean} */
     get hasMissingTexture() {
         return isMissingTexture(this.source);
+    }
+
+    /** @returns {boolean} */
+    get scaleToFitSize() {
+        return this.#imageError ? true : this.#scale
+    }
+
+    set scaleToFitSize(value) {
+        if(typeof value == "boolean") {
+            this.#scale = value;
+        }
     }
 
     //#endregion
@@ -63,23 +86,13 @@ export class SpriteRenderer {
      * @param {Image} source Sprite source image
      * @returns {SpriteRenderer} this
      */
-    setSource(source, suppressWarnings = false) {
+    setSource(source) {
 
-        var sourceError = (msg) => {
-            this.#source = sprites.misc.missing_texture;
-            if(!suppressWarnings)
-                console.warn("SpriteRenderer.setSource(): " + msg);
-        }
+        getImageCallback(source, (result) => {
+            this.#source = result;
+            this.#imageError = isMissingTexture(result);
+        })
 
-        if(source == null)
-            sourceError("No source provided");
-
-        else if(!source instanceof Image && !source.src)
-            sourceError("'source' is not a valid image");
-
-        else
-            this.#source = source;
-        
         return this;
     }
 

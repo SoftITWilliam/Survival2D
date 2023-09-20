@@ -1,11 +1,10 @@
 *{
     padding: 0;
     margin: 0;
-    overflow: hidden;
 }
 
 @font-face{
-    font-family:"Font1";
+    font-family: "Font1";
     src:url("assets/fonts/PinkChicken-Regular.ttf") format("truetype");
 }
 
@@ -20,4 +19,42 @@ canvas{
 
 body{
     background-color: black;
+    overflow: hidden;
+}
+
+.loading-overlay {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    color: white;
+    font-size: 2rem;
+    font-family: "Font1", Arial, Helvetica, sans-serif;
+}
+
+.lds-dual-ring {
+    display: inline-block;
+}
+.lds-dual-ring:after {
+    content: " ";
+    display: block;
+    width: 64px;
+    height: 64px;
+    margin: 8px;
+    border-radius: 50%;
+    border: 6px solid #fff;
+    border-color: #fff transparent #fff transparent;
+    animation: lds-dual-ring 1.2s linear infinite;
+}
+@keyframes lds-dual-ring {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }

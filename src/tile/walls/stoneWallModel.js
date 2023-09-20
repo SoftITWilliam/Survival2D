@@ -7,7 +7,7 @@ import { TileDrop } from "../tileDrop.js";
 export class StoneWallModel extends WallBase {
     constructor(registryName) {
         super(registryName);
-        this.setSprite(sprites.walls.stone_wall);
+        this.setSprite(sprites.tilesets.stone_wall);
         this.setMiningProperties(Item.toolTypes.HAMMER, 0, 1.5, true);
 
         this.tileDrops = [

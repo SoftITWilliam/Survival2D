@@ -1,5 +1,5 @@
 import { getDescription, getDisplayName, getLang } from "../game/lang.js";
-import { isMissingTexture, sprites } from "../graphics/assets.js";
+import { MISSING_TEXTURE, getImageCallback, isMissingTexture, sprites } from "../graphics/assets.js";
 import { RarityColors } from "./rarities.js";
 import { World } from "../world/World.js";
 import { TileModel } from "../tile/tileModel.js";
@@ -24,7 +24,7 @@ export default class Item {
 
         this.registryName = registryName;
         this.rarity = rarity;
-        this.setSprite(null);
+        this.setSprite(MISSING_TEXTURE);
     }
 
     //#region Enums
@@ -106,6 +106,14 @@ export default class Item {
         return (this.type === Item.types.PLACEABLE || this.type === Item.types.TILE);
     }
 
+    /**
+     * @param {Image} img
+     */
+    set sprite(img) {
+        console.log(img);
+        this._itemRenderer.setSource(img);
+    }
+
     //#endregion
 
     //#region Getter/Setter methods
@@ -115,12 +123,7 @@ export default class Item {
      * @param {Image} sprite  Sprite image object through 'sprites' import. (ex: 'sprites.item.wood')
      */
     setSprite(sprite) {
-        if(sprite instanceof Image && sprite.src) 
-            this.sprite = sprite;
-        else
-            this.sprite = sprites.misc["missing_texture"];
-
-        this._itemRenderer.setSource(this.sprite);
+        getImageCallback(sprite, (result) => this.sprite = result);
     }
 
     /** 

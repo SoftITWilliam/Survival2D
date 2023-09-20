@@ -9,7 +9,7 @@ export class StoneModel extends TileBase {
     constructor(registryName) {
         super(registryName);
         this.type = Tile.types.SOLID;
-        this.setSprite(sprites.tiles.tile_stone);
+        this.setSprite(sprites.tilesets.stone);
         this.setMiningProperties(Item.toolTypes.PICKAXE, 1, 3.0, true);
 
         this.tileDrops = [

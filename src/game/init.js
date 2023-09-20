@@ -3,17 +3,19 @@ import { canvas, ctx } from "./global.js";
 import { Game } from "./game.js";
 import { spawnPlayerInWorld } from "../player/player.js";
 import { autoResizeCanvas } from "../misc/canvasSize.js";
+import { loadGame } from "./load.js";
 
 autoResizeCanvas(canvas);
 
-const game = new Game();
-
-window.onload = init();
+var game;
 
 let previousTime = 0;
 
-function init() {
-    game.world.generate();
+window.onload = init();
+
+async function init() {
+    game = new Game();
+    await loadGame(game);
     game.testing.run();
     spawnPlayerInWorld(game.player, game.world);
     window.requestAnimationFrame(gameLoop);
