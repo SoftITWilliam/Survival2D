@@ -164,3 +164,9 @@ export function getPhysicsMultiplier(deltaTime) {
     if(!validNumbers(deltaTime)) return 1;
     else return (deltaTime / (1000 / 60));
 }
+
+export async function timer(ms) {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve(), ms);
+    })
+}
