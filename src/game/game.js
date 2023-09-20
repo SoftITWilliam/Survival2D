@@ -11,7 +11,7 @@ export class Game {
     constructor() {
         this.deltaTime = 0;
 
-        this.world = new World(this, 512, 127);
+        this.world = new World(this, 64, 64);
 
         this.itemEntities = new ItemEntityManager(this);
 
