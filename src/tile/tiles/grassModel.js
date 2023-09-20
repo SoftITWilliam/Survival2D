@@ -15,6 +15,8 @@ export class GrassModel extends TileBase {
         this.tilesetTemplate = Tileset.templates.NO_TILE_ABOVE;
 
         this.setSprite(sprites.tiles.tile_grass);
+        this._spriteRenderer.setSpriteSize(66, 66);
+
         this.setMiningProperties(Item.toolTypes.SHOVEL, 0, 1.5, false);
 
         this.tileDrops = [
