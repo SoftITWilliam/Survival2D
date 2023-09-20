@@ -51,7 +51,7 @@ export default function render(ctx, game, player) {
 
     // Lighting
     if(RENDER_LIGHTING) {  
-        game.world.lighting.render(ctx, vX, vY, vW, vH);
+        game.world.lighting.render(ctx, camera);
     }
 
     // Tile hover effect

@@ -1,10 +1,11 @@
 
-import LightingGrid from './LightingGrid.js';
+
 import { WorldGeneration } from './WorldGeneration.js';
 import { Tile } from '../tile/Tile.js';
 import { TILE_SIZE } from '../game/global.js';
 import { TileModel } from '../tile/tileModel.js';
 import { Grid } from '../class/Grid.js';
+import { WorldLighting } from './WorldLighting.js';
 
 export class World {
     constructor(game, width, height) {
@@ -15,7 +16,7 @@ export class World {
         this.tiles = new Grid(width, height);
         this.walls = new Grid(width, height);
 
-        this.lighting = new LightingGrid(this);
+        this.lighting = new WorldLighting(this);
 
         this.worldGen = new WorldGeneration(this);
 
@@ -102,7 +103,7 @@ export class World {
             structure.generate();
         })
 
-        this.lighting.generate();
+        this.lighting.initialize();
 
         this.updateAllTiles();
     }    
