@@ -10,22 +10,14 @@
 }
 
 canvas{
-    position:relative;
-}
-
-#canvas{
+    position:absolute;
     background-color:black;
 }
 
-.canvas-container{
-    height:100vh;
-    width:100vw;
-    position:absolute;
-    display:flex;
-    justify-content:center;
-    align-items:center;
+#canvas-lighting {
+    display: none;
 }
 
 body{
-    background-color: #242424;
+    background-color: black;
 }
