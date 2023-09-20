@@ -33,6 +33,8 @@ export class WorldGeneration {
 
     async generate() {
         return new Promise((resolve) => {
+            this.world.structures = [];
+
             this.heightmap = this.generateHeightmap();
 
             this.terrainNoise = new NoiseMap(this.world.width, this.world.height);

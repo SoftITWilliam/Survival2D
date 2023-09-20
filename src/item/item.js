@@ -110,7 +110,6 @@ export default class Item {
      * @param {Image} img
      */
     set sprite(img) {
-        console.log(img);
         this._itemRenderer.setSource(img);
     }
 

@@ -28,49 +28,56 @@ export class WorldLighting {
         }
     }
 
-    initialize() {
-        this.canvas.width = this.world.width * TILE_SIZE;
-        this.canvas.height = this.world.height * TILE_SIZE;
+    async initialize() {
+        return new Promise(async (resolve) => {
+            this.canvas.width = this.world.width * TILE_SIZE;
+            this.canvas.height = this.world.height * TILE_SIZE;
 
-        this.reset();
-        this.updateNaturalLight();
+            this.reset();
+            
+            await this.updateNaturalLight();
+            resolve();
+        })
     }
 
     update() {
         //todo
     }
 
-    updateNaturalLight() {
-        let lightLevel = 1;
-        let lightWidth = this.config.NATURAL_LIGHT_RADIUS;
+    async updateNaturalLight() {
+        return new Promise((resolve) => {
+            let lightLevel = 1;
+            let lightWidth = this.config.NATURAL_LIGHT_RADIUS;
 
-        // maybe placeholder. it's not amazing but it gets the job done
-        for(let x = 0; x < this.world.width; x++) {
-            for(let y = this.world.height - 1; y >= 0; y--) {
-                const tile = this.world.tiles.get(x, y);
-                const wall = this.world.walls.get(x, y);
+            // maybe placeholder. it's not amazing but it gets the job done
+            for(let x = 0; x < this.world.width; x++) {
+                for(let y = this.world.height - 1; y >= 0; y--) {
+                    const tile = this.world.tiles.get(x, y);
+                    const wall = this.world.walls.get(x, y);
 
-                if((!tile || tile.transparent) && (!wall || wall.transparent)) {
-                    lightLevel = 1;
-                    lightWidth = this.config.NATURAL_LIGHT_RADIUS;
-                }
+                    if((!tile || tile.transparent) && (!wall || wall.transparent)) {
+                        lightLevel = 1;
+                        lightWidth = this.config.NATURAL_LIGHT_RADIUS;
+                    }
 
-                if(tile && !tile.transparent) {
-                    lightLevel = 0;
-                }
+                    if(tile && !tile.transparent) {
+                        lightLevel = 0;
+                    }
 
-                else if(wall && !wall.transparent) {
-                    lightLevel -= this.config.NATURAL_LIGHT_DECAY;
-                    lightWidth += this.config.NATURAL_LIGHT_GROWTH;
-                }
+                    else if(wall && !wall.transparent) {
+                        lightLevel -= this.config.NATURAL_LIGHT_DECAY;
+                        lightWidth += this.config.NATURAL_LIGHT_GROWTH;
+                    }
 
-                if(lightLevel > 0) {
-                    this.addGridLightSource(x, y, lightWidth, 
-                        this.config.NATURAL_LIGHT_COLOR_DAY, 
-                        lightLevel);
+                    if(lightLevel > 0) {
+                        this.addGridLightSource(x, y, lightWidth, 
+                            this.config.NATURAL_LIGHT_COLOR_DAY, 
+                            lightLevel);
+                    }
                 }
             }
-        }
+            resolve();
+        })
     }
 
     updateNonNaturalLight() {
