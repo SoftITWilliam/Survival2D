@@ -7,10 +7,12 @@ export default class ObjectBase extends TileModel {
     constructor(registryName, width, height) {
         super(registryName, width, height);
         this.type = Tile.types.NON_SOLID;
+
         this.tilesetTemplate = Tileset.templates.NONE;
 
+        this.connectivity = Tile.connectTo.NONE;
+
         this.transparent = true;
-        this.connective = false;
         this.requireTool = false;
 
         this._spriteRenderer.setSpriteSize(48, 48);

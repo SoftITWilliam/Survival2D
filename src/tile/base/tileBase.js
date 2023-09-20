@@ -7,8 +7,8 @@ export default class TileBase extends TileModel {
     constructor(registryName, width, height) {
         super(registryName, width, height);
         this.type = Tile.types.SOLID;
+        this.connectivity = Tile.connectTo.ALL;
         this.transparent = false;
-        this.connective = true;
     }
 
     // Override

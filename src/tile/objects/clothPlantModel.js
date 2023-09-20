@@ -11,7 +11,6 @@ export class ClothPlantModel extends PlantBase {
         this.setSprite(sprites.placeables.cloth_plant);
         this.setMiningProperties(Item.SICKLE, 0, 0.5, false);
         this.transparent = true;
-        this.connective = false;
 
         this.tileDrops = [
             new TileDrop(Items.PLANT_FIBER, 1, 3).affectedByMultipliers(),

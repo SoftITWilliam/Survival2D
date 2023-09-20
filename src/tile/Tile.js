@@ -14,6 +14,7 @@ export class Tile extends GameObject {
         this.sheetX = 0;
         this.sheetY = 0;
         this._spriteVariant;
+        this._adjacency;
     }
 
     //#region Enums
@@ -24,6 +25,12 @@ export class Tile extends GameObject {
         NON_SOLID: 2,
         WALL: 3,
         PLATFORM: 4,
+    }
+
+    static connectTo = {
+        NONE: 0,
+        SELF: 1,
+        ALL: 2,
     }
 
     //#endregion
@@ -56,8 +63,8 @@ export class Tile extends GameObject {
         return this.model?.transparent ?? false;
     }
 
-    get connective() {
-        return this.model?.connective ?? false;
+    get connectivity() {
+        return this.model?.connectivity
     }
 
     get spriteVariantName() {
@@ -101,37 +108,54 @@ export class Tile extends GameObject {
     }
 
     updateSpritePosition() {
-        let adjacent = this.getAdjacent();
+        this.adjacency = this.getAdjacent(this.connectivity);
 
-        this._spriteVariant = Tileset.getVariant(adjacent);
+        this._spriteVariant = Tileset.getVariant(this.adjacency);
         let position = Tileset.getSpritesheetPosition(this._spriteVariant, this.model.tilesetTemplate);
         
         this.sheetX = position?.x;
         this.sheetY = position?.y;
     }
 
-    getAdjacent() {
+    getAdjacent(connectivity) {
 
-        var check = (this.type == Tile.types.WALL ? 
+        var connectsToAll = (x, y, grid) => {
+            let object = grid.get(x, y);
+            return (object && object.connectivity === Tile.connectTo.ALL);
+        }
 
-            (x, y) => (this.world.walls.get(x, y) != null) :
+        var connectsToSelf = (x, y, grid) => {
+            let object = grid.get(x, y);
+            return (object && object.connectivity === Tile.connectTo.SELF && 
+                object.registryName === this.registryName);
+        }
 
-            (x, y) => {
-                let tile = this.world.tiles.get(x, y);
-                return (tile && !tile.transparent)
-            }
-        );
+        var hasNoTiling = () => false;
 
-        return {
-            top: check(this.gridX, this.gridY + 1),
-            left: check(this.gridX - 1, this.gridY),
-            right: check(this.gridX + 1, this.gridY),
-            bottom: check(this.gridX, this.gridY - 1),
-            top_left: check(this.gridX -1, this.gridY + 1),
-            top_right: check(this.gridX + 1, this.gridY + 1),
-            bottom_left: check(this.gridX - 1, this.gridY - 1),
-            bottom_right: check(this.gridX + 1, this.gridY - 1),
-        };
+        var checkSurrounding = (checkFn, grid) => {
+            return {
+                top: checkFn(this.gridX, this.gridY + 1, grid),
+                left: checkFn(this.gridX - 1, this.gridY, grid),
+                right: checkFn(this.gridX + 1, this.gridY, grid),
+                bottom: checkFn(this.gridX, this.gridY - 1, grid),
+                top_left: checkFn(this.gridX -1, this.gridY + 1, grid),
+                top_right: checkFn(this.gridX + 1, this.gridY + 1, grid),
+                bottom_left: checkFn(this.gridX - 1, this.gridY - 1, grid),
+                bottom_right: checkFn(this.gridX + 1, this.gridY - 1, grid),
+            };
+        }
+
+        let grid = this.type === Tile.types.WALL ? this.world.walls : this.world.tiles;
+
+        switch(connectivity) {
+            case Tile.connectTo.NONE:
+                return checkSurrounding(hasNoTiling);
+            case Tile.connectTo.ALL:
+                return checkSurrounding(connectsToAll, grid);
+            case Tile.connectTo.SELF:
+                return checkSurrounding(connectsToSelf, grid);
+        }
+        throw new TypeError("'connectivity' must be a value from the Tile.connectTo enum");
     }
 
     render(ctx) {

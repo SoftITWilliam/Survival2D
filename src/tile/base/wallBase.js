@@ -6,9 +6,10 @@ export default class WallBase extends TileModel {
     constructor(registryName, width, height) {
         super(registryName, width, height);
         this.type = Tile.types.WALL;
+        this.connectivity = Tile.connectTo.ALL;
+
         this.setMiningProperties(Item.toolTypes.HAMMER, 0, 1, true);
         this.transparent = false;
-        this.connective = true;
     }
 
     // Override

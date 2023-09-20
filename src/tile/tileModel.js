@@ -18,6 +18,8 @@ export class TileModel {
 
         this.tileDrops = [];
 
+        this.connectivity = Tile.connectTo.NONE;
+
         this._sprite;
         this._spriteRenderer = new SpriteRenderer();
         this._spriteRenderer.setSpriteSize(60, 60);
