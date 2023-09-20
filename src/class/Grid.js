@@ -29,7 +29,7 @@ export class Grid {
 
     //#endregion
 
-    //#region Grid Getters
+    //#region Methods for getting grid data
 
     get(x, y) {
         return this.#validPosition(x, y) ? this.#grid[x][y] : this.#default;
@@ -206,6 +206,8 @@ export class Grid {
 
     //#endregion
 
+    //#region Methods for modifying the grid
+
     /**
      * Set the value at a position in the grid
      * @param {*} x 
@@ -227,7 +229,25 @@ export class Grid {
         this.set(x, y, this.#default);
     }
 
+    //#endregion
+
+    //#region Other methods
+
+    /**
+     * Run callback function for 
+     * @param {*} callbackfn 
+     */
+    forEach(callbackfn) {
+        for(let x = 0; x < this.width; x++) {
+            for(let y = 0; y < this.height; y++) {
+                callbackfn(this.get(x, y), x, y);
+            }   
+        }
+    }
+
     #validPosition(x, y) {
         return (validIndex(x, this.#grid) && validIndex(y, this.#grid[0]));
     }
+
+    //#endregion
 }
