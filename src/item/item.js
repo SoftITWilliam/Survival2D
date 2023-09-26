@@ -6,6 +6,7 @@ import { TileModel } from "../tile/tileModel.js";
 import { isPositiveInteger, validNumbers } from "../helper/helper.js";
 import { SpriteRenderer } from "../graphics/SpriteRenderer.js";
 import { TILE_SIZE } from "../game/global.js";
+import { rgb } from "../helper/canvashelper.js";
 
 export default class Item {
     #type
@@ -53,18 +54,23 @@ export default class Item {
 
     //#region Property getters/setters
 
-    // Set the registry name of the item
-    // Also gets item ID, display name, and description
+    /**
+     * Set the registry name of the item
+     * Also gets item ID, display name, and description
+     * @param {string} name
+     */
     set registryName(name) {
         this.#registryname = name;
         this.displayName = getDisplayName(name);
         this.description = getDescription(this.registryName);
     }
 
+    /** @returns {string} */
     get registryName() {
         return this.#registryname;
     }
 
+    /** @returns {rgb} */
     get textColor() {
         return RarityColors[this.rarity] ?? {r:240, g:240, b:240}
     }
@@ -87,7 +93,7 @@ export default class Item {
      * @param {number} value From Rarity enum
      */
     set rarity(value) {
-        if(Object.values(ItemRarities).includes(value)) {
+        if(!Object.values(ItemRarities).includes(value)) {
             return console.warn(`Invalid rarity (${value})`);
         }
 
@@ -99,14 +105,17 @@ export default class Item {
         return this.#rarity;
     }
 
+    /** @returns {string} */
     get rarityText() {
         return this.#rarityText;
     }
 
+    /** @returns {boolean} */
     get hasMissingTexture() {
         return isMissingTexture(this.sprite);
     }
 
+    /** @returns {boolean} */
     get isPlaceable() {
         return (this.type === Item.types.PLACEABLE || this.type === Item.types.TILE);
     }
@@ -117,7 +126,7 @@ export default class Item {
 
     /**
      * Set the item sprite. If it doesn't exist, 'missing texture' is used instead.
-     * @param {HTMLImageElement} image  Sprite image object through 'sprites' import. (ex: 'sprites.item.wood')
+     * @param {(HTMLImageElement | Promise<HTMLImageElement>)} image  Sprite image object through 'sprites' import. (ex: 'sprites.item.wood')
      */
     setSprite(image) {
         getImageCallback(image, (result) => this._itemRenderer.setSource(result));
@@ -130,7 +139,7 @@ export default class Item {
      * @returns {null | TileModel}
     */
     getPlacedTile() { 
-        return false;
+        return null;
     }
 
     setSpritePosition(sx, sy, sWidth, sHeight) {
