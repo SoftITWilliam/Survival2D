@@ -17,18 +17,18 @@ export default class PlacementPreview {
     /**
      * @overload
      * @param {Item} item
-     * @param {Image} sprite 
+     * @param {HTMLImageElement} sprite 
      * @param {SpriteRenderer} renderer
      */
     /**
      * @overload
      * @param {Item} item
-     * @param {Image} sprite 
+     * @param {HTMLImageElement} sprite 
      */
     /**
      * @overload
      * @param {Item} item
-     * @param {Image} sprite 
+     * @param {HTMLImageElement} sprite 
      * @param {number} sx
      * @param {number} sy
      * @param {number} sWidth
@@ -114,7 +114,7 @@ export default class PlacementPreview {
     /**
      * Automatically create a PlacementPreview instance using an item's sx, sy, sw, and sh properties.
      * @param {Item} item 
-     * @param {Image} sprite 
+     * @param {HTMLImageElement} sprite 
      */
     static fromItem(item, sprite) {
         return new PlacementPreview(sprite, item.sx, item.sy, item.sw, item.sh, item);

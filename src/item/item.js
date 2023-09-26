@@ -1,6 +1,6 @@
 import { getDescription, getDisplayName, getLang } from "../game/lang.js";
 import { MISSING_TEXTURE, getImageCallback, isMissingTexture, sprites } from "../graphics/assets.js";
-import { RarityColors } from "./rarities.js";
+import { ItemRarities, RarityColors } from "./rarities.js";
 import { World } from "../world/World.js";
 import { TileModel } from "../tile/tileModel.js";
 import { isPositiveInteger, validNumbers } from "../helper/helper.js";
@@ -8,13 +8,17 @@ import { SpriteRenderer } from "../graphics/SpriteRenderer.js";
 import { TILE_SIZE } from "../game/global.js";
 
 export default class Item {
+    #type
+    #registryname
+    #rarity
+    #rarityText
     constructor(registryName, rarity) {
-        this._type = Item.types.DEFAULT;
+        this.#type = Item.types.DEFAULT;
         this.stackSize = 99;
 
-        this._registryname;
-        this._rarity;
-        this._rarityText;
+        this.#registryname;
+        this.#rarity;
+        this.#rarityText;
 
         this._itemRenderer = new SpriteRenderer();
         this._previewRenderer = new SpriteRenderer();
@@ -52,13 +56,13 @@ export default class Item {
     // Set the registry name of the item
     // Also gets item ID, display name, and description
     set registryName(name) {
-        this._registryname = name;
+        this.#registryname = name;
         this.displayName = getDisplayName(name);
         this.description = getDescription(this.registryName);
     }
 
     get registryName() {
-        return this._registryname;
+        return this.#registryname;
     }
 
     get textColor() {
@@ -66,36 +70,37 @@ export default class Item {
     }
 
     get type() {
-        return this._type;
+        return this.#type;
     }
 
     /**
      * @param {number} itemType From Item.types enum
      */
     set type(itemType) {
-        if(!isPositiveInteger(itemType))
+        if(!Object.values(Item.types).includes(itemType)) {
             return console.warn(`Invalid item type (${itemType})`);
-
-        this._type = itemType;
+        }
+        this.#type = itemType;
     }
 
     /**
      * @param {number} value From Rarity enum
      */
     set rarity(value) {
-        if(!isPositiveInteger(value))
+        if(Object.values(ItemRarities).includes(value)) {
             return console.warn(`Invalid rarity (${value})`);
+        }
 
-        this._rarity = value;
-        this._rarityText = getLang("rarity_" + this._rarity);
+        this.#rarity = value;
+        this.#rarityText = getLang("rarity_" + this.#rarity);
     }
-
+    
     get rarity() {
-        return this._rarity;
+        return this.#rarity;
     }
 
     get rarityText() {
-        return this._rarityText;
+        return this.#rarityText;
     }
 
     get hasMissingTexture() {
@@ -106,23 +111,16 @@ export default class Item {
         return (this.type === Item.types.PLACEABLE || this.type === Item.types.TILE);
     }
 
-    /**
-     * @param {Image} img
-     */
-    set sprite(img) {
-        this._itemRenderer.setSource(img);
-    }
-
     //#endregion
 
     //#region Getter/Setter methods
 
     /**
      * Set the item sprite. If it doesn't exist, 'missing texture' is used instead.
-     * @param {Image} sprite  Sprite image object through 'sprites' import. (ex: 'sprites.item.wood')
+     * @param {HTMLImageElement} image  Sprite image object through 'sprites' import. (ex: 'sprites.item.wood')
      */
-    setSprite(sprite) {
-        getImageCallback(sprite, (result) => this.sprite = result);
+    setSprite(image) {
+        getImageCallback(image, (result) => this._itemRenderer.setSource(result));
     }
 
     /** 

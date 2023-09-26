@@ -62,14 +62,7 @@ export class TileModel {
         return isMissingTexture(this.sprite);
     }
 
-    /**
-     * @param {Image} img
-     */
-    set sprite(img) {
-        this._spriteRenderer.setSource(img);
-    }
-
-    /** @returns {Image} */
+    /** @returns {HTMLImageElement} */
     get sprite() {
         return this._spriteRenderer.source;
     }
@@ -95,18 +88,19 @@ export class TileModel {
     /**
      * Set tile sprite / spritesheet
      * Sprite is loaded asynchronously if it is a Promise
-     * @param {(Image | Promise<Image> | any)} sprite 
+     * @param {(HTMLImageElement | Promise<HTMLImageElement>)} sprite 
      */
     setSprite(sprite) {
-        if(sprite instanceof Promise) {
-            sprite.then(result => this.sprite = result);
-        } 
-        else if(sprite instanceof Image && sprite.src) {
-            this.sprite = sprite;
-        }
-        else {
-            this.sprite = MISSING_TEXTURE;
-        }
+        var setSpriteImage = (img) => this._spriteRenderer.setSource(img);
+
+        if(sprite instanceof Promise) 
+            sprite.then(result => setSpriteImage(result));
+
+        else if(sprite instanceof Image && sprite.src) 
+            setSpriteImage(sprite);
+        
+        else 
+            setSpriteImage(MISSING_TEXTURE);
     }
 
     /** 

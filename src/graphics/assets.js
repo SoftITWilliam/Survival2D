@@ -1,14 +1,19 @@
 import { PATH } from "../game/global.js";
 
-async function loadImage(src) {
+/**
+ * @param {string} path File path (excluding '/assets/' and file format)
+ * @returns {Promise<HTMLImageElement>}
+ */
+async function loadImage(path) {
     return new Promise((resolve) => {
         const img = new Image;
 
-        const url = PATH + src + ".png";
+        const url = PATH + path + ".png";
 
         img.onerror = () => { 
             console.warn(`Failed to load sprite (${url})`);
             img = MISSING_TEXTURE;
+            resolve(img);
         }
 
         img.onload = () => {
@@ -20,7 +25,7 @@ async function loadImage(src) {
 }
 
 /**
- * @param {(Image | Promise<Image> | any)} image 
+ * @param {(HTMLImageElement | Promise<HTMLImageElement> | any)} image 
  * @param {Function} callbackfn 
  */
 export async function getImageCallback(image, callbackfn) {

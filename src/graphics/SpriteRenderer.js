@@ -56,7 +56,7 @@ export class SpriteRenderer {
         return this.#imageError ? TILE_SIZE : this.#width;
     }
 
-    /** @returns {Image} */
+    /** @returns {HTMLImageElement} */
     get source() {
         return this.#source;
     }
@@ -71,6 +71,9 @@ export class SpriteRenderer {
         return this.#imageError ? true : this.#scale
     }
 
+    /**
+     * @param {boolean} value
+     */
     set scaleToFitSize(value) {
         if(typeof value == "boolean") {
             this.#scale = value;
@@ -83,12 +86,12 @@ export class SpriteRenderer {
 
     /**
      * Set sprite source image
-     * @param {Image} source Sprite source image
+     * @param {(HTMLImageElement | Promise<HTMLImageElement>)} image Sprite source image
      * @returns {SpriteRenderer} this
      */
-    setSource(source) {
+    setSource(image) {
 
-        getImageCallback(source, (result) => {
+        getImageCallback(image, (result) => {
             this.#source = result;
             this.#imageError = isMissingTexture(result);
         })
