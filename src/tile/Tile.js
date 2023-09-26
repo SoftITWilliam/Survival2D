@@ -1,10 +1,13 @@
 import GameObject from "../class/GameObject.js";
 import { TILE_SIZE } from "../game/global.js";
 import Item from "../item/item.js";
+import { World } from "../world/World.js";
 import { TileModel } from "./tileModel.js";
 import { Tileset } from "./Tileset.js";
 
 export class Tile extends GameObject {
+    #spriteVariant
+    #adjacency
     constructor(world, gridX, gridY, model) {
         super(world.game, gridX * TILE_SIZE, -gridY * TILE_SIZE)
         this.world = world;
@@ -13,8 +16,8 @@ export class Tile extends GameObject {
 
         this.sheetX = 0;
         this.sheetY = 0;
-        this._spriteVariant;
-        this._adjacency;
+        this.#spriteVariant;
+        this.#adjacency;
     }
 
     //#region Enums
@@ -37,38 +40,45 @@ export class Tile extends GameObject {
 
     //#region Property getters/setters
     
-    // Override
+    /** 
+     * @override
+     * @returns {number}
+     */
     get height() { return this.model?.height ?? 0 }
 
-    // Override
+    /** 
+     * @override
+     * @returns {number}
+     */
     get width() { return this.model?.width ?? 0 }
 
-    get registryName() {
-        return this.model?.registryName ?? "";
-    }
+    /** @returns {string} */
+    get registryName() { return this.model?.registryName ?? "" }
 
-    get displayName() {
-        return this.model?.displayName ?? "";
-    }
+    /** @returns {string} */
+    get displayName() { return this.model?.displayName ?? "" }
 
+    /** @returns {boolean} */
     get requiresTool() { return this.model?.requiredTool ?? false }
 
+    /** @returns {number} */
     get miningTime() { return this.model?.miningTime ?? 0 }
 
+    /** @returns {number} from Tile.toolTypes enum */
     get toolType() { return this.model?.toolType ?? null }
 
+    /** @returns {number} from Tille.types enum */
     get type() { return this.model?.type ?? Tile.types.NONE }
 
-    get transparent() {
-        return this.model?.transparent ?? false;
-    }
+    /** @returns {boolean} */
+    get transparent() { return this.model?.transparent ?? false }
 
-    get connectivity() {
-        return this.model?.connectivity
-    }
+    /** @returns {number} from Tile.connectTo enum */
+    get connectivity() { return this.model?.connectivity ?? Tile.connectTo.NONE }
 
+    /** @returns {string} */
     get spriteVariantName() {
-        let index = Object.values(Tileset.variants).indexOf(this._spriteVariant);
+        let index = Object.values(Tileset.variants).indexOf(this.#spriteVariant);
         return index != null ? Object.keys(Tileset.variants)[index] : "";
     }
 
@@ -86,38 +96,44 @@ export class Tile extends GameObject {
         this.model.tickUpdate(this, this.world);
     }
 
+    /**
+     * @param {(Item | null)} item Held item
+     * @param {World}
+     * @returns {boolean}
+     */
     canBeMined(item, world) {
         return this.model ? this.model.canBeMined(item, world) : false;
     }
 
+    /**
+     * @param {(Item | null)} item Held item
+     */
     breakTile(item) {
         this.model.breakTile(this, item, this.world);
     }
 
+    /**
+     * @param {(Item | null)} item
+     * @returns {boolean}
+     */
     isMineableBy(item) {
-        if (this.toolType === null || this.toolType === Item.toolTypes.NONE) {
-            return true;
-        }
+        let noToolType = (this.toolType === null || this.toolType === Item.toolTypes.NONE);
+        let isCorrectToolType = (Item.isTool(item, this.toolType));
+        let sufficientToolLevel = (item.miningLevel >= this.model.toolLevel);
 
-        if (Item.isTool(item, this.toolType) && 
-            item.miningLevel >= this.model.toolLevel) {
-                return true;
-        }
-
-        return false;
+        return noToolType || (isCorrectToolType && sufficientToolLevel);
     }
 
     updateSpritePosition() {
-        this.adjacency = this.getAdjacent(this.connectivity);
-
-        this._spriteVariant = Tileset.getVariant(this.adjacency);
-        let position = Tileset.getSpritesheetPosition(this._spriteVariant, this.model.tilesetTemplate);
+        this.#adjacency = this.#getAdjacent(this.connectivity);
+        this.#spriteVariant = Tileset.getVariant(this.#adjacency);
+        let position = Tileset.getSpritesheetPosition(this.#spriteVariant, this.model.tilesetTemplate);
         
         this.sheetX = position?.x;
         this.sheetY = position?.y;
     }
 
-    getAdjacent(connectivity) {
+    #getAdjacent(connectivity) {
 
         var connectsToAll = (x, y, grid) => {
             let object = grid.get(x, y);
@@ -130,7 +146,7 @@ export class Tile extends GameObject {
                 object.registryName === this.registryName);
         }
 
-        var hasNoTiling = () => false;
+        var notConnective = () => false;
 
         var checkSurrounding = (checkFn, grid) => {
             return {
@@ -145,11 +161,11 @@ export class Tile extends GameObject {
             };
         }
 
-        let grid = this.type === Tile.types.WALL ? this.world.walls : this.world.tiles;
+        let grid = (this.type === Tile.types.WALL ? this.world.walls : this.world.tiles);
 
         switch(connectivity) {
             case Tile.connectTo.NONE:
-                return checkSurrounding(hasNoTiling);
+                return checkSurrounding(notConnective);
             case Tile.connectTo.ALL:
                 return checkSurrounding(connectsToAll, grid);
             case Tile.connectTo.SELF:
@@ -158,6 +174,9 @@ export class Tile extends GameObject {
         throw new TypeError("'connectivity' must be a value from the Tile.connectTo enum");
     }
 
+    /**
+     * @param {CanvasRenderingContext2D} ctx 
+     */
     render(ctx) {
         this.model.render(ctx, this, this.sheetX, this.sheetY);
     }

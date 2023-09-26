@@ -9,14 +9,20 @@ export class LeavesModel extends TileBase {
         super(registryName);
         this.type = Tile.types.NON_SOLID;
         this.transparent = true;
+        this.connectivity = Tile.connectTo.SELF;
         this.setMiningProperties(Item.toolTypes.AXE, 0, 0.6, false);
 
         this.tileDrops = [
             new TileDrop(Items.BRANCH, 1, 2).chance(25).affectedByMultipliers(),
             new TileDrop(Items.ACORN).chance(15).affectedByMultipliers(),
-        ]
+        ];
     }
 
+    /**
+     * @override
+     * @param {CanvasRenderingContext2D} ctx 
+     * @param {Tile} tile 
+     */
     render(ctx, tile) {
         ctx.fillStyle = "rgba(60,120,35,0.8)";
         ctx.fillRect(tile.x, tile.y, this.w, this.h);

@@ -7,6 +7,7 @@ import { Tile } from "../Tile.js";
 import { TileRegistry } from "../tileRegistry.js";
 import Item from "../../item/item.js";
 import { Tileset } from "../Tileset.js";
+import { World } from "../../world/World.js";
 
 export class GrassModel extends TileBase {
     constructor(registryName) {
@@ -31,6 +32,11 @@ export class GrassModel extends TileBase {
         return (tileIsDirt && noTileAbove);
     }
 
+    /**
+     * @override
+     * @param {Tile} tile 
+     * @param {World} world 
+     */
     tickUpdate(tile, world) {
         // Try to spread grass to surrounding tiles
         let range = 2;
@@ -45,6 +51,11 @@ export class GrassModel extends TileBase {
         }
     }
 
+    /**
+     * @override
+     * @param {Tile} tile 
+     * @param {World} world 
+     */
     tileUpdate(tile, world) {
         // If another tile is placed on top of a grass tile, it is converted into a dirt block
         let tileAbove = world.tiles.get(tile.gridX, tile.gridY + 1);

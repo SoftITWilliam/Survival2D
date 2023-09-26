@@ -3,23 +3,32 @@ import { SpriteRenderer } from "../graphics/SpriteRenderer.js";
 import { MISSING_TEXTURE, isMissingTexture, sprites } from "../graphics/assets.js";
 import { dropItemFromTile } from "../item/dropItem.js";
 import Item from "../item/item.js";
+import { World } from "../world/World.js";
 import { Tile } from "./Tile.js";
 import { Tileset } from "./Tileset.js";
+import { TileDrop } from "./tileDrop.js";
 
 export class TileModel {
+    #type
     constructor(registryName, width = TILE_SIZE, height) {
 
+        /** @type {string} */
         this.registryName = registryName;
         this.w = width;
         this.h = height ?? width;
 
-        this._type = Tile.types.NONE;
+        this.#type = Tile.types.NONE;
         this.tilesetTemplate = Tileset.templates.DEFAULT;
 
+        /** @type {TileDrop[]} */
         this.tileDrops = [];
 
         this.connectivity = Tile.connectTo.NONE;
 
+        /** 
+         * @protected
+         * @type {SpriteRenderer} 
+         * */
         this._spriteRenderer = new SpriteRenderer();
         this._spriteRenderer.setSpriteSize(60, 60);
 
@@ -28,29 +37,39 @@ export class TileModel {
 
     //#region Property getters/setters
 
+    /** @returns {number} */
     get width() { return this.w }
+
+    /** @returns {number} */
     get height() { return this.h }
 
     get type() {
-        return this._type ?? Tile.types.NONE;
+        return this.#type ?? Tile.types.NONE;
     }
 
-    // Use 'Tile.types' enum
+    /** 
+     * @param {number} tileType Use Tile.types enum 
+     * */
     set type(tileType) {
-        if(typeof tileType != "number") {
+        if(!Object.values(Tile.types).includes(tileType)) {
             return console.warn("Invalid tile type");
         }
-        this._type = tileType;
+        this.#type = tileType;
     }
 
+    /** @returns {boolean} */
     get hasMissingTexture() {
         return isMissingTexture(this.sprite);
     }
 
+    /**
+     * @param {Image} img
+     */
     set sprite(img) {
         this._spriteRenderer.setSource(img);
     }
 
+    /** @returns {Image} */
     get sprite() {
         return this._spriteRenderer.source;
     }
@@ -73,7 +92,11 @@ export class TileModel {
         this.requireTool = requireTool;
     }
 
-    // Set the tile sprite.
+    /**
+     * Set tile sprite / spritesheet
+     * Sprite is loaded asynchronously if it is a Promise
+     * @param {(Image | Promise<Image> | any)} sprite 
+     */
     setSprite(sprite) {
         if(sprite instanceof Promise) {
             sprite.then(result => this.sprite = result);
@@ -86,7 +109,13 @@ export class TileModel {
         }
     }
 
-    canBeMined() {
+    /** 
+     * TODO Refactor
+     * @param {Item} item Held item
+     * @param {World} world 
+     * @returns {boolean} 
+     * */
+    canBeMined(item, world) {
         return false;
     }
 
@@ -107,7 +136,13 @@ export class TileModel {
         world.updateNearbyTiles(tile.gridX, tile.gridY);
     }
 
-    // Loop through this tile's drops. Runs when the tile is broken.
+    /**
+     * Loop through this tile's drops and spawn Item entities for each result.
+     * Runs when the tile is broken.
+     * @param {Tile} tile 
+     * @param {(Item | null)} item 
+     * @param {World} world 
+     */
     dropItems(tile, item, world) {
         this.tileDrops.forEach(tileDrop => {
             const drop = tileDrop.roll(this, item, 1);
@@ -117,12 +152,20 @@ export class TileModel {
         })
     }
 
-    // Runs whenever the tile is "refreshed", i.e. something happens to an adjacent tile.
+    /**
+     * Runs whenever the tile is "refreshed", i.e. something happens to an adjacent tile.
+     * @param {Tile} tile 
+     * @param {World} world 
+     */
     tileUpdate(tile, world) {
         
     }
 
-    // Runs at a regular interval (not every frame)
+    /**
+     * Runs at a regular interval (not every frame)
+     * @param {Tile} tile 
+     * @param {World} world 
+     */
     tickUpdate(tile, world) {
         
     }
@@ -130,6 +173,12 @@ export class TileModel {
     //#endregion
     //#region Rendering methods
 
+    /**
+     * @param {CanvasRenderingContext2D} ctx 
+     * @param {Tile} tile Tile being rendered
+     * @param {number} sheetX Spritesheet position
+     * @param {number} sheetY Spritesheet position
+     */
     render(ctx, tile, sheetX, sheetY) {
         this._spriteRenderer.setSheetPosition(sheetX, sheetY);
         this._spriteRenderer.render(ctx, tile);

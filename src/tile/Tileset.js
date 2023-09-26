@@ -17,6 +17,29 @@ class TilesetTemplate {
 }
 
 export class Tileset {
+
+    /**
+     * @typedef {object} Adjacency
+     * @property {boolean} top
+     * @property {boolean} bottom
+     * @property {boolean} left
+     * @property {boolean} right
+     * @property {boolean} top_left
+     * @property {boolean} top_right
+     * @property {boolean} bottom_left
+     * @property {boolean} bottom_right
+     */
+
+    /**
+     * @typedef {Object} Point
+     * @property {number} x The X coordinate 
+     * @property {number} y The Y coordinate 
+     */
+
+    /**
+     * @typedef {Object} tilesetTemplate
+     * @property {function} getPosition The X coordinate 
+     */
     
     static variants = {
         // No adjacent
@@ -93,6 +116,11 @@ export class Tileset {
         FILLER: 46,
     }
 
+    
+    /**
+     * @param {Adjacency} adjacent 
+     * @returns 
+     */
     static getVariant(adjacent) {
         if (!objectHasProperties(adjacent, 
             "top", "bottom", "left", "right", "top_left", 
@@ -233,41 +261,22 @@ export class Tileset {
     }
 
     /**
-     * @typedef {Object} Point
-     * @property {number} x The X coordinate 
-     * @property {number} y The Y coordinate 
-     */
-
-    /**
-     * @typedef {Object} tilesetTemplate
-     * @property {function} getPosition The X coordinate 
-     */
-
-    /**
      * Get position from adjacency object
      * @overload
-     * @param {object} adjacent
-     * @param {boolean} adjacent.top
-     * @param {boolean} adjacent.bottom
-     * @param {boolean} adjacent.left
-     * @param {boolean} adjacent.right
-     * @param {boolean} adjacent.top_left
-     * @param {boolean} adjacent.top_right
-     * @param {boolean} adjacent.bottom_left
-     * @param {boolean} adjacent.bottom_right
+     * @param {Adjacency} adjacent
      * @returns {Point}
      */
 
     /**
      * Get spritesheet position for a tileset variant
      * @overload
-     * @param {number} variant use Tileset.variants!!
+     * @param variant use Tileset.variants!!
      * @param {tilesetTemplate} [template]
      * @returns {Point}
      */
     static getSpritesheetPosition(arg, template = null) {
 
-        template ??= tilesetTemplates.DEFAULT;
+        template ??= Tileset.templates.DEFAULT;
 
         let variant = arg;
         if(objectHasProperties(arg, "top", "bottom", "left", "right", "top_left", "top_right", "bottom_left", "bottom_right")) {
