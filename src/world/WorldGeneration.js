@@ -11,8 +11,8 @@ const worldGenConfig = {
 
     NOISE_BLUR: 3,
 
-    MIN_DIRT_DEPTH: 0,
-    MAX_DIRT_DEPTH: 2,
+    MIN_DIRT_DEPTH: 2,
+    MAX_DIRT_DEPTH: 5,
 
     // lower = more trees (1 in x)
     TREE_FACTOR: 6, 
@@ -95,7 +95,7 @@ export class WorldGeneration {
 
             this.fillGridWithTile(
                 this.world.tiles, TileRegistry.STONE, 
-                (tile, x, y) => belowHeightmap(x, y) && withinThreshold(x, y));
+                (tile, x, y) => belowHeightmap(x, y));
 
             this.fillGridWithTile(
                 this.world.walls, TileRegistry.STONE_WALL, 
@@ -105,7 +105,7 @@ export class WorldGeneration {
 
             this.fillGridWithTile(
                 this.world.tiles, TileRegistry.DIRT, 
-                (tile, x, y) => (Tile.isTile(tile, TileRegistry.STONE) && belowHeightmap(x, y) && dirty(x, y)));
+                (tile, x, y) => (belowHeightmap(x, y) && dirty(x, y)));
 
             this.fillGridWithTile(
                 this.world.walls, TileRegistry.DIRT_WALL, 
