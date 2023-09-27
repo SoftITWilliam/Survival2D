@@ -7,6 +7,7 @@ export class ItemClothSeeds extends PlaceableBase {
     constructor(registryName, rarity) {
         super(registryName, rarity);
         this.placementPreview.sprite = sprites.placeables.cloth_plant;
+        this.setPreviewSpritePosition(0, 0, 60, 60);
     }
 
     // Return true if position isn't occupied and tile below is either dirt or grass

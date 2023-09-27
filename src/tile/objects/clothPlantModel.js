@@ -9,6 +9,7 @@ export class ClothPlantModel extends PlantBase {
     constructor(registryName) {
         super(registryName, TILE_SIZE);
         this.setSprite(sprites.placeables.cloth_plant);
+        this._spriteRenderer.setSpriteSize(60, 60);
         this.setMiningProperties(Item.SICKLE, 0, 0.5, false);
         this.transparent = true;
 
