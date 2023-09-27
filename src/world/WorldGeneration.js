@@ -4,13 +4,15 @@ import { Tile } from '../tile/Tile.js';
 import { rng, roll, sum } from '../helper/helper.js';
 import { TileRegistry, TileRegistry as Tiles } from '../tile/tileRegistry.js';
 import { World } from './World.js';
+import { Grid } from '../class/Grid.js';
+import { TileModel } from '../tile/tileModel.js';
 
 const worldGenConfig = {
 
     NOISE_BLUR: 3,
 
     MIN_DIRT_DEPTH: 0,
-    MAX_DIRT_DEPTH: 0,
+    MAX_DIRT_DEPTH: 2,
 
     // lower = more trees (1 in x)
     TREE_FACTOR: 6, 
@@ -54,61 +56,98 @@ export class WorldGeneration {
         return new Promise((resolve) => {
             this.world.structures = [];
 
-            this.heightmap = this.generateHeightmap();
+            //#region | Randomness
+
+            this.heightmap = this.#generateHeightmap();
+
+            if(worldGenConfig.ENABLE_HEIGHTMAP_SMOOTHING) {
+                this.#smoothHeightmap(this.heightmap);
+            }
 
             this.terrainNoise = new NoiseMap(this.world.width, this.world.height);
             this.terrainNoise.generate(0, 100);
             this.terrainNoise.applyBlur(worldGenConfig.NOISE_BLUR);
 
-            this.dirtMap = this.generateDirtDepth(worldGenConfig.MIN_DIRT_DEPTH, worldGenConfig.MAX_DIRT_DEPTH);
+            this.dirtMap = this.#generateDirtDepth(worldGenConfig.MIN_DIRT_DEPTH, worldGenConfig.MAX_DIRT_DEPTH);
 
-            // Place tiles based on noise
-            for(let x = 0; x < this.world.width; x++) {
-                for(let y = 0; y < this.world.height; y++) {
-                    if(y > this.heightmap[x]) continue;
+            //#endregion
+            //#region Pre-defined conditions
 
-                    let tile = this.getTerrainTile(x, y, this.terrainNoise.get(x, y));
-                    let wall = this.getTerrainWall(x, y);
+            var belowHeightmap = (x, y) => (
+                y <= this.heightmap[x]);
 
-                    this.world.tiles.set(x, y, tile);
-                    this.world.walls.set(x, y, wall);
-                }
-            }
+            var withinThreshold = (x, y) => (
+                this.terrainNoise.get(x, y) >= worldGenConfig.TERRAIN_NOISE_THRESHOLD);
 
-            this.generateVegetation();
+            var dirty = (x, y) => (
+                y > this.heightmap[x] - this.dirtMap[x]);
+
+            var isATile = (tile) => (
+                tile !== null);
+
+            var isSurface = (x, y) => (
+                y === this.heightmap[x]);
+
+            //#endregion
+            //#region Generation
+
+            // ~~ STONE ~~
+
+            this.fillGridWithTile(
+                this.world.tiles, TileRegistry.STONE, 
+                (tile, x, y) => belowHeightmap(x, y) && withinThreshold(x, y));
+
+            this.fillGridWithTile(
+                this.world.walls, TileRegistry.STONE_WALL, 
+                (tile, x, y) => belowHeightmap(x, y));
+
+            // ~~ DIRT ~~
+
+            this.fillGridWithTile(
+                this.world.tiles, TileRegistry.DIRT, 
+                (tile, x, y) => (Tile.isTile(tile, TileRegistry.STONE) && belowHeightmap(x, y) && dirty(x, y)));
+
+            this.fillGridWithTile(
+                this.world.walls, TileRegistry.DIRT_WALL, 
+                (tile, x, y) => (belowHeightmap(x, y) && dirty(x, y)));
+    
+            // ~~ GRASS ~~
+
+            this.fillGridWithTile(
+                this.world.tiles, TileRegistry.GRASS,
+                (tile, x, y) => (Tile.isTile(tile, TileRegistry.DIRT) && isSurface(x, y)));
+
+            // ~~ CAVES ~~
+
+            this.fillGridWithTile(
+                this.world.tiles, null,
+                (tile, x, y) => (belowHeightmap(x, y) && withinThreshold(x, y)));
+
+            this.#generateVegetation();
+
+            //#endregion
 
             resolve();
         })
     }
 
-    getTerrainTile(x, y, noiseValue) {
-        // No tile
-        if(noiseValue >= worldGenConfig.TERRAIN_NOISE_THRESHOLD) {
-            return null;
-        }
+    /**
+     * @private
+     * @param {Grid} grid 
+     * @param {TileModel} model 
+     * @param {(value: (Tile|null), x: number, y: number) => boolean} conditionFn This is a predicate, thanks zoe <3
+     */
+    fillGridWithTile(grid, model, conditionFn = null) {
+        
+        // To avoid checking the types every time
+        let hasCondition = typeof conditionFn == "function";
+        let isModel = model instanceof TileModel;
 
-        // Dirt & Grass
-        if(this.heightmap[x] - this.dirtMap[x] < y) {
-            if(this.heightmap[x] == y) {
-                return new Tile(this.world, x, y, TileRegistry.GRASS);
+        grid.eachItem((tile, x, y) => {
+            if(hasCondition && conditionFn(tile, x, y)) {
+                return isModel ? new Tile(this.world, x, y, model) : null;
             } 
-            else {
-                return new Tile(this.world, x, y, TileRegistry.DIRT);
-            }
-        } 
-
-        return new Tile(this.world, x, y, TileRegistry.STONE);
-    }
-
-    getTerrainWall(x, y) {
-        // Dirt wall
-        if(this.heightmap[x] - this.dirtMap[x] < y) {
-            return new Tile(this.world, x, y, TileRegistry.DIRT_WALL);
-        } 
-        // Stone wall
-        else {
-            return new Tile(this.world, x, y, TileRegistry.STONE_WALL);
-        }
+        })
     }
 
     /**
@@ -117,11 +156,11 @@ export class WorldGeneration {
      * @param {number} maxDepth Maximum dirt depth
      * @returns {Array} 
      */
-    generateDirtDepth(minDepth, maxDepth) {
+    #generateDirtDepth(minDepth, maxDepth) {
         return new Array(this.world.width).fill(null).map(() => rng(minDepth, maxDepth));
     }
 
-    generateVegetation() {
+    #generateVegetation() {
         let lastTree = -1;
         let treeGap = 2;
 
@@ -143,7 +182,7 @@ export class WorldGeneration {
         }
     }
 
-    generateHeightmap() {
+    #generateHeightmap() {
 
         const heightmap = [];
         heightmap.push(Math.ceil(this.world.height / 2));
@@ -169,29 +208,23 @@ export class WorldGeneration {
             heightmap[x + 1] = previousHeight + stepHeight;
         }
 
-        if(worldGenConfig.ENABLE_HEIGHTMAP_SMOOTHING) {
-            smoothHeightmap(heightmap);
-        }
-
         return heightmap;
     }
-}
 
-// Remove all tiles from the heightmap that have air on 3 sides
-function smoothHeightmap(heightmap) {
+    #smoothHeightmap(heightmap) {
+        const OUT_OF_BOUNDS = -1;
 
-    const OUT_OF_BOUNDS = -1;
+        for(let x = 0; x < heightmap.length; x++) {
+            let height = heightmap[x];
+            let heightLeft = x > 0 ? heightmap[x - 1] : OUT_OF_BOUNDS;
+            let heightRight = x < heightmap.length - 1 ? heightmap[x + 1] : OUT_OF_BOUNDS;
 
-    for(let x = 0; x < heightmap.length; x++) {
-        let height = heightmap[x];
-        let heightLeft = x > 0 ? heightmap[x - 1] : OUT_OF_BOUNDS;
-        let heightRight = x < heightmap.length - 1 ? heightmap[x + 1] : OUT_OF_BOUNDS;
-
-        let hasTileLeft = (heightLeft >= height || heightLeft === OUT_OF_BOUNDS);
-        let hasTileRight = (heightRight >= height || heightRight === OUT_OF_BOUNDS);
-        
-        if(!hasTileLeft && !hasTileRight) {
-            heightmap[x] = Math.max(heightLeft, heightRight);
+            let hasTileLeft = (heightLeft >= height || heightLeft === OUT_OF_BOUNDS);
+            let hasTileRight = (heightRight >= height || heightRight === OUT_OF_BOUNDS);
+            
+            if(!hasTileLeft && !hasTileRight) {
+                heightmap[x] = Math.max(heightLeft, heightRight);
+            }
         }
     }
 }

@@ -234,8 +234,14 @@ export class Grid {
     //#region Other methods
 
     /**
-     * Run callback function for 
-     * @param {*} callbackfn 
+     * @callback gridCallback
+     * @param {any} value
+     * @param {number} x
+     * @param {number} y
+     */
+    /**
+     * Run callback function for every item in the grid.
+     * @param {gridCallback} callbackfn 
      */
     forEach(callbackfn) {
         for(let x = 0; x < this.width; x++) {
@@ -243,6 +249,20 @@ export class Grid {
                 callbackfn(this.get(x, y), x, y);
             }   
         }
+    }
+
+    /**
+     * Run callback function for every item in the grid.
+     * If a value is returned, it replaces the item in the grid.
+     * @param {gridCallback} callbackfn
+     */
+    eachItem(callbackfn) {
+        this.forEach((value, x, y) => {
+            let result = callbackfn(value, x, y);
+            if(result !== undefined) {
+                this.set(x, y, result);
+            }
+        })
     }
 
     #validPosition(x, y) {
