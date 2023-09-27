@@ -170,3 +170,11 @@ export async function timer(ms) {
         setTimeout(() => resolve(), ms);
     })
 }
+
+export function sum(numbers) {
+    let result = 0;
+    if(Array.isArray(numbers) && numbers.every(n => typeof(n) == "number")) {
+        result = numbers.reduce((a, b) => a + b, 0);
+    }
+    return isNaN(result) ? 0 : result;
+}
