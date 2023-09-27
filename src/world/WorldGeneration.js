@@ -1,16 +1,16 @@
 import * as structures from '../structure/structureParent.js';
-import { BASE_TERRAIN_HEIGHT } from "../game/global.js";
 import NoiseMap from './NoiseMap.js';
 import { Tile } from '../tile/Tile.js';
-import { rng, roll } from '../helper/helper.js';
+import { rng, roll, sum } from '../helper/helper.js';
 import { TileRegistry, TileRegistry as Tiles } from '../tile/tileRegistry.js';
+import { World } from './World.js';
 
 const worldGenConfig = {
 
     NOISE_BLUR: 3,
 
-    MIN_DIRT_DEPTH: 2,
-    MAX_DIRT_DEPTH: 5,
+    MIN_DIRT_DEPTH: 0,
+    MAX_DIRT_DEPTH: 0,
 
     // lower = more trees (1 in x)
     TREE_FACTOR: 6, 
@@ -19,16 +19,35 @@ const worldGenConfig = {
     // if noise value for a tile is below the threshold, that tile becomes terrain.
     // Higher values result in fewer caves
     TERRAIN_NOISE_THRESHOLD: 53, 
+
+    STEP_CHANCE: [
+        [-4, 1],
+        [-3, 2],
+        [-2, 4],
+        [-1, 8],
+        [0, 10],
+        [1, 8],
+        [2, 4],
+        [3, 2],
+        [4, 1],
+    ],
+
+    ENABLE_HEIGHTMAP_SMOOTHING: true,
 }
 
 export class WorldGeneration {
     constructor(world) {
+        /** @type {World} */
         this.world = world;
 
-        this.heightmap = null;
-        this.terrainNoise = null;
-        this.dirtMap = null;
-        this.threshold = worldGenConfig.TERRAIN_NOISE_THRESHOLD;
+        /** @type {number[]} */
+        this.heightmap;
+
+        /** @type {NoiseMap} */
+        this.terrainNoise;
+
+        /** @type {number[]} */
+        this.dirtMap;
     }
 
     async generate() {
@@ -46,8 +65,11 @@ export class WorldGeneration {
             // Place tiles based on noise
             for(let x = 0; x < this.world.width; x++) {
                 for(let y = 0; y < this.world.height; y++) {
+                    if(y > this.heightmap[x]) continue;
+
                     let tile = this.getTerrainTile(x, y, this.terrainNoise.get(x, y));
                     let wall = this.getTerrainWall(x, y);
+
                     this.world.tiles.set(x, y, tile);
                     this.world.walls.set(x, y, wall);
                 }
@@ -60,50 +82,33 @@ export class WorldGeneration {
     }
 
     getTerrainTile(x, y, noiseValue) {
-        // No blocks or walls are generated above surface height
-        if(y > this.heightmap[x] || noiseValue >= this.threshold) return null;
-
-        let model;
-
-        // Grass
-        if(this.heightmap[x] == y) {
-            model = TileRegistry.GRASS;
-        } 
-        
-        // Dirt
-        else if(this.heightmap[x] - this.dirtMap[x] < y) {
-            model = TileRegistry.DIRT;
-        } 
-        
-        // Stone
-        else {
-            model = TileRegistry.STONE;
+        // No tile
+        if(noiseValue >= worldGenConfig.TERRAIN_NOISE_THRESHOLD) {
+            return null;
         }
 
-        let tile = new Tile(this.world, x, y, model);
+        // Dirt & Grass
+        if(this.heightmap[x] - this.dirtMap[x] < y) {
+            if(this.heightmap[x] == y) {
+                return new Tile(this.world, x, y, TileRegistry.GRASS);
+            } 
+            else {
+                return new Tile(this.world, x, y, TileRegistry.DIRT);
+            }
+        } 
 
-        return model ? tile : null;
+        return new Tile(this.world, x, y, TileRegistry.STONE);
     }
 
     getTerrainWall(x, y) {
-        // No wall
-        if(y > this.heightmap[x]) return null;
-
-        let model = "";
-
-        // Dirt walls
-        if(this.heightmap[x] - this.dirtMap[x] <= y) {
-            model = TileRegistry.DIRT_WALL;
+        // Dirt wall
+        if(this.heightmap[x] - this.dirtMap[x] < y) {
+            return new Tile(this.world, x, y, TileRegistry.DIRT_WALL);
         } 
-        
-        // Stone walls
+        // Stone wall
         else {
-            model = TileRegistry.STONE_WALL;
+            return new Tile(this.world, x, y, TileRegistry.STONE_WALL);
         }
-
-        let tile = new Tile(this.world, x, y, model);
-
-        return model ? tile : null;
     }
 
     /**
@@ -113,11 +118,7 @@ export class WorldGeneration {
      * @returns {Array} 
      */
     generateDirtDepth(minDepth, maxDepth) {
-        let dirtDepth = [];
-        for(let i = 0; i < this.world.width; i++) {
-            dirtDepth.push(rng(minDepth, maxDepth));
-        }
-        return dirtDepth;
+        return new Array(this.world.width).fill(null).map(() => rng(minDepth, maxDepth));
     }
 
     generateVegetation() {
@@ -144,43 +145,35 @@ export class WorldGeneration {
 
     generateHeightmap() {
 
-        let heightMap = [];
-        heightMap.push(Math.ceil(this.world.height / 2));
+        const heightmap = [];
+        heightmap.push(Math.ceil(this.world.height / 2));
+
+        const chanceValues = worldGenConfig.STEP_CHANCE.map(v => v[1]);
+        const chanceSum = sum(chanceValues);
 
         for(let x = 0; x < this.world.width; x++) {
-            let pHeight = heightMap[x];
+            let previousHeight = heightmap[x];
+            
+            let rand = rng(0, chanceSum - 1);
 
-            let rand = rng(1, 100);
-
-            //let highThreshold = [5,10,20,40,16,7,2];
-
-            // Down 3: 1%; Down 2: 5%, Down 1: 19%, Equal: 50%, Up 1: 19%, Up 2: 5%, Up 3: 1%
-            //let t = [3,10,26,76,92,99];
-            let t = [2,7,26,76,95,100];
-
-            let c;
-            if(rand >= 1 && rand < t[0]) {
-                c = -3;
-            } else if(rand >= t[0] && rand < t[1]) {
-                c = -2
-            } else if(rand >= t[1] && rand < t[2]) {
-                c = -1
-            } else if(rand >= t[2] && rand < t[3]) {
-                c = 0;
-            } else if(rand >= t[3] && rand < t[4]) {
-                c = 1;
-            } else if(rand >= t[4] && rand < t[5]) {
-                c = 2;
-            } else if(rand >= t[5] && rand <= 100) {
-                c = 3;
+            // hopefully I remember how this works later
+            let stepHeight = 0;
+            for(let i = 0; i < worldGenConfig.STEP_CHANCE.length; i++) {
+                rand -= worldGenConfig.STEP_CHANCE[i][1];
+                if(rand < 0) {
+                    stepHeight = worldGenConfig.STEP_CHANCE[i][0];
+                    break;
+                } 
             }
 
-            heightMap[x + 1] = pHeight + c;
+            heightmap[x + 1] = previousHeight + stepHeight;
         }
 
-        smoothHeightmap(heightMap);
+        if(worldGenConfig.ENABLE_HEIGHTMAP_SMOOTHING) {
+            smoothHeightmap(heightmap);
+        }
 
-        return heightMap;
+        return heightmap;
     }
 }
 
