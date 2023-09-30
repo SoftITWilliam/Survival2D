@@ -265,6 +265,14 @@ export class Grid {
         })
     }
 
+    *[Symbol.iterator]() {
+        for(let x = 0; x < this.width; x++) {
+            for(let y = 0; y < this.height; y++) {
+                yield this.get(x, y)
+            }   
+        }
+    }
+
     #validPosition(x, y) {
         return (validIndex(x, this.#grid) && validIndex(y, this.#grid[0]));
     }
