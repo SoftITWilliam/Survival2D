@@ -71,6 +71,16 @@ export class Grid {
     }
 
     /**
+     * Returns true if value at the provided position is same as default value
+     * @param {number} x X index (column)
+     * @param {number} y Y index (row)
+     * @returns {boolean}
+     */
+    isEmptyAt(x, y) {
+        return (this.get(x, y) == this.#default)
+    }
+
+    /**
      * @overload
      * Returns a single row. If index is invalid, null is returned
      * @param {number} x Index of row
