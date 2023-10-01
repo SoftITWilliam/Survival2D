@@ -6,82 +6,191 @@ import { TILE_SIZE } from '../game/global.js';
 import { TileModel } from '../tile/tileModel.js';
 import { Grid } from '../class/Grid.js';
 import { WorldLighting } from './WorldLighting.js';
+import { validNumbers } from '../helper/helper.js';
+import Structure from '../structure/structure.js';
+import { Game } from '../game/game.js';
 
 export class World {
+    #width
+    #height
+    #tilemap
+    #wallmap
+    #worldGen
+    
+    /**
+     * @param {Game} game 
+     * @param {number} width World width in tiles
+     * @param {number} height World height in tiles
+     */
     constructor(game, width, height) {
-        this.game = game; // Pointer to Game object
-        this.width = width; // World width in tiles
-        this.height = height; // World height in tiles
 
-        this.tiles = new Grid(width, height);
-        this.walls = new Grid(width, height);
+        /** @type {Game} */
+        this.game = game; // todo: get rid of the need to store a reference to game
 
+        this.#width = width;
+        this.#height = height;
+
+        /** @type {Grid} */
+        this.#tilemap = new Grid(width, height);
+
+        /** @type {Grid} */
+        this.#wallmap = new Grid(width, height);
+
+        /** @type {WorldGeneration} */
+        this.#worldGen = new WorldGeneration(this);
+
+        /** @type {WorldLighting} */
         this.lighting = new WorldLighting(this);
 
-        this.worldGen = new WorldGeneration(this);
-
+        /** @type {Structure[]} */
         this.structures = [];
 
         this.frameCounter = 0;
         this.ticksPerSecond = 10;
     }
 
-    get heightmap() {
-        return this.worldGen.heightmap;
+    /**
+     * Run world generation algorithm. Manipulates tilemaps of this World object.
+     */
+    async generate() {
+        await this.#worldGen.generate();
+
+        // Convert all generated 'structures' into actual tiles
+        this.structures.forEach(structure => {
+            structure.generate();
+        })
+
+        this.updateAllTiles();
+
+        return true;
+    }    
+
+    //#region | Property getters
+
+    /** @readonly */
+    get heightmap() { 
+        return this.#worldGen.heightmap 
     }
 
-    // Clear the given tile
+    /** @readonly */
+    get width() { 
+        return this.#width 
+    }
+
+    /** @readonly */
+    get height() { 
+        return this.#height 
+    }
+
+    /** @readonly */
+    get tiles() { 
+        return this.#tilemap 
+    }
+
+    /** @readonly */
+    get walls() { 
+        return this.#wallmap 
+    }
+
+    //#endregion
+    
+    //#region | Tilemap manipulation methods
+
+    /**
+     * Removes tile at the provided position
+     * (Note: Will not update any surrounding tiles, or drop any items. Only delete)
+     * @param {number} x 
+     * @param {number} y 
+     */
     clearTile(x, y) {
         this.tiles.clear(x, y);
     }
 
-    // Clear the given wall
+    /**
+     * Removes wall at the provided position
+     * (Note: Will not update any surrounding walls, or drop any items. Only delete)
+     * @param {number} x 
+     * @param {number} y 
+     */
     clearWall(x, y) {
         this.walls.clear(x, y);
     }
+
+    /**
+     * Create a new tile object of the provided type, at the provided position
+     * @overload
+     * @param {number} x X position in grid
+     * @param {number} y Y position in grid
+     * @param {TileModel} tileModel 
+     * 
+     * Set the tile object at the provided position
+     * @overload
+     * @param {number} x X position in grid
+     * @param {number} y Y position in grid
+     * @param {Tile} tile 
+     */
+    setTile(x, y, arg) {
+
+        var set = (tile) => this.tiles.set(x, y, tile);
+
+        if(arg instanceof TileModel)
+            set(new Tile(this, x, y, arg));
+        
+        else if(arg instanceof Tile)
+            set(arg);
+    }
+
+    /**
+     * @param {number} x 
+     * @param {number} y 
+     * @param {(TileModel|Tile)} tile 
+     */
+    setTileIfEmpty(x, y, tile) {
+        if(this.tiles.isEmptyAt(x, y)) {
+            this.setTile(x, y, tile)
+        }
+    }
+
+    /**
+     * Create a new wall object of the provided type, at the provided position
+     * @overload
+     * @param {number} x X position in grid
+     * @param {number} y Y position in grid
+     * @param {TileModel} wallModel 
+     * 
+     * Set the wall object at the provided position
+     * @overload
+     * @param {number} x X position in grid
+     * @param {number} y Y position in grid
+     * @param {Tile} wall 
+     */
+    setWall(x, y, arg) {
+
+        var set = (wall) => this.walls.set(x, y, wall);
+
+        if(arg instanceof TileModel)
+            set(new Tile(this, x, y, arg));
+        
+        else if(arg instanceof Tile)
+            set(arg);
+    }
     
-    getTilesInRange(gridX, gridY, range) {
-        let tileArray = [];
-        for(let x = gridX - range; x <= gridX + range; x++) {
-            for(let y = gridY - range; y <= gridY + range; y++) {
-                let tile = this.tiles.get(x, y);
-                if(tile) tileArray.push(tile);
-            }
-        }
-        return tileArray;
-    }
-
-    setTileIfEmpty(x, y, tileModel) {
-        if(tileModel instanceof TileModel) {
-            const tile = new Tile(this, x, y, tileModel);
-            this.tiles.set(x, y, tile);
+    /**
+     * @param {number} x 
+     * @param {number} y 
+     * @param {(TileModel|Tile)} wall 
+     */
+    setWallIfEmpty(x, y, wall) {
+        if(this.tiles.isEmptyAt(x, y)) {
+            this.setTile(x, y, wall)
         }
     }
 
-    setTile(x, y, tileModel) {
-        if(tileModel instanceof TileModel) {
-            const tile = new Tile(this, x, y, tileModel);
-            this.tiles.set(x, y, tile);
-        }
-    }
+    //#endregion
 
-    // Set the wall at the given position to the given wall
-    setWall(x, y, wallModel) {
-        if(wallModel instanceof TileModel) {
-            const wall = new Tile(this, x, y, wallModel);
-            this.walls.set(x, y, wall);
-        }
-    }
+    //#region | Tick methods
 
-    // If the given coordinates are outside of the map (ex. an X coordinate of -1), return true
-    outOfBounds(x, y) {
-        if(isNaN(x) || isNaN(y)) {
-            return true;
-        }
-            
-        return (x < 0 || x >= this.width || y < 0 || y >= this.height);
-    }
-
+    // TODO use deltatime
     tickCounter() {
         this.frameCounter += 1;
         if(this.frameCounter > 60 / this.ticksPerSecond) {
@@ -90,73 +199,106 @@ export class World {
         }
     }
 
+    /**
+     * Run .tickUpdate() method for all tiles in world
+     */
     tick() {
         // If performance becomes an issue, this should be optimized using world chunks
-        this.tiles.asArray().forEach(tile => tile?.tickUpdate());
+        for(const tile of this.tiles) {
+            tile?.tickUpdate();
+        }
     }
 
-    async generate() {
-        return new Promise(async (resolve) => {
-            await this.worldGen.generate();
+    //#endregion
 
-            // Convert all generated 'structures' into actual tiles
-            this.structures.forEach(structure => {
-                structure.generate();
-            })
+    //#region | Tilemap update methods
 
-            this.updateAllTiles();
-
-            resolve();
-        });
-    }    
-
+    /**
+     * Run .updateTile() method for all tiles and walls in world
+     */
     updateAllTiles() {
-        for(let x = 0; x < this.width; x++) {
-            for(let y = 0; y < this.height; y++) {
-                this.updateTile(x, y);
-            }
+        for(const tile of this.tiles) {
+            this.updateTile(tile);
         }
-    }
-
-    updateNearbyTiles(gridX, gridY) {
-        for(let x = gridX - 1; x <= gridX + 1; x++) {
-            for(let y = gridY - 1; y <= gridY + 1; y++) {
-                this.updateTile(x, y);
-            }
-        }
-    }
-
-    updateTile(gridX, gridY) {
-        try {
-            let tile = this.tiles.get(gridX, gridY);
-            tile?.updateSpritePosition();
-            tile?.tileUpdate();
-
-            let wall = this.walls.get(gridX, gridY);
-            wall?.updateSpritePosition();
-            wall?.tileUpdate();
-        }
-        catch(error) {
-            console.warn("Tile update failed!");
-            console.warn(error);
+        for(const wall of this.walls) {
+            this.updateTile(wall);
         }
     }
 
     /**
-     * Takes an X coordinate and return its grid equivalent
-     * @param {int} x canvas X coordinate
-     * @returns {*} grid X coordinate (false if outside grid)
+     * Update tile at provided position, and all surrounding tiles.
+     * @param {number} gridX 
+     * @param {number} gridY 
+     */
+    updateNearbyTiles(gridX, gridY) {
+        let r = 1;
+        let size = r * 2 + 1;
+        this.tiles.asArray(gridX - r, gridY - r, size, size).forEach(tile => this.updateTile(tile));
+        this.tiles.asArray(gridX - r, gridY - r, size, size).forEach(tile => this.updateTile(tile));
+    }
+
+    /**
+     * @param {Tile} tile 
+     */
+    updateTile(tile) {
+        if(tile) {
+            tile.updateSpritePosition();
+            tile.tileUpdate();
+        }
+    }
+
+    //#endregion
+
+    //#region | Utils
+
+    /**
+     * @param {number} gridX 
+     * @param {number} gridY 
+     * @param {number} range 
+     * @returns {Tile[]}
+     */
+    getTilesInRange(gridX, gridY, range) {
+        if(!validNumbers(gridX, gridY, range))
+            throw new RangeError("Dumbass");
+
+        let size = range * 2 + 1;
+
+        return this.tiles.asArray(gridX - range, gridY - range, size, size, true);
+    }
+
+    /**
+     * If the provided coordinates are invalid or outside of the map (ex. an X coordinate of -1), return true
+     * @param {(number | any)} x X position in grid
+     * @param {(number | any)} y Y position in grid
+     * @returns 
+     */
+    outOfBounds(x, y) {
+        return (!validNumbers(x, y) || 
+            x < 0 || x >= this.width || 
+            y < 0 || y >= this.height);
+    }
+
+    //#endregion
+
+    //#region | Static methods
+
+    /**
+     * Converts Y coordinate to grid position
+     * @param {number} x canvas X coordinate
+     * @returns {number} X position in grid
      */
     static gridXfromCoordinate(x) {
         return Math.floor(x / TILE_SIZE);
     }
 
     /**
-     * Takes an Y coordinate and return its grid equivalent
-     * @param {int} x canvas X coordinate
-     * @returns {int} grid X coordinate (false if outside grid)
+     * Converts Y coordinate to grid position
+     * @param {number} y canvas Y coordinate
+     * @returns {number} Y position in grid
      */
     static gridYfromCoordinate(y) {
         return -Math.floor(y / TILE_SIZE);
     }
+
+    //#endregion
 }
