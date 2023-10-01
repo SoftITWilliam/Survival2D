@@ -1,6 +1,5 @@
 import { Collision } from "../misc/Collision.js";
 import { TILE_SIZE } from "../game/global.js";
-import { dropItemFromTile } from "../item/dropItem.js";
 import { Tile } from "../tile/Tile.js";
 import { PositionComponent } from "./positionComponent.js";
 import { getPhysicsMultiplier, objectHasProperties, validNumbers } from "../helper/helper.js";
@@ -113,7 +112,7 @@ export class EntityComponent extends PositionComponent {
     rightCollision(tile) {
         this.dx = 0;
         this.x = tile.x2;
-        this.onRightCollision(dropItemFromTile);
+        this.onRightCollision(tile);
     }
 
     // Check collision of tiles within a 2 block radius
