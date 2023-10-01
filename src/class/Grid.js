@@ -13,9 +13,18 @@ export class Grid {
         this.#grid = Grid.Empty(this.#width, this.#height, this.#default);
     }
 
+    /**
+     * Returns a 2d array, with a specific width and height.
+     * @param {number} width Amount of columns
+     * @param {number} height Amount of rows
+     * @param {any} [defaultValue] Value inserted into every position in the grid. Works with methods. (default: null)
+     * @returns {Array[]}
+     */
     static Empty(width, height, defaultValue = null) {
-        return new Array(width).fill(null).map(function() { 
-            return new Array(height).fill(defaultValue)
+        let isFunction = (typeof defaultValue == "function");
+        const getDefault = (isFunction ? () => defaultValue() : () => defaultValue);
+        return new Array(width).fill(null).map(function() {
+            return new Array(height).fill(getDefault());
         });
     }
 
@@ -23,16 +32,42 @@ export class Grid {
 
     get defaultValue() { return this.#default }
 
+    /** @returns {number} */
     get width() { return this.#width }
 
+    /** @returns {number} */
     get height() { return this.#height }
+
+    //#endregion
+
+    //#region Property setters
 
     //#endregion
 
     //#region Methods for getting grid data
 
+    /**
+     * Returns the value stored at a position of this grid.
+     * If position arguments are invalid, the 'default' value is returned.
+     * @param {number} x X index (column)
+     * @param {number} y Y index (row)
+     * @returns Stored value at grid position
+     */
     get(x, y) {
-        return this.#validPosition(x, y) ? this.#grid[x][y] : this.#default;
+        return (this.#validPosition(x, y) ? this.#grid[x][y] : this.#default);
+    }
+
+    /**
+     * Returns the value stored at a position of this grid.
+     * If invalid position arguments are provided, an error is thrown.
+     * @param {number} x X index (column)
+     * @param {number} y Y index (row)
+     * @returns Stored value at grid position
+     */
+    requireGet(x, y) {
+        if(this.#validPosition(x, y) == false) 
+            throw new RangeError(`Invalid grid position (${x},${y})`);
+        else return this.#grid[x][y];
     }
 
     /**
@@ -40,9 +75,7 @@ export class Grid {
      * Returns a single row. If index is invalid, null is returned
      * @param {number} x Index of row
      * @returns {Array | null}
-     */
-
-    /**
+     * 
      * @overload
      * Returns an array of rows.
      * If the selection goes outside of the grid, those rows are not included.
@@ -80,9 +113,7 @@ export class Grid {
      * Returns a single column.
      * @param {number} x Column index
      * @returns {Array | null}
-     */
-
-    /**
+     * 
      * @overload
      * Returns an array of columns.
      * If the selection goes outside of the grid, those columns are not included.
@@ -117,40 +148,37 @@ export class Grid {
      * Get all grid items as an array
      * @overload
      * @returns {Array}
-     */
-
-    /**
+     * 
+     * Get all non-default grid items as an array
      * @overload
      * @param {boolean} ignoreDefaultValues
      * @returns {Array}
-     */
-
-    /**
+     * 
+     * Get all grid items as an array, filtered
      * @overload
      * @param {Function} filterExpression 
      * @returns {Array}
-     */
-
-    /**
+     * 
+     * Get items from a part of the grid, as an array
+     * (If selection overflows grid size, those values are ignored)
      * @overload
-     * @param {number} x 
-     * @param {number} y 
-     * @param {number} width 
-     * @param {number} height 
+     * @param {number} x Selection X
+     * @param {number} y Selection Y
+     * @param {number} width Selection width
+     * @param {number} height Selection height
      * @returns {Array[]}
-     */
-
-    /**
+     * 
+     * Get non-default items from a part of the grid, as an array
+     * (If selection overflows grid size, those values are ignored)
      * @overload
-     * @param {number} x 
-     * @param {number} y 
-     * @param {number} width 
-     * @param {number} height 
+     * @param {number} x Selection X
+     * @param {number} y Selection Y
+     * @param {number} width Selection width
+     * @param {number} height Selection height
      * @param {boolean} ignoreDefaultValues
      * @returns {Array[]}
-     */
-
-    /**
+     * 
+     * Get items from a part of the grid, as an array, filtered
      * @overload
      * @param {number} x 
      * @param {number} y 
@@ -209,21 +237,20 @@ export class Grid {
     //#region Methods for modifying the grid
 
     /**
-     * Set the value at a position in the grid
-     * @param {*} x 
-     * @param {*} y 
-     * @param {*} value 
+     * Set the value at a position in the grid.
+     * If invalid position arguments are provided, nothing happens.
+     * @param {number} x X index (column)
+     * @param {number} y Y index (row)
+     * @param {any} value New value
      */
     set(x, y, value) {
-        if(this.#validPosition(x, y)) {
-            this.#grid[x][y] = value || this.#default;
-        }
+        if(this.#validPosition(x, y)) this.#grid[x][y] = value;
     }
 
     /**
      * Set value of a grid position to the default value
-     * @param {*} x 
-     * @param {*} y 
+     * @param {number} x
+     * @param {number} y
      */
     clear(x, y) {
         this.set(x, y, this.#default);
@@ -231,7 +258,7 @@ export class Grid {
 
     //#endregion
 
-    //#region Other methods
+    //#region Iteration
 
     /**
      * @callback gridCallback
@@ -239,6 +266,7 @@ export class Grid {
      * @param {number} x
      * @param {number} y
      */
+
     /**
      * Run callback function for every item in the grid.
      * @param {gridCallback} callbackfn 
@@ -273,6 +301,16 @@ export class Grid {
         }
     }
 
+    //#endregion
+
+    //#region Private methods
+
+    /**
+     * Returns true if x and y is a valid grid position (numerical values within grid size)
+     * @param {number} x 
+     * @param {number} y 
+     * @returns 
+     */
     #validPosition(x, y) {
         return (validIndex(x, this.#grid) && validIndex(y, this.#grid[0]));
     }
