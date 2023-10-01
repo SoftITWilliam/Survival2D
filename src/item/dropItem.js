@@ -13,11 +13,11 @@ import { ItemStack } from "./itemStack.js";
  * @param {number} amount Amount of item being dropped
  * @param {Game} game Game object, used to access the Item Entity Manager
  */
-export function dropItemFromTile(tile, item, amount, game) {
-    if(!tile || !item || !amount || !game) return;
+export function dropItemFromTile(tile, stack, game) {
+    if (!tile instanceof Tile || !stack instanceof ItemStack || !game instanceof Game) return;
     
     // Create an item entity and assign a randomzied movement vector to it
-    let entity = game.itemEntities.addEntity(tile.centerX, tile.centerY, new ItemStack(item, amount));
+    let entity = game.itemEntities.addEntity(tile.centerX, tile.centerY, stack);
     let v = ItemEntity.generateVector();
     entity.vector = v;
 }

@@ -1,8 +1,8 @@
 import { TILE_SIZE } from "../game/global.js";
 import { SpriteRenderer } from "../graphics/SpriteRenderer.js";
-import { MISSING_TEXTURE, isMissingTexture, sprites } from "../graphics/assets.js";
-import { dropItemFromTile } from "../item/dropItem.js";
+import { MISSING_TEXTURE, isMissingTexture } from "../graphics/assets.js";
 import Item from "../item/item.js";
+import { ItemStack } from "../item/itemStack.js";
 import { World } from "../world/World.js";
 import { Tile } from "./Tile.js";
 import { Tileset } from "./Tileset.js";
@@ -118,34 +118,24 @@ export class TileModel {
     //#region Methods
 
     /**
-     * Remove the tile and drop its items.
+     * Remove tile from world.
      * @param {Tile} tile Tile being broken
-     * @param {(Item|null)} item Item used to break the tile
-     * @param {World} world 
      */
-    breakTile(tile, item = null, world) {
-        let grid = (this.type == Tile.types.WALL) ? world.walls : world.tiles;
+    removeFromWorld(tile) {
+        let grid = (this.type == Tile.types.WALL) ? tile.world.walls : tile.world.tiles;
         grid.clear(tile.gridX, tile.gridY);
-
-        this.dropItems(tile, (Item.isTool(item) ? item : null), world);
-
-        world.updateNearbyTiles(tile.gridX, tile.gridY);
+        tile.world.updateNearbyTiles(tile.gridX, tile.gridY);
     }
 
     /**
-     * Loop through this tile's drops and spawn Item entities for each result.
-     * Runs when the tile is broken.
-     * @param {Tile} tile 
-     * @param {(Item | null)} item 
-     * @param {World} world 
+     * @param {(Item | null)} item Item used to mine tile
+     * @param {World} world World
+     * @returns {ItemStack[]} Dropped item stacks
      */
-    dropItems(tile, item, world) {
-        this.tileDrops.forEach(tileDrop => {
-            const drop = tileDrop.roll(this, item, 1);
-            if(drop) {
-                dropItemFromTile(tile, drop.item, drop.amount, world.game);
-            }
-        })
+    getDroppedItems(item) {
+        return (this.tileDrops
+            .map(drop => drop.roll(this, item))
+            .filter(dropStack => dropStack != null));
     }
 
     /**
@@ -153,18 +143,14 @@ export class TileModel {
      * @param {Tile} tile 
      * @param {World} world 
      */
-    tileUpdate(tile, world) {
-        
-    }
+    tileUpdate(tile, world) { }
 
     /**
      * Runs at a regular interval (not every frame)
      * @param {Tile} tile 
      * @param {World} world 
      */
-    tickUpdate(tile, world) {
-        
-    }
+    tickUpdate(tile, world) { }
 
     //#endregion
     //#region Rendering methods

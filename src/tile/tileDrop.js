@@ -1,5 +1,7 @@
 import { rng } from "../helper/helper.js";
 import Item from "../item/item.js";
+import { ItemStack } from "../item/itemStack.js";
+import { Tile } from "./Tile.js";
 
 // This should be converted into a general drop class later, so that it for example could be used for entity drops.
 export class TileDrop {
@@ -33,6 +35,12 @@ export class TileDrop {
         return this;
     }
 
+    /**
+     * @param {Tile} tile 
+     * @param {Item} item 
+     * @param {number} [multiplier] UNUSED!! May be used in the future get better drops in some situations (Default: 1)
+     * @returns {(ItemStack|null)}
+     */
     roll(tile, item, multiplier) {
 
         // !! Currently doesn't support gathering multipliers
@@ -52,6 +60,6 @@ export class TileDrop {
 
         if(typeof dropAmount != "number" || isNaN(dropAmount)) dropAmount = 1;
 
-        return {item: this._item, amount: dropAmount}
+        return new ItemStack(this._item, dropAmount);
     }
 }

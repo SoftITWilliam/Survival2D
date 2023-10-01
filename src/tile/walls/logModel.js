@@ -1,6 +1,6 @@
 import { TileDrop } from "../tileDrop.js";
 import WallBase from "../base/WallBase.js";
-import { ItemRegistry as Items } from "../../item/itemRegistry.js";
+import { ItemRegistry } from "../../item/itemRegistry.js";
 import Item from "../../item/item.js";
 import { Tile } from "../Tile.js";
 import { TileRegistry } from "../tileRegistry.js";
@@ -12,7 +12,7 @@ export class LogModel extends WallBase {
         this.setMiningProperties(Item.toolTypes.AXE, 0, 1.5, false);
 
         this.tileDrops = [
-            new TileDrop(Items.WOOD, 1, 3).affectedByMultipliers(),
+            new TileDrop(ItemRegistry.WOOD, 1, 3).affectedByMultipliers(),
         ]
     }
 
@@ -21,12 +21,15 @@ export class LogModel extends WallBase {
         return(!Item.isTool(item, Item.toolTypes.HAMMER));
     }
 
-    breakTile(tile, item, world) {
-        let tileAbove = world.walls.get(tile.gridX, tile.gridY + 1);
+    /**
+     * @param {Tile} tile 
+     */
+    removeFromWorld(tile) {
+        let tileAbove = tile.world.walls.get(tile.gridX, tile.gridY + 1);
         if(Tile.isTile(tileAbove, TileRegistry.LOG)) {
-            tileAbove.breakTile(tileAbove, item, world);
+            tileAbove.break();
         }
-        super.breakTile(tile, item, world);
+        super.removeFromWorld(tile);
     }
 
     render(ctx, tile) {

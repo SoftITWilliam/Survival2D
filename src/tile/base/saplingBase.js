@@ -82,8 +82,8 @@ export default class SaplingBase extends ObjectBase {
      * @param {World} world 
      */
     tileUpdate(tile, world) {
-        if(!world.tiles.get(tile.gridX, tile.gridY - 1)) {
-            this.breakTile(tile, null, world);
+        if(world.tiles.get(tile.gridX, tile.gridY - 1) == null) {
+            tile.break();
         }
     }
 }

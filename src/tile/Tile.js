@@ -1,5 +1,6 @@
 import GameObject from "../class/GameObject.js";
 import { TILE_SIZE } from "../game/global.js";
+import { dropItemFromTile } from "../item/dropItem.js";
 import Item from "../item/item.js";
 import { World } from "../world/World.js";
 import { TileModel } from "./tileModel.js";
@@ -122,8 +123,13 @@ export class Tile extends GameObject {
     /**
      * @param {(Item | null)} item Held item
      */
-    breakTile(item) {
-        this.model.breakTile(this, item, this.world);
+    break(item) {
+        const drops = this.model.getDroppedItems(item);
+        drops.forEach(drop => {
+            dropItemFromTile(this, drop, this.world.game);
+        })
+
+        this.model.removeFromWorld(this);
     }
 
     /**

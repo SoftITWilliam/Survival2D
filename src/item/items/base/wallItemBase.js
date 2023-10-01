@@ -2,7 +2,7 @@ import { ITEM_SIZE } from "../../../game/global.js";
 import { sprites } from "../../../graphics/assets.js";
 import { Tile } from "../../../tile/Tile.js";
 import { TileModel } from "../../../tile/tileModel.js";
-import { TileRegistry as Tiles } from "../../../tile/tileRegistry.js";
+import { TileRegistry } from "../../../tile/tileRegistry.js";
 import PlacementPreview from "../../../ui/placementPreview.js";
 import Item from "../../item.js";
 import { ItemRegistry } from "../../itemRegistry.js";
@@ -53,7 +53,7 @@ export class WallItemBase extends ItemBase {
     }
 
     getPlacedTile() {
-        let wall = Tiles.get(this.registryName);
+        let wall = TileRegistry.get(this.registryName);
         return (wall instanceof TileModel ? wall : null);
     }
 
@@ -71,7 +71,7 @@ export class WallItemBase extends ItemBase {
 
                 // PLACEHOLDER!!!! (todo: Use hammer in inventory)
                 let tool = ItemRegistry.DEV_HAMMER;
-                existingWall.breakTile(tool);
+                existingWall.break(tool);
             }
 
             world.setWall(gridX, gridY, wall);

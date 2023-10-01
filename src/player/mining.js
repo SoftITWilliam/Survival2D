@@ -59,7 +59,7 @@ export default class MiningAction {
             this.world.tiles.get(this.tile.gridX, this.tile.gridY);
 
         // Break tile
-        object.breakTile(this.item);
+        object.break(this.item);
     }
 
     //#endregion
