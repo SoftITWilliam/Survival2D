@@ -8,11 +8,21 @@ import { Tileset } from "./Tileset.js";
 export class Tile extends GameObject {
     #spriteVariant
     #adjacency
+
+    /**
+     * @param {World} world 
+     * @param {number} gridX X position in world
+     * @param {number} gridY Y position in world
+     * @param {TileModel} model 
+     */
     constructor(world, gridX, gridY, model) {
         super(world.game, gridX * TILE_SIZE, -gridY * TILE_SIZE)
         this.world = world;
 
-        this.model = (model instanceof TileModel) ? model : null;
+        if(!model instanceof TileModel) {
+            throw new TypeError("Invalid TileModel!");
+        }
+        this.model = model;
 
         this.sheetX = 0;
         this.sheetY = 0;
@@ -44,37 +54,37 @@ export class Tile extends GameObject {
      * @override
      * @returns {number}
      */
-    get height() { return this.model?.height ?? 0 }
+    get height() { return this.model.height ?? 0 }
 
     /** 
      * @override
      * @returns {number}
      */
-    get width() { return this.model?.width ?? 0 }
+    get width() { return this.model.width ?? 0 }
 
     /** @returns {string} */
-    get registryName() { return this.model?.registryName ?? "" }
+    get registryName() { return this.model.registryName ?? "" }
 
     /** @returns {string} */
-    get displayName() { return this.model?.displayName ?? "" }
+    get displayName() { return this.model.displayName ?? "" }
 
     /** @returns {boolean} */
-    get requiresTool() { return this.model?.requiredTool ?? false }
+    get requiresTool() { return this.model.requiredTool ?? false }
 
     /** @returns {number} */
-    get miningTime() { return this.model?.miningTime ?? 0 }
+    get miningTime() { return this.model.miningTime ?? 0 }
 
     /** @returns {number} from Tile.toolTypes enum */
-    get toolType() { return this.model?.toolType ?? null }
+    get toolType() { return this.model.toolType ?? null }
 
     /** @returns {number} from Tille.types enum */
-    get type() { return this.model?.type ?? Tile.types.NONE }
+    get type() { return this.model.type ?? Tile.types.NONE }
 
     /** @returns {boolean} */
-    get transparent() { return this.model?.transparent ?? false }
+    get transparent() { return this.model.transparent ?? false }
 
     /** @returns {number} from Tile.connectTo enum */
-    get connectivity() { return this.model?.connectivity ?? Tile.connectTo.NONE }
+    get connectivity() { return this.model.connectivity ?? Tile.connectTo.NONE }
 
     /** @returns {string} */
     get spriteVariantName() {
@@ -86,12 +96,16 @@ export class Tile extends GameObject {
 
     //#region Public methods
 
-    // Runs whenever the tile is "refreshed", i.e. something happens to an adjacent tile.
+    /**
+     * Runs whenever the tile is "refreshed", i.e. something happens to an adjacent tile.
+     */
     tileUpdate() {
         this.model.tileUpdate(this, this.world);
     }
 
-    // Runs at a regular interval (not every frame)
+    /**
+     * Runs at a regular interval (not every frame)
+     */
     tickUpdate() {
         this.model.tickUpdate(this, this.world);
     }
@@ -186,10 +200,10 @@ export class Tile extends GameObject {
     //#region Static methods
 
     /** 
-     * Returns true if 'arg' is of type Item.
-     * If parameter 'item' is provided, returns true if 'arg' is the same as 'item'
-     * @param {any} arg
-     * @param {Tile?} tile (Optional) Check if 'arg' is the same tile as this
+     * Returns true if 'arg' is a Tile.
+     * If parameter 'tile' is provided, only returns true if 'arg' is the same type as 'tile'
+     * @param {(Tile|any)}arg
+     * @param {Tile|TileModel} [tile] (Optional) Check if 'arg' is the same tile as this
     */
     static isTile(arg, tile = null) {
         if(arg instanceof Tile) {
