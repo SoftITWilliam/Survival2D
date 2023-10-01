@@ -97,26 +97,6 @@ export class World {
     //#region | Tilemap manipulation methods
 
     /**
-     * Removes tile at the provided position
-     * (Note: Will not update any surrounding tiles, or drop any items. Only delete)
-     * @param {number} x 
-     * @param {number} y 
-     */
-    clearTile(x, y) {
-        this.tiles.clear(x, y);
-    }
-
-    /**
-     * Removes wall at the provided position
-     * (Note: Will not update any surrounding walls, or drop any items. Only delete)
-     * @param {number} x 
-     * @param {number} y 
-     */
-    clearWall(x, y) {
-        this.walls.clear(x, y);
-    }
-
-    /**
      * Create a new tile object of the provided type, at the provided position
      * @overload
      * @param {number} x X position in grid

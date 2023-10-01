@@ -117,14 +117,16 @@ export class TileModel {
 
     //#region Methods
 
-    // Remove the tile and drop its items.
+    /**
+     * Remove the tile and drop its items.
+     * @param {Tile} tile Tile being broken
+     * @param {(Item|null)} item Item used to break the tile
+     * @param {World} world 
+     */
     breakTile(tile, item = null, world) {
-        if(this.type == Tile.types.WALL) {
-            world.clearWall(tile.gridX, tile.gridY);
-        } else {
-            world.clearTile(tile.gridX, tile.gridY);
-        }
-        
+        let grid = (this.type == Tile.types.WALL) ? world.walls : world.tiles;
+        grid.clear(tile.gridX, tile.gridY);
+
         this.dropItems(tile, (Item.isTool(item) ? item : null), world);
 
         world.updateNearbyTiles(tile.gridX, tile.gridY);
