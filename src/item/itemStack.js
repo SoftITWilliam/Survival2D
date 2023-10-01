@@ -60,7 +60,7 @@ export class ItemStack {
      */
     split() {
         let splitAmount = Math.ceil(this.amount / 2);
-        return this.exctract(splitAmount);
+        return this.extract(splitAmount);
     }
 
     /**
@@ -70,7 +70,7 @@ export class ItemStack {
      * @returns {ItemStack}
      */
     extract(amount = this.amount) {
-        if(typeof amount != "Number" || amount < 0 || amount > this.amount) throw new RangeError(`Invalid amount`);
+        if(typeof amount != "number" || amount < 0 || amount > this.amount) throw new RangeError(`Invalid amount`);
         let stack = new ItemStack(this.item, amount);
         this.remove(amount);
         return stack;

@@ -214,7 +214,7 @@ export class World {
         let r = 1;
         let size = r * 2 + 1;
         this.tiles.asArray(gridX - r, gridY - r, size, size).forEach(tile => this.updateTile(tile));
-        this.tiles.asArray(gridX - r, gridY - r, size, size).forEach(tile => this.updateTile(tile));
+        this.walls.asArray(gridX - r, gridY - r, size, size).forEach(wall => this.updateTile(wall));
     }
 
     /**
