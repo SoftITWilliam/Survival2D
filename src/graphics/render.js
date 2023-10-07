@@ -47,7 +47,7 @@ export default function render(ctx, game, player) {
     player.renderPlacementPreview(ctx, game.input);
 
     // Item entities
-    game.itemEntities.render(ctx, camera, game.input);
+    game.world.itemEntities.render(ctx, camera, game.input);
 
     // Lighting
     if(RENDER_LIGHTING) {  

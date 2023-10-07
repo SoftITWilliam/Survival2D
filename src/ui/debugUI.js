@@ -19,12 +19,10 @@ export function renderDebugUI(ctx, game) {
     const addInfoRow = (name, value) => rows.push({ name: name, value: value });
 
     addInfoRow("FPS", game.fpsCounter.display);
-    addInfoRow("Entity Count", game.itemEntities.entities.length);
+    addInfoRow("Entity Count", game.world.itemEntities.entities.length);
 
     // Player info
-    let playerX = World.gridXfromCoordinate(game.player.centerX);
-    let playerY = World.gridYfromCoordinate(game.player.centerY) -1;
-    addInfoRow("Player Pos", `X ${playerX}, Y ${playerY}`);
+    addInfoRow("Player Pos", `X ${game.player.gridX}, Y ${game.player.gridY}`);
     addInfoRow("Player State", game.player.state.name);
 
     // Hovered tile info

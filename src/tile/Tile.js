@@ -1,7 +1,7 @@
 import GameObject from "../class/GameObject.js";
 import { TILE_SIZE } from "../game/global.js";
-import { dropItemFromTile } from "../item/dropItem.js";
 import Item from "../item/item.js";
+import { ItemEntity } from "../item/itemEntity.js";
 import { World } from "../world/World.js";
 import { TileModel } from "./tileModel.js";
 import { Tileset } from "./Tileset.js";
@@ -124,11 +124,16 @@ export class Tile extends GameObject {
      * @param {(Item | null)} item Held item
      */
     break(item) {
-        const drops = this.model.getDroppedItems(item);
-        drops.forEach(drop => {
-            dropItemFromTile(this, drop, this.world.game);
-        })
+        const dropped = this.model.getDroppedItems(item);
 
+        const entities = dropped.map(stack => {
+            const entity = new ItemEntity(this.centerX, this.centerY, stack);
+            entity.vector = ItemEntity.generateVector();
+            return entity;
+        });
+
+        this.world.itemEntities.add(entities);
+        
         this.model.removeFromWorld(this);
     }
 

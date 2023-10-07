@@ -152,7 +152,7 @@ export class Inventory {
         // If player is holding an item and clicks outside the inventory, drop the item.
         if(slot.x === null || slot.y === null) {
             if(this.holdingStack) {
-                dropItemFromPlayer(this.player, this.holdingStack.item, this.holdingStack.amount, this.player.game);
+                dropItemFromPlayer(this.player, this.holdingStack);
                 this.holdingStack = null;
             }
             return;

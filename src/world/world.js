@@ -9,6 +9,7 @@ import { WorldLighting } from './WorldLighting.js';
 import { validNumbers } from '../helper/helper.js';
 import Structure from '../structure/structure.js';
 import { Game } from '../game/game.js';
+import ItemEntityManager from '../item/itemEntityManager.js';
 
 export class World {
     #width
@@ -29,6 +30,8 @@ export class World {
 
         this.#width = width;
         this.#height = height;
+
+        this.itemEntities = new ItemEntityManager(this.game);
 
         /** @type {Grid} */
         this.#tilemap = new Grid(width, height);
