@@ -1,10 +1,9 @@
 
 import { canvas, RENDER_LIGHTING, DEBUG_MODE, TILE_SIZE } from '../game/global.js';
-import { renderDebugUI } from '../ui/debugUI.js';
+import { Game } from '../game/game.js';
 import { calculateDistance, clamp } from '../helper/helper.js';
 import { rgbm } from '../helper/canvashelper.js';
 import { Tile } from '../tile/Tile.js';
-import { Game } from '../game/game.js';
 import { Player } from '../player/player.js';
 
 /**
@@ -76,7 +75,9 @@ export default function render(ctx, game, player) {
     }
     
     // Debug UI
-    if(DEBUG_MODE) renderDebugUI(ctx, game);
+    if(DEBUG_MODE) {
+        game.debugUI.render(ctx, game);
+    }
 
     ctx.restore();
 }

@@ -1,6 +1,6 @@
-import render from "../graphics/render.js";
 import { canvas, ctx } from "./global.js";
 import { Game } from "./game.js";
+import render from "../graphics/render.js";
 import { spawnPlayerInWorld } from "../player/player.js";
 import { autoResizeCanvas } from "../misc/canvasSize.js";
 import { loadGame } from "./load.js";

@@ -1,43 +1,76 @@
 
 import { rgba } from '../helper/canvashelper.js';
-import { World } from '../world/World.js';
 
-const ROW_HEIGHT_PX = 32;
-const TEXT_COLOR = { r: 255, g: 255, b: 255, a: 0.8 };
+const DEFAULT_ROW_HEIGHT_PX = 32,
+      DEFAULT_FONT_SIZE_PX = 20,
+      DEFAULT_TEXT_OPACITY = 0.8;
 
-export function renderDebugUI(ctx, game) {
-    Object.assign(ctx, {
-        fillStyle: rgba(TEXT_COLOR), font: "20px Font1", textAlign: "left", textBaseline: "middle",
-    })
-    ctx.shadow("black", 5, 2, 2);
+/**
+ * @typedef {object} row
+ * @property {string} title
+ * @property {() => (string|number|object)} valueFn
+ */
 
-    const x = game.player.camera.x + ROW_HEIGHT_PX;
-    const y = game.player.camera.y + ROW_HEIGHT_PX;
+export class DebugUI {
+    #rows;
+    constructor() {
+        this.#rows = [];
 
-    const rows = [];
+        /** Default: 32 @type {number}  */
+        this.rowHeightPx = DEFAULT_ROW_HEIGHT_PX;
 
-    const addInfoRow = (name, value) => rows.push({ name: name, value: value });
+        /** Default: 0.8 @type {number}  */
+        this.alpha = DEFAULT_TEXT_OPACITY;
 
-    addInfoRow("FPS", game.fpsCounter.display);
-    addInfoRow("Entity Count", game.world.itemEntities.entities.length);
-
-    // Player info
-    addInfoRow("Player Pos", `X ${game.player.gridX}, Y ${game.player.gridY}`);
-    addInfoRow("Player State", game.player.state.name);
-
-    // Hovered tile info
-    const tile = game.world.tiles.get(game.input.mouse.gridX, game.input.mouse.gridY);
-
-    addInfoRow("Tile Pos", tile ? `X ${tile.gridX}, Y ${tile.gridY}` : null);
-    addInfoRow("Tile Type", tile?.registryName);
-    addInfoRow("Tile Variant", tile ? `${tile.spriteVariantName} (${tile.sheetX},${tile.sheetY}) ` : null);
-
-    // Draw all rows
-    for(let i = 0; i < rows.length; i++) {
-        let val = rows[i].value;
-        if(val == "") val = null;
-        ctx.fillText(`${rows[i].name}: ${val ?? "-"}`, x, y + ROW_HEIGHT_PX * i);
+        /** Default: 20 @type {number} */
+        this.fontSizePx = DEFAULT_FONT_SIZE_PX;
     }
 
-    ctx.shadow();
+    /**
+     * @param {string} title 
+     * @param {() => (string|number|object)} valueFn 
+     * @returns 
+     */
+    addInfoRow(title, valueFn) {
+        this.#rows.push({ title, valueFn });
+        return this;
+    }
+
+    /**
+     * @param {CanvasRenderingContext2D} ctx 
+     * @param {Game} game 
+     */
+    render(ctx, game) {
+        let fillStyle = rgba({ r: 255, g: 255, b: 255, a: this.alpha }),
+            font = `${this.fontSizePx}px Font1`;
+
+        Object.assign(ctx, {
+            fillStyle, font, textAlign: "left", textBaseline: "middle",
+        })
+
+        const x = game.player.camera.x + this.rowHeightPx;
+        const y = game.player.camera.y + this.rowHeightPx;
+
+        ctx.shadow("black", 5, 2, 2);
+
+        this.#rows.forEach((row, index) => {
+            const value = row.valueFn();
+            
+            let text = `${row.title}: `;
+
+            if(typeof value == "object") {
+                const valueArr = [];
+                for(const key in value) {
+                    valueArr.push(`${key}: ${value[key]}`);
+                }
+                text += `(${valueArr.join(", ")})`;
+            } else {
+                text += value ?? "-";
+            }
+
+            ctx.fillText(text, x, y + (this.rowHeightPx * index));
+        });
+
+        ctx.shadow();
+    }
 }
