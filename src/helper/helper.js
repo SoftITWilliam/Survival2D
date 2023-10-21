@@ -178,3 +178,10 @@ export function sum(numbers) {
     }
     return isNaN(result) ? 0 : result;
 }
+
+export function padRect(rect, padding) {
+    rect.x -= padding;
+    rect.y -= padding;
+    rect.width += padding * 2;
+    rect.height += padding * 2;
+}

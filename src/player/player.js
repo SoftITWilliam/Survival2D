@@ -1,4 +1,4 @@
-import { TILE_SIZE } from '../game/global.js';
+import { INVENTORY_HEIGHT, INVENTORY_WIDTH, TILE_SIZE } from '../game/global.js';
 import { Inventory } from '../ui/inventory.js';
 import MiningAction from './mining.js';
 import { PlayerStatBar } from './statBar.js';
@@ -17,6 +17,7 @@ import { TilePlacement } from '../tile/TilePlacement.js';
 import { Cooldown } from '../class/Cooldown.js';
 import { SpriteRenderer } from '../graphics/SpriteRenderer.js';
 import { AlignmentY } from '../misc/alignment.js';
+import { PlayerInventory } from './Inventory.js';
 
 const PLAYER_WIDTH = 36;
 const PLAYER_HEIGHT = 72;
@@ -36,6 +37,7 @@ export class Player {
         this.#entity = new EntityComponent();
 
         this.inventory = new Inventory(this);
+        this.inventory2 = new PlayerInventory(INVENTORY_WIDTH, INVENTORY_HEIGHT);
 
         this.width = PLAYER_WIDTH;
         this.height = PLAYER_HEIGHT;
@@ -227,19 +229,42 @@ export class Player {
 
         // Open and Close inventory
         if(input.keys.includes("E")) {
-            if(this.inventory.view) {
-                this.inventory.close();
+            if(this.inventory2.isOpen) {
+                this.inventory2.close();
             } else {
-                this.inventory.view = true;
+                this.inventory2.open();
             }
             input.removeKey("E");
         }
 
         // Select inventory slot
-        for(let i = 1; i <= 6; i++) {
+        for(let i = 1; i <= this.inventory2.width; i++) {
+            if(input.keys.includes(i.toString())) {
+                this.miningAction = null;
+                this.inventory2.selectedIndex = i - 1;
+                input.removeKey(i.toString());
+            }
+        }
+
+        /*
+        // Open and Close inventory
+        if(input.keys.includes("E")) {
+            if(this.inventory.view) {
+                this.inventory.close();
+                this.inventory2.close();
+            } else {
+                this.inventory.view = true;
+                this.inventory2.open();
+            }
+            input.removeKey("E");
+        }
+
+        // Select inventory slot
+        for(let i = 1; i <= this.inventory2.width; i++) {
             if(input.keys.includes(i.toString())) {
                 this.miningAction = null;
                 this.#selectItem(i);
+                this.inventory2.selectedIndex = i - 1;
                 input.removeKey(i.toString());
             }
         }
@@ -253,6 +278,7 @@ export class Player {
                 input.removeKey("C");
             }
         }
+        */
     }
 
     updateMining(input, dt) {
@@ -398,6 +424,8 @@ export class Player {
 
         this.selectedItem.placementPreview.render(ctx, x, y, this);
     }
+
+    //#endregion
 }
 
 // Put the player in the center of the map

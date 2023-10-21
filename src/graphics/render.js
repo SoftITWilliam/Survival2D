@@ -14,16 +14,16 @@ import { Player } from '../player/player.js';
  */
 export default function render(ctx, game, player) {
 
-    let camera = player.camera;
+    const CAMERA = player.camera;
 
     ctx.save();
-    ctx.translate(-camera.x, -camera.y);
-    ctx.clearRect(camera.x, camera.y, canvas.width, canvas.height);
+    ctx.translate(-CAMERA.x, -CAMERA.y);
+    ctx.clearRect(CAMERA.x, CAMERA.y, CAMERA.width, CAMERA.height);
 
-    renderSky(ctx, camera);
+    renderSky(ctx, CAMERA);
 
-    let vW = Math.ceil(canvas.width / TILE_SIZE / 2 + 1) * 2;
-    let vH = Math.ceil(canvas.height / TILE_SIZE / 2 + 1) * 2;
+    let vW = Math.ceil(CAMERA.width / TILE_SIZE / 2 + 1) * 2;
+    let vH = Math.ceil(CAMERA.height / TILE_SIZE / 2 + 1) * 2;
     let vX = clamp(player.gridX - vW / 2, 0, game.world.width - vW);
     let vY = clamp(player.gridY - vH / 2, 0, game.world.height - vH);
 
@@ -46,15 +46,17 @@ export default function render(ctx, game, player) {
     player.renderPlacementPreview(ctx, game.input);
 
     // Item entities
-    game.world.itemEntities.render(ctx, camera, game.input);
+    game.world.itemEntities.render(ctx, CAMERA, game.input);
 
     // Lighting
     if(RENDER_LIGHTING) {  
-        game.world.lighting.render(ctx, camera);
+        game.world.lighting.render(ctx, CAMERA);
     }
 
     // Tile hover effect
-    renderHoverEffect(ctx, game, game.input);
+    if(player.inventory2.isOpen == false) {
+        renderHoverEffect(ctx, game, game.input);
+    }
 
     /* === Render UI === */
 
@@ -63,11 +65,11 @@ export default function render(ctx, game, player) {
     //renderStatBar(ctx, "thirst",player.thirst.max,player.thirst.current,"rgb(80,160,220)",128);
 
     if(player.craftingMenu.isOpen) {
-        player.craftingMenu.render(ctx, player.camera.x, player.camera.y, game.input);
+        player.craftingMenu.render(ctx, CAMERA.x, CAMERA.y, game.input);
     } else {
-        player.inventory.render(ctx);
-        player.inventory.renderItems(ctx, game.input);
-        player.selectedSlot.renderSelection(ctx);
+        player.inventory2.render(ctx, CAMERA);
+        //player.inventory2.renderItems(ctx, game.input);
+        //player.selectedSlot.renderSelection(ctx);
         
         player.hotbarText.render(ctx, player);
         player.pickupLabels.render(ctx, player);
@@ -97,12 +99,9 @@ function renderSky(ctx, camera) {
     ctx.fillRectObj(camera);
 }
 
-function renderHoverEffect(ctx, game,input) {
+function renderHoverEffect(ctx, game, input) {
     let tile = game.world.tiles.get(input.mouse.gridX, input.mouse.gridY);
     let wall = game.world.walls.get(input.mouse.gridX, input.mouse.gridY);
-
-    // Cannot interact with tiles while inventory is open
-    if(game.player.inventory.view) return;
 
     // Check if player is able to interact with tile or wall using the tool they're currently holding
     let obj;
