@@ -1,5 +1,5 @@
 import { getPhysicsMultiplier } from "../helper/helper.js";
-import { Player } from "./player.js";
+import { Facing, Player } from "./player.js";
 
 export class PlayerState {
     constructor(stateName) {
@@ -28,8 +28,8 @@ export class PlayerStanding extends PlayerState {
 
     updateAnimation() { 
         switch(this.player.facing) {
-            case "right": this.player.frameY = 0; break;
-            case "left": this.player.frameY = 1; break;
+            case Facing.RIGHT: this.player.frameY = 0; break;
+            case Facing.LEFT: this.player.frameY = 1; break;
         }
     }
 
@@ -63,8 +63,8 @@ export class PlayerRunning extends PlayerState {
 
     updateAnimation() { 
         switch(this.player.facing) {
-            case "right": this.player.frameY = 2; break;
-            case "left": this.player.frameY = 3; break;
+            case Facing.RIGHT: this.player.frameY = 2; break;
+            case Facing.LEFT: this.player.frameY = 3; break;
         }
     }
 
@@ -108,8 +108,8 @@ export class PlayerJumping extends PlayerState {
     updateAnimation() { 
         // Determine direction player is facing
         switch(this.player.facing) {
-            case "right": this.player.frameY = 4; break;
-            case "left": this.player.frameY = 5; break;
+            case Facing.RIGHT: this.player.frameY = 4; break;
+            case Facing.LEFT: this.player.frameY = 5; break;
         }
     }
 
@@ -162,8 +162,8 @@ export class PlayerFalling extends PlayerState {
     updateAnimation() { 
         // Determine direction player is facing
         switch(this.player.facing) {
-            case "right": this.player.frameY = 4; break;
-            case "left": this.player.frameY = 5; break;
+            case Facing.RIGHT: this.player.frameY = 4; break;
+            case Facing.LEFT: this.player.frameY = 5; break;
         }
     }
 

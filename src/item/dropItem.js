@@ -1,4 +1,4 @@
-import { Player } from "../player/player.js";
+import { Facing, Player } from "../player/player.js";
 import { ItemStack } from "./itemStack.js";
 
 /**
@@ -9,11 +9,11 @@ import { ItemStack } from "./itemStack.js";
 export function dropItemFromPlayer(player, stack) {
     if(!player instanceof Player || !stack instanceof ItemStack) return;
     
-    if(player.facing == "left") {
+    if(player.facing == Facing.LEFT) {
         var x = player.x - stack.item.entitySize / 2;
         var dx = -5;
     }
-    else if(player.facing == "right") {
+    else if(player.facing == Facing.RIGHT) {
         var x = player.x2 + stack.item.entitySize / 2;
         var dx = 5;
     }

@@ -23,38 +23,53 @@ const PLAYER_WIDTH = 36;
 const PLAYER_HEIGHT = 72;
 const TILE_PLACEMENT_DELAY_MS = 250;
 
+/**
+ * @readonly
+ * @enum {string}
+ */
+export const Facing = {
+    RIGHT: "facing_right",
+    LEFT: "facing_left",
+}
+
 export class Player {
-    #entity
-    #selectedSlotIndex
-    #reach
-    #placementCooldown
+    /** @type {EntityComponent} */
+    #entity = new EntityComponent(0, 0, PLAYER_WIDTH, PLAYER_HEIGHT);
+    /** @type {number} */
+    #selectedSlotIndex = 0;
+    /** @type {number} */
+    #reach = 3;
+    /** @type {Cooldown} */
+    #placementCooldown = new Cooldown(TILE_PLACEMENT_DELAY_MS);
+    /** @type {SpriteRenderer} */
     #renderer
-    #state
+    /** @type {PlayerState} */
+    #state;
+    /** @type {Facing} */
+    #facing = Facing.RIGHT;
+
+    /** @type {number} */
+    maxSpeed = 5;
+    /** @type {number} */
+    maxFallSpeed = 12;
+    /** @type {number} */
+    acceleration = 0.5;
+    /** @type {number} */
+    cheetahFrames = 0;
+    /** @type {MiningAction|null} */
+    miningAction = null;
+
+    // Currently unused
+    health = new PlayerStatBar(50, 45);
+    hunger = new PlayerStatBar(50, 20);
+    thirst = new PlayerStatBar(50, 20);
+
     constructor(game) {
         this.game = game;
         this.world = game.world;
 
-        this.#entity = new EntityComponent();
-
         this.inventory = new Inventory(this);
         this.inventory2 = new PlayerInventory(INVENTORY_WIDTH, INVENTORY_HEIGHT);
-
-        this.width = PLAYER_WIDTH;
-        this.height = PLAYER_HEIGHT;
-
-        this.facing = "right";
-
-        this.maxSpeed = 5;
-        this.maxFallSpeed = 12;
-        this.acceleration = 0.5;
-
-        this.inLiquid = false;
-        
-        this.jumpFrames = false;
-
-        this.health = new PlayerStatBar(50, 45);
-        this.hunger = new PlayerStatBar(50, 20);
-        this.thirst = new PlayerStatBar(50, 20);
 
         this.pickupLabels = new PickupLabelManager();
         this.hotbarText = new HotbarText(); 
@@ -62,20 +77,10 @@ export class Player {
         this.camera = new PlayerCamera(this);
         this.craftingMenu = new CraftingMenu(this);
 
-        this.miningAction = null;
-        
-        this.#state;
-        
-        this.#reach = 3;
-        this.#selectedSlotIndex = 0;
-        this.#placementCooldown = new Cooldown(TILE_PLACEMENT_DELAY_MS);
-
-        this.cheetahFrames = 0;
-
         // Sprite and Animation variables
         this.spriteSheet = sprites.entities.player;
-        this.frameY = 0;
         this.animation = new FrameAnimation();
+        this.frameY = 0;
         this.frameWidth = 96;
 
         this.#renderer = new SpriteRenderer(this.spriteSheet);
@@ -131,6 +136,14 @@ export class Player {
     //#endregion
     //#region Getters/setters
 
+    /** @returns {Facing} */
+    get facing() { return this.#facing }
+    /** @param {Facing} f */
+    set facing(f) { 
+        if(Object.values(Facing).includes(f)) this.#facing = f;
+        else throw new TypeError('set facing(): Value must be from Facing enum');
+    }
+
     get frameX() { 
         return this.animation.currentFrame; 
     }
@@ -155,6 +168,8 @@ export class Player {
         if(state instanceof PlayerState) {
             this.#state = state;
             this.#state.enter(this);
+        } else {
+            throw new TypeError('setState(): Not a PlayerState object');
         }
     }
 
@@ -174,8 +189,8 @@ export class Player {
         let left = input.keys.includes("A");
         let right = input.keys.includes("D");
 
-        if(left) {this.facing = "left"}
-        if(right) {this.facing = "right"}
+        if(left) {this.facing = Facing.LEFT}
+        if(right) {this.facing = Facing.RIGHT}
 
         this.getHorizontalMovement(left, right);
         this.#entity.updateCollision(this.world);
