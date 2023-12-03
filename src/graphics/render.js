@@ -67,12 +67,12 @@ export default function render(ctx, game, player) {
     if(player.craftingMenu.isOpen) {
         player.craftingMenu.render(ctx, CAMERA.x, CAMERA.y, game.input);
     } else {
+        player.renderUI(ctx, game.input);
+
         player.inventory2.render(ctx, CAMERA);
         //player.inventory2.renderItems(ctx, game.input);
         //player.selectedSlot.renderSelection(ctx);
-        
         player.hotbarText.render(ctx, player);
-        player.pickupLabels.render(ctx, player);
         player.itemInfoDisplay.render(ctx, game.input);
     }
     

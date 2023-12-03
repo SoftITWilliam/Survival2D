@@ -3,7 +3,6 @@ import { Inventory } from '../ui/inventory.js';
 import MiningAction from './mining.js';
 import { PlayerStatBar } from './statBar.js';
 import { HotbarText } from '../ui/HotbarText.js';
-import { PickupLabelManager } from '../ui/pickupLabels.js';
 import PlayerCamera from './camera.js';
 import ItemInfoDisplay from '../ui/itemInfo.js';
 import { PlayerFalling, PlayerJumping, PlayerRunning, PlayerStanding, PlayerState } from './playerStates.js';
@@ -18,6 +17,7 @@ import { Cooldown } from '../class/Cooldown.js';
 import { SpriteRenderer } from '../graphics/SpriteRenderer.js';
 import { AlignmentY } from '../misc/alignment.js';
 import { PlayerInventory } from './Inventory.js';
+import { Observable } from '../class/Observable.js';
 
 const PLAYER_WIDTH = 36;
 const PLAYER_HEIGHT = 72;
@@ -59,6 +59,9 @@ export class Player {
     /** @type {MiningAction|null} */
     miningAction = null;
 
+    itemPickupSubject = new Observable();
+    uiRenderSubject = new Observable();
+
     // Currently unused
     health = new PlayerStatBar(50, 45);
     hunger = new PlayerStatBar(50, 20);
@@ -71,7 +74,6 @@ export class Player {
         this.inventory = new Inventory(this);
         this.inventory2 = new PlayerInventory(INVENTORY_WIDTH, INVENTORY_HEIGHT);
 
-        this.pickupLabels = new PickupLabelManager();
         this.hotbarText = new HotbarText(); 
         this.itemInfoDisplay = new ItemInfoDisplay(this);
         this.camera = new PlayerCamera(this);
@@ -195,7 +197,6 @@ export class Player {
         this.getHorizontalMovement(left, right);
         this.#entity.updateCollision(this.world);
 
-        this.pickupLabels.update(deltaTime);
         this.hotbarText.update(deltaTime);
 
         this.state.handleInput(this.game.input, deltaTime);
@@ -376,7 +377,7 @@ export class Player {
     //#region onThing methods
 
     onItemPickup(item, amount) {
-        this.pickupLabels.add(item, amount);
+        this.itemPickupSubject.notify({ item, amount });
     }
 
     /**
@@ -420,11 +421,19 @@ export class Player {
         }
     }
 
-    //#region Rendering methods
+    //#region §ing methods
 
     render(ctx) {
         this.#renderer.setSheetPosition(this.frameX, this.frameY);
         this.#renderer.render(ctx, this);
+    }
+
+    renderUI(ctx, input) {
+        this.uiRenderSubject.notify({ 
+            ctx, input,
+            player: this, 
+            camera: this.camera,  
+        });
     }
 
     renderPlacementPreview(ctx, input) {

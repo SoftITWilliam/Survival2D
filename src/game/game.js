@@ -7,19 +7,26 @@ import { InputHandler } from "./InputHandler.js";
 import { Testing } from "../tests/testing.js";
 import PlacementPreview from "../ui/placementPreview.js";
 import { DebugUI } from "../ui/debugUI.js";
+import { Observable } from "../class/Observable.js";
+import { PickupLabelManager } from "../ui/PickupLabelManager.js";
 
 export class Game {
+    deltaTime = 0;
+    gameUpdateSubject = new Observable();
+
     constructor() {
-        this.deltaTime = 0;
-
         this.world = new World(this, 128, 128);
-
         this.itemEntities = new ItemEntityManager(this);
-
         this.recipeManager = new RecipeManager(this);
         this.player = new Player(this);
         this.input = new InputHandler(this);
         this.fpsCounter = new FPSCounter();
+
+        // Create pickup label manager and subscribe it to its necessary events
+        const labelManager = new PickupLabelManager();
+        this.gameUpdateSubject.subscribe(args => labelManager.update(args));
+        this.player.itemPickupSubject.subscribe(args => labelManager.add(args));
+        this.player.uiRenderSubject.subscribe(args => labelManager.render(args));
 
         this.testing = new Testing(this);
 
@@ -45,6 +52,9 @@ export class Game {
         if(deltaTime > 500) return;
 
         document.body.style.cursor = "default";
+
+        this.gameUpdateSubject.notify({ deltaTime, input: this.input });
+
         this.world.tickCounter();
         this.fpsCounter.increment();
         this.player.update(deltaTime, this.input);
