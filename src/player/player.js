@@ -8,7 +8,7 @@ import ItemInfoDisplay from '../ui/itemInfo.js';
 import { PlayerFalling, PlayerJumping, PlayerRunning, PlayerStanding, PlayerState } from './playerStates.js';
 import { sprites } from '../graphics/assets.js';
 import CraftingMenu from '../crafting/Crafting.js';
-import { FrameAnimation } from '../graphics/animation.js';
+import { FrameAnimation } from '../graphics/FrameAnimation.js';
 import { ItemRegistry as Items } from '../item/itemRegistry.js';
 import { EntityComponent } from '../components/EntityComponent.js';
 import { calculateDistance, clamp } from '../helper/helper.js';
@@ -18,6 +18,8 @@ import { SpriteRenderer } from '../graphics/SpriteRenderer.js';
 import { AlignmentY } from '../misc/alignment.js';
 import { PlayerInventory } from './Inventory.js';
 import { Observable } from '../class/Observable.js';
+import { Spritesheet } from '../graphics/Spritesheet.js';
+import { AnimationSet } from '../graphics/AnimationSet.js';
 
 const PLAYER_WIDTH = 36;
 const PLAYER_HEIGHT = 72;
@@ -79,13 +81,53 @@ export class Player {
         this.camera = new PlayerCamera(this);
         this.craftingMenu = new CraftingMenu(this);
 
-        // Sprite and Animation variables
-        this.spriteSheet = sprites.entities.player;
-        this.animation = new FrameAnimation();
-        this.frameY = 0;
-        this.frameWidth = 96;
+        this.spritesheet = new Spritesheet({
+            source: sprites.entities.player,
+            spriteWidth: 96,
+            spriteHeight: 96,
+        })
 
-        this.#renderer = new SpriteRenderer(this.spriteSheet);
+        /** @type {AnimationSet} */
+        this.animations = new AnimationSet({
+            IDLE_RIGHT: new FrameAnimation({
+                spritesheet: this.spritesheet,
+                loop: true,
+                fps: 2,
+                frames: [{x:0, y:0}, {x:1, y:0}]
+            }),
+            IDLE_LEFT: new FrameAnimation({
+                spritesheet: this.spritesheet,
+                loop: true,
+                fps: 2,
+                frames: [{x:0, y:1}, {x:1, y:1}]
+            }),
+            WALK_RIGHT: new FrameAnimation({
+                spritesheet: this.spritesheet,
+                loop: true,
+                fps: 12,
+                frames: [{x:3, y:2}, {x:4, y:2}, {x:5, y:2}, {x:6, y:2}, {x:7, y:2}, {x:0, y:2}, {x:1, y:2}, {x:2, y:2}]
+            }),
+            WALK_LEFT: new FrameAnimation({
+                spritesheet: this.spritesheet,
+                loop: true,
+                fps: 12,
+                frames: [{x:3, y:3}, {x:4, y:3}, {x:5, y:3}, {x:6, y:3}, {x:7, y:3}, {x:0, y:3}, {x:1, y:3}, {x:2, y:3}]
+            }),
+            JUMP_RIGHT: new FrameAnimation({
+                spritesheet: this.spritesheet,
+                loop: false,
+                fps: 12,
+                frames: [{x:0, y:4}, {x:1, y:4}, {x:2, y:4}]
+            }),
+            JUMP_LEFT: new FrameAnimation({
+                spritesheet: this.spritesheet,
+                loop: false,
+                fps: 12,
+                frames: [{x:0, y:5}, {x:1, y:5}, {x:2, y:5}]
+            }),
+        });
+
+        this.#renderer = new SpriteRenderer(this.spritesheet);
         this.#renderer.setSpriteSize(96);
         this.#renderer.alignY = AlignmentY.BOTTOM;
 
@@ -147,7 +189,7 @@ export class Player {
     }
 
     get frameX() { 
-        return this.animation.currentFrame; 
+        return this.animations.getActive()?.getCurrentFrame() ?? 0;
     }
 
     get selectedSlot() {
@@ -202,7 +244,7 @@ export class Player {
         this.state.handleInput(this.game.input, deltaTime);
         this.state.updatePhysics(deltaTime);
         this.state.updateAnimation();
-        this.animation.update(deltaTime);
+        this.animations.getActive()?.update(deltaTime);
 
         // Tile interaction
         if(input.mouse.click && !this.inventory.view) {
@@ -424,7 +466,9 @@ export class Player {
     //#region §ing methods
 
     render(ctx) {
-        this.#renderer.setSheetPosition(this.frameX, this.frameY);
+        const anim = this.animations.getActive();
+        const pos = anim ? anim.getCurrentFramePosition() : {x:0, y:0};
+        this.#renderer.setSheetPosition(pos.x, pos.y);
         this.#renderer.render(ctx, this);
     }
 

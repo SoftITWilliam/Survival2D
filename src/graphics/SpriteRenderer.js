@@ -1,37 +1,33 @@
 import { TILE_SIZE } from "../game/global.js";
 import { isPositiveInteger, validNumbers } from "../helper/helper.js";
 import { AlignmentX, AlignmentY, getAlignedX, getAlignedY } from "../misc/alignment.js";
-import { MISSING_TEXTURE, getImageCallback, isMissingTexture, sprites } from "./assets.js";
+import { Spritesheet } from "./Spritesheet.js";
+import { MISSING_TEXTURE, getImageCallback, isMissingTexture } from "./assets.js";
 
 export class SpriteRenderer {
     #sx;
     #sy;
-    #width;
-    #height;
-    #source;
-    #scale;
-    #imageError
+    #width = 0;
+    #height = 0;
+    #source = MISSING_TEXTURE;
+    #scale = false;
+    #imageError = false;
+
+    sheetX = 0;
+    sheetY = 0;
+
+    alignX = AlignmentX.MIDDLE;
+    alignY = AlignmentY.MIDDLE;
+
+    /**
+     * @param {HTMLImageElement|Spritesheet} source 
+     */
     constructor(source = null) {
-
-        this.#source = MISSING_TEXTURE;
-
-        this.#sx;
-        this.#sy;
-
-        this.sheetX = 0;
-        this.sheetY = 0;
-
-        this.#width = 0;
-        this.#height = 0;
-
-        this.alignX = AlignmentX.MIDDLE;
-        this.alignY = AlignmentY.MIDDLE;
-
-        this.#scale = false;
-
-        this.#imageError = false;
-
-        this.setSource(source);
+        if(source instanceof Spritesheet) {
+            this.setSource(source.source);
+        } else {
+            this.setSource(source);
+        }
     }
 
     //#region Getters

@@ -17,19 +17,28 @@ export class PlayerStanding extends PlayerState {
         super("STANDING");
     }
     
+    /** @param {Player} player */
     enter(player) {
         this.player = player;
-        const anim = this.player.animation;
-        anim.currentFrame = 0;
-        anim.frameCount = 2;
-        anim.frameRate = 2;
-        anim.loop = true;
+
+        switch(this.player.facing) {
+            case Facing.RIGHT: this.player.animations.play('IDLE_RIGHT'); break;
+            case Facing.LEFT: this.player.animations.play('IDLE_LEFT'); break;
+        }
     }
 
     updateAnimation() { 
+        const anim = this.player.animations;
+
         switch(this.player.facing) {
-            case Facing.RIGHT: this.player.frameY = 0; break;
-            case Facing.LEFT: this.player.frameY = 1; break;
+            case Facing.RIGHT: 
+                if(anim.get('IDLE_LEFT').isActive()) 
+                    anim.get('IDLE_LEFT').transitionTo(anim.get('IDLE_RIGHT'));
+                break;
+            case Facing.LEFT: 
+                if(anim.get('IDLE_RIGHT').isActive()) 
+                    anim.get('IDLE_RIGHT').transitionTo(anim.get('IDLE_LEFT'));
+                break;
         }
     }
 
@@ -52,19 +61,29 @@ export class PlayerRunning extends PlayerState {
         super("RUNNING");
     }
     
+    /** @param {Player} player */
     enter(player) {
+        /** @type {Player} */
         this.player = player;
-        const anim = this.player.animation;
-        anim.currentFrame = 3;
-        anim.frameCount = 8;
-        anim.frameRate = 15;
-        anim.loop = true;
+
+        switch(this.player.facing) {
+            case Facing.RIGHT: this.player.animations.play('WALK_RIGHT'); break;
+            case Facing.LEFT: this.player.animations.play('WALK_LEFT'); break;
+        }
     }
 
     updateAnimation() { 
+        const anim = this.player.animations;
+
         switch(this.player.facing) {
-            case Facing.RIGHT: this.player.frameY = 2; break;
-            case Facing.LEFT: this.player.frameY = 3; break;
+            case Facing.RIGHT: 
+                if(anim.get('WALK_LEFT').isActive()) 
+                    anim.get('WALK_LEFT').transitionTo(anim.get('WALK_RIGHT'));
+                break;
+            case Facing.LEFT: 
+                if(anim.get('WALK_RIGHT').isActive()) 
+                    anim.get('WALK_RIGHT').transitionTo(anim.get('WALK_LEFT')); 
+                break;
         }
     }
 
@@ -98,18 +117,24 @@ export class PlayerJumping extends PlayerState {
 
         this.holdTimer = 0;
 
-        const anim = this.player.animation;
-        anim.currentFrame = 0;
-        anim.frameCount = 3;
-        anim.frameRate = 15;
-        anim.loop = false;
+        switch(this.player.facing) {
+            case Facing.RIGHT: this.player.animations.play('JUMP_RIGHT'); break;
+            case Facing.LEFT: this.player.animations.play('JUMP_LEFT'); break;
+        }
     }
 
     updateAnimation() { 
-        // Determine direction player is facing
+        const anim = this.player.animations;
+
         switch(this.player.facing) {
-            case Facing.RIGHT: this.player.frameY = 4; break;
-            case Facing.LEFT: this.player.frameY = 5; break;
+            case Facing.RIGHT: 
+                if(anim.get('JUMP_LEFT').isActive()) 
+                    anim.get('JUMP_LEFT').transitionTo(anim.get('JUMP_RIGHT'));
+                break;
+            case Facing.LEFT: 
+                if(anim.get('JUMP_RIGHT').isActive()) 
+                    anim.get('JUMP_RIGHT').transitionTo(anim.get('JUMP_LEFT')); 
+                break;
         }
     }
 
@@ -152,18 +177,16 @@ export class PlayerFalling extends PlayerState {
     enter(player) {
         this.player = player;
 
-        const anim = this.player.animation;
-        anim.currentFrame = 2;
-        anim.frameCount = 3;
-        anim.frameRate = 15;
-        anim.loop = false;
+        this.player.animations.getActive()?.stop();
+        this.updateAnimation();
     }
 
     updateAnimation() { 
-        // Determine direction player is facing
+        const lastFrameIndex = this.player.animations.get('JUMP_LEFT').frames.length - 1;
+        
         switch(this.player.facing) {
-            case Facing.RIGHT: this.player.frameY = 4; break;
-            case Facing.LEFT: this.player.frameY = 5; break;
+            case Facing.RIGHT: this.player.animations.playFrom('JUMP_RIGHT', lastFrameIndex); break;
+            case Facing.LEFT: this.player.animations.playFrom('JUMP_LEFT', lastFrameIndex); break;
         }
     }
 
