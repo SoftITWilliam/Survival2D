@@ -20,6 +20,8 @@ import { PlayerInventory } from './Inventory.js';
 import { Observable } from '../class/Observable.js';
 import { Spritesheet } from '../graphics/Spritesheet.js';
 import { AnimationSet } from '../graphics/AnimationSet.js';
+import { World } from '../world/World.js';
+import { Tile } from '../tile/Tile.js';
 
 const PLAYER_WIDTH = 36;
 const PLAYER_HEIGHT = 72;
@@ -496,14 +498,22 @@ export class Player {
     //#endregion
 }
 
-// Put the player in the center of the map
+/**
+ * Put the player in the center of the map
+ * @param {Player} player 
+ * @param {World} world 
+ */
 export function spawnPlayerInWorld(player, world) {
 
     let spawnX = Math.floor(world.width / 2);
 
-    player.x = Math.round(spawnX * TILE_SIZE + (TILE_SIZE - player.width) / 2);
-    player.y = Math.round((-world.heightmap[spawnX] - 2) * TILE_SIZE);
+     // Find suitable spawn tile
+    const tiles = world.tiles.column(spawnX).filter(tile => tile != null && tile.type == Tile.types.SOLID);
+    const topTile = tiles[tiles.length - 1];
 
+    // Set player values
+    player.x = Math.round(spawnX * TILE_SIZE + (TILE_SIZE - player.width) / 2);
+    player.y = Math.round(-(topTile.gridY + 3) * TILE_SIZE);
     player.setState(Player.States.FALLING);
 }
 
