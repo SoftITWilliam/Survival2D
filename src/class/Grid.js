@@ -1,4 +1,5 @@
 import { validIndex } from "../helper/helper.js";
+import { Range } from "./Range.js";
 
 export class Grid {
     #width
@@ -104,7 +105,7 @@ export class Grid {
         // Overload 2, returns array of rows
         var getRowSelection = function(y, count) {
             let selection = [];
-            for(let i = y; i < y + count; i++) {
+            for(const i of Range(y, y + count)) {
                 let row = getRow(i);
                 if(row != null) selection.push(row);
             }
@@ -140,7 +141,7 @@ export class Grid {
         // Overload 2, returns array of columns
         var getColumnSelection = (x) => {
             let selection = [];
-            for(let i = x; i < x + count; i++) {
+            for(let i of Range(x, x + count)) {
                 let column = getColumn(i);
                 if(column != null) selection.push(column);
             }
@@ -271,19 +272,12 @@ export class Grid {
     //#region Iteration
 
     /**
-     * @callback gridCallback
-     * @param {any} value
-     * @param {number} x
-     * @param {number} y
-     */
-
-    /**
      * Run callback function for every item in the grid.
-     * @param {gridCallback} callbackfn 
+     * @param {(value: any, x: number, y: number) => void} callbackfn 
      */
     forEach(callbackfn) {
-        for(let x = 0; x < this.width; x++) {
-            for(let y = 0; y < this.height; y++) {
+        for(const x of Range(0, this.width)) {
+            for(const y of Range(0, this.height)) {
                 callbackfn(this.get(x, y), x, y);
             }   
         }
@@ -292,7 +286,7 @@ export class Grid {
     /**
      * Run callback function for every item in the grid.
      * If a value is returned, it replaces the item in the grid.
-     * @param {gridCallback} callbackfn
+     * @param {(value: any, x: number, y: number) => any|undefined} callbackfn
      */
     eachItem(callbackfn) {
         this.forEach((value, x, y) => {
@@ -301,6 +295,21 @@ export class Grid {
                 this.set(x, y, result);
             }
         })
+    }
+
+    /**
+     * Returns position of the first item where the predicate returns true. Null if not found
+     * @param {(value: any) => boolean} predicate 
+     * @returns {{x: number, y: number}|null}
+     */
+    positionOf(predicate) {
+        for(const y of Range(0, this.height)) {
+            for(const x of Range(0, this.width)) {
+                const value = this.get(x, y)
+                if(predicate(value)) return { x, y }
+            }   
+        }
+        return null;
     }
 
     *[Symbol.iterator]() {
