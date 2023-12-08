@@ -1,4 +1,5 @@
 import { Grid } from "../class/Grid.js";
+import { Observable } from "../class/Observable.js";
 import Item from "../item/item.js";
 import { ItemRegistry } from "../item/itemRegistry.js";
 import { ItemStack } from "../item/itemStack.js";
@@ -15,6 +16,11 @@ export class ItemContainer {
     constructor(width, height) {
         this.slots = new Grid(width, height);
     }
+
+    /** Notifies when an item is added to the container */
+    itemAddedSubject = new Observable();
+    /** Notifies when an item is manually inserted into a container slot */
+    itemInsertedSubject = new Observable();
 
     /** @returns {number} */
     get width() {
@@ -48,6 +54,8 @@ export class ItemContainer {
             throw new RangeError("Invalid slot position");
         if(!insertStack instanceof ItemStack) 
             throw new TypeError("insertStack must be of type ItemStack");
+        
+        const item = insertStack.item;
 
         if(amount >= insertStack.amount) amount = null;
 
@@ -56,18 +64,22 @@ export class ItemContainer {
         // Slot is empty
         if(existingStack === null) {
             this.slots.set(gridX, gridY, insertStack.extract(amount));
+            this.itemInsertedSubject.notify({ item, amount });
             return insertStack.isEmpty() ? null : insertStack;
         }
 
         // Same item. Fill existing stack and if there's anything left it is returned.
         else if(Item.isItem(insertStack.item, existingStack.item)) {
+            let initialAmount = existingStack.amount;
             insertStack.amount = existingStack.fill(stack.amount);
+            this.itemInsertedSubject.notify({ item, amount: existingStack.amount - initialAmount });
             return insertStack.isEmpty() ? null : insertStack;
         }
 
         // Slot contains different item. Return existing stack and insert new.
         else if(amount === null) {
             this.slots.set(x, y, insertStack);
+            this.itemInsertedSubject.notify({ item, amount });
             return existingStack;
         }
 
@@ -89,13 +101,31 @@ export class ItemContainer {
      */
     addItem(arg1, arg2) {
         
+        /**
+         * @param {Item} item 
+         * @param {number} amount 
+         * @returns 
+         */
         var add = (item, amount) => {
+            // Fill existing stacks first
             for(const slot of this) {
                 if(slot !== null && slot.containsItem(item) && !slot.isEmpty()) {
                     amount = slot.fill(amount);
                     if(amount === 0) break;
                 }
             }
+            // Fill empty slots
+            while(amount > 0) {
+                const pos = this.slots.positionOf(value => value === null);
+                if(pos === null) break;
+
+                console.log(pos);
+
+                let stackAmount = Math.min(amount, item.stackSize);
+                this.slots.set(pos.x, pos.y, new ItemStack(item, stackAmount));
+                amount -= stackAmount;
+            }
+
             return amount;
         }
 
@@ -107,18 +137,13 @@ export class ItemContainer {
         else if(arg1 instanceof Item && typeof arg2 == "number") {
             return add(arg1, arg2);
         }
+
+        throw new Error('Invalid arguments');
     }
 
     getStoredCount(item) {
         return this.slots.asArray().reduce((c, stack) => 
             (c + Item.isItem(item, stack?.item) ? stack.amount : 0));
-    }
-
-    /**
-     * Returns the first empty slot found in the container. Searches left to right, top to bottom.
-     */
-    findEmptySlot() {
-        return this.slots.asArray().find(v => v === null);
     }
 
     findSlotWithItem(item) {

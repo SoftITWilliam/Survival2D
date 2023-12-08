@@ -62,6 +62,7 @@ export class Game {
        
         PlacementPreview.updateAlpha(deltaTime);
 
-        this.world.itemEntities.update(deltaTime);
+        this.world.itemEntities.update(deltaTime, this.world);
+        this.world.itemEntities.updatePickup(this.player);
     }
 }

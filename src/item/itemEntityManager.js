@@ -3,18 +3,14 @@ import { Game } from "../game/game.js";
 import { validNumbers } from "../helper/helper.js";
 import { Collision } from "../misc/Collision.js";
 import PlayerCamera from "../player/camera.js";
+import { Player } from "../player/player.js";
+import { World } from "../world/World.js";
 import { ItemEntity } from "./itemEntity.js";
 import { ItemStack } from "./itemStack.js";
 
 export default class ItemEntityManager {
-    constructor(game) {
-
-        /** @type {Game} */
-        this.game = game;
-
-        /** @type {ItemEntity[]} */
-        this.entities = [];
-    }
+    /** @type {ItemEntity[]} */
+    entities = [];
 
     /**
      * Create a new Item Entity
@@ -49,16 +45,21 @@ export default class ItemEntityManager {
     /**
      * Updates physics and pickups of all item entities
      * @param {number} deltaTime Time since last frame (ms)
+     * @param {World} world
      */
-    update(deltaTime) {
-        this.entities.forEach((entity, index) => {
-            entity.update(deltaTime, this.game.world);
+    update(deltaTime, world) {
+        this.entities.forEach(entity => entity.update(deltaTime, world));
+    }
 
-            if(Collision.rectangleOverlap(entity, this.game.player)) {
-                if(entity.tryPickUp(this.game.player)) {
-                    this.entities.splice(index, 1);
-                }
-            }
+    /**
+     * @param {Player} player 
+     */
+    updatePickup(player) {
+        this.entities.forEach((entity, index) => {
+            if(Collision.rectangleOverlap(entity, player) === false) return;
+            
+            let success = player.pickUpItem(entity.stack);
+            if(success) this.entities.splice(index, 1);
         });
     }
 

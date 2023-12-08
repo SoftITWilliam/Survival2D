@@ -22,6 +22,8 @@ import { Spritesheet } from '../graphics/Spritesheet.js';
 import { AnimationSet } from '../graphics/AnimationSet.js';
 import { World } from '../world/World.js';
 import { Tile } from '../tile/Tile.js';
+import { ItemEntity } from '../item/itemEntity.js';
+import { ItemStack } from '../item/itemStack.js';
 
 const PLAYER_WIDTH = 36;
 const PLAYER_HEIGHT = 72;
@@ -417,12 +419,26 @@ export class Player {
         this.#entity.move(this.dx, this.dy, deltaTime);
         input.mouse.updateGridPos();
     }
+
+    /**
+     * @param {ItemStack} stack 
+     */
+    pickUpItem(stack) {
+        let initialAmount = stack.amount;
+        let remaining = this.inventory2.container.addItem(stack)?.amount;
+        stack.amount = remaining ?? 0;
+
+        if(initialAmount != stack.amount) {
+            this.itemPickupSubject.notify({ 
+                item: stack.item,
+                amount: initialAmount - stack.amount,
+            });
+        }
+        return stack.amount === 0;
+    }
+
     //#endregion
     //#region onThing methods
-
-    onItemPickup(item, amount) {
-        this.itemPickupSubject.notify({ item, amount });
-    }
 
     /**
      * Runs when selecting a new slot or the item in the selected slot changes
@@ -524,8 +540,8 @@ export function spawnPlayerInWorld(player, world) {
  */
 function giveDevTools(player) {
     console.log("Giving player developer tools...");
-    player.inventory.addItem(Items.DEV_PICKAXE);
-    player.inventory.addItem(Items.DEV_AXE);
-    player.inventory.addItem(Items.DEV_HAMMER);
-    player.inventory.addItem(Items.DEV_SHOVEL);
+    player.pickUpItem(Items.DEV_PICKAXE,);
+    player.inventory2.addItem(Items.DEV_AXE);
+    player.inventory2.addItem(Items.DEV_HAMMER);
+    player.inventory2.addItem(Items.DEV_SHOVEL);
 }

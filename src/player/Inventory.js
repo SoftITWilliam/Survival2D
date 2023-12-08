@@ -62,31 +62,39 @@ export class PlayerInventory {
         // Render full inventory
         if(this.isOpen) {
             this.ui.render(ctx, camera);
+            this.ui.renderItems(ctx, camera); 
         } 
         // Render hotbar only
         else {
             this.ui.render(ctx, camera, 0, this.height - 1, this.width, 1);
+            this.ui.renderItems(ctx, camera, 0, this.height - 1, this.width, 1); 
         }
 
         this.#renderHotbarNumbers(ctx, camera);
     }
 
     #renderHotbarNumbers(ctx, camera) {
+
+        let hotbarRowIndex = (this.container.height - 1);
+
+        
+
         let hotbarX = this.ui.getContainerX(camera);
-        let hotbarY = this.ui.getContainerY(camera) + this.ui.slotSize * (this.container.height - 1);
+        let hotbarY = this.ui.getContainerY(camera) + this.ui.slotSize * hotbarRowIndex;
 
         Object.assign(ctx, {
             fillStyle: "rgb(100,100,100)", strokeStyle: "black", font: "18px Font1",
             textAlign: "left", textBaseline: "top", lineWidth: 3
         })
 
-        const offsetPx = 8;
+        const offsetPx = 6;
+
+        let y = hotbarY + offsetPx
 
         renderPath(ctx, () => {
             for(let i = 0; i < this.width; i++) {
-                let x = hotbarX + (this.ui.slotSize * i) + offsetPx;
-                let y = hotbarY + offsetPx - 2;
-                ctx.drawOutlinedText(i + 1, x, y);
+                let pos = this.ui.getSlotPosition(camera, i, hotbarRowIndex);
+                ctx.drawOutlinedText(i + 1, pos.x + offsetPx, pos.y + offsetPx - 2);
             }
         })
     }

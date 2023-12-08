@@ -1,25 +1,28 @@
 import { colors } from "../graphics/colors.js";
 import { renderPath, rgb, rgba } from "../helper/canvashelper.js";
 import { padRect } from "../helper/helper.js";
+import Item from "../item/item.js";
 import { AlignmentX, AlignmentY, getAlignedX, getAlignedY } from "../misc/alignment.js";
 import PlayerCamera from "../player/camera.js";
+import { ItemContainer } from "./ItemContainer.js";
 
 export class ContainerUI {
     #container;
+
+    pickedUpStack = null; 
+    slotSize = 64;
+    alignX = AlignmentX.MIDDLE;
+    alignY = AlignmentY.MIDDLE;
+    offsetX = 0;
+    offsetY = 0;
+    isOpen = false;
+    padding = 8;
+
+    /**
+     * @param {ItemContainer} container 
+     */
     constructor(container) {
-
         this.#container = container;
-
-        this.pickedUpStack; 
-        this.slotSize = 72;
-
-        this.alignX = AlignmentX.MIDDLE;
-        this.alignY = AlignmentY.MIDDLE;
-
-        this.offsetX = 0;
-        this.offsetY = 0;
-
-        this.isOpen = false;
     }
 
     // Override for customization
@@ -46,6 +49,14 @@ export class ContainerUI {
         let containerHeight = this.#container.height * this.slotSize;
         let y = getAlignedY(camera.y, camera.height, containerHeight, this.alignY);
         return y + this.offsetY;
+    }
+
+    getSlotPosition(camera, gx, gy) {
+        let px = (gx + 1) * this.padding;
+        let py = (gy + 1) * this.padding;
+        let x = this.getContainerX(camera) + (gx * this.slotSize) + px;
+        let y = this.getContainerY(camera) + (gy * this.slotSize) + py;
+        return { x, y }
     }
 
     /**
@@ -80,12 +91,13 @@ export class ContainerUI {
         const x1 = this.getContainerX(camera);
         const y1 = this.getContainerY(camera);
 
-        this.#renderBg(ctx,
-            x1 + x * this.slotSize, y1 + y * this.slotSize,
-            width * this.slotSize, height * this.slotSize
-        );
+        const bgx = x1 + x * (this.slotSize + this.padding);
+        const bgy = y1 + y * (this.slotSize + this.padding);
+        const bgw = width * (this.slotSize + this.padding) + this.padding;
+        const bgh = height * (this.slotSize + this.padding) + this.padding;
 
-        let p = 4;
+        this.#renderBg(ctx, bgx, bgy, bgw, bgh);
+
         ctx.fillStyle = rgba(colors.black, 0.4);
 
         this.#container.slots.forEach((slot, gx, gy) => {
@@ -93,24 +105,67 @@ export class ContainerUI {
             if(gx < x || gx > x + width) return;
             if(gy < y || gy > y + height) return;
             
-            let slotX = x1 + (gx * this.slotSize) + p,
-                slotY = y1 + (gy * this.slotSize) + p;
+            const slotPos = this.getSlotPosition(camera, gx, gy);
 
-            ctx.fillRect(slotX, slotY, this.slotSize - p * 2, this.slotSize - p * 2);
+            ctx.fillRect(slotPos.x, slotPos.y, this.slotSize, this.slotSize);
         }) 
+    }
+
+    /**
+     * @param {CanvasRenderingContext2D} ctx
+     * @param {PlayerCamera} camera
+     * @param {number} [x] Section X (When drawing part of grid only)
+     * @param {number} [y] Section Y (When drawing part of grid only)
+     * @param {number} [width] Section width (When drawing part of grid only)
+     * @param {number} [height] Section height (When drawing part of grid only)
+     */
+    renderItems(ctx, camera, x, y, width, height) {
+        this.#container.slots.forEach((stack, gx, gy) => {
+            if(stack === null) return;
+            if(gx < x || gx > x + width) return;
+            if(gy < y || gy > y + height) return;
+
+            this.renderItem(ctx, camera, gx, gy);
+
+            if(stack.item.stackSize !== 0) {
+                this.#renderItemAmount(ctx, camera, gx, gy, stack.amount);
+            }
+        }) 
+    }
+
+    renderItem(ctx, camera, gx, gy) {
+        const pos = this.getSlotPosition(camera, gx, gy);
+        const stack = this.#container.get(gx, gy);
+
+        let size = stack.size;
+        let offset = (this.slotSize / 2) - size / 2;
+        
+        stack.item.render(ctx, pos.x + offset, pos.y + offset, size, size);
+    }
+
+    #renderItemAmount(ctx, camera, gx, gy, amount) {
+        const pos = this.getSlotPosition(camera, gx, gy);
+        const offset = 5;
+
+        Object.assign(ctx, {
+            fillStyle: 'rgb(200,205,215)', strokeStyle: 'black', font: '22px Font1',
+            textAlign: 'right', textBaseline: 'bottom', lineWidth: 3
+        })
+
+        ctx.drawOutlinedText(amount, pos.x + this.slotSize - offset, pos.y + this.slotSize - offset + 2);
     }
 
     #renderBg(ctx, x, y, width, height) {
 
-        const lw = 0;
-        const pad = 8;
+        const lineWidth = 0;
 
         Object.assign(ctx, { 
-            strokeStyle: rgb(colors.uiLight), fillStyle: rgba(colors.uiLight, 0.4), lineWidth: lw
+            strokeStyle: rgb(colors.uiLight), 
+            fillStyle: rgba(colors.uiLight, 0.4), 
+            lineWidth
         });
 
         const rect1 = { x, y, width, height };
-        padRect(rect1, lw + pad);
 
         renderPath(ctx, () => {
             ctx.rectObj(rect1);
@@ -118,9 +173,9 @@ export class ContainerUI {
             ctx.fill();
         })
 
-        if(lw > 0) {
+        if(lineWidth > 0) {
             const rect2 = { x, y, width, height };
-            padRect(rect2, lw);
+            padRect(rect2, lineWidth);
             renderPath(ctx, () => {
                 ctx.rectObj(rect2);
                 ctx.stroke();

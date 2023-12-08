@@ -1,4 +1,5 @@
 import { EntityComponent } from "../components/EntityComponent.js";
+import { ItemContainer } from "../container/ItemContainer.js";
 import { GRAVITY } from "../game/global.js";
 import { getPhysicsMultiplier, rng } from "../helper/helper.js";
 
@@ -84,10 +85,17 @@ export class ItemEntity {
         this._entity.move(this.vector, deltaTime);
     }
 
-    tryPickUp(player) {
-        let remaining = player.inventory.addItem(this.item, this.amount);
+    /**
+     * Try to add item stack to a container (such as a player inventory)
+     * The item amount of this entity will be updated to match the remainder after trying to insert.
+     * This will usually be 0, unless the container becomes full.
+     * @param {ItemContainer} container 
+     * @returns {boolean} True if all items were successfully inserted
+     */
+    addToContainer(container) {
+        let remaining = container.addItem(this.item, this.amount);
         this.stack.amount = remaining;
-        return (this.stack.amount == 0);
+        return (this.stack.amount === 0);
     }
 
     #bounce() {
