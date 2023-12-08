@@ -10,13 +10,26 @@ import { validNumbers } from '../helper/helper.js';
 import Structure from '../structure/structure.js';
 import { Game } from '../game/game.js';
 import ItemEntityManager from '../item/itemEntityManager.js';
+import MiningAction from '../player/mining.js';
 
 export class World {
-    #width
-    #height
-    #tilemap
-    #wallmap
-    #worldGen
+    /** @type {Grid} */
+    #tilemap;
+    /** @type {Grid} */
+    #wallmap;
+    /** @type {WorldGeneration} */
+    #worldGen = new WorldGeneration(this);
+
+    /** @type {WorldLighting} */
+    lighting = new WorldLighting(this);
+
+    /** @type {Structure[]} */
+    structures = [];
+
+    frameCounter = 0;
+    ticksPerSecond = 10;
+
+    itemEntities = new ItemEntityManager();
     
     /**
      * @param {Game} game 
@@ -28,28 +41,13 @@ export class World {
         /** @type {Game} */
         this.game = game; // todo: get rid of the need to store a reference to game
 
-        this.#width = width;
-        this.#height = height;
-
-        this.itemEntities = new ItemEntityManager(this.game);
-
-        /** @type {Grid} */
         this.#tilemap = new Grid(width, height);
-
-        /** @type {Grid} */
         this.#wallmap = new Grid(width, height);
 
-        /** @type {WorldGeneration} */
-        this.#worldGen = new WorldGeneration(this);
-
-        /** @type {WorldLighting} */
-        this.lighting = new WorldLighting(this);
-
-        /** @type {Structure[]} */
-        this.structures = [];
-
-        this.frameCounter = 0;
-        this.ticksPerSecond = 10;
+        MiningAction.tileMinedSubject.subscribe(({ tile, item }) => {
+            tile.break(item);
+            this.lighting.update();
+        })
     }
 
     /**
@@ -71,29 +69,19 @@ export class World {
     //#region | Property getters
 
     /** @readonly */
-    get heightmap() { 
-        return this.#worldGen.heightmap 
-    }
+    get heightmap() { return this.#worldGen.heightmap }
 
     /** @readonly */
-    get width() { 
-        return this.#width 
-    }
+    get width() { return this.#tilemap.width; }
 
     /** @readonly */
-    get height() { 
-        return this.#height 
-    }
+    get height() { return this.#tilemap.width; }
 
     /** @readonly */
-    get tiles() { 
-        return this.#tilemap 
-    }
+    get tiles() { return this.#tilemap }
 
     /** @readonly */
-    get walls() { 
-        return this.#wallmap 
-    }
+    get walls() { return this.#wallmap }
 
     //#endregion
     
@@ -208,16 +196,21 @@ export class World {
         }
     }
 
+    // Deprecated, replace later
+    updateNearbyTiles(gridX, gridY) {
+        this.updateTilesInRange(gridX, gridY, 1);
+    }
+
     /**
-     * Update tile at provided position, and all surrounding tiles.
+     * Update tile at provided position, and all tiles in a certain range
      * @param {number} gridX 
      * @param {number} gridY 
+     * @param {number} tileRange 
      */
-    updateNearbyTiles(gridX, gridY) {
-        let r = 1;
-        let size = r * 2 + 1;
-        this.tiles.asArray(gridX - r, gridY - r, size, size).forEach(tile => this.updateTile(tile));
-        this.walls.asArray(gridX - r, gridY - r, size, size).forEach(wall => this.updateTile(wall));
+    updateTilesInRange(gridX, gridY, tileRange) {
+        const size = tileRange * 2 + 1, gx = gridX - tileRange, gy = gridY - tileRange;
+        this.tiles.asArray(gx, gy, size, size).forEach(tile => this.updateTile(tile));
+        this.walls.asArray(gx, gy, size, size).forEach(wall => this.updateTile(wall));
     }
 
     /**

@@ -5,6 +5,7 @@ import { calculateDistance, clamp } from '../helper/helper.js';
 import { rgbm } from '../helper/canvashelper.js';
 import { Tile } from '../tile/Tile.js';
 import { Player } from '../player/player.js';
+import { renderMiningProgress } from '../player/mining.js';
 
 /**
  * Renders everything in the game
@@ -42,7 +43,11 @@ export default function render(ctx, game, player) {
     // Solid Tiles
     visibleTiles.filter(tile => tile.type == Tile.types.SOLID).forEach(tile => tile.render(ctx));
 
-    player.miningAction?.renderProgress(ctx);
+    // Mining progress
+    if(player.miningAction !== null) {
+        renderMiningProgress(ctx, player.miningAction.tile, player.miningAction.progressDecimal);
+    }
+
     player.renderPlacementPreview(ctx, game.input);
 
     // Item entities

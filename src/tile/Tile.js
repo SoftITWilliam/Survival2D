@@ -1,5 +1,6 @@
 import GameObject from "../class/GameObject.js";
 import { TILE_SIZE } from "../game/global.js";
+import { InputHandler } from "../game/InputHandler.js";
 import Item from "../item/item.js";
 import { ItemEntity } from "../item/itemEntity.js";
 import { World } from "../world/World.js";
@@ -224,6 +225,14 @@ export class Tile extends GameObject {
             else return true;
         }
         return false;
+    }
+
+    /**
+     * @param {Tile} tile
+     * @param {InputHandler} input
+     */
+    static isHoveringTile(tile, input) {
+        return (tile.gridX === input.mouse.gridX && tile.gridY === input.mouse.gridY);
     }
 
     //#endregion

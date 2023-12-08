@@ -6,7 +6,7 @@ import { AlignmentY } from "../misc/alignment.js";
 import PlayerCamera from "./camera.js";
 
 export class PlayerInventory {
-    #selectedIndex;
+    #selectedIndex = 1;
     /**
      * @param {number} width Inventory width (Amount of slots)
      * @param {number} height Inventory height (Amount of slots)
@@ -45,13 +45,9 @@ export class PlayerInventory {
     get isOpen() { return this.ui.isOpen }
     
 
-    open() {
-        this.ui.open();
-    }
-
-    close() {
-        this.ui.close();
-    }
+    open() { this.ui.open() }
+    close() { this.ui.close() }
+    toggle() { this.isOpen ? this.close() : this.open() }
 
     /**
      * @param {CanvasRenderingContext2D} ctx 

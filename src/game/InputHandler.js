@@ -1,6 +1,19 @@
+import { Observable } from "../class/Observable.js";
 import { TILE_SIZE } from "./global.js";
 
 export class InputHandler {
+    keys = [];
+    scroll = 0;
+
+    /** Notifies when any key is pressed. data: { key } */
+    keyDown = new Observable();
+    /** Notifies when any key is released. data: { key } */
+    keyUp = new Observable();
+    /** Notifies on user left click. No data */
+    leftClick = new Observable();
+    /** Notifies on user right click. No data */
+    rightClick = new Observable();
+
     constructor(game) {
         this.game = game;
         this.mouse = {
@@ -39,41 +52,40 @@ export class InputHandler {
             }
         }
 
-        this.scroll = 0;
-
-        this.keys = [];
-
-        window.addEventListener("keydown", event => {
-            let key = event.key.toUpperCase();
+        window.addEventListener('keydown', event => {
+            const key = event.key.toUpperCase();
             if(this.keys.indexOf(key) === -1) {
+                this.keyDown.notify({ key });
                 this.keys.push(key);
             }
         });
 
-        window.addEventListener("keyup", event => {
-            let key = event.key.toUpperCase();
+        window.addEventListener('keyup', event => {
+            const key = event.key.toUpperCase();
             if(this.keys.includes(key)) {
+                this.keyUp.notify({ key });
                 this.keys.splice(this.keys.indexOf(key), 1);
             }
         });
 
         document.addEventListener('mousedown', event => {
             event.preventDefault();
-        
             if(event.button == 0) {
+                this.leftClick.notify();
                 this.mouse.click = true;
             } else if(event.button == 2) {
+                this.rightClick.notify();
                 this.mouse.rightClick = true;
             }
-            
         });
         
         document.addEventListener('mouseup', event => {
-            this.mouse.click = false;
+            if(event.button == 0) this.mouse.click = false;
+            else if(event.button == 2) this.mouse.rightClick = false;
         });
         
         document.addEventListener('mousemove', event => {
-            let rect = canvas.getBoundingClientRect();
+            const rect = canvas.getBoundingClientRect();
             this.mouse.x = event.clientX - rect.left;
             this.mouse.y = event.clientY - rect.top;
             this.mouse.updateGridPos();

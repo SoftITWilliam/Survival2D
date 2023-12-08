@@ -12,15 +12,15 @@ import { PickupLabelManager } from "../ui/PickupLabelManager.js";
 
 export class Game {
     deltaTime = 0;
+    #fpsCounter = new FPSCounter();
     gameUpdateSubject = new Observable();
 
     constructor() {
         this.world = new World(this, 128, 128);
         this.itemEntities = new ItemEntityManager(this);
         this.recipeManager = new RecipeManager(this);
-        this.player = new Player(this);
         this.input = new InputHandler(this);
-        this.fpsCounter = new FPSCounter();
+        this.player = new Player(this);
 
         // Create pickup label manager and subscribe it to its necessary events
         const labelManager = new PickupLabelManager();
@@ -35,7 +35,7 @@ export class Game {
         );
 
         this.debugUI = new DebugUI()
-            .addInfoRow("FPS", () => this.fpsCounter.display)
+            .addInfoRow("FPS", () => this.#fpsCounter.display)
             .addInfoRow("Entity Count", () => this.world.itemEntities.count)
             .addInfoRow("Player Pos", () => ({ x: this.player.gridX, y: this.player.gridY }))
             .addInfoRow("Player State", () => this.player.state.name)
@@ -56,7 +56,7 @@ export class Game {
         this.gameUpdateSubject.notify({ deltaTime, input: this.input });
 
         this.world.tickCounter();
-        this.fpsCounter.increment();
+        this.#fpsCounter.increment();
         this.player.update(deltaTime, this.input);
         this.player.craftingMenu.ui.update();
        

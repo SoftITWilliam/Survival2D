@@ -11,7 +11,7 @@ import CraftingMenu from '../crafting/Crafting.js';
 import { FrameAnimation } from '../graphics/FrameAnimation.js';
 import { ItemRegistry as Items } from '../item/itemRegistry.js';
 import { EntityComponent } from '../components/EntityComponent.js';
-import { calculateDistance, clamp } from '../helper/helper.js';
+import { calculateDistance, clamp, validNumbers } from '../helper/helper.js';
 import { TilePlacement } from '../tile/TilePlacement.js';
 import { Cooldown } from '../class/Cooldown.js';
 import { SpriteRenderer } from '../graphics/SpriteRenderer.js';
@@ -22,12 +22,18 @@ import { Spritesheet } from '../graphics/Spritesheet.js';
 import { AnimationSet } from '../graphics/AnimationSet.js';
 import { World } from '../world/World.js';
 import { Tile } from '../tile/Tile.js';
-import { ItemEntity } from '../item/itemEntity.js';
 import { ItemStack } from '../item/itemStack.js';
+import { Range } from '../class/Range.js';
+import { InputHandler } from '../game/InputHandler.js';
+import { Game } from '../game/game.js';
 
 const PLAYER_WIDTH = 36;
 const PLAYER_HEIGHT = 72;
+
 const TILE_PLACEMENT_DELAY_MS = 250;
+const PLAYER_DEFAULT_REACH = 3;
+const PLAYER_ACCELERATION = 0.5;
+const PLAYER_WALKING_SPEED = 5;
 
 /**
  * @readonly
@@ -38,98 +44,100 @@ export const Facing = {
     LEFT: "facing_left",
 }
 
+/**
+ * THIS CLASS IS TOO DAMN BIG!!!
+ * Many restrucuring needed.... terrible
+ */
 export class Player {
     /** @type {EntityComponent} */
     #entity = new EntityComponent(0, 0, PLAYER_WIDTH, PLAYER_HEIGHT);
     /** @type {number} */
     #selectedSlotIndex = 0;
-    /** @type {number} */
-    #reach = 3;
     /** @type {Cooldown} */
     #placementCooldown = new Cooldown(TILE_PLACEMENT_DELAY_MS);
     /** @type {SpriteRenderer} */
-    #renderer
+    #renderer;
     /** @type {PlayerState} */
     #state;
     /** @type {Facing} */
     #facing = Facing.RIGHT;
+    /** @type {Facing|null} */
+    #moving = null;
 
-    /** @type {number} */
-    maxSpeed = 5;
-    /** @type {number} */
-    maxFallSpeed = 12;
-    /** @type {number} */
-    acceleration = 0.5;
     /** @type {number} */
     cheetahFrames = 0;
     /** @type {MiningAction|null} */
     miningAction = null;
 
+    /** Notifies subscribers when an item is picked up */
     itemPickupSubject = new Observable();
+    /** Notifies subscribers when UI is rendered. TODO refactor */
     uiRenderSubject = new Observable();
 
     // Currently unused
     health = new PlayerStatBar(50, 45);
-    hunger = new PlayerStatBar(50, 20);
-    thirst = new PlayerStatBar(50, 20);
 
+    spritesheet = new Spritesheet({
+        source: sprites.entities.player,
+        spriteWidth: 96,
+        spriteHeight: 96,
+    })
+
+    inventory = new Inventory(this);
+    inventory2 = new PlayerInventory(INVENTORY_WIDTH, INVENTORY_HEIGHT);
+
+    hotbarText = new HotbarText(); 
+    itemInfoDisplay = new ItemInfoDisplay(this);
+    camera = new PlayerCamera(this);
+    
+    animations = new AnimationSet({
+        IDLE_RIGHT: new FrameAnimation({
+            spritesheet: this.spritesheet,
+            loop: true,
+            fps: 2,
+            frames: [{x:0, y:0}, {x:1, y:0}]
+        }),
+        IDLE_LEFT: new FrameAnimation({
+            spritesheet: this.spritesheet,
+            loop: true,
+            fps: 2,
+            frames: [{x:0, y:1}, {x:1, y:1}]
+        }),
+        WALK_RIGHT: new FrameAnimation({
+            spritesheet: this.spritesheet,
+            loop: true,
+            fps: 12,
+            frames: [{x:3, y:2}, {x:4, y:2}, {x:5, y:2}, {x:6, y:2}, {x:7, y:2}, {x:0, y:2}, {x:1, y:2}, {x:2, y:2}]
+        }),
+        WALK_LEFT: new FrameAnimation({
+            spritesheet: this.spritesheet,
+            loop: true,
+            fps: 12,
+            frames: [{x:3, y:3}, {x:4, y:3}, {x:5, y:3}, {x:6, y:3}, {x:7, y:3}, {x:0, y:3}, {x:1, y:3}, {x:2, y:3}]
+        }),
+        JUMP_RIGHT: new FrameAnimation({
+            spritesheet: this.spritesheet,
+            loop: false,
+            fps: 12,
+            frames: [{x:0, y:4}, {x:1, y:4}, {x:2, y:4}]
+        }),
+        JUMP_LEFT: new FrameAnimation({
+            spritesheet: this.spritesheet,
+            loop: false,
+            fps: 12,
+            frames: [{x:0, y:5}, {x:1, y:5}, {x:2, y:5}]
+        }),
+    })
+
+    /**
+     * @param {Game} game
+     */
     constructor(game) {
         this.game = game;
         this.world = game.world;
 
-        this.inventory = new Inventory(this);
-        this.inventory2 = new PlayerInventory(INVENTORY_WIDTH, INVENTORY_HEIGHT);
-
-        this.hotbarText = new HotbarText(); 
-        this.itemInfoDisplay = new ItemInfoDisplay(this);
-        this.camera = new PlayerCamera(this);
+        // CraftingMenu gets game property so this can't be done outside of constructor
         this.craftingMenu = new CraftingMenu(this);
-
-        this.spritesheet = new Spritesheet({
-            source: sprites.entities.player,
-            spriteWidth: 96,
-            spriteHeight: 96,
-        })
-
-        /** @type {AnimationSet} */
-        this.animations = new AnimationSet({
-            IDLE_RIGHT: new FrameAnimation({
-                spritesheet: this.spritesheet,
-                loop: true,
-                fps: 2,
-                frames: [{x:0, y:0}, {x:1, y:0}]
-            }),
-            IDLE_LEFT: new FrameAnimation({
-                spritesheet: this.spritesheet,
-                loop: true,
-                fps: 2,
-                frames: [{x:0, y:1}, {x:1, y:1}]
-            }),
-            WALK_RIGHT: new FrameAnimation({
-                spritesheet: this.spritesheet,
-                loop: true,
-                fps: 12,
-                frames: [{x:3, y:2}, {x:4, y:2}, {x:5, y:2}, {x:6, y:2}, {x:7, y:2}, {x:0, y:2}, {x:1, y:2}, {x:2, y:2}]
-            }),
-            WALK_LEFT: new FrameAnimation({
-                spritesheet: this.spritesheet,
-                loop: true,
-                fps: 12,
-                frames: [{x:3, y:3}, {x:4, y:3}, {x:5, y:3}, {x:6, y:3}, {x:7, y:3}, {x:0, y:3}, {x:1, y:3}, {x:2, y:3}]
-            }),
-            JUMP_RIGHT: new FrameAnimation({
-                spritesheet: this.spritesheet,
-                loop: false,
-                fps: 12,
-                frames: [{x:0, y:4}, {x:1, y:4}, {x:2, y:4}]
-            }),
-            JUMP_LEFT: new FrameAnimation({
-                spritesheet: this.spritesheet,
-                loop: false,
-                fps: 12,
-                frames: [{x:0, y:5}, {x:1, y:5}, {x:2, y:5}]
-            }),
-        });
 
         this.#renderer = new SpriteRenderer(this.spritesheet);
         this.#renderer.setSpriteSize(96);
@@ -138,6 +146,40 @@ export class Player {
         this.#entity.onBottomCollision = () => {
             this.setState(Player.States.FALLING);
         }
+
+        const INPUT = this.game.input;
+
+        INPUT.keyDown.subscribe(({ key }) => {
+            if(key === 'X') giveDevTools(this);
+
+            else if(key === 'A') this.#moving = this.#facing = Facing.LEFT;
+            else if(key === 'D') this.#moving = this.#facing = Facing.RIGHT;
+            
+            else if(key === 'E') this.inventory2.toggle();
+            else if(key === 'C' && this.inventory2.isOpen) this.craftingMenu.open(); 
+
+            for(const i of Range(1, this.inventory2.width)) {
+                if(i.toString() === key) {
+                    // TODO
+                }
+            }
+        })
+
+        INPUT.keyUp.subscribe(({ key }) => {
+            if(key === 'A') {
+                if(INPUT.keys.includes('D')) 
+                    this.#moving = this.#facing = Facing.RIGHT;
+                else 
+                    this.#moving = null;
+            }
+
+            if(key === 'D') {
+                if(INPUT.keys.includes('A')) 
+                    this.#moving = this.#facing = Facing.LEFT;
+                else 
+                    this.#moving = null;
+            }
+        })
     }
 
     //#region Enums
@@ -147,7 +189,6 @@ export class Player {
         RUNNING: new PlayerRunning(), 
         JUMPING: new PlayerJumping(),
         FALLING: new PlayerFalling(), 
-        //SWIMMING: new PlayerSwimming(this)
     }
 
     //#endregion
@@ -192,10 +233,6 @@ export class Player {
         else throw new TypeError('set facing(): Value must be from Facing enum');
     }
 
-    get frameX() { 
-        return this.animations.getActive()?.getCurrentFrame() ?? 0;
-    }
-
     get selectedSlot() {
         return this.inventory.getSlot(this.#selectedSlotIndex, this.inventory.hotbarY);
     }
@@ -205,7 +242,7 @@ export class Player {
     }
 
     get reach() {
-        return (this.selectedItem?.reach ?? this.#reach) * TILE_SIZE;
+        return (this.selectedItem?.reach ?? PLAYER_DEFAULT_REACH) * TILE_SIZE;
     }
 
     get state() {
@@ -224,49 +261,50 @@ export class Player {
     //#endregion
     //#region Update methods
 
+    /**
+     * @param {number} deltaTime 
+     * @param {InputHandler} input 
+     */
     update(deltaTime, input) {
         this.inLiquid = false;
         this.#entity.grounded = false;
 
-        // Handle input
-        if(input.keys.includes("X")) {
-            giveDevTools(this);
-            input.removeKey("X");
-        }
-
-        let left = input.keys.includes("A");
-        let right = input.keys.includes("D");
-
-        if(left) {this.facing = Facing.LEFT}
-        if(right) {this.facing = Facing.RIGHT}
-
-        this.getHorizontalMovement(left, right);
+        this.#getHorizontalMovement(this.#moving);
         this.#entity.updateCollision(this.world);
 
         this.hotbarText.update(deltaTime);
 
-        this.state.handleInput(this.game.input, deltaTime);
+        this.state.handleInput(input, deltaTime);
         this.state.updatePhysics(deltaTime);
         this.state.updateAnimation();
         this.animations.getActive()?.update(deltaTime);
 
         // Tile interaction
-        if(input.mouse.click && !this.inventory.view) {
+        if(input.mouse.click && !this.inventory2.isOpen) {
 
             if(this.selectedItem && this.selectedItem.placeable) {
                 this.placeHeldItem(input.mouse.gridX, input.mouse.gridY);
             } else {
-                this.updateMining(input, deltaTime);
+                const miningTarget = this.#getMiningTarget(input, this.world);
+                if(miningTarget !== null) {
+                    this.#updateMining(miningTarget, input, deltaTime);
+                } 
+                else this.miningAction = null;
             }
-        } else {
-            this.miningAction = null;
+        } 
+        else this.miningAction = null;
+
+        // Crafting menu
+        if(this.craftingMenu.isOpen) {
+            this.craftingMenu.handleInput(input);
+            this.craftingMenu.update();
+            return;
         }
 
         this.updatePosition(deltaTime, input);
-        this.updateInventory(input);
         this.camera.update();
 
-        // Old water physics
+        //#region Old water physics
         /*
         // Gravity in water
         if(this.inLiquid) {
@@ -278,140 +316,79 @@ export class Player {
             this.dy -= 0.2;
         }
         */
+        //#endregion
     }
 
-    updateInventory(input) {
+    /**
+     * @param {InputHandler} input 
+     * @param {World} world 
+     * @returns {Tile|null}
+     */
+    #getMiningTarget(input, world) {
+        const tile = world.tiles.get(input.mouse.gridX, input.mouse.gridY);
+        if(tile && tile.canBeMined(this.selectedItem, world)) 
+            return tile;
 
-        // Crafting menu
-        if(this.craftingMenu.isOpen) {
-            this.craftingMenu.handleInput(this.game.input);
-            this.craftingMenu.update();
-            return;
-        }
+        const wall = world.walls.get(input.mouse.gridX, input.mouse.gridY);
+        if(wall && wall.canBeMined(this.selectedItem, world)) 
+            return wall;
 
-        // Open and Close inventory
-        if(input.keys.includes("E")) {
-            if(this.inventory2.isOpen) {
-                this.inventory2.close();
-            } else {
-                this.inventory2.open();
-            }
-            input.removeKey("E");
-        }
-
-        // Select inventory slot
-        for(let i = 1; i <= this.inventory2.width; i++) {
-            if(input.keys.includes(i.toString())) {
-                this.miningAction = null;
-                this.inventory2.selectedIndex = i - 1;
-                input.removeKey(i.toString());
-            }
-        }
-
-        /*
-        // Open and Close inventory
-        if(input.keys.includes("E")) {
-            if(this.inventory.view) {
-                this.inventory.close();
-                this.inventory2.close();
-            } else {
-                this.inventory.view = true;
-                this.inventory2.open();
-            }
-            input.removeKey("E");
-        }
-
-        // Select inventory slot
-        for(let i = 1; i <= this.inventory2.width; i++) {
-            if(input.keys.includes(i.toString())) {
-                this.miningAction = null;
-                this.#selectItem(i);
-                this.inventory2.selectedIndex = i - 1;
-                input.removeKey(i.toString());
-            }
-        }
-
-        if(this.inventory.view) {
-            this.inventory.update(input);
-
-            // Open crafting menu
-            if(input.keys.includes("C")) {
-                this.craftingMenu.open();
-                input.removeKey("C");
-            }
-        }
-        */
+        return null;
     }
 
-    updateMining(input, dt) {
-        let tile = this.world.tiles.get(input.mouse.gridX, input.mouse.gridY);
-        let wall = this.world.walls.get(input.mouse.gridX, input.mouse.gridY);
+    /**
+     * @param {Tile} tile
+     * @param {InputHandler} input 
+     * @param {number} dt Delta time
+     */
+    #updateMining(tile, input, dt) {
+        if(!tile instanceof Tile || !input instanceof InputHandler || !validNumbers(dt)) 
+            throw new TypeError();
 
-        // Find object the tool is able to interact with
-        let obj;
-        if(tile && tile.canBeMined(this.selectedItem, this.world)) {
-            obj = tile;
-        } else if(wall && wall.canBeMined(this.selectedItem, this.world)) {
-            obj = wall;
-        } else {
-            this.miningAction = null;
-            return;
+        
+        if(this.miningAction !== null) {
+            // If not in range of the block, cancel Mining event
+            if(calculateDistance(this, this.miningAction.tile) > this.reach) {
+                this.miningAction = null;
+                return;
+            }
+            // If mouse has moved outside the previous block being mined, create new Event
+            if(Tile.isHoveringTile(this.miningAction.tile, input) === false) {
+                this.miningAction = null;
+            }
         }
 
         // If not currently mining the block, create a new Mining event
-        if(!this.miningAction) {
-            this.miningAction = new MiningAction(obj, this.selectedItem, this.game);
-        }
-
-        // If not in range of the block, cancel Mining event
-        if(calculateDistance(this, this.miningAction.tile) > this.reach) {
-            this.miningAction = null;
-            return;
-        }
-
-        // If mouse has moved outside the previous block being mined, create new Event
-        if(this.miningAction.tile.gridX != input.mouse.gridX || 
-            this.miningAction.tile.gridY != input.mouse.gridY) {
-                this.miningAction = new MiningAction(obj, this.selectedItem, this.game);
-        }
+        this.miningAction ??= new MiningAction(tile, this.selectedItem);
+        this.miningAction.actionFinishedSubject.subscribe(() => this.miningAction = null);
 
         // Increase mining progress.
         this.miningAction.update(dt);
-
-        if(this.miningAction.finished) {
-            this.game.world.lighting.update(this);
-            this.miningAction = null;
-        }
     }
         
-    getHorizontalMovement(walkLeft, walkRight) {
-        // If player is holding A, accelerate left.
-        if(walkLeft) {
-            this.dx -= this.acceleration;
-        }
-        // If player is holding D, accelerate right.
-        else if(walkRight) {
-            this.dx += this.acceleration;
-        }
+    /**
+     * @param {Facing|null} direction 
+     */
+    #getHorizontalMovement(direction) {
+        // Accelerate left
+        if(direction === Facing.LEFT) this.dx -= PLAYER_ACCELERATION;
+        // Accelerate right
+        else if(direction === Facing.RIGHT) this.dx += PLAYER_ACCELERATION;
 
         // If player is not moving left but has left momentum, slow down.
-        if(!walkLeft && this.dx < 0) {
+        if(direction !== Facing.LEFT && this.dx < 0) {
             this.dx += 0.8;
-            if(this.dx > 0) {
-                this.dx = 0;
-            }
+            if(this.dx > 0) this.dx = 0;
         } 
 
         // If player is not moving right but has right momentum, slow down.
-        if(!walkRight && this.dx > 0) {
+        if(direction !== Facing.RIGHT && this.dx > 0) {
             this.dx -= 0.8;
-            if(this.dx < 0) {
-                this.dx = 0;
-            }
+            if(this.dx < 0) this.dx = 0;
         }
 
         // Limit speed to max running speed
-        this.dx = clamp(this.dx, -this.maxSpeed, this.maxSpeed);
+        this.dx = clamp(this.dx, -PLAYER_WALKING_SPEED, PLAYER_WALKING_SPEED);
     }
 
     // Move player and camera by dx and dy
@@ -540,8 +517,8 @@ export function spawnPlayerInWorld(player, world) {
  */
 function giveDevTools(player) {
     console.log("Giving player developer tools...");
-    player.pickUpItem(Items.DEV_PICKAXE,);
-    player.inventory2.addItem(Items.DEV_AXE);
-    player.inventory2.addItem(Items.DEV_HAMMER);
-    player.inventory2.addItem(Items.DEV_SHOVEL);
+    player.pickUpItem(new ItemStack(Items.DEV_PICKAXE, 1));
+    player.pickUpItem(new ItemStack(Items.DEV_AXE, 1));
+    player.pickUpItem(new ItemStack(Items.DEV_HAMMER, 1));
+    player.pickUpItem(new ItemStack(Items.DEV_SHOVEL, 1));
 }
