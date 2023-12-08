@@ -11,7 +11,7 @@ import CraftingMenu from '../crafting/Crafting.js';
 import { FrameAnimation } from '../graphics/FrameAnimation.js';
 import { ItemRegistry as Items } from '../item/itemRegistry.js';
 import { EntityComponent } from '../components/EntityComponent.js';
-import { calculateDistance, clamp, validNumbers } from '../helper/helper.js';
+import { calculateDistance, clamp, getPhysicsMultiplier, validNumbers } from '../helper/helper.js';
 import { TilePlacement } from '../tile/TilePlacement.js';
 import { Cooldown } from '../class/Cooldown.js';
 import { SpriteRenderer } from '../graphics/SpriteRenderer.js';
@@ -33,6 +33,7 @@ const PLAYER_HEIGHT = 72;
 const TILE_PLACEMENT_DELAY_MS = 250;
 const PLAYER_DEFAULT_REACH = 3;
 const PLAYER_ACCELERATION = 0.5;
+const PLAYER_DECELERATION = 0.7;
 const PLAYER_WALKING_SPEED = 5;
 
 /**
@@ -269,7 +270,7 @@ export class Player {
         this.inLiquid = false;
         this.#entity.grounded = false;
 
-        this.#getHorizontalMovement(this.#moving);
+        this.dx = this.#calculateHorizontalSpeed(this.#moving, deltaTime);
         this.#entity.updateCollision(this.world);
 
         this.hotbarText.update(deltaTime);
@@ -368,27 +369,30 @@ export class Player {
         
     /**
      * @param {Facing|null} direction 
+     * @param {number} dt Delta time
      */
-    #getHorizontalMovement(direction) {
-        // Accelerate left
-        if(direction === Facing.LEFT) this.dx -= PLAYER_ACCELERATION;
-        // Accelerate right
-        else if(direction === Facing.RIGHT) this.dx += PLAYER_ACCELERATION;
+    #calculateHorizontalSpeed(direction, dt) {
+        const ACC = PLAYER_ACCELERATION * getPhysicsMultiplier(dt);
+        const DEC = PLAYER_DECELERATION * getPhysicsMultiplier(dt);
+
+        let dx = this.dx;
+        
+        // Accelerate left or right
+        if(direction === Facing.LEFT) dx -= ACC;
+        else if(direction === Facing.RIGHT) dx += ACC;
 
         // If player is not moving left but has left momentum, slow down.
-        if(direction !== Facing.LEFT && this.dx < 0) {
-            this.dx += 0.8;
-            if(this.dx > 0) this.dx = 0;
+        if(direction !== Facing.LEFT && dx < 0) {
+            dx = Math.min(0, dx + DEC);
         } 
 
         // If player is not moving right but has right momentum, slow down.
-        if(direction !== Facing.RIGHT && this.dx > 0) {
-            this.dx -= 0.8;
-            if(this.dx < 0) this.dx = 0;
+        if(direction !== Facing.RIGHT && dx > 0) {
+            dx = Math.max(0, dx - DEC);
         }
 
         // Limit speed to max running speed
-        this.dx = clamp(this.dx, -PLAYER_WALKING_SPEED, PLAYER_WALKING_SPEED);
+        return clamp(dx, -PLAYER_WALKING_SPEED, PLAYER_WALKING_SPEED);
     }
 
     // Move player and camera by dx and dy
