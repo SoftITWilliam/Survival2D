@@ -24,6 +24,12 @@ export class PlayerInventory {
         this.ui = new ContainerUI(this.container);
         this.ui.alignY = AlignmentY.BOTTOM;
         this.ui.offsetY = -64;
+
+        this.container.itemAddedSubject.subscribe(({ item, amount, gridX, gridY }) => {
+            if(gridX === this.selectedIndex && gridY === this.container.height - 1) {
+                this.selectionChangedSubject.notify(this.container.get(gridX, gridY));
+            }
+        })
     }
 
     get width() { return this.container.width }

@@ -17,7 +17,7 @@ export class ItemContainer {
         this.slots = new Grid(width, height);
     }
 
-    /** Notifies when an item is added to the container */
+    /** Notifies when an item is added to the container (NOTE: One notification per affected slot!) */
     itemAddedSubject = new Observable();
     /** Notifies when an item is manually inserted into a container slot */
     itemInsertedSubject = new Observable();
@@ -109,13 +109,23 @@ export class ItemContainer {
          * @returns 
          */
         var add = (item, amount) => {
+
             // Fill existing stacks first
-            for(const slot of this) {
-                if(slot !== null && slot.containsItem(item) && !slot.isEmpty()) {
-                    amount = slot.fill(amount);
-                    if(amount === 0) break;
-                }
+            while(amount > 0) {
+                // Find stacks of same item type, with space remaining
+                const pos = this.slots.positionOf(
+                    stack => stack ? Item.isItem(item, stack.item) && !stack.isFull() : false);
+                if(pos === null) break;
+                const stack = this.slots.get(pos.x, pos.y);
+
+                let initialAmount = amount;
+                amount = stack.fill(amount);
+
+                this.itemAddedSubject.notify({ 
+                    item, amount: initialAmount - amount, gridX: pos.x, gridY: pos.y
+                });
             }
+
             // Fill empty slots
             while(amount > 0) {
                 const pos = this.slots.positionOf(value => value === null);
@@ -123,6 +133,9 @@ export class ItemContainer {
                 let stackAmount = Math.min(amount, item.stackSize);
                 this.slots.set(pos.x, pos.y, new ItemStack(item, stackAmount));
                 amount -= stackAmount;
+                this.itemAddedSubject.notify({ 
+                    item, amount: stackAmount, gridX: pos.x, gridY: pos.y
+                });
             }
 
             return amount;
