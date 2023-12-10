@@ -433,15 +433,13 @@ export class Player {
 
         if(this.#placementCooldown.isFinished() === false) return;
 
-        const stack = this.selectedSlot?.stack; 
-
         const placement = new TilePlacement(this.world);
 
         // 'result' should contain properties 'success', 'info', and 'tile'
-        let result = placement.placeFromStack(this, stack, gridX, gridY);
-        this.selectedSlot.refreshStack();
-
+        let result = placement.placeFromStack(this, this.selectedSlot, gridX, gridY);
+        
         if(result.success) {
+            this.inventory2.container.clearEmptySlots();
             this.#placementCooldown.start();
         } 
         else {
@@ -449,7 +447,7 @@ export class Player {
         }
     }
 
-    //#region §ing methods
+    //#region Rendering methods
 
     render(ctx) {
         const anim = this.animations.getActive();

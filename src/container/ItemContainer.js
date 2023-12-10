@@ -163,6 +163,17 @@ export class ItemContainer {
         return this.slots.asArray().find(slot => (Item.isItem(slot.item, item) && !slot.isFull));
     }
 
+    /**
+     * Remove all contained stacks where amount === 0
+     */ 
+    clearEmptySlots() {
+        this.slots.forEach((stack, x, y) => {
+            if(stack && stack.amount === 0) {
+                this.slots.set(x, y, null);
+            } 
+        })
+    }
+
     #isValidGridPosition(gridX, gridY) {
         return (gridX >= 0 && gridX < this.width && 
                 gridY >= 0 && gridY < this.height)
