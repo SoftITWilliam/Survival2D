@@ -1,4 +1,5 @@
 import { Observable } from "../class/Observable.js";
+import { InputHandler } from "../game/InputHandler.js";
 import { colors } from "../graphics/colors.js";
 import { renderPath, rgb, rgba } from "../helper/canvashelper.js";
 import { padRect } from "../helper/helper.js";
@@ -54,7 +55,7 @@ export class ContainerUI {
      */
     getContainerX(camera) {
         let x = getAlignedX(camera.x, camera.width, this.getContainerWidthPx(), this.alignX);
-        return x + this.offsetX;
+        return Math.floor(x + this.offsetX);
     }
 
     /**
@@ -63,7 +64,7 @@ export class ContainerUI {
      */
     getContainerY(camera) {
         let y = getAlignedY(camera.y, camera.height, this.getContainerHeightPx(), this.alignY);
-        return y + this.offsetY;
+        return Math.floor(y + this.offsetY);
     }
 
     /**
@@ -78,6 +79,29 @@ export class ContainerUI {
         let y = this.getContainerY(camera) + (gy * this.slotSize) + py;
         return { x, y }
     }
+
+    /**
+     * @param {PlayerCamera} camera 
+     * @param {InputHandler} input 
+     */
+    getHovered(camera, input) {
+        const p = this.padding / 2;
+        const mx = input.mouse.mapX - this.getContainerX(camera) - p;
+        const my = -(input.mouse.mapY + this.getContainerY(camera)) - p;
+
+        let inRangeX = (0 <= mx && mx < this.getContainerWidthPx() - this.padding);
+        let inRangeY = (0 <= my && my < this.getContainerHeightPx() - this.padding);
+
+        if (inRangeX && inRangeY) {
+            return {
+                x: Math.floor(mx / (this.slotSize + this.padding)),
+                y: Math.floor(my / (this.slotSize + this.padding))
+            }
+        }
+        return null;
+    } 
+
+    //#region Rendering
 
     /**
      * @param {CanvasRenderingContext2D} ctx 
@@ -181,7 +205,7 @@ export class ContainerUI {
 
         Object.assign(ctx, { 
             strokeStyle: rgb(colors.uiLight), 
-            fillStyle: rgba(colors.uiLight, 0.4), 
+            fillStyle: rgba(colors.uiLight, 0.5), 
             lineWidth
         });
 
@@ -203,8 +227,17 @@ export class ContainerUI {
         }
     }
 
-    getHoveredSlot(camera) {
-        let cx = this.getContainerX(camera);
-        let cy = this.getContainerY(camera);
-    } 
+    /**
+     * @param {CanvasRenderingContext2D} ctx 
+     * @param {PlayerCamera} camera 
+     * @param {number} gx 
+     * @param {number} gy 
+     */
+    renderHoverOverlay(ctx, camera, gx, gy) {
+        const pos = this.getSlotPosition(camera, gx, gy);
+        ctx.fillStyle = 'rgba(220,230,250,0.15)';
+        ctx.fillRect(pos.x, pos.y, this.slotSize, this.slotSize);
+    }
+
+    //#endregion
 }

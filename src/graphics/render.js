@@ -74,7 +74,7 @@ export default function render(ctx, game, player) {
     } else {
         player.renderUI(ctx, game.input);
 
-        player.inventory2.render(ctx, CAMERA);
+        player.inventory2.render(ctx, CAMERA, game.input);
         //player.inventory2.renderItems(ctx, game.input);
         //player.selectedSlot.renderSelection(ctx);
         player.hotbarText.render(ctx, player);

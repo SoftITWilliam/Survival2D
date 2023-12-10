@@ -2,6 +2,8 @@ import { Observable } from "../class/Observable.js";
 import { Range } from "../class/Range.js";
 import { ContainerUI } from "../container/ContainerUI.js";
 import { ItemContainer } from "../container/ItemContainer.js";
+import { InputHandler } from "../game/InputHandler.js";
+import { canvas } from "../game/global.js";
 import { renderPath } from "../helper/canvashelper.js";
 import { padRect, validNumbers } from "../helper/helper.js";
 import { AlignmentY } from "../misc/alignment.js";
@@ -59,13 +61,21 @@ export class PlayerInventory {
     /**
      * @param {CanvasRenderingContext2D} ctx 
      * @param {PlayerCamera} camera 
+     * @param {InputHandler} input 
      */
-    render(ctx, camera) {
+    render(ctx, camera, input) {
 
         // Render full inventory
         if(this.isOpen) {
             this.ui.render(ctx, camera);
             this.ui.renderItems(ctx, camera); 
+
+            // Hover overlay
+            const hovered = this.ui.getHovered(camera, input);
+            if(hovered !== null) {
+                document.body.style.cursor = "pointer";
+                this.ui.renderHoverOverlay(ctx, camera, hovered.x, hovered.y);
+            }
         } 
         // Render hotbar only
         else {
@@ -75,6 +85,8 @@ export class PlayerInventory {
 
         this.#renderHotbarNumbers(ctx, camera);
         this.#renderSelectionIndicator(ctx, camera, this.selectedIndex);
+
+        
     }
 
     /**
