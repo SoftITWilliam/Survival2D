@@ -59,12 +59,14 @@ export class ItemContainer {
 
         if(amount >= insertStack.amount) amount = null;
 
+        const notify = (a) => this.itemInsertedSubject.notify({ item, amount: a, gridX, gridY });
+
         const existingStack = this.get(gridX, gridY)
 
         // Slot is empty
         if(existingStack === null) {
             this.slots.set(gridX, gridY, insertStack.extract(amount));
-            this.itemInsertedSubject.notify({ item, amount });
+            notify(amount);
             return insertStack.isEmpty() ? null : insertStack;
         }
 
@@ -72,14 +74,14 @@ export class ItemContainer {
         else if(Item.isItem(insertStack.item, existingStack.item)) {
             let initialAmount = existingStack.amount;
             insertStack.amount = existingStack.fill(stack.amount);
-            this.itemInsertedSubject.notify({ item, amount: existingStack.amount - initialAmount });
+            notify(existingStack.amount - initialAmount);
             return insertStack.isEmpty() ? null : insertStack;
         }
 
         // Slot contains different item. Return existing stack and insert new.
         else if(amount === null) {
             this.slots.set(x, y, insertStack);
-            this.itemInsertedSubject.notify({ item, amount });
+            notify(amount);
             return existingStack;
         }
 
@@ -118,9 +120,6 @@ export class ItemContainer {
             while(amount > 0) {
                 const pos = this.slots.positionOf(value => value === null);
                 if(pos === null) break;
-
-                console.log(pos);
-
                 let stackAmount = Math.min(amount, item.stackSize);
                 this.slots.set(pos.x, pos.y, new ItemStack(item, stackAmount));
                 amount -= stackAmount;

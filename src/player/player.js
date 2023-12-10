@@ -52,8 +52,6 @@ export const Facing = {
 export class Player {
     /** @type {EntityComponent} */
     #entity = new EntityComponent(0, 0, PLAYER_WIDTH, PLAYER_HEIGHT);
-    /** @type {number} */
-    #selectedSlotIndex = 0;
     /** @type {Cooldown} */
     #placementCooldown = new Cooldown(TILE_PLACEMENT_DELAY_MS);
     /** @type {SpriteRenderer} */
@@ -144,12 +142,14 @@ export class Player {
         this.#renderer.setSpriteSize(96);
         this.#renderer.alignY = AlignmentY.BOTTOM;
 
+        // When bumping head into ceiling, start falling immediately
         this.#entity.onBottomCollision = () => {
             this.setState(Player.States.FALLING);
         }
 
         const INPUT = this.game.input;
 
+        // Observe keypresses for player controls
         INPUT.keyDown.subscribe(({ key }) => {
             if(key === 'X') giveDevTools(this);
 
@@ -159,9 +159,9 @@ export class Player {
             else if(key === 'E') this.inventory2.toggle();
             else if(key === 'C' && this.inventory2.isOpen) this.craftingMenu.open(); 
 
-            for(const i of Range(1, this.inventory2.width)) {
-                if(i.toString() === key) {
-                    // TODO
+            for(const i of Range(0, this.inventory2.width)) {
+                if((i + 1).toString() === key) {
+                    this.inventory2.selectedIndex = i;
                 }
             }
         })
@@ -179,6 +179,15 @@ export class Player {
                     this.#moving = this.#facing = Facing.LEFT;
                 else 
                     this.#moving = null;
+            }
+        })
+
+        // Observe when items are selected
+        this.inventory2.selectionChangedSubject.subscribe((stack) => {
+            this.miningAction = null;
+            // Todo observe selectionChangedSubject in HotbarText, for less coupling
+            if(stack !== null) {
+                this.hotbarText.item = stack.item;
             }
         })
     }
@@ -235,11 +244,11 @@ export class Player {
     }
 
     get selectedSlot() {
-        return this.inventory.getSlot(this.#selectedSlotIndex, this.inventory.hotbarY);
+        return this.inventory2.container.get(this.inventory2.selectedIndex, this.inventory.hotbarY);
     }
 
     get selectedItem() {
-        return this.selectedSlot?.stack?.item ?? null;
+        return this.selectedSlot?.item ?? null;
     }
 
     get reach() {
@@ -419,28 +428,6 @@ export class Player {
     }
 
     //#endregion
-    //#region onThing methods
-
-    /**
-     * Runs when selecting a new slot or the item in the selected slot changes
-     */
-    onItemSelectionChanged() {
-        this.miningAction = null;
-        let item = this.selectedSlot?.stack?.item ?? null;
-        if(item) {
-            this.hotbarText.item = item;
-        }
-    }
-
-    //#endregion
-
-    #selectItem(index) {
-        index--;
-        if(index !== this.#selectedSlotIndex) {
-            this.#selectedSlotIndex = index;
-            this.onItemSelectionChanged();
-        }
-    }
 
     placeHeldItem(gridX, gridY) {
 

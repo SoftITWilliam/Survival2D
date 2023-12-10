@@ -1,12 +1,18 @@
+import { Observable } from "../class/Observable.js";
+import { Range } from "../class/Range.js";
 import { ContainerUI } from "../container/ContainerUI.js";
 import { ItemContainer } from "../container/ItemContainer.js";
+import { colors } from "../graphics/colors.js";
 import { renderPath } from "../helper/canvashelper.js";
-import { validNumbers } from "../helper/helper.js";
+import { padRect, validNumbers } from "../helper/helper.js";
 import { AlignmentY } from "../misc/alignment.js";
 import PlayerCamera from "./camera.js";
 
 export class PlayerInventory {
-    #selectedIndex = 1;
+    #selectedIndex = 0;
+
+    selectionChangedSubject = new Observable();
+
     /**
      * @param {number} width Inventory width (Amount of slots)
      * @param {number} height Inventory height (Amount of slots)
@@ -18,18 +24,6 @@ export class PlayerInventory {
         this.ui = new ContainerUI(this.container);
         this.ui.alignY = AlignmentY.BOTTOM;
         this.ui.offsetY = -64;
-
-        this.ui.onOpen = () => {
-            //this.ui.alignY = AlignmentY.MIDDLE;
-            //this.ui.offsetY = 0;
-        }
-
-        this.ui.onClose = () => {
-            this.ui.alignY = AlignmentY.BOTTOM;
-            this.ui.offsetY = -64;
-        }
-
-        this.selectedIndex = 0;
     }
 
     get width() { return this.container.width }
@@ -37,8 +31,12 @@ export class PlayerInventory {
 
     get selectedIndex() { return this.#selectedIndex }
     set selectedIndex(i) {
-        if(validNumbers(i) == false) throw new TypeError("Index is not a number");
-        if(i < 0 || this.width <= i) throw new RangeError(`Index '${i}' out of range (Must be 0-${this.width - 1})`)
+        if(validNumbers(i) == false) 
+            throw new TypeError("Index is not a number");
+        if(i < 0 || this.width <= i) 
+            throw new RangeError(`Index '${i}' out of range (Must be 0-${this.width - 1})`)
+        if(i !== this.#selectedIndex) 
+            this.selectionChangedSubject.notify(this.container.get(i, this.container.height - 1));
         this.#selectedIndex = i;
     }
 
@@ -48,6 +46,10 @@ export class PlayerInventory {
     open() { this.ui.open() }
     close() { this.ui.close() }
     toggle() { this.isOpen ? this.close() : this.open() }
+
+    getSelectedSlot() {
+        return this.container.get(this.#selectedIndex, this.container.height - 1);
+    }
 
     /**
      * @param {CanvasRenderingContext2D} ctx 
@@ -67,16 +69,28 @@ export class PlayerInventory {
         }
 
         this.#renderHotbarNumbers(ctx, camera);
+        this.#renderSelectionIndicator(ctx, camera, this.selectedIndex);
+    }
+
+    /**
+     * @param {CanvasRenderingContext2D} ctx 
+     * @param {PlayerCamera} camera 
+     * @param {number} slotIndex 
+     */
+    #renderSelectionIndicator(ctx, camera, slotIndex) {
+        const lineWidth = 2;
+        const { x, y } = this.ui.getSlotPosition(camera, slotIndex, this.container.height - 1);
+        const rect = { x, y, width: this.ui.slotSize, height: this.ui.slotSize }
+        padRect(rect, lineWidth / 2);
+
+        renderPath(ctx, () => {
+            Object.assign(ctx, { strokeStyle: 'rgba(220,230,250,0.5)', lineWidth });
+            ctx.rectObj(rect);
+            ctx.stroke();
+        })
     }
 
     #renderHotbarNumbers(ctx, camera) {
-
-        let hotbarRowIndex = (this.container.height - 1);
-
-        
-
-        let hotbarX = this.ui.getContainerX(camera);
-        let hotbarY = this.ui.getContainerY(camera) + this.ui.slotSize * hotbarRowIndex;
 
         Object.assign(ctx, {
             fillStyle: "rgb(100,100,100)", strokeStyle: "black", font: "18px Font1",
@@ -84,12 +98,11 @@ export class PlayerInventory {
         })
 
         const offsetPx = 6;
-
-        let y = hotbarY + offsetPx
+        const slotIndex = this.height - 1;
 
         renderPath(ctx, () => {
-            for(let i = 0; i < this.width; i++) {
-                let pos = this.ui.getSlotPosition(camera, i, hotbarRowIndex);
+            for(const i of Range(0, this.width)) {
+                let pos = this.ui.getSlotPosition(camera, i, slotIndex);
                 ctx.drawOutlinedText(i + 1, pos.x + offsetPx, pos.y + offsetPx - 2);
             }
         })

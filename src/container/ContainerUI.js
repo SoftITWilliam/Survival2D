@@ -1,7 +1,7 @@
+import { Observable } from "../class/Observable.js";
 import { colors } from "../graphics/colors.js";
 import { renderPath, rgb, rgba } from "../helper/canvashelper.js";
 import { padRect } from "../helper/helper.js";
-import Item from "../item/item.js";
 import { AlignmentX, AlignmentY, getAlignedX, getAlignedY } from "../misc/alignment.js";
 import PlayerCamera from "../player/camera.js";
 import { ItemContainer } from "./ItemContainer.js";
@@ -18,6 +18,11 @@ export class ContainerUI {
     isOpen = false;
     padding = 8;
 
+    /** Notify when UI is opened */
+    openSubject = new Observable();
+    /** Notify when UI is closed */
+    closeSubject = new Observable();
+
     /**
      * @param {ItemContainer} container 
      */
@@ -25,18 +30,14 @@ export class ContainerUI {
         this.#container = container;
     }
 
-    // Override for customization
-    onOpen() { }
-    onClose() { }
-
     open() {
         this.isOpen = true;
-        this.onOpen();
+        this.openSubject.notify();
     }
 
     close() {
         this.isOpen = false;
-        this.onClose();
+        this.closeSubject.notify();
     }
 
     getContainerX(camera) {
