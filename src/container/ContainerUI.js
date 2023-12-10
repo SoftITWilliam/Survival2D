@@ -40,18 +40,37 @@ export class ContainerUI {
         this.closeSubject.notify();
     }
 
+    getContainerWidthPx() {
+        return this.#container.width * (this.slotSize + this.padding) + this.padding;
+    }
+
+    getContainerHeightPx() {
+        return this.#container.height * (this.slotSize + this.padding) + this.padding;
+    }
+
+    /**
+     * @param {PlayerCamera} camera 
+     * @returns {number}
+     */
     getContainerX(camera) {
-        let containerWidth = this.#container.width * this.slotSize;
-        let x = getAlignedX(camera.x, camera.width, containerWidth, this.alignX);
+        let x = getAlignedX(camera.x, camera.width, this.getContainerWidthPx(), this.alignX);
         return x + this.offsetX;
     }
 
+    /**
+     * @param {PlayerCamera} camera 
+     * @returns {number}
+     */
     getContainerY(camera) {
-        let containerHeight = this.#container.height * this.slotSize;
-        let y = getAlignedY(camera.y, camera.height, containerHeight, this.alignY);
+        let y = getAlignedY(camera.y, camera.height, this.getContainerHeightPx(), this.alignY);
         return y + this.offsetY;
     }
 
+    /**
+     * @param {PlayerCamera} camera 
+     * @param {number} gx 
+     * @param {number} gy 
+     */
     getSlotPosition(camera, gx, gy) {
         let px = (gx + 1) * this.padding;
         let py = (gy + 1) * this.padding;

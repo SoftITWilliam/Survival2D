@@ -2,7 +2,6 @@ import { Observable } from "../class/Observable.js";
 import { Range } from "../class/Range.js";
 import { ContainerUI } from "../container/ContainerUI.js";
 import { ItemContainer } from "../container/ItemContainer.js";
-import { colors } from "../graphics/colors.js";
 import { renderPath } from "../helper/canvashelper.js";
 import { padRect, validNumbers } from "../helper/helper.js";
 import { AlignmentY } from "../misc/alignment.js";
@@ -23,7 +22,7 @@ export class PlayerInventory {
 
         this.ui = new ContainerUI(this.container);
         this.ui.alignY = AlignmentY.BOTTOM;
-        this.ui.offsetY = -64;
+        this.ui.offsetY = -(this.ui.slotSize / 2);
 
         this.container.itemAddedSubject.subscribe(({ item, amount, gridX, gridY }) => {
             if(gridX === this.selectedIndex && gridY === this.container.height - 1) {
