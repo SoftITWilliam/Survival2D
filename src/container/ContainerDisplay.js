@@ -1,5 +1,3 @@
-import { Observable } from "../class/Observable.js";
-import { InputHandler } from "../game/InputHandler.js";
 import { colors } from "../graphics/colors.js";
 import { renderPath, rgb, rgba } from "../helper/canvashelper.js";
 import { padRect } from "../helper/helper.js";
@@ -8,20 +6,43 @@ import PlayerCamera from "../player/camera.js";
 import { ItemContainer } from "./ItemContainer.js";
 
 export class ContainerDisplay {
+    /** @type {ItemContainer} */
     #container;
 
-    slotSize = 64;
     alignX = AlignmentX.MIDDLE;
     alignY = AlignmentY.MIDDLE;
     offsetX = 0;
     offsetY = 0;
-    padding = 8;
+
+    static SlotSizePx = 64;
+    static PaddingPx = 8;
+
+    static ItemCountTextStyle = {
+        fillStyle: 'rgb(200,205,215)', 
+        strokeStyle: 'black', 
+        font: '22px Font1',
+        textAlign: 'right', 
+        textBaseline: 'bottom', 
+        lineWidth: 3
+    }
 
     /**
      * @param {ItemContainer} container 
      */
     constructor(container) {
         this.#container = container;
+    }
+
+    get container() {
+        return this.#container;
+    }
+
+    get slotSize() {
+        return ContainerDisplay.SlotSizePx;
+    }
+
+    get padding() {
+        return ContainerDisplay.PaddingPx;
     }
 
     getContainerWidthPx() {
@@ -153,7 +174,7 @@ export class ContainerDisplay {
 
             this.renderItem(ctx, camera, gx, gy);
 
-            if(stack.item.stackSize !== 0) {
+            if(stack.item.stackSize !== 1) {
                 this.#renderItemAmount(ctx, camera, gx, gy, stack.amount);
             }
         }) 
@@ -173,10 +194,7 @@ export class ContainerDisplay {
         const pos = this.getSlotPosition(camera, gx, gy);
         const offset = 5;
 
-        Object.assign(ctx, {
-            fillStyle: 'rgb(200,205,215)', strokeStyle: 'black', font: '22px Font1',
-            textAlign: 'right', textBaseline: 'bottom', lineWidth: 3
-        })
+        Object.assign(ctx, ContainerDisplay.ItemCountTextStyle);
 
         ctx.drawOutlinedText(amount, pos.x + this.slotSize - offset, pos.y + this.slotSize - offset + 2);
     }

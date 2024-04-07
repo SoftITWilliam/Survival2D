@@ -82,8 +82,10 @@ export class Player {
         spriteHeight: 96,
     })
 
+    /** @type {Inventory} */
     inventory = new Inventory(this);
-    inventory2 = new PlayerInventory(INVENTORY_WIDTH, INVENTORY_HEIGHT);
+    /** @type {PlayerInventory} */
+    inventory2;
 
     hotbarText = new HotbarText(); 
     itemInfoDisplay = new ItemInfoDisplay(this);
@@ -137,6 +139,8 @@ export class Player {
 
         // CraftingMenu gets game property so this can't be done outside of constructor
         this.craftingMenu = new CraftingMenu(this);
+
+        this.inventory2 = new PlayerInventory(INVENTORY_WIDTH, INVENTORY_HEIGHT, game);
 
         this.#renderer = new SpriteRenderer(this.spritesheet);
         this.#renderer.setSpriteSize(96);

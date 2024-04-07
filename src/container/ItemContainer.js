@@ -33,12 +33,26 @@ export class ItemContainer {
     }
 
     /** 
+     * Return contents of the given slot
      * @param {number} gridX
      * @param {number} gridY
      * @returns {(ItemStack | Null)} 
      * */
     get(gridX, gridY) {
         return this.slots.get(gridX, gridY);
+    }
+
+    /** 
+     * Return contents of the given slot.
+     * Empties the slot if it contains items.
+     * @param {number} gridX
+     * @param {number} gridY
+     * @returns {(ItemStack | Null)} 
+     * */
+    grab(gridX, gridY) {
+        const stack = this.slots.get(gridX, gridY);
+        this.slots.clear(gridX, gridY);
+        return stack;
     }
 
     /**
@@ -65,28 +79,29 @@ export class ItemContainer {
 
         // Slot is empty
         if(existingStack === null) {
-            this.slots.set(gridX, gridY, insertStack.extract(amount));
-            notify(amount);
+            this.slots.set(gridX, gridY, insertStack.extract(amount ?? insertStack.amount));
+            notify(amount ?? insertStack.amount);
             return insertStack.isEmpty() ? null : insertStack;
         }
 
         // Same item. Fill existing stack and if there's anything left it is returned.
         else if(Item.isItem(insertStack.item, existingStack.item)) {
             let initialAmount = existingStack.amount;
-            insertStack.amount = existingStack.fill(stack.amount);
+            insertStack.amount = existingStack.fill(amount ?? insertStack.amount);
+            console.log(insertStack.amount);
             notify(existingStack.amount - initialAmount);
             return insertStack.isEmpty() ? null : insertStack;
         }
 
         // Slot contains different item. Return existing stack and insert new.
         else if(amount === null) {
-            this.slots.set(x, y, insertStack);
+            this.slots.set(gridX, gridY, insertStack);
             notify(amount);
             return existingStack;
         }
 
         // Trying to add a part of a stack into a slot with a different item does nothing
-        else return amount;
+        else return null;
     }
 
     /**

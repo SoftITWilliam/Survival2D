@@ -4,6 +4,7 @@ import { ContainerDisplay } from "../container/ContainerDisplay.js";
 import { ContainerInterface } from "../container/ContainerInterface.js";
 import { ItemContainer } from "../container/ItemContainer.js";
 import { InputHandler } from "../game/InputHandler.js";
+import { Game } from "../game/game.js";
 import { renderPath } from "../helper/canvashelper.js";
 import { padRect, validNumbers } from "../helper/helper.js";
 import { AlignmentY } from "../misc/alignment.js";
@@ -17,8 +18,9 @@ export class PlayerInventory {
     /**
      * @param {number} width Inventory width (Amount of slots)
      * @param {number} height Inventory height (Amount of slots)
+     * @param {Game} game Game object
      */
-    constructor(width, height) {
+    constructor(width, height, game) {
 
         this.container = new ItemContainer(width, height);
 
@@ -26,7 +28,7 @@ export class PlayerInventory {
         display.alignY = AlignmentY.BOTTOM;
         display.offsetY = -(display.slotSize / 2);
 
-        this.interface = new ContainerInterface();
+        this.interface = new ContainerInterface(game, game.player);
         this.interface.addDisplay(display, 'INVENTORY');
 
         this.container.itemAddedSubject.subscribe(({ item, amount, gridX, gridY }) => {
@@ -34,6 +36,15 @@ export class PlayerInventory {
                 this.selectionChangedSubject.notify(this.container.get(gridX, gridY));
             }
         })
+
+        /*
+        game.input.leftClick.subscribe(() => {
+            const slotPosition = this.ui.getHovered(game.player.camera, game.input);
+            if(slotPosition !== null) {
+                this.interface.pickUpSlotContents(slotPosition.x, slotPosition.y);
+            }
+        });
+        */
     }
 
     get width() { return this.container.width }
