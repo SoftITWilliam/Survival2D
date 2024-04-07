@@ -7,38 +7,21 @@ import { AlignmentX, AlignmentY, getAlignedX, getAlignedY } from "../misc/alignm
 import PlayerCamera from "../player/camera.js";
 import { ItemContainer } from "./ItemContainer.js";
 
-export class ContainerUI {
+export class ContainerDisplay {
     #container;
 
-    pickedUpStack = null; 
     slotSize = 64;
     alignX = AlignmentX.MIDDLE;
     alignY = AlignmentY.MIDDLE;
     offsetX = 0;
     offsetY = 0;
-    isOpen = false;
     padding = 8;
-
-    /** Notify when UI is opened */
-    openSubject = new Observable();
-    /** Notify when UI is closed */
-    closeSubject = new Observable();
 
     /**
      * @param {ItemContainer} container 
      */
     constructor(container) {
         this.#container = container;
-    }
-
-    open() {
-        this.isOpen = true;
-        this.openSubject.notify();
-    }
-
-    close() {
-        this.isOpen = false;
-        this.closeSubject.notify();
     }
 
     getContainerWidthPx() {
@@ -80,44 +63,7 @@ export class ContainerUI {
         return { x, y }
     }
 
-    /**
-     * @param {PlayerCamera} camera 
-     * @param {InputHandler} input 
-     */
-    getHovered(camera, input) {
-        const p = this.padding / 2;
-        const mx = input.mouse.mapX - this.getContainerX(camera) - p;
-        const my = -(input.mouse.mapY + this.getContainerY(camera)) - p;
-
-        let inRangeX = (0 <= mx && mx < this.getContainerWidthPx() - this.padding);
-        let inRangeY = (0 <= my && my < this.getContainerHeightPx() - this.padding);
-
-        if (inRangeX && inRangeY) {
-            return {
-                x: Math.floor(mx / (this.slotSize + this.padding)),
-                y: Math.floor(my / (this.slotSize + this.padding))
-            }
-        }
-        return null;
-    } 
-
     //#region Rendering
-
-    /**
-     * @param {CanvasRenderingContext2D} ctx 
-     * @param {PlayerCamera} camera 
-     * @param {number} sx 
-     * @param {number} sy 
-     */
-    renderSelectionOutline(ctx, camera, sx, sy) {
-        const containerX = this.getContainerX(camera);
-        const containerY = this.getContainerY(camera);
-
-        let x = containerX + (sx * this.slotSize);
-        let y = containerY + (sy * this.slotSize);
-
-        ctx.fillRect(x, y, this.slotSize, this.slotSize);
-    }
 
     /**
      * @param {CanvasRenderingContext2D} ctx
@@ -156,6 +102,42 @@ export class ContainerUI {
     }
 
     /**
+     * @param {CanvasRenderingContext2D} ctx 
+     * @param {PlayerCamera} camera 
+     * @param {number} sx 
+     * @param {number} sy 
+     */
+    renderSlotOutline(ctx, camera, sx, sy) {
+        const containerX = this.getContainerX(camera);
+        const containerY = this.getContainerY(camera);
+
+        let x = containerX + (sx * this.slotSize);
+        let y = containerY + (sy * this.slotSize);
+
+        const lineWidth = 2;
+        const rect = { x, y, width: this.slotSize, height: this.slotSize }
+        padRect(rect, lineWidth / 2);
+
+        renderPath(ctx, () => {
+            Object.assign(ctx, { strokeStyle: 'rgba(220,230,250,0.5)', lineWidth });
+            ctx.rectObj(rect);
+            ctx.stroke();
+        })
+    }
+
+    /**
+     * @param {CanvasRenderingContext2D} ctx 
+     * @param {PlayerCamera} camera 
+     * @param {number} gx 
+     * @param {number} gy 
+     */
+    renderSlotHighlight(ctx, camera, gx, gy) {
+        const pos = this.getSlotPosition(camera, gx, gy);
+        ctx.fillStyle = 'rgba(220,230,250,0.15)';
+        ctx.fillRect(pos.x, pos.y, this.slotSize, this.slotSize);
+    }
+
+    /**
      * @param {CanvasRenderingContext2D} ctx
      * @param {PlayerCamera} camera
      * @param {number} [x] Section X (When drawing part of grid only)
@@ -183,7 +165,7 @@ export class ContainerUI {
 
         let size = stack.size;
         let offset = (this.slotSize / 2) - size / 2;
-        
+
         stack.item.render(ctx, pos.x + offset, pos.y + offset, size, size);
     }
 
@@ -225,18 +207,6 @@ export class ContainerUI {
                 ctx.stroke();
             })
         }
-    }
-
-    /**
-     * @param {CanvasRenderingContext2D} ctx 
-     * @param {PlayerCamera} camera 
-     * @param {number} gx 
-     * @param {number} gy 
-     */
-    renderHoverOverlay(ctx, camera, gx, gy) {
-        const pos = this.getSlotPosition(camera, gx, gy);
-        ctx.fillStyle = 'rgba(220,230,250,0.15)';
-        ctx.fillRect(pos.x, pos.y, this.slotSize, this.slotSize);
     }
 
     //#endregion

@@ -1,9 +1,9 @@
 import { Observable } from "../class/Observable.js";
 import { Range } from "../class/Range.js";
-import { ContainerUI } from "../container/ContainerUI.js";
+import { ContainerDisplay } from "../container/ContainerDisplay.js";
+import { ContainerInterface } from "../container/ContainerInterface.js";
 import { ItemContainer } from "../container/ItemContainer.js";
 import { InputHandler } from "../game/InputHandler.js";
-import { canvas } from "../game/global.js";
 import { renderPath } from "../helper/canvashelper.js";
 import { padRect, validNumbers } from "../helper/helper.js";
 import { AlignmentY } from "../misc/alignment.js";
@@ -22,9 +22,12 @@ export class PlayerInventory {
 
         this.container = new ItemContainer(width, height);
 
-        this.ui = new ContainerUI(this.container);
-        this.ui.alignY = AlignmentY.BOTTOM;
-        this.ui.offsetY = -(this.ui.slotSize / 2);
+        const display = new ContainerDisplay(this.container);
+        display.alignY = AlignmentY.BOTTOM;
+        display.offsetY = -(display.slotSize / 2);
+
+        this.interface = new ContainerInterface();
+        this.interface.addDisplay(display, 'INVENTORY');
 
         this.container.itemAddedSubject.subscribe(({ item, amount, gridX, gridY }) => {
             if(gridX === this.selectedIndex && gridY === this.container.height - 1) {
@@ -47,11 +50,11 @@ export class PlayerInventory {
         this.#selectedIndex = i;
     }
 
-    get isOpen() { return this.ui.isOpen }
+    get isOpen() { return this.interface.isOpen }
     
 
-    open() { this.ui.open() }
-    close() { this.ui.close() }
+    open() { this.interface.open() }
+    close() { this.interface.close() }
     toggle() { this.isOpen ? this.close() : this.open() }
 
     getSelectedSlot() {
@@ -65,28 +68,23 @@ export class PlayerInventory {
      */
     render(ctx, camera, input) {
 
+        const display = this.interface.getDisplay('INVENTORY');
+
         // Render full inventory
         if(this.isOpen) {
-            this.ui.render(ctx, camera);
-            this.ui.renderItems(ctx, camera); 
+            this.interface.render(ctx, camera, input);
 
             // Hover overlay
-            const hovered = this.ui.getHovered(camera, input);
-            if(hovered !== null) {
-                document.body.style.cursor = "pointer";
-                this.ui.renderHoverOverlay(ctx, camera, hovered.x, hovered.y);
-            }
+            const hovered = this.interface.getHovered(camera, input);
         } 
         // Render hotbar only
         else {
-            this.ui.render(ctx, camera, 0, this.height - 1, this.width, 1);
-            this.ui.renderItems(ctx, camera, 0, this.height - 1, this.width, 1); 
+            display.render(ctx, camera, 0, this.height - 1, this.width, 1);
+            display.renderItems(ctx, camera, 0, this.height - 1, this.width, 1); 
         }
 
         this.#renderHotbarNumbers(ctx, camera);
         this.#renderSelectionIndicator(ctx, camera, this.selectedIndex);
-
-        
     }
 
     /**
@@ -95,9 +93,10 @@ export class PlayerInventory {
      * @param {number} slotIndex 
      */
     #renderSelectionIndicator(ctx, camera, slotIndex) {
+        const display = this.interface.getDisplay('INVENTORY');
         const lineWidth = 2;
-        const { x, y } = this.ui.getSlotPosition(camera, slotIndex, this.container.height - 1);
-        const rect = { x, y, width: this.ui.slotSize, height: this.ui.slotSize }
+        const { x, y } = display.getSlotPosition(camera, slotIndex, this.container.height - 1);
+        const rect = { x, y, width: display.slotSize, height: display.slotSize }
         padRect(rect, lineWidth / 2);
 
         renderPath(ctx, () => {
@@ -108,6 +107,7 @@ export class PlayerInventory {
     }
 
     #renderHotbarNumbers(ctx, camera) {
+        const display = this.interface.getDisplay('INVENTORY');
 
         Object.assign(ctx, {
             fillStyle: "rgb(100,100,100)", strokeStyle: "black", font: "18px Font1",
@@ -119,7 +119,7 @@ export class PlayerInventory {
 
         renderPath(ctx, () => {
             for(const i of Range(0, this.width)) {
-                let pos = this.ui.getSlotPosition(camera, i, slotIndex);
+                let pos = display.getSlotPosition(camera, i, slotIndex);
                 ctx.drawOutlinedText(i + 1, pos.x + offsetPx, pos.y + offsetPx - 2);
             }
         })
