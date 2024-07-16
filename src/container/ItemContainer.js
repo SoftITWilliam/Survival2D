@@ -56,10 +56,13 @@ export class ItemContainer {
     }
 
     /**
-     * 
+     * Try to insert a stack of items into a specific slot of the container.
+     * If the inserted stack replaces an existing stack, the existing stack is returned.
+     * If not all items are inserted (ex. the stack ends up full), the leftovers are returned
+     * Returns null if all items are inserted.
      * @param {number} gridX 
      * @param {number} gridY 
-     * @param {ItemStack} insertStack 
+     * @param {ItemStack} insertStack Stack being inserted
      * @param {number} [amount] Amount to insert from the stack. If unset, attempt to insert the entire stack.
      * @returns {(ItemStack | null)}
      */
@@ -87,8 +90,15 @@ export class ItemContainer {
         // Same item. Fill existing stack and if there's anything left it is returned.
         else if(Item.isItem(insertStack.item, existingStack.item)) {
             let initialAmount = existingStack.amount;
-            insertStack.amount = existingStack.fill(amount ?? insertStack.amount);
-            console.log(insertStack.amount);
+
+            if(amount != null) {
+                // 'leftover' is 0 unless the stack is full
+                var leftover = existingStack.fill(amount ?? insertStack.amount);
+                insertStack.amount -= amount + leftover;
+            }
+            else {
+                insertStack.amount =  existingStack.fill(insertStack.amount);
+            }
             notify(existingStack.amount - initialAmount);
             return insertStack.isEmpty() ? null : insertStack;
         }
