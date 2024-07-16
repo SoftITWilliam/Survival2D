@@ -3,20 +3,22 @@ import { TILE_SIZE } from "../game/global.js";
 import { Tile } from "../tile/Tile.js";
 import { PositionComponent } from "./positionComponent.js";
 import { getPhysicsMultiplier, objectHasProperties, validNumbers } from "../helper/helper.js";
+import { Observable } from "../class/Observable.js";
 
 export class EntityComponent extends PositionComponent {
+    dx = 0;
+    dy = 0;
+    grounded = false;
+    gravity = 0.35;
+
+    // Observables for customizing behaviour in classes using this component
+    topCollisionSubject = new Observable();
+    bottomCollisionSubject = new Observable();
+    leftCollisionSubject = new Observable();
+    rightCollisionSubject = new Observable();
+
     constructor(x = 0, y = 0, width = 0, height = null) {
         super(x, y, width, height ?? width);
-        this.dx = 0;
-        this.dy = 0;
-        this.grounded = false;
-        this.gravity = 0.35;
-
-        // Callbacks for customizing behaviour in classes using this component
-        this.onTopCollision = (tile) => { }
-        this.onBottomCollision = (tile) => { }
-        this.onLeftCollision = (tile) => { }
-        this.onRightCollision = (tile) => { }
     }
 
     /**
@@ -88,31 +90,43 @@ export class EntityComponent extends PositionComponent {
 
     // Runs when colliding with the top side of a solid tile
     topCollision(tile) {
+        const velocity = this.dy;
         this.grounded = true;
         this.dy = 0;
         this.y = tile.y - this.height;
-        this.onTopCollision(tile);
+        if(velocity !== 0) {
+            this.topCollisionSubject.notify({ tile, velocity });
+        }
     }
 
     // Runs when colliding with the bottom side of a solid tile
     bottomCollision(tile) {
+        const velocity = this.dy;
         this.dy = 0;
         this.y = tile.y2;
-        this.onBottomCollision(tile);
+        if(velocity !== 0) {
+            this.bottomCollisionSubject.notify({ tile, velocity });
+        }
     }
 
     // Runs when colliding with the left side of a solid tile
     leftCollision(tile) {
+        const velocity = this.dx;
         this.dx = 0;
         this.x = tile.x - this.width;
-        this.onLeftCollision(tile);
+        if(velocity !== 0) {
+            this.leftCollisionSubject.notify({ tile, velocity });
+        }
     }
 
     // Runs when colliding with the right side of a solid tile
     rightCollision(tile) {
+        const velocity = this.dx;
         this.dx = 0;
         this.x = tile.x2;
-        this.onRightCollision(tile);
+        if(velocity !== 0) {
+            this.rightCollisionSubject.notify({ tile, velocity });
+        }
     }
 
     // Check collision of tiles within a 2 block radius

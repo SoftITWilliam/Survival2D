@@ -1,7 +1,7 @@
 import { INVENTORY_HEIGHT, INVENTORY_WIDTH, TILE_SIZE } from '../game/global.js';
 import { Inventory } from '../ui/inventory.js';
 import MiningAction from './mining.js';
-import { PlayerStatBar } from './statBar.js';
+import { StatBar, StatBarRenderer } from './statBar.js';
 import { HotbarText } from '../ui/HotbarText.js';
 import PlayerCamera from './camera.js';
 import ItemInfoDisplay from '../ui/itemInfo.js';
@@ -35,6 +35,7 @@ const PLAYER_DEFAULT_REACH = 3;
 const PLAYER_ACCELERATION = 0.5;
 const PLAYER_DECELERATION = 0.7;
 const PLAYER_WALKING_SPEED = 5;
+const PLAYER_FALL_DAMAGE_THRESHOLD = 15;
 
 /**
  * @readonly
@@ -74,7 +75,7 @@ export class Player {
     uiRenderSubject = new Observable();
 
     // Currently unused
-    health = new PlayerStatBar(50, 45);
+    health = new StatBar(50, 50, new StatBarRenderer());
 
     spritesheet = new Spritesheet({
         source: sprites.entities.player,
@@ -147,9 +148,18 @@ export class Player {
         this.#renderer.alignY = AlignmentY.BOTTOM;
 
         // When bumping head into ceiling, start falling immediately
-        this.#entity.onBottomCollision = () => {
+        this.#entity.bottomCollisionSubject.subscribe(({ tile, velocity }) => {
             this.setState(Player.States.FALLING);
-        }
+        });
+
+        // Get velocity to calculate fall damage
+        this.#entity.topCollisionSubject.subscribe(({ tile, velocity }) => {
+            if(velocity > PLAYER_FALL_DAMAGE_THRESHOLD) {
+                const excess = velocity - PLAYER_FALL_DAMAGE_THRESHOLD;
+                const damage = Math.round(excess * 2);
+                this.health.decreaseBy(damage);
+            }
+        });
 
         const INPUT = this.game.input;
 

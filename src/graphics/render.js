@@ -6,6 +6,7 @@ import { rgbm } from '../helper/canvashelper.js';
 import { Tile } from '../tile/Tile.js';
 import { Player } from '../player/player.js';
 import { renderMiningProgress } from '../player/mining.js';
+import { StatBarRenderer } from '../player/statBar.js';
 
 /**
  * Renders everything in the game
@@ -65,9 +66,11 @@ export default function render(ctx, game, player) {
 
     /* === Render UI === */
 
-    //renderStatBar(ctx, "health", player.health.max, player.health.current, "rgb(220,60,50)", 16, player);
-    //renderStatBar(ctx, "hunger",player.hunger.max,player.hunger.current,"rgb(180,120,100)",72);
-    //renderStatBar(ctx, "thirst",player.thirst.max,player.thirst.current,"rgb(80,160,220)",128);
+    player.health.renderer.barColor = 'rgba(220, 60, 50)';
+    player.health.renderer.offsetX = -20;
+    player.health.renderer.offsetY = 20;
+    player.health.renderer.width = 400;
+    player.health.renderer.render(ctx, player.health.max, player.health.value, CAMERA);
 
     if(player.craftingMenu.isOpen) {
         player.craftingMenu.render(ctx, CAMERA.x, CAMERA.y, game.input);
