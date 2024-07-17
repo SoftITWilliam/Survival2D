@@ -1,7 +1,7 @@
 import { INVENTORY_HEIGHT, INVENTORY_WIDTH, TILE_SIZE } from '../game/global.js';
 import { Inventory } from '../ui/inventory.js';
 import MiningAction from './mining.js';
-import { StatBar, StatBarRenderer } from './statBar.js';
+import { StatBar } from './statBar.js';
 import { HotbarText } from '../ui/HotbarText.js';
 import PlayerCamera from './camera.js';
 import ItemInfoDisplay from '../ui/itemInfo.js';
@@ -75,7 +75,7 @@ export class Player {
     uiRenderSubject = new Observable();
 
     // Currently unused
-    health = new StatBar(50, 50, new StatBarRenderer());
+    health = new StatBar(50, 50);
 
     spritesheet = new Spritesheet({
         source: sprites.entities.player,

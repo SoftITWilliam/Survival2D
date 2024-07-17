@@ -1,22 +1,25 @@
 
-import { canvas, RENDER_LIGHTING, DEBUG_MODE, TILE_SIZE } from '../game/global.js';
+import { RENDER_LIGHTING, DEBUG_MODE, TILE_SIZE } from '../game/global.js';
 import { Game } from '../game/game.js';
 import { calculateDistance, clamp } from '../helper/helper.js';
 import { rgbm } from '../helper/canvashelper.js';
 import { Tile } from '../tile/Tile.js';
-import { Player } from '../player/player.js';
 import { renderMiningProgress } from '../player/mining.js';
-import { StatBarRenderer } from '../player/statBar.js';
+import { GUIRenderContext } from './guiRenderer.js';
 
 /**
  * Renders everything in the game
  * @param {CanvasRenderingContext2D} ctx 
  * @param {Game} game 
- * @param {Player} player 
  */
-export default function render(ctx, game, player) {
+export default function render(ctx, game) {
 
-    const CAMERA = player.camera;
+    const PLAYER = game.player;
+    const CAMERA = game.player.camera;
+    const GUI = game.guiRenderer;
+    const WORLD = game.world;
+    const INPUT = game.input;
+    const GUI_CONTEXT = GUIRenderContext(ctx, game);
 
     ctx.save();
     ctx.translate(-CAMERA.x, -CAMERA.y);
@@ -26,11 +29,11 @@ export default function render(ctx, game, player) {
 
     let vW = Math.ceil(CAMERA.width / TILE_SIZE / 2 + 1) * 2;
     let vH = Math.ceil(CAMERA.height / TILE_SIZE / 2 + 1) * 2;
-    let vX = clamp(player.gridX - vW / 2, 0, game.world.width - vW);
-    let vY = clamp(player.gridY - vH / 2, 0, game.world.height - vH);
+    let vX = clamp(PLAYER.gridX - vW / 2, 0, WORLD.width - vW);
+    let vY = clamp(PLAYER.gridY - vH / 2, 0, WORLD.height - vH);
 
-    const visibleWalls = game.world.walls.asArray(vX, vY, vW, vH, true);
-    const visibleTiles = game.world.tiles.asArray(vX, vY, vW, vH, true);
+    const visibleWalls = WORLD.walls.asArray(vX, vY, vW, vH, true);
+    const visibleTiles = WORLD.tiles.asArray(vX, vY, vW, vH, true);
 
     // Walls
     visibleWalls.forEach(wall => wall.render(ctx));
@@ -39,54 +42,47 @@ export default function render(ctx, game, player) {
     visibleTiles.filter(tile => tile.type != Tile.types.SOLID).forEach(tile => tile.render(ctx));
     
     // Player
-    player.render(ctx);
+    PLAYER.render(ctx);
 
     // Solid Tiles
     visibleTiles.filter(tile => tile.type == Tile.types.SOLID).forEach(tile => tile.render(ctx));
 
     // Mining progress
-    if(player.miningAction !== null) {
-        renderMiningProgress(ctx, player.miningAction.tile, player.miningAction.progressDecimal);
+    if(PLAYER.miningAction !== null) {
+        renderMiningProgress(ctx, PLAYER.miningAction.tile, PLAYER.miningAction.progressDecimal);
     }
 
-    player.renderPlacementPreview(ctx, game.input);
+    PLAYER.renderPlacementPreview(ctx, INPUT);
 
     // Item entities
-    game.world.itemEntities.render(ctx, CAMERA, game.input);
+    WORLD.itemEntities.render(ctx, CAMERA, INPUT);
 
     // Lighting
     if(RENDER_LIGHTING) {  
-        game.world.lighting.render(ctx, CAMERA);
+        WORLD.lighting.render(ctx, CAMERA);
     }
 
     // Tile hover effect
-    if(player.inventory2.isOpen == false) {
-        renderHoverEffect(ctx, game, game.input);
+    if(PLAYER.inventory2.isOpen == false) {
+        renderHoverEffect(GUI_CONTEXT);
     }
 
     /* === Render UI === */
 
-    player.health.renderer.barColor = 'rgba(220, 60, 50)';
-    player.health.renderer.offsetX = -20;
-    player.health.renderer.offsetY = 20;
-    player.health.renderer.width = 400;
-    player.health.renderer.render(ctx, player.health.max, player.health.value, CAMERA);
+    GUI.renderStats(GUI_CONTEXT);
 
-    if(player.craftingMenu.isOpen) {
-        player.craftingMenu.render(ctx, CAMERA.x, CAMERA.y, game.input);
+    if(PLAYER.craftingMenu.isOpen) {
+        PLAYER.craftingMenu.render(ctx, CAMERA.x, CAMERA.y, INPUT);
     } else {
-        player.renderUI(ctx, game.input);
-
-        player.inventory2.render(ctx, CAMERA, game.input);
-        //player.inventory2.renderItems(ctx, game.input);
-        //player.selectedSlot.renderSelection(ctx);
-        player.hotbarText.render(ctx, player);
-        player.itemInfoDisplay.render(ctx, game.input);
+        PLAYER.renderUI(ctx, game.input);
+        PLAYER.inventory2.render(ctx, CAMERA, INPUT);
+        PLAYER.hotbarText.render(ctx, PLAYER);
+        PLAYER.itemInfoDisplay.render(ctx, INPUT);
     }
     
     // Debug UI
     if(DEBUG_MODE) {
-        game.debugUI.render(ctx, game);
+        GUI.renderDebugInfo(GUI_CONTEXT);
     }
 
     ctx.restore();
@@ -107,30 +103,33 @@ function renderSky(ctx, camera) {
     ctx.fillRectObj(camera);
 }
 
-function renderHoverEffect(ctx, game, input) {
-    let tile = game.world.tiles.get(input.mouse.gridX, input.mouse.gridY);
-    let wall = game.world.walls.get(input.mouse.gridX, input.mouse.gridY);
+/**
+ * @param {GUIRenderContext} context 
+ */
+function renderHoverEffect({ CTX, GAME, PLAYER, INPUT, WORLD }) {
+    let tile = WORLD.tiles.get(INPUT.mouse.gridX, INPUT.mouse.gridY);
+    let wall = WORLD.walls.get(INPUT.mouse.gridX, INPUT.mouse.gridY);
 
     // Check if player is able to interact with tile or wall using the tool they're currently holding
     let obj;
-    if(tile && tile.canBeMined(game.player.selectedItem, game.world)) {
+    if(tile && tile.canBeMined(PLAYER.selectedItem, WORLD)) {
         obj = tile;
-    } else if(wall && wall.canBeMined(game.player.selectedItem, game.world)) {
+    } else if(wall && wall.canBeMined(PLAYER.selectedItem, WORLD)) {
         obj = wall;
     } else {
         return;
     }
 
-    ctx.beginPath();
+    CTX.beginPath();
 
     // Different look depending on if tile is in range or not
-    let styling = calculateDistance(game.player,obj) > game.player.reach ?
+    const styling = calculateDistance(PLAYER, obj) > PLAYER.reach ?
         { lineWidth: 1, strokeStyle: "rgba(255,255,255,0.25)", fillStyle: "rgba(0,0,0,0)" } :
         { lineWidth: 3, strokeStyle: "rgba(255,255,255,0.5)", fillStyle: "rgba(255,255,255,0.05)" }
 
-    Object.assign(ctx, styling);
+    Object.assign(CTX, styling);
     
-    ctx.rectObj(obj);
-    ctx.stroke();
-    ctx.fill();
+    CTX.rectObj(obj);
+    CTX.stroke();
+    CTX.fill();
 }

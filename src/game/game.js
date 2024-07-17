@@ -6,13 +6,14 @@ import FPSCounter from "../graphics/FPScounter.js";
 import { InputHandler } from "./InputHandler.js";
 import { Testing } from "../tests/testing.js";
 import PlacementPreview from "../ui/placementPreview.js";
-import { DebugUI } from "../ui/debugUI.js";
 import { Observable } from "../class/Observable.js";
 import { PickupLabelManager } from "../ui/PickupLabelManager.js";
+import { GUIRenderer } from "../graphics/guiRenderer.js";
+import render from "../graphics/render.js";
 
 export class Game {
     deltaTime = 0;
-    #fpsCounter = new FPSCounter();
+    fpsCounter = new FPSCounter();
     gameUpdateSubject = new Observable();
 
     constructor() {
@@ -28,23 +29,8 @@ export class Game {
         this.player.itemPickupSubject.subscribe(args => labelManager.add(args));
         this.player.uiRenderSubject.subscribe(args => labelManager.render(args));
 
+        this.guiRenderer = new GUIRenderer(this);
         this.testing = new Testing(this);
-
-        const hoveredTile = () => (
-            this.world.tiles.get(this.input.mouse.gridX, this.input.mouse.gridY)
-        );
-
-        this.debugUI = new DebugUI()
-            .addInfoRow("FPS", () => this.#fpsCounter.display)
-            .addInfoRow("Entity Count", () => this.world.itemEntities.count)
-            .addInfoRow("Player Pos", () => ({ x: this.player.gridX, y: this.player.gridY }))
-            .addInfoRow("Player State", () => this.player.state.name)
-            .addInfoRow("Mouse Pos", () => ({ x: this.input.mouse.gridX, y: this.input.mouse.gridY }))
-            .addInfoRow("Tile Type", () => hoveredTile()?.registryName)
-            .addInfoRow("Tile variant", () => hoveredTile()?.spriteVariantName);
-
-        this.debugUI.fontSizePx = 22;
-        this.debugUI.rowHeightPx = 36;
     }
 
     update(deltaTime) {
@@ -56,7 +42,7 @@ export class Game {
         this.gameUpdateSubject.notify({ deltaTime, input: this.input });
 
         this.world.tickCounter();
-        this.#fpsCounter.increment();
+        this.fpsCounter.increment();
         this.player.update(deltaTime, this.input);
         this.player.craftingMenu.ui.update();
        
@@ -64,5 +50,9 @@ export class Game {
 
         this.world.itemEntities.update(deltaTime, this.world);
         this.world.itemEntities.updatePickup(this.player);
+    }
+
+    render(ctx) {
+        render(ctx, this);
     }
 }

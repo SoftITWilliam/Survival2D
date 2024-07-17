@@ -27,6 +27,6 @@ function gameLoop(timestamp) {
     previousTime = timestamp;
 
     game.update(deltaTime);
-    render(ctx, game, game.player);
+    game.render(ctx);
     window.requestAnimationFrame(gameLoop);
 }
