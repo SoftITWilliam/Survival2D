@@ -1,5 +1,4 @@
 import { INVENTORY_HEIGHT, INVENTORY_WIDTH, TILE_SIZE } from '../game/global.js';
-import { Inventory } from '../ui/inventory.js';
 import MiningAction from './mining.js';
 import { StatBar } from './statBar.js';
 import { HotbarText } from '../ui/HotbarText.js';
@@ -83,10 +82,8 @@ export class Player {
         spriteHeight: 96,
     })
 
-    /** @type {Inventory} */
-    inventory = new Inventory(this);
     /** @type {PlayerInventory} */
-    inventory2;
+    inventory;
 
     hotbarText = new HotbarText(); 
     itemInfoDisplay = new ItemInfoDisplay(this);
@@ -141,7 +138,7 @@ export class Player {
         // CraftingMenu gets game property so this can't be done outside of constructor
         this.craftingMenu = new CraftingMenu(this);
 
-        this.inventory2 = new PlayerInventory(INVENTORY_WIDTH, INVENTORY_HEIGHT, game);
+        this.inventory = new PlayerInventory(INVENTORY_WIDTH, INVENTORY_HEIGHT, game);
 
         this.#renderer = new SpriteRenderer(this.spritesheet);
         this.#renderer.setSpriteSize(96);
@@ -170,12 +167,12 @@ export class Player {
             else if(key === 'A') this.#moving = this.#facing = Facing.LEFT;
             else if(key === 'D') this.#moving = this.#facing = Facing.RIGHT;
             
-            else if(key === 'E') this.inventory2.toggle();
-            else if(key === 'C' && this.inventory2.isOpen) this.craftingMenu.open(); 
+            else if(key === 'E') this.inventory.toggle();
+            else if(key === 'C' && this.inventory.isOpen) this.craftingMenu.open(); 
 
-            for(const i of Range(0, this.inventory2.width)) {
+            for(const i of Range(0, this.inventory.width)) {
                 if((i + 1).toString() === key) {
-                    this.inventory2.selectedIndex = i;
+                    this.inventory.selectedIndex = i;
                 }
             }
         })
@@ -197,7 +194,7 @@ export class Player {
         })
 
         // Observe when items are selected
-        this.inventory2.selectionChangedSubject.subscribe((stack) => {
+        this.inventory.selectionChangedSubject.subscribe((stack) => {
             this.miningAction = null;
             // Todo observe selectionChangedSubject in HotbarText, for less coupling
             if(stack !== null) {
@@ -258,7 +255,7 @@ export class Player {
     }
 
     get selectedSlot() {
-        return this.inventory2.container.get(this.inventory2.selectedIndex, this.inventory.hotbarY);
+        return this.inventory.container.get(this.inventory.selectedIndex, this.inventory.height - 1); // ??
     }
 
     get selectedItem() {
@@ -304,7 +301,7 @@ export class Player {
         this.animations.getActive()?.update(deltaTime);
 
         // Tile interaction
-        if(input.mouse.click && !this.inventory2.isOpen) {
+        if(input.mouse.click && !this.inventory.isOpen) {
 
             if(this.selectedItem && this.selectedItem.placeable) {
                 this.placeHeldItem(input.mouse.gridX, input.mouse.gridY);
@@ -429,7 +426,7 @@ export class Player {
      */
     pickUpItem(stack) {
         let initialAmount = stack.amount;
-        let remaining = this.inventory2.container.addItem(stack)?.amount;
+        let remaining = this.inventory.container.addItem(stack)?.amount;
         stack.amount = remaining ?? 0;
 
         if(initialAmount != stack.amount) {
@@ -453,7 +450,7 @@ export class Player {
         let result = placement.placeFromStack(this, this.selectedSlot, gridX, gridY);
         
         if(result.success) {
-            this.inventory2.container.clearEmptySlots();
+            this.inventory.container.clearEmptySlots();
             this.#placementCooldown.start();
         } 
         else {

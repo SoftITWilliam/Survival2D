@@ -63,7 +63,7 @@ export default function render(ctx, game) {
     }
 
     // Tile hover effect
-    if(PLAYER.inventory2.isOpen == false) {
+    if(PLAYER.inventory.isOpen == false) {
         renderHoverEffect(GUI_CONTEXT);
     }
 
@@ -75,7 +75,7 @@ export default function render(ctx, game) {
         PLAYER.craftingMenu.render(ctx, CAMERA.x, CAMERA.y, INPUT);
     } else {
         PLAYER.renderUI(ctx, game.input);
-        PLAYER.inventory2.render(ctx, CAMERA, INPUT);
+        PLAYER.inventory.render(ctx, CAMERA, INPUT);
         PLAYER.hotbarText.render(ctx, PLAYER);
         PLAYER.itemInfoDisplay.render(ctx, INPUT);
     }
