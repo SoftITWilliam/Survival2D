@@ -124,7 +124,6 @@ export class TileModel {
     removeFromWorld(tile) {
         let grid = (this.type == Tile.types.WALL) ? tile.world.walls : tile.world.tiles;
         grid.clear(tile.gridX, tile.gridY);
-        tile.world.updateNearbyTiles(tile.gridX, tile.gridY);
     }
 
     /**

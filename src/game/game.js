@@ -50,6 +50,7 @@ export class Game {
 
         this.world.itemEntities.update(deltaTime, this.world);
         this.world.itemEntities.updatePickup(this.player);
+        this.world.lighting.update();
     }
 
     render(ctx) {

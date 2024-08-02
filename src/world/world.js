@@ -11,17 +11,17 @@ import Structure from '../structure/structure.js';
 import { Game } from '../game/game.js';
 import ItemEntityManager from '../item/itemEntityManager.js';
 import MiningAction from '../player/mining.js';
+import { Observable } from '../class/Observable.js';
 
 export class World {
     /** @type {Grid} */
     #tilemap;
     /** @type {Grid} */
     #wallmap;
-    /** @type {WorldGeneration} */
+
     #worldGen = new WorldGeneration(this);
 
-    /** @type {WorldLighting} */
-    lighting = new WorldLighting(this);
+    tileUpdateObservable = new Observable();
 
     /** @type {Structure[]} */
     structures = [];
@@ -30,7 +30,7 @@ export class World {
     ticksPerSecond = 10;
 
     itemEntities = new ItemEntityManager();
-    
+
     /**
      * @param {Game} game 
      * @param {number} width World width in tiles
@@ -41,13 +41,20 @@ export class World {
         /** @type {Game} */
         this.game = game; // todo: get rid of the need to store a reference to game
 
+        /** @type {WorldLighting} */
+        this.lighting = new WorldLighting(this);
+
         this.#tilemap = new Grid(width, height);
         this.#wallmap = new Grid(width, height);
 
         MiningAction.tileMinedSubject.subscribe(({ tile, item }) => {
             tile.break(item);
-            this.lighting.update();
-        })
+            this.tileUpdateObservable.notify({ x: tile.gridX, y: tile.gridY });
+        });
+
+        this.tileUpdateObservable.subscribe(({ x, y }) => {
+            this.updateNearbyTiles(x, y); 
+        });
     }
 
     /**
@@ -223,6 +230,13 @@ export class World {
         }
     }
 
+    /**
+     * @param {Tile} tile 
+     */
+    handlePlacedTile(tile) {
+        this.tileUpdateObservable.notify({ x: tile.gridX, y: tile.gridY });
+    }
+    
     //#endregion
 
     //#region | Utils

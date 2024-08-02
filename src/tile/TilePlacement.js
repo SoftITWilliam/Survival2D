@@ -91,16 +91,11 @@ export class TilePlacement {
                 return placementResult(false, "Somehow, despite passing all checks and validation, no tile was placed.");
             }
 
-            this.#onSuccessfulPlacement(placedTile, player);
+            this.world.handlePlacedTile(placedTile);
             return placementResult(true, "", placedTile);
         }
         catch(error) {
             return placementResult(false, "An error occured: " + error);
         }
-    }
-
-    #onSuccessfulPlacement(tile, player) {
-        this.world.updateNearbyTiles(tile.gridX, tile.gridY);
-        this.world.lighting.update(player);
     }
 }
