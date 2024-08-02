@@ -1,6 +1,5 @@
 import { canvas, ctx } from "./global.js";
 import { Game } from "./game.js";
-import render from "../graphics/render.js";
 import { spawnPlayerInWorld } from "../player/player.js";
 import { autoResizeCanvas } from "../misc/canvasSize.js";
 import { loadGame } from "./load.js";
@@ -15,15 +14,16 @@ window.onload = init();
 
 async function init() {
     game = new Game();
-    await loadGame(game);
-    game.testing.run();
-    spawnPlayerInWorld(game.player, game.world);
-    window.requestAnimationFrame(gameLoop);
+    loadGame(game, () => {
+        game.testing.run();
+        spawnPlayerInWorld(game.player, game.world);
+        window.requestAnimationFrame(gameLoop);
+    });
 }
 
 function gameLoop(timestamp) {
     // Calculate time since last frame
-    const deltaTime = timestamp - previousTime
+    const deltaTime = previousTime > 0 ? timestamp - previousTime : 0;
     previousTime = timestamp;
 
     game.update(deltaTime);

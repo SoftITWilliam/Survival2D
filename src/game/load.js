@@ -1,35 +1,40 @@
 import { loadAssets } from "../graphics/assets.js";
 import { timer } from "../helper/helper.js";
+import { Game } from "./game.js";
 
-const $overlay = $(".loading-overlay");
-const $overlayText = $overlay.find("p");
+const $overlay = $('.loading-overlay');
+const $overlayText = $overlay.find('p');
+const $overlaySpinner = $overlay.find('.lds-dual-ring');
 
-export async function loadGame(game) {
-    return new Promise(async (resolve) => {
+/**
+ * @param {Game} game 
+ * @param {Function} onCompleted 
+ */
+export async function loadGame(game, onCompleted) {
+    await document.fonts.ready;
 
-        await document.fonts.ready;
+    $overlayText.text("Loading assets...");
 
-        $overlayText.text("Loading assets...");
+    await timer(100);
+    await loadAssets();
+    await timer(100);
 
-        await timer(100);
-        await loadAssets();
-        await timer(100);
+    $overlayText.text("Generating world...");
+    await game.world.generate();
 
-        $overlayText.text("Generating world...");
-        await game.world.generate();
+    await timer(250);
 
-        await timer(250);
+    $overlayText.text("Let there be light...");
+    await game.world.lighting.initialize();
 
-        $overlayText.text("Let there be light...");
-        await game.world.lighting.initialize();
+    await timer(100);
 
-        await timer(100);
+    $overlayText.text("Loading complete!");
 
-        $overlayText.text("Loading complete!");
-
-        setTimeout(() => {
-            $overlay.css("display", "none");
-            resolve();
-        }, 500);
-    })
+    setTimeout(() => {
+        $overlay.css('background-color', 'transparent');
+        $overlay.css('color', 'transparent');
+        $overlaySpinner.addClass('d-none');
+        onCompleted();
+    }, 500);
 }

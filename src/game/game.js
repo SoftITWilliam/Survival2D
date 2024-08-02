@@ -34,8 +34,9 @@ export class Game {
     }
 
     update(deltaTime) {
+        console.log(deltaTime);
         this.deltaTime = deltaTime;
-        if(deltaTime > 500) return;
+        if(deltaTime > 100) return;
 
         document.body.style.cursor = "default";
 
