@@ -69,8 +69,6 @@ export default function render(ctx, game) {
 
     /* === Render UI === */
 
-    GUI.renderStats(GUI_CONTEXT);
-
     if(PLAYER.craftingMenu.isOpen) {
         PLAYER.craftingMenu.render(ctx, CAMERA.x, CAMERA.y, INPUT);
     } else {

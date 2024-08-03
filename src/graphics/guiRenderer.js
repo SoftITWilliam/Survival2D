@@ -3,7 +3,6 @@ import { DEBUG_MODE } from "../game/global.js";
 import PlayerCamera from "../player/camera.js";
 import { Player } from "../player/player.js";
 import { DebugUI } from "../ui/debugUI.js";
-import { StatBarRenderer } from "../ui/statBarRenderer.js";
 import { World } from "../world/World.js";
 
 /**
@@ -35,12 +34,9 @@ export const GUIRenderContext = (ctx, game) => ({
     INPUT: game.input,
 });
 
-export class GUIRenderer {
+const HEALTH_BAR = $('#player-health');
 
-    statBars = {
-        /** @type {StatBarRenderer} */
-        health: null
-    };
+export class GUIRenderer {
 
     debugInfo = new DebugUI();
 
@@ -52,6 +48,8 @@ export class GUIRenderer {
         const INPUT = game.input;
         const WORLD = game.world;
         const FPS = game.fpsCounter;
+        //#region Debug Info
+
         if(DEBUG_MODE) {
             this.debugInfo
                 .addInfoRow('fps',          'FPS')
@@ -79,19 +77,30 @@ export class GUIRenderer {
                 updateRow('tile_variant', tile?.spriteVariantName);
             });
         }
+        //#endregion
 
-        this.statBars.health = new StatBarRenderer();
-        
-        Object.assign(this.statBars.health, {
-            barColor: 'rgba(220, 60, 50)', offsetX: -20, offsetY: 20, width: 400
+        //#region Health Bar
+
+        HEALTH_BAR.attr('max', PLAYER.health.max);
+        HEALTH_BAR.attr('value', PLAYER.health.value);
+        this.updateStatBarText(HEALTH_BAR);
+
+        PLAYER.health.capacityChanged.subscribe(max => {
+            HEALTH_BAR.attr('max', max);
+            this.updateStatBarText(HEALTH_BAR);
         });
+        PLAYER.health.valueChanged.subscribe(value => {
+            HEALTH_BAR.attr('value', value);
+            this.updateStatBarText(HEALTH_BAR);
+        });
+
+        //#endregion
     }
 
-    /**
-     * @param {UIRenderContext} context
-     */
-    renderStats({ CTX, PLAYER, CAMERA }) {
-        this.statBars.health.render(CTX, PLAYER.health.max, PLAYER.health.value, CAMERA);
+    updateStatBarText($statBar) {
+        let max = $statBar.attr('max');
+        let value = $statBar.attr('value');
+        $statBar.parent().find('span').text(`${value}/${max}`);
     }
 
     /**

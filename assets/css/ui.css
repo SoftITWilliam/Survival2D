@@ -1,3 +1,14 @@
+*{
+    font-family: "Font1", Arial, Helvetica, sans-serif;
+}
+
+:root{
+    --health: rgb(198, 49, 23);
+}
+
+.text-outline-thin {
+    text-shadow: 0 0 2px black, 0 0 2px black, 0 0 2px black, 0 0 2px black, 0 0 2px black;
+}
 
 /*#region Loading Screen*/
 
@@ -13,8 +24,8 @@
     color: white;
     background-color: rgb(20, 22, 25);
     font-size: 2rem;
-    font-family: "Font1", Arial, Helvetica, sans-serif;
     transition: background-color 2s ease-out;
+    z-index: 9999;
 }
 
 .lds-dual-ring {
@@ -53,11 +64,64 @@
     position: relative;
     margin: 2rem;
     font-size: 1.2rem;
-    font-family: "Font1", Arial, Helvetica, sans-serif;
     color: rgba(255, 255, 255, 0.8);
     & p {
         margin-bottom: 0.5rem;
         text-shadow: black 2px 2px 5px;
     }
-    
+}
+
+.stat-bar {
+    position: relative;
+    width: 400px;
+    height: 28px;
+    border-radius: 14px;
+    margin-top: 1rem;
+    margin-right: 2rem;
+}
+
+.stat-bar meter {
+    position: relative;
+    width: 100%;
+    height: 28px;
+    appearance: none; /* Reset appearance */
+    border: solid medium black;
+    border-radius: 14px;
+    background: none;
+    background-color: #101416;
+    box-shadow: rgba(0, 0, 0, 0.5) 2px 2px 5px;
+}
+
+/* The gray background in Chrome, etc. */
+.stat-bar meter::-webkit-meter-bar {
+    background: #101416;
+}
+
+.stat-bar span {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    color: white;
+    font-size: 16px;
+}
+
+/*
+@supports (-webkit-text-stroke: 3px black) {
+    .stat-bar span {
+        -webkit-text-fill-color: white;
+        -webkit-text-stroke: 2px black;
+    }
+}
+    */
+
+/* Firefox */
+meter#player-health:-moz-meter-optimum::-moz-meter-bar {
+    background: var(--health);
+}
+
+/* Chrome etc. */
+meter#player-health::-webkit-meter-optimum-value {
+    background: var(--health);
 }

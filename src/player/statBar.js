@@ -1,6 +1,11 @@
+import { Observable } from "../class/Observable.js";
 
 export class StatBar { 
     #value = 0;
+    #max = 0;
+
+    valueChanged = new Observable();
+    capacityChanged = new Observable();
 
     /**
      * @param {number} max 
@@ -17,6 +22,16 @@ export class StatBar {
     set value(v) {
         console.assert(typeof v === 'number' && !isNaN(v), 'Invalid type');
         this.#value = v;
+        this.valueChanged.notify(v);
+    }
+
+    get max() {
+        return this.#max;
+    }
+    set max(v) {
+        console.assert(typeof v === 'number' && !isNaN(v), 'Invalid type');
+        this.#max = v;
+        this.capacityChanged.notify(v);
     }
 
     increaseBy(amount) {
