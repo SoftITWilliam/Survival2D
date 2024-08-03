@@ -35,6 +35,8 @@ export async function loadGame(game, onCompleted) {
         $overlay.css('background-color', 'transparent');
         $overlay.css('color', 'transparent');
         $overlaySpinner.addClass('d-none');
+
+        setTimeout(() => { $overlay.css('display', 'none')}, 2000);
         onCompleted();
     }, 500);
 }

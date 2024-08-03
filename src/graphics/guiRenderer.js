@@ -1,4 +1,5 @@
 import { Game } from "../game/game.js";
+import { DEBUG_MODE } from "../game/global.js";
 import PlayerCamera from "../player/camera.js";
 import { Player } from "../player/player.js";
 import { DebugUI } from "../ui/debugUI.js";
@@ -41,32 +42,43 @@ export class GUIRenderer {
         health: null
     };
 
-    /** @type {DebugUI} */
-    debugInfo;
-
+    debugInfo = new DebugUI();
 
     /** 
      * @param {Game} game
      */
     constructor(game) {
-
         const PLAYER = game.player;
         const INPUT = game.input;
         const WORLD = game.world;
+        const FPS = game.fpsCounter;
+        if(DEBUG_MODE) {
+            this.debugInfo
+                .addInfoRow('fps',          'FPS')
+                .addInfoRow('ent_count',    'Entity Count')
+                .addInfoRow('player_pos',   'Player Pos')
+                .addInfoRow('player_state', 'Player State')
+                .addInfoRow('mouse_pos',    'Mouse Pos')
+                .addInfoRow('tile_type',    'Tile Type')
+                .addInfoRow('tile_variant', 'Tile variant');
 
-        const hoveredTile = () => (WORLD.tiles.get(INPUT.mouse.gridX, INPUT.mouse.gridY));
+            const updateRow = (id, value) => this.debugInfo.updateRow(id, value);
 
-        this.debugInfo = new DebugUI()
-            .addInfoRow("FPS", () => game.fpsCounter.display)
-            .addInfoRow("Entity Count", () => WORLD.itemEntities.count)
-            .addInfoRow("Player Pos", () => ({ x: PLAYER.gridX, y: PLAYER.gridY }))
-            .addInfoRow("Player State", () => PLAYER.state.name)
-            .addInfoRow("Mouse Pos", () => ({ x: INPUT.mouse.gridX, y: INPUT.mouse.gridY }))
-            .addInfoRow("Tile Type", () => hoveredTile()?.registryName)
-            .addInfoRow("Tile variant", () => hoveredTile()?.spriteVariantName);
+            updateRow('ent_count', 0);
 
-        this.debugInfo.fontSizePx = 22;
-        this.debugInfo.rowHeightPx = 36;
+            // Info is updated using events, for performance reasons.
+            // Updating all rows every frame caused framerate issues.
+            FPS.displayUpdated.subscribe(value => updateRow('fps', value));
+            PLAYER.stateChangedSubject.subscribe(state => updateRow('player_state', state.name));
+            PLAYER.gridPositionChangedSubject.subscribe(pos => updateRow('player_pos', { x: pos.gridX,  y: pos.gridY }));
+            WORLD.itemEntities.entityCountChanged.subscribe(n => updateRow('ent_count', n));
+            INPUT.mouseGridPositionChanged.subscribe(pos => {
+                const tile = WORLD.tiles.get(pos.x, pos.y);
+                updateRow('mouse_pos', pos);
+                updateRow('tile_type', tile?.registryName);
+                updateRow('tile_variant', tile?.spriteVariantName);
+            });
+        }
 
         this.statBars.health = new StatBarRenderer();
         
@@ -86,7 +98,7 @@ export class GUIRenderer {
      * @param {UIRenderContext} context
      */
     renderDebugInfo({ CTX, GAME }) {
-        this.debugInfo.render(CTX, GAME);
+        this.debugInfo.render();
     }
 
     render(ctx) {

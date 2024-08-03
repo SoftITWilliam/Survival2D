@@ -22,6 +22,8 @@ export class Game {
         this.recipeManager = new RecipeManager(this);
         this.input = new InputHandler(this);
         this.player = new Player(this);
+        this.guiRenderer = new GUIRenderer(this);
+        this.testing = new Testing(this);
 
         // Create pickup label manager and subscribe it to its necessary events
         const labelManager = new PickupLabelManager();
@@ -29,12 +31,14 @@ export class Game {
         this.player.itemPickupSubject.subscribe(args => labelManager.add(args));
         this.player.uiRenderSubject.subscribe(args => labelManager.render(args));
 
-        this.guiRenderer = new GUIRenderer(this);
-        this.testing = new Testing(this);
+        this.fpsCounter.displayUpdated.subscribe(value => this.debugInfo.updateRow('fps', value));
     }
 
+    get debugInfo() {
+        return this.guiRenderer.debugInfo;
+    }
+ 
     update(deltaTime) {
-        console.log(deltaTime);
         this.deltaTime = deltaTime;
         if(deltaTime > 100) return;
 

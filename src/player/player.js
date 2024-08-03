@@ -72,6 +72,12 @@ export class Player {
     itemPickupSubject = new Observable();
     /** Notifies subscribers when UI is rendered. TODO refactor */
     uiRenderSubject = new Observable();
+    /** Notifies when the player's state is changed */
+    stateChangedSubject = new Observable();
+    /** Notifies when the player moves */
+    movedSubject = new Observable();
+    /** Notifies when the player's position in the grid is changed */
+    gridPositionChangedSubject = new Observable();
 
     // Currently unused
     health = new StatBar(50, 50);
@@ -271,12 +277,10 @@ export class Player {
     }
 
     setState(state) {
-        if(state instanceof PlayerState) {
-            this.#state = state;
-            this.#state.enter(this);
-        } else {
-            throw new TypeError('setState(): Not a PlayerState object');
-        }
+        console.assert(state instanceof PlayerState, 'Not a valid state');
+        this.#state = state;
+        this.#state.enter(this);
+        this.stateChangedSubject.notify(state);
     }
 
     //#endregion
@@ -417,8 +421,20 @@ export class Player {
 
     // Move player and camera by dx and dy
     updatePosition(deltaTime, input) {
+
+        const prevGX = this.gridX;
+        const prevGY = this.gridY;
+
         this.#entity.move(this.dx, this.dy, deltaTime);
+        this.movedSubject.notify({ x: this.x, y: this.y});
         input.mouse.updateGridPos();
+
+        const GX = this.gridX;
+        const GY = this.gridY;
+        
+        if(prevGX !== GX || prevGY !== GY) {
+            this.gridPositionChangedSubject.notify({ gridX: GX, gridY: GY });
+        }
     }
 
     /**

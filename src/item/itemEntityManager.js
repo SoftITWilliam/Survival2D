@@ -1,5 +1,5 @@
+import { Observable } from "../class/Observable.js";
 import { InputHandler } from "../game/InputHandler.js";
-import { Game } from "../game/game.js";
 import { validNumbers } from "../helper/helper.js";
 import { Collision } from "../misc/Collision.js";
 import PlayerCamera from "../player/camera.js";
@@ -11,6 +11,9 @@ import { ItemStack } from "./itemStack.js";
 export default class ItemEntityManager {
     /** @type {ItemEntity[]} */
     entities = [];
+
+    /** Notifies when an ItemEntity is added or removed from the world */
+    entityCountChanged = new Observable();
 
     /**
      * Create a new Item Entity
@@ -31,6 +34,7 @@ export default class ItemEntityManager {
     add(arg1, arg2, arg3) {
         if(arg1 instanceof ItemEntity) {
             this.entities.push(arg1);
+            this.entityCountChanged.notify(this.entities.length);
         }
         else if(Array.isArray(arg1)) {
             arg1.forEach(entity => this.add(entity));
@@ -38,6 +42,7 @@ export default class ItemEntityManager {
         else if(validNumbers(arg1, arg2) && arg3 instanceof ItemStack) {
             let entity = new ItemEntity(arg1, arg2, arg3);
             this.entities.push(entity);
+            this.entityCountChanged.notify(this.entities.length);
             return entity;
         }
     }
@@ -59,7 +64,10 @@ export default class ItemEntityManager {
             if(Collision.rectangleOverlap(entity, player) === false) return;
             
             let success = player.pickUpItem(entity.stack);
-            if(success) this.entities.splice(index, 1);
+            if(success) {
+                this.entities.splice(index, 1);
+                this.entityCountChanged.notify(this.entities.length);
+            } 
         });
     }
 

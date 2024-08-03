@@ -79,11 +79,6 @@ export default function render(ctx, game) {
         PLAYER.hotbarText.render(ctx, PLAYER);
         PLAYER.itemInfoDisplay.render(ctx, INPUT);
     }
-    
-    // Debug UI
-    if(DEBUG_MODE) {
-        GUI.renderDebugInfo(GUI_CONTEXT);
-    }
 
     ctx.restore();
 }

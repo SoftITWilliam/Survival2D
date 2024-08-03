@@ -48,3 +48,16 @@
     width: 100vw;
     z-index: 999;
 }
+
+#debug-info {
+    position: relative;
+    margin: 2rem;
+    font-size: 1.2rem;
+    font-family: "Font1", Arial, Helvetica, sans-serif;
+    color: rgba(255, 255, 255, 0.8);
+    & p {
+        margin-bottom: 0.5rem;
+        text-shadow: black 2px 2px 5px;
+    }
+    
+}

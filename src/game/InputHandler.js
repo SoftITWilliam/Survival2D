@@ -13,6 +13,8 @@ export class InputHandler {
     leftClick = new Observable();
     /** Notifies on user right click. No data */
     rightClick = new Observable();
+    /** Notifies when mouse grid position is changed. data: { x, y } */
+    mouseGridPositionChanged = new Observable();
 
     constructor(game) {
         this.game = game;
@@ -88,7 +90,18 @@ export class InputHandler {
             const rect = canvas.getBoundingClientRect();
             this.mouse.x = event.clientX - rect.left;
             this.mouse.y = event.clientY - rect.top;
+
+            const prevGX = this.mouse.gridX;
+            const prevGY = this.mouse.gridY;
+
             this.mouse.updateGridPos();
+
+            const x = this.mouse.gridX;
+            const y = this.mouse.gridY;
+
+            if(x !== prevGX || y !== prevGY) {
+                this.mouseGridPositionChanged.notify({ x, y });
+            }
         });
 
         document.addEventListener('wheel', event => {
