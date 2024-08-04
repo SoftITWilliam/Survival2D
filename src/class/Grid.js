@@ -1,4 +1,5 @@
 import { validIndex } from "../helper/helper.js";
+import { Observable } from "./Observable.js";
 import { Range } from "./Range.js";
 
 export class Grid {
@@ -6,6 +7,8 @@ export class Grid {
     #height
     #grid
     #default;
+    onChange = new Observable(); // ({ x, y, value }) => ()
+    
     constructor(width, height, defaultValue = null) {
         this.#width = width;
         this.#height = height;
@@ -255,7 +258,10 @@ export class Grid {
      * @param {any} value New value
      */
     set(x, y, value) {
-        if(this.#validPosition(x, y)) this.#grid[x][y] = value;
+        if(this.#validPosition(x, y)) {
+            this.#grid[x][y] = value;
+            this.onChange.notify({ x, y, value });
+        }
     }
 
     /**

@@ -1,8 +1,14 @@
+import { Observable } from "../class/Observable.js";
 import { World } from "../world/World.js";
 import Item from "./item.js";
 
 export class ItemStack {
+    /** @type {Item} */
     #item;
+    /** @type {number} */
+    #amount;
+
+    amountChanged = new Observable();
 
     /**
      * @param {Item} item 
@@ -11,7 +17,17 @@ export class ItemStack {
     constructor(item, amount) {
         this.#item = item;
         this.size = 32; // size in pixels. TODO refactor
-        this.amount = amount;
+        this.#amount = amount;
+    }
+
+    get amount() {
+        return this.#amount;
+    }
+    set amount(n) {
+        console.assert(typeof n === "number" && !isNaN(n), 'Expected number');
+        console.assert(n >= 0 && n <= this.limit, 'Out of range');
+        this.#amount = n;
+        this.amountChanged.notify(n);
     }
 
     //#region Property getters
