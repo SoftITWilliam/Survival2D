@@ -11,8 +11,8 @@ export class ItemGrassSeeds extends PlaceableBase {
         
         this.setItemSpritePosition(0, 0, TILE_SIZE, TILE_SIZE);
         this.setPreviewSpritePosition(60, 0, 60, 60);
-        this._previewRenderer.setSource(sprites.tilesets.grass);
-        this.placementPreview = new PlacementPreview(this, this._previewRenderer);
+        this.previewRenderer.setSource(sprites.tilesets.grass);
+        this.placementPreview = new PlacementPreview(this, this.previewRenderer);
     }
 
     // Return true if the given position is a dirt block with no block above

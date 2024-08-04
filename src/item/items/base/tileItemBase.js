@@ -18,9 +18,9 @@ export class TileItemBase extends ItemBase {
 
         this.setSprite(spritesheet);
 
-        this._previewRenderer.setSource(spritesheet);
+        this.previewRenderer.setSource(spritesheet);
         this.setSpritePosition(180, 180, 60, 60);
-        this.placementPreview = new PlacementPreview(this, this._previewRenderer);
+        this.placementPreview = new PlacementPreview(this, this.previewRenderer);
     }
 
     // Return true if position has no tile, is adjacent to another time or on top of a wall.

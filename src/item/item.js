@@ -21,11 +21,11 @@ export default class Item {
         this.#rarity;
         this.#rarityText;
 
-        this._itemRenderer = new SpriteRenderer();
-        this._previewRenderer = new SpriteRenderer();
+        this.itemRenderer = new SpriteRenderer();
+        this.previewRenderer = new SpriteRenderer();
 
-        this._itemRenderer.scaleToFitSize = true;
-        this._itemRenderer.setSpriteSize(TILE_SIZE);
+        this.itemRenderer.scaleToFitSize = true;
+        this.itemRenderer.setSpriteSize(TILE_SIZE);
 
         this.registryName = registryName;
         this.rarity = rarity;
@@ -129,7 +129,11 @@ export default class Item {
      * @param {(HTMLImageElement | Promise<HTMLImageElement>)} image  Sprite image object through 'sprites' import. (ex: 'sprites.item.wood')
      */
     setSprite(image) {
-        getImageCallback(image, (result) => this._itemRenderer.setSource(result));
+        getImageCallback(image, (result) => this.itemRenderer.setSource(result));
+    }
+    
+    getSprite() {
+        return this.itemRenderer.source;
     }
 
     /** 
@@ -151,18 +155,18 @@ export default class Item {
 
     setItemSpritePosition(sx, sy, sWidth, sHeight) {
         if(isPositiveInteger(sx, sy))
-            this._itemRenderer.setSourcePosition(sx, sy);
+            this.itemRenderer.setSourcePosition(sx, sy);
 
         if(isPositiveInteger(sWidth, sHeight))
-            this._itemRenderer.setSpriteSize(sWidth, sHeight);
+            this.itemRenderer.setSpriteSize(sWidth, sHeight);
     }
 
     setPreviewSpritePosition(sx, sy, sWidth, sHeight) {
         if(isPositiveInteger(sx, sy))
-            this._previewRenderer.setSourcePosition(sx, sy);
+            this.previewRenderer.setSourcePosition(sx, sy);
 
         if(isPositiveInteger(sWidth, sHeight))
-            this._previewRenderer.setSpriteSize(sWidth, sHeight);
+            this.previewRenderer.setSpriteSize(sWidth, sHeight);
     }
 
     //#endregion
@@ -196,7 +200,7 @@ export default class Item {
      */
     render(ctx, x, y, width, height) {
         if(validNumbers(x, y, width, height)) {
-            this._itemRenderer.render(ctx, x, y, width, height);
+            this.itemRenderer.render(ctx, x, y, width, height);
         }
     }
 
@@ -210,7 +214,7 @@ export default class Item {
      */
     renderCentered(ctx, centerX, centerY, width, height) {
         if(validNumbers(centerX, centerY, width, height)) {
-            this._itemRenderer.renderCentered(ctx, centerX, centerY, width, height);
+            this.itemRenderer.renderCentered(ctx, centerX, centerY, width, height);
         }
     }
 

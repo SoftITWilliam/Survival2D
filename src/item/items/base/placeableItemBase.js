@@ -12,11 +12,11 @@ export default class PlaceableBase extends ItemBase {
         this.stackLimit = 99;
         this.entitySize = 32;
 
-        this._previewRenderer = new SpriteRenderer();
-        this._previewRenderer.setSpriteSize(TILE_SIZE);
-        this._itemRenderer.setSpriteSize(TILE_SIZE);
+        this.previewRenderer = new SpriteRenderer();
+        this.previewRenderer.setSpriteSize(TILE_SIZE);
+        this.itemRenderer.setSpriteSize(TILE_SIZE);
 
-        this.placementPreview = new PlacementPreview(this, this._previewRenderer);
+        this.placementPreview = new PlacementPreview(this, this.previewRenderer);
     }
 
     canBePlaced(x, y, world) {
