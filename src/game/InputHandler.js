@@ -116,3 +116,5 @@ export class InputHandler {
 
 // Prevent right click menu from opening
 canvas.oncontextmenu = function(e) { e.preventDefault(); e.stopPropagation(); }
+
+document.querySelector('.ui-wrapper').oncontextmenu = function(e) { e.preventDefault(); e.stopPropagation(); }

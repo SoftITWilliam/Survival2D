@@ -22,6 +22,8 @@ export class ItemContainer {
     /** Notifies when an item is manually inserted into a container slot */
     itemInsertedSubject = new Observable();
 
+    slotContentsChanged = new Observable();
+
     /** @returns {number} */
     get width() {
         return this.slots.width;
@@ -43,6 +45,18 @@ export class ItemContainer {
     }
 
     /** 
+     * Split and return contents of the given slot. Returned items are removed from the slot stack.
+     * @param {number} gridX
+     * @param {number} gridY
+     * @returns {(ItemStack | Null)} 
+     * */
+    split(gridX, gridY) {
+        const result = this.get(gridX, gridY)?.split();
+        this.slotContentsChanged.notify({ x: gridX, y: gridY });
+        return result;
+    }
+
+    /** 
      * Return contents of the given slot.
      * Empties the slot if it contains items.
      * @param {number} gridX
@@ -52,6 +66,7 @@ export class ItemContainer {
     grab(gridX, gridY) {
         const stack = this.slots.get(gridX, gridY);
         this.slots.clear(gridX, gridY);
+        this.slotContentsChanged.notify({ x: gridX, y: gridY });
         return stack;
     }
 
@@ -76,7 +91,10 @@ export class ItemContainer {
 
         if(amount >= insertStack.amount) amount = null;
 
-        const notify = (a) => this.itemInsertedSubject.notify({ item, amount: a, gridX, gridY });
+        const notify = (a) => {
+            this.itemInsertedSubject.notify({ item, amount: a, gridX, gridY });
+            this.slotContentsChanged.notify({ x: gridX, y: gridY });
+        } 
 
         const existingStack = this.get(gridX, gridY)
 
@@ -149,6 +167,7 @@ export class ItemContainer {
                 this.itemAddedSubject.notify({ 
                     item, amount: initialAmount - amount, gridX: pos.x, gridY: pos.y
                 });
+                this.slotContentsChanged.notify(pos);
             }
 
             // Fill empty slots
@@ -161,6 +180,7 @@ export class ItemContainer {
                 this.itemAddedSubject.notify({ 
                     item, amount: stackAmount, gridX: pos.x, gridY: pos.y
                 });
+                this.slotContentsChanged.notify(pos);
             }
 
             return amount;
@@ -195,6 +215,7 @@ export class ItemContainer {
         this.slots.forEach((stack, x, y) => {
             if(stack && stack.amount === 0) {
                 this.slots.set(x, y, null);
+                this.slotContentsChanged.notify({ x, y });
             } 
         })
     }

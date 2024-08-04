@@ -10,6 +10,8 @@ import { padRect, validNumbers } from "../helper/helper.js";
 import { AlignmentY } from "../misc/alignment.js";
 import PlayerCamera from "./camera.js";
 
+const $INVENTORY = $('.inventory');
+
 export class PlayerInventory {
     #selectedIndex = 0;
 
@@ -23,13 +25,10 @@ export class PlayerInventory {
     constructor(width, height, game) {
 
         this.container = new ItemContainer(width, height);
-
-        const display = new ContainerDisplay(this.container);
-        display.alignY = AlignmentY.BOTTOM;
-        display.offsetY = -(display.slotSize / 2);
+        this.display = new ContainerDisplay(this.container, $INVENTORY);
 
         this.interface = new ContainerInterface(game, game.player);
-        this.interface.addDisplay(display, 'INVENTORY');
+        this.interface.addDisplay(this.display, 'INVENTORY');
 
         this.container.itemAddedSubject.subscribe(({ item, amount, gridX, gridY }) => {
             if(gridX === this.selectedIndex && gridY === this.container.height - 1) {
@@ -37,14 +36,12 @@ export class PlayerInventory {
             }
         })
 
-        /*
-        game.input.leftClick.subscribe(() => {
-            const slotPosition = this.ui.getHovered(game.player.camera, game.input);
-            if(slotPosition !== null) {
-                this.interface.pickUpSlotContents(slotPosition.x, slotPosition.y);
-            }
-        });
-        */
+        // Populate with rows and slots
+        this.display.createSlots();
+        $INVENTORY.children().last().addClass('hotbar');
+
+        this.interface.openSubject.subscribe(() => $INVENTORY.toggleClass('open', true));
+        this.interface.closeSubject.subscribe(() => $INVENTORY.toggleClass('open', false));
     }
 
     get width() { return this.container.width }
@@ -52,17 +49,19 @@ export class PlayerInventory {
 
     get selectedIndex() { return this.#selectedIndex }
     set selectedIndex(i) {
-        if(validNumbers(i) == false) 
-            throw new TypeError("Index is not a number");
-        if(i < 0 || this.width <= i) 
-            throw new RangeError(`Index '${i}' out of range (Must be 0-${this.width - 1})`)
+        console.assert(validNumbers(i), "Index is not a number");
+        console.assert(0 <= i && i < this.width, `Index '${i}' out of range (Must be 0-${this.width - 1})`);
+
         if(i !== this.#selectedIndex) 
             this.selectionChangedSubject.notify(this.container.get(i, this.container.height - 1));
         this.#selectedIndex = i;
+
+        const $hotbar = this.display.$row(this.container.height - 1);
+        $hotbar.find('.selected').toggleClass('selected', false);
+        $hotbar.children().eq(i).toggleClass('selected', true);
     }
 
-    get isOpen() { return this.interface.isOpen }
-    
+    get isOpen() { return this.interface.isOpen; }
 
     open() { this.interface.open() }
     close() { this.interface.close() }
@@ -78,24 +77,9 @@ export class PlayerInventory {
      * @param {InputHandler} input 
      */
     render(ctx, camera, input) {
-
-        const display = this.interface.getDisplay('INVENTORY');
-
-        // Render full inventory
         if(this.isOpen) {
-            this.interface.render(ctx, camera, input);
-
-            // Hover overlay
-            const hovered = this.interface.getHovered(camera, input);
+            this.interface.updateGrabbedPosition(input);
         } 
-        // Render hotbar only
-        else {
-            display.render(ctx, camera, 0, this.height - 1, this.width, 1);
-            display.renderItems(ctx, camera, 0, this.height - 1, this.width, 1); 
-        }
-
-        this.#renderHotbarNumbers(ctx, camera);
-        this.#renderSelectionIndicator(ctx, camera, this.selectedIndex);
     }
 
     /**
@@ -104,6 +88,7 @@ export class PlayerInventory {
      * @param {number} slotIndex 
      */
     #renderSelectionIndicator(ctx, camera, slotIndex) {
+        return;
         const display = this.interface.getDisplay('INVENTORY');
         const lineWidth = 2;
         const { x, y } = display.getSlotPosition(camera, slotIndex, this.container.height - 1);
@@ -118,6 +103,7 @@ export class PlayerInventory {
     }
 
     #renderHotbarNumbers(ctx, camera) {
+        return;
         const display = this.interface.getDisplay('INVENTORY');
 
         Object.assign(ctx, {
