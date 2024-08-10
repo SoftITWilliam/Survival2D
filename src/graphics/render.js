@@ -75,7 +75,6 @@ export default function render(ctx, game) {
         PLAYER.renderUI(ctx, game.input);
         PLAYER.inventory.render(ctx, CAMERA, INPUT);
         PLAYER.hotbarText.render(ctx, PLAYER);
-        PLAYER.itemInfoDisplay.render(ctx, INPUT);
     }
 
     ctx.restore();

@@ -1,241 +1,133 @@
+import { InputHandler } from "../game/InputHandler.js";
 import { getLang } from "../game/lang.js";
 import { sprites } from "../graphics/assets.js";
-import { drawRounded, renderPath, rgb } from "../helper/canvashelper.js";
-import { splitIntoLines } from "../helper/helper.js";
+import { rgb } from "../helper/canvashelper.js";
+import { clamp } from "../helper/helper.js";
 import Item from "../item/item.js";
+import { PLAYER_DEFAULT_REACH } from "../player/player.js";
 
-export default class ItemInfoDisplay {
-    constructor(player) {
-        this.player = player // Pointer
-        this.minimumWidth = 240;
-        this.minimumHeight = 50;
-        this.w;
-        this.h;
-        this.displaying = false;
-        this.icon = null;
+export const ItemInfoDisplay = {
+    $: $('.item-info'),
+    $name: $('.item-info-name'),
+    $rarity: $('.item-info-rarity'),
+    $description: $('.item-info-description'),
 
-        this.offset = 24;
-        this.baseHeight = 48;
-        this.boxHeight;
-        this.boxWidth;
+    $attributes: $('.item-info-attributes'),
+    $icon: $('.item-info-icon'),
 
-        this.footerHeight = 36;
-        this.descPos = 60;
-        this.descLineHeight = 24;
+    /**
+     * Show information about an item
+     * @param {Item} item 
+     */
+    show(item) {
+        console.assert(Item.isItem(item));
 
-        this.attributeLineHeight = 32;
-    }
+        this.$.toggleClass('d-none', false);
 
-    set(item) {
+        this.$name.text(item.displayName);
+        this.$description.text(item.description);
+        this.$rarity.text(item.rarityText);
+        this.setRarityClass(item.rarity);
 
-        if(!Item.isItem(item)) {
-            this.displaying = false;
-            return;
-        }
-
-        this.displaying = true;
-
-        // Universal properties
-        this.itemName = item.displayName;
-        this.rarity = item.rarityText;
-        this.rarityColor = item.textColor;
-        this.description = item.description;
-
-        // Icon
-        this.icon = this.getItemIcon(item);
-
-        this.attributeCount = 0;
-        this.attributes = [];
+        this.$attributes.empty();
 
         if(item.placeable) {
-            this.addAttribute("placeable");
+            this.addAttribute('placeable');
         }
 
         if(item.type === Item.types.TOOL) {
-            this.addAttribute("tier", item.miningLevel);
-            this.addAttribute("toolSpeed", item.miningSpeed);
-            this.addAttribute("toolReach", item.reach);
+            this.addAttribute('tier', item.miningLevel);
+            this.addAttribute('toolSpeed', item.miningSpeed);
+            this.addAttribute('toolReach', item.reach);
         }
-    }
 
-    getItemIcon(item) {
-        switch(item.type) {
-            case Item.types.TOOL:
-                switch(item.toolType) {
-                    case Item.toolTypes.PICKAXE:
-                        return sprites.ui.item_type.icon_pickaxe;
-                    case Item.toolTypes.AXE:
-                        return sprites.ui.item_type.icon_axe;
-                    case Item.toolTypes.SHOVEL:
-                        return sprites.ui.item_type.icon_shovel;
-                    case Item.toolTypes.HAMMER:
-                        return sprites.ui.item_type.icon_hammer;
-                    default: 
-                        return null;
-                }
-            case Item.types.TILE:
-                return sprites.ui.item_type.icon_tile;
-            default: 
-                return null;
+        const icon = this.getItemIcon(item);
+
+        this.$icon.toggleClass('d-none', icon == null);
+        if(icon) {
+            this.$icon.attr('src', icon.src);
         }
-    }
+    },
+
+    /**
+     * Hide item information window
+     */
+    hide() {
+        this.$.toggleClass('d-none', true);
+    },
+
+    setRarityClass(rarity) {
+        this.$.toggleClass('rarity-common', rarity === 0);
+        this.$.toggleClass('rarity-uncommon', rarity === 1);
+        this.$.toggleClass('rarity-rare', rarity === 2);
+        this.$.toggleClass('rarity-epic', rarity === 3);
+        this.$.toggleClass('rarity-legendary', rarity === 4);
+        this.$.toggleClass('rarity-unobtainable', rarity === 99);
+    },
 
     addAttribute(attribute, value) {
-        this.attributeCount += 1;
-        let a;
 
+        var add = ({ label, value }) => {
+            const $row = $('<div>').addClass('row');
+            $row.append($('<p>').text(label));
+            $row.append($('<p>').text(value));
+            this.$attributes.append($row);
+        }
+        
         switch(attribute) {
-            case "placeable":
-                a = {
-                    label: getLang("item_info_placeable"),   // "Can be placed"
-                    value: "",
-                    icon: null,                          
-                }; 
+            case 'placeable':
+                add({ 
+                    label: getLang('item_info_placeable'), 
+                    value: "" }); 
                 break;
-
             case "tier":
-                a = {
-                    label: getLang("item_info_tier"),
-                    value: value,
-                    icon:null,
-                }; 
+                add({ 
+                    label: getLang('item_info_tier'), 
+                    value: value }); 
                 break;
-
-            case "toolSpeed":
-                a = {
-                    label: getLang("item_info_tool_speed"),
-                    value: `${value * 100}%`,
-                    icon:null,
-                }; 
+            case 'toolSpeed':
+                add({ 
+                    label: getLang('item_info_tool_speed'), 
+                    value: `${value * 100}%` }); 
                 break;
-
-            case "toolReach":
-                a = {
-                    label: getLang("item_info_tool_reach"),
-                    value: `+${value - this.player.defaultReach} ${getLang("item_info_tiles")}`,
-                    icon:null,
-                }; 
+            case 'toolReach':
+                add({ 
+                    label: getLang('item_info_tool_reach'), 
+                    value: `+${value - PLAYER_DEFAULT_REACH} ${getLang('item_info_tiles')}`, }); 
                 break;
         }
+    },
 
-        this.attributes.push(a);
-    }
+    /**
+     * Information window follows mouse
+     * @param {InputHandler} input 
+     */
+    realignWithMouse(input) {
 
-    //#region Render methods
+        let x = input.mouse.x + 4; // some margin to not screw with other hover effects
+        let y = input.mouse.y + 4;
+        let h = this.$.height();
 
-    render(ctx, input) {
-        if(!this.displaying || !this.player.inventory.view || this.player.inventory.holdingStack) return;
+        y = clamp(y, 0, $('#canvas').height() - 16 - h);
 
-        this.x = input.mouse.mapX;
-        this.y = -input.mouse.mapY;
-        
-        // =====================================
-        //   Pre-rendering
-        // =====================================
+        this.$.css('top', y); 
+        this.$.css('left', x);
+    },
 
-        // Default box size
-        ctx.font = "24px Font1";
-        this.boxWidth = ctx.measureText(this.itemName).width + this.offset * 2;
-        this.boxHeight = this.baseHeight;
-        if(this.boxWidth < this.minimumWidth) {
-            this.boxWidth = this.minimumWidth;
-        }
+    getItemIcon(item) {
+        const icons = sprites.ui.item_type;
 
-        // Description
-        ctx.font = "18px Font1";
-        const desc = splitIntoLines(this.description, this.boxWidth - this.offset * 2);
-        this.boxHeight += desc.length * this.descLineHeight;
-
-        // Attributes
-        const attributePosition = this.boxHeight;
-        this.boxHeight += this.attributeCount * this.attributeLineHeight;
-
-        // Footer
-        const footerPosition = this.boxHeight;
-        this.boxHeight += this.footerHeight;
-
-        // Box must be contained within screen
-        if(this.y + this.boxHeight > this.player.camera.y + canvas.height) {
-            this.y = this.player.camera.y + canvas.height - this.boxHeight;
-        }
-
-        // =====================================
-        //   Rendering
-        // =====================================
-        
-        Object.assign(ctx, {
-            textAlign: "left", lineWidth: 2, strokeStyle: "black", fillStyle: "rgb(60,60,100)"
-        });
-        ctx.shadow("black", 5);
-
-        // Draw box
-        ctx.beginPath();
-        drawRounded(this.x, this.y, this.boxWidth, this.boxHeight, 10, ctx);
-        ctx.fill();
-        ctx.restore();
-        ctx.shadow();
-        ctx.stroke();
-        ctx.closePath();
-
-        // Draw attribute box
-        if(this.attributeCount > 0) {
-            Object.assign(ctx, { fillStyle: "rgb(25,25,40)", lineWidth: 2 });
-            renderPath(ctx, () => {
-                ctx.rect(this.x + 1, this.y + attributePosition, this.boxWidth - 2, this.attributeCount * this.attributeLineHeight);
-                ctx.fill();
-                ctx.stroke();
-            })
-        }
-
-        this.#renderItemName(ctx);
-        this.#renderDescription(ctx, desc);
-        this.#renderAttributes(ctx, attributePosition);
-        this.#renderFooter(ctx, footerPosition);
-    }
-
-    #renderItemName(ctx) {
-        let clr = rgb(this.rarityColor);
-        Object.assign(ctx, { font: "24px Font1", fillStyle: clr, strokeStyle: "black", lineWidth: 5 });
-        ctx.drawOutlinedText(this.itemName, this.x + this.offset, this.y + 32);
-    }
-
-    #renderDescription(ctx, desc) {
-        Object.assign(ctx, { font:"18px Font1", fillStyle:"white" });
-        for(let i = 0; i < desc.length; i++) {
-            let y = this.y + this.descPos + i * this.descLineHeight + 2;
-            ctx.fillText(desc[i], this.x + this.offset, y);
-        }
-    }
-
-    #renderAttributes(ctx, position) {
-        Object.assign(ctx, { font: "18px Font1", fillStyle: "rgb(220,220,220)" });
-        for(let i = 0; i < this.attributes.length; i++) {
-            let attr = this.attributes[i];
-            let y = this.y + position + i * this.attributeLineHeight + 22;
-
-            ctx.textAlign = "left";
-            ctx.fillText(attr.label, this.x + this.offset, y);
-
-            ctx.textAlign = "right";
-            ctx.fillText(attr.value, this.x + this.boxWidth - this.offset, y);
-        }
-    }
-
-    #renderFooter(ctx, position) {
-        // Rarity text
-        Object.assign(ctx, { font: "18px Font1", fillStyle: "rgb(165,165,165)", textAlign: "left" });
-        ctx.fillText(this.rarity, this.x + this.offset, this.y + position + 24);
-        
-        // Icon
-        if(this.icon !== null) {
-            try {
-                ctx.drawImage(this.icon, this.x + this.boxWidth - 28, this.y + position + 10, 16, 16);
-            } catch {
-                console.log(this.icon)
-                console.log("Image error");
+        if(item.type === Item.types.TOOL) {
+            switch(item.toolType) {
+                case Item.toolTypes.PICKAXE: return icons.icon_pickaxe;
+                case Item.toolTypes.AXE:     return icons.icon_axe;
+                case Item.toolTypes.SHOVEL:  return icons.icon_shovel;
+                case Item.toolTypes.HAMMER:  return icons.icon_hammer;
             }
         }
+        else if(item.type === Item.types.TILE) {
+            return icons.icon_tile;
+        }
+        return null;
     }
-
-    //#endregion
 }

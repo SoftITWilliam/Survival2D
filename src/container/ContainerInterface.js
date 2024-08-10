@@ -32,9 +32,14 @@ export class ContainerInterface {
     closeSubject = new Observable();
     /** Notify when an item is 'grabbed', 'ungrabbed' or if the amount of grabbed items are changed. */
     grabSubject = new Observable();
-
+    /** Notify when a slot is left clicked */
     slotLeftClick = new Observable();
+    /** Notify when a slot is right clicked */
     slotRightClick = new Observable();
+    /** Notify when mouse enters a slot */
+    slotHoverSubject = new Observable(); // ({ x, y, stack }) => { }
+    /** Notify when mouse exits a slot */
+    slotHoverOutSubject = new Observable(); // ({ x, y, stack }) => { }
 
     /**
      * @param {Game} game 
@@ -107,9 +112,7 @@ export class ContainerInterface {
         this.#displays.set(key, display);
 
         display.$.on('mousedown', '.slot', e => {
-
-            const x = $(e.currentTarget).closest('.slot').index();
-            const y = $(e.currentTarget).closest('.row').index();
+            const { x, y } = this.#getSlotPosition($(e.currentTarget));            
 
             if(e.which === 1) {
                 this.slotLeftClick.notify({ display, x, y });
@@ -118,6 +121,25 @@ export class ContainerInterface {
                 this.slotRightClick.notify({ display, x, y });
             }
         });
+
+        display.$.on('mouseenter', '.slot', e => {
+            const { x, y } = this.#getSlotPosition($(e.currentTarget));
+            const stack = display.container.get(x, y);
+            this.slotHoverSubject.notify({ x, y, stack });
+        });
+
+        display.$.on('mouseleave', '.slot', e => {
+            const { x, y } = this.#getSlotPosition($(e.currentTarget));
+            const stack = display.container.get(x, y);
+            this.slotHoverOutSubject.notify({ x, y, stack });
+        });
+    }
+
+    #getSlotPosition($e) {
+        return { 
+            x: $e.closest('.slot').index(), 
+            y: $e.closest('.row').index() 
+        };
     }
 
     /**

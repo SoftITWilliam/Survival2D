@@ -4,10 +4,23 @@
 
 :root{
     --health: rgb(198, 49, 23);
+
+    --ui-dark: 16, 20, 22;
+
+    --rarity-common: 220, 225, 240;
+    --rarity-uncommon: 100, 200, 120;
+    --rarity-rare: 80, 150, 220;
+    --rarity-epic: 170, 110, 255;
+    --rarity-legendary: 255, 180, 0;
+    --rarity-unobtainable: 220, 0, 30;
 }
 
 .text-outline-thin {
-    text-shadow: 0 0 2px black, 0 0 2px black, 0 0 2px black, 0 0 2px black, 0 0 2px black;
+    text-shadow: 0 0 2px black, 0 0 2px black, 0 0 2px black, 0 0 2px black, 0 0 2px black, 0 0 2px black, 0 0 2px black;
+}
+
+.text-outline-medium {
+    text-shadow: 0 0 3px black, 0 0 3px black, 0 0 3px black, 0 0 3px black, 0 0 3px black, 0 0 3px black, 0 0 3px black, 0 0 3px black, 0 0 3px black;
 }
 
 /*#region Loading Screen*/
@@ -94,7 +107,7 @@
 
 /* The gray background in Chrome, etc. */
 .stat-bar meter::-webkit-meter-bar {
-    background: #101416;
+    background: rgb(16, 20, 22);
 }
 
 .stat-bar span {
@@ -125,6 +138,8 @@ meter#player-health:-moz-meter-optimum::-moz-meter-bar {
 meter#player-health::-webkit-meter-optimum-value {
     background: var(--health);
 }
+
+/*#region Containers / Inventory */
 
 .container {
     display: flex;
@@ -160,7 +175,7 @@ meter#player-health::-webkit-meter-optimum-value {
     justify-content: center;
     width: 64px;
     height: 64px;
-    background-color: rgba(16, 20, 22, 0.7);
+    background-color: rgba(var(--ui-dark), 0.7);
     box-shadow: inset 0 0 8px rgba(240, 248, 255, 0.5);
     border-radius: 8px;
 }
@@ -219,3 +234,111 @@ meter#player-health::-webkit-meter-optimum-value {
 .slot.grabbed.empty {
     display: none;
 }
+
+/*#endregion*/
+
+/*#region Item Info*/
+.item-info {
+    position: absolute;
+    width: 280px;
+    border-radius: 8px;
+    background-color: rgba(var(--ui-dark), 1);
+    border: thin solid black;
+    box-shadow: rgba(0, 0, 0, 0.5) 3px 3px 8px;
+}
+
+.item-info-glow {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(100, 200, 120, 0.5);
+    border-radius: 8px;
+}
+
+.item-info-name {
+    font-size: 24px;
+}
+
+.item-info-description {
+    font-size: 16px;
+    margin-bottom: 0;
+    color: white;
+}
+
+.item-info-attributes {
+    display: flex;
+    flex-direction: column;
+    background-color: rgba(0, 0, 0, 0.25);
+}
+.item-info-attributes > .row {
+    display: flex;
+    justify-content: space-between;
+    margin: 0;
+    padding: 2px 4px;
+    
+}
+.item-info-attributes > .row > p {
+    color: #909090;
+    margin: 0;
+}
+
+.item-info-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.item-info-rarity {
+    color: #a5a5a5;
+    font-size: 16px;
+    margin-bottom: 0;
+}
+
+.item-info-icon {
+    height: 16px;
+    width: 16px;
+    filter: brightness(0.75);
+}
+
+.item-info.rarity-common .item-info-glow {
+    background: linear-gradient(160deg, rgba(var(--rarity-common), 0.2) 0%, transparent 80%);
+    & .item-info-name {
+        color: rgb(var(--rarity-common));
+    }
+}
+
+.item-info.rarity-uncommon .item-info-glow {
+    background: linear-gradient(160deg, rgba(var(--rarity-uncommon), 0.2) 0%, transparent 80%);
+    & .item-info-name {
+        color: rgb(var(--rarity-uncommon));
+    }
+}
+
+.item-info.rarity-rare .item-info-glow {
+    background: linear-gradient(160deg, rgba(var(--rarity-rare), 0.2) 0%, transparent 80%);
+    & .item-info-name {
+        color: rgb(var(--rarity-rare));
+    }
+}
+
+.item-info.rarity-epic .item-info-glow {
+    background: linear-gradient(160deg, rgba(var(--rarity-epic), 0.2) 0%, transparent 80%);
+    & .item-info-name {
+        color: rgb(var(--rarity-epic));
+    }
+}
+
+.item-info.rarity-legendary .item-info-glow {
+    background: linear-gradient(160deg, rgba(var(--rarity-legendary), 0.2) 0%, transparent 80%);
+    & .item-info-name {
+        color: rgb(var(--rarity-legendary));
+    }
+}
+
+.item-info.rarity-unobtainable .item-info-glow {
+    background: linear-gradient(160deg, rgba(var(--rarity-unobtainable), 0.2) 0%, transparent 80%);
+    & .item-info-name {
+        color: rgb(var(--rarity-unobtainable));
+    }
+}
+ 
+/*#endregion*/

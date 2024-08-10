@@ -10,6 +10,7 @@ import { Observable } from "../class/Observable.js";
 import { PickupLabelManager } from "../ui/PickupLabelManager.js";
 import { GUIRenderer } from "../graphics/guiRenderer.js";
 import render from "../graphics/render.js";
+import { ItemInfoDisplay } from "../ui/itemInfo.js";
 
 export class Game {
     deltaTime = 0;
@@ -32,6 +33,15 @@ export class Game {
         this.player.uiRenderSubject.subscribe(args => labelManager.render(args));
 
         this.fpsCounter.displayUpdated.subscribe(value => this.debugInfo.updateRow('fps', value));
+
+        this.player.inventory.interface.slotHoverSubject.subscribe(({ x, y, stack}) => {
+            if(stack) {
+                ItemInfoDisplay.show(stack.item);
+            }
+        });
+        this.player.inventory.interface.slotHoverOutSubject.subscribe(() => {
+            ItemInfoDisplay.hide();
+        });
     }
 
     get debugInfo() {
@@ -56,6 +66,8 @@ export class Game {
         this.world.itemEntities.update(deltaTime, this.world);
         this.world.itemEntities.updatePickup(this.player);
         this.world.lighting.update();
+
+        ItemInfoDisplay.realignWithMouse(this.input);
     }
 
     render(ctx) {

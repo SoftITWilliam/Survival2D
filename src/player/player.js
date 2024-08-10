@@ -3,7 +3,6 @@ import MiningAction from './mining.js';
 import { StatBar } from './statBar.js';
 import { HotbarText } from '../ui/HotbarText.js';
 import PlayerCamera from './camera.js';
-import ItemInfoDisplay from '../ui/itemInfo.js';
 import { PlayerFalling, PlayerJumping, PlayerRunning, PlayerStanding, PlayerState } from './playerStates.js';
 import { sprites } from '../graphics/assets.js';
 import CraftingMenu from '../crafting/Crafting.js';
@@ -26,15 +25,15 @@ import { Range } from '../class/Range.js';
 import { InputHandler } from '../game/InputHandler.js';
 import { Game } from '../game/game.js';
 
-const PLAYER_WIDTH = 36;
-const PLAYER_HEIGHT = 72;
+export const PLAYER_WIDTH = 36;
+export const PLAYER_HEIGHT = 72;
 
-const TILE_PLACEMENT_DELAY_MS = 250;
-const PLAYER_DEFAULT_REACH = 3;
-const PLAYER_ACCELERATION = 0.5;
-const PLAYER_DECELERATION = 0.7;
-const PLAYER_WALKING_SPEED = 5;
-const PLAYER_FALL_DAMAGE_THRESHOLD = 15;
+export const TILE_PLACEMENT_DELAY_MS = 250;
+export const PLAYER_DEFAULT_REACH = 3;
+export const PLAYER_ACCELERATION = 0.5;
+export const PLAYER_DECELERATION = 0.7;
+export const PLAYER_WALKING_SPEED = 5;
+export const PLAYER_FALL_DAMAGE_THRESHOLD = 15;
 
 /**
  * @readonly
@@ -92,7 +91,6 @@ export class Player {
     inventory;
 
     hotbarText = new HotbarText(); 
-    itemInfoDisplay = new ItemInfoDisplay(this);
     camera = new PlayerCamera(this);
     
     animations = new AnimationSet({
