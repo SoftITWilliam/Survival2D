@@ -17,18 +17,12 @@ export class ItemContainer {
         this.slots = new Grid(width, height);
 
         this.slots.onChange.subscribe(({ x, y, value }) => {
-            console.log('slot change', value ? 'inserted' : 'removed');
             this.slotContentsChanged.notify({ x, y });
             if(value != null) {
                 value.amountChanged.subscribe(a => {
-                    console.log('stack change', a);
                     this.slotContentsChanged.notify({ x, y });
                 });
             }
-        });
-
-        this.slotContentsChanged.subscribe(({ x, y }) => {
-            console.log(`CHANGE DETECTED AT ${x}, ${y}`);
         });
     }
 
