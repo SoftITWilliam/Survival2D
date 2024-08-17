@@ -3,27 +3,26 @@ import { SpriteRenderer } from "../graphics/SpriteRenderer.js";
 import { MISSING_TEXTURE, isMissingTexture } from "../graphics/assets.js";
 import Item from "../item/item.js";
 import { ItemStack } from "../item/itemStack.js";
+import { Player } from "../player/player.js";
 import { World } from "../world/World.js";
 import { Tile } from "./Tile.js";
 import { Tileset } from "./Tileset.js";
 import { TileDrop } from "./tileDrop.js";
 
 export class TileModel {
-    #type
+    #type = Tile.types.NONE;
+
+    tilesetTemplate = Tileset.templates.DEFAULT;
+    connectivity = Tile.connectTo.NONE;
+    /** @type {TileDrop[]} */
+    tileDrops = [];
+
     constructor(registryName, width = TILE_SIZE, height) {
 
         /** @type {string} */
         this.registryName = registryName;
         this.w = width;
         this.h = height ?? width;
-
-        this.#type = Tile.types.NONE;
-        this.tilesetTemplate = Tileset.templates.DEFAULT;
-
-        /** @type {TileDrop[]} */
-        this.tileDrops = [];
-
-        this.connectivity = Tile.connectTo.NONE;
 
         /** 
          * @protected
@@ -69,7 +68,7 @@ export class TileModel {
 
     //#endregion
 
-    //#region Getter/setter methods
+    //#region Methods
 
     /**
      * Set the mining properties of the tile model
@@ -103,6 +102,14 @@ export class TileModel {
             setSpriteImage(MISSING_TEXTURE);
     }
 
+    /**
+     * Runs when a Tile using this model is created.
+     * Should be used to set tileData etc
+     * @param {Tile} tile 
+     * @param {Player} placedBy 
+     */
+    initializeTile(tile, placedBy) { }
+
     /** 
      * TODO Refactor
      * @param {Item} item Held item
@@ -112,10 +119,6 @@ export class TileModel {
     canBeMined(item, world) {
         return false;
     }
-
-    //#endregion
-
-    //#region Methods
 
     /**
      * Remove tile from world.

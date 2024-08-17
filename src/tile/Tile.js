@@ -3,6 +3,7 @@ import { TILE_SIZE } from "../game/global.js";
 import { InputHandler } from "../game/InputHandler.js";
 import Item from "../item/item.js";
 import { ItemEntity } from "../item/itemEntity.js";
+import { Player } from "../player/player.js";
 import { World } from "../world/World.js";
 import { TileModel } from "./tileModel.js";
 import { Tileset } from "./Tileset.js";
@@ -11,13 +12,23 @@ export class Tile extends GameObject {
     #spriteVariant
     #adjacency
 
+    sheetX = 0;
+    sheetY = 0;
+
+    /** 
+     * Contains all properties that are unique to a tile type, and unique for each individual tile
+     * (This could be, for example, growth stages of plants)
+     * */ 
+    tileData = {};
+
     /**
      * @param {World} world 
      * @param {number} gridX X position in world
      * @param {number} gridY Y position in world
      * @param {TileModel} model 
+     * @param {Player} [placedBy] Player who placed the object. Null if naturally generated
      */
-    constructor(world, gridX, gridY, model) {
+    constructor(world, gridX, gridY, model, placedBy) {
         super(world.game, gridX * TILE_SIZE, -gridY * TILE_SIZE)
         this.world = world;
 
@@ -25,15 +36,15 @@ export class Tile extends GameObject {
             throw new TypeError("Invalid TileModel!");
         }
         this.model = model;
-
-        this.sheetX = 0;
-        this.sheetY = 0;
-        this.#spriteVariant;
-        this.#adjacency;
+        this.model.initializeTile(this, placedBy);
     }
 
     //#region Enums
 
+    /**
+     * @readonly
+     * @enum {number}
+     */
     static types = {
         NONE: 0, // (No tile should ever actually have this)
         SOLID: 1,
@@ -42,6 +53,10 @@ export class Tile extends GameObject {
         PLATFORM: 4,
     }
 
+    /**
+     * @readonly
+     * @enum {number}
+     */
     static connectTo = {
         NONE: 0,
         SELF: 1,
@@ -198,6 +213,53 @@ export class Tile extends GameObject {
                 return checkSurrounding(connectsToSelf, grid);
         }
         throw new TypeError("'connectivity' must be a value from the Tile.connectTo enum");
+    }
+
+    /**
+     * Uses a flood-fill algorithm to get all connected tiles of the same type.
+     */
+    getConnectedTiles(maxRange = Infinity) {
+        const GRID = (this.type === Tile.types.WALL ? this.world.walls : this.world.tiles);
+    
+        // Directions for moving in the grid (up, down, left, right)
+        const directions = [
+            [0, 1],  // Right
+            [1, 0],  // Down
+            [0, -1], // Left
+            [-1, 0]  // Up
+        ];
+    
+        const connectedTiles = [];
+        const stack = [[this.gridX, this.gridY, 0]]; // The third element tracks the distance from the start
+        const visited = new Set();
+        visited.add(`${this.gridX},${this.gridY}`);
+    
+        while (stack.length > 0) {
+            const [x, y, distance] = stack.pop();
+    
+            // If we've exceeded the max range, don't continue from this tile
+            if (distance > maxRange) {
+                continue;
+            }
+    
+            connectedTiles.push(GRID.get(x, y));
+    
+            for (let [dx, dy] of directions) {
+                const newX = x + dx;
+                const newY = y + dy;
+    
+                const validPosition = !this.world.outOfBounds(newX, newY);
+                const notVisited = !visited.has(`${newX},${newY}`);
+                const isSameType = Tile.isTile(GRID.get(newX, newY), this);
+    
+                if (validPosition && notVisited && isSameType) {
+                    stack.push([newX, newY, distance + 1]);
+                    visited.add(`${newX},${newY}`);
+                }
+            }
+        }
+    
+        return connectedTiles;
     }
 
     /**

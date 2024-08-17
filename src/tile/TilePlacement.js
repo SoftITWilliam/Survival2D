@@ -73,7 +73,7 @@ export class TilePlacement {
 
             // This 'tile' is purely theoretical, to check placement range and player overlap.
             // It's actually added to the world through 'this.world.setTile()' later on.
-            let tile = new Tile(this.world, gridX, gridY, tileModel);
+            let tile = new Tile(this.world, gridX, gridY, tileModel, player);
             if(calculateDistance(player, tile) > player.reach) {
                 return placementResult(false, "Player is out of range.");
             } 
