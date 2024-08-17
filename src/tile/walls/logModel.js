@@ -25,10 +25,52 @@ export class LogModel extends WallBase {
      * @param {Tile} tile 
      */
     removeFromWorld(tile) {
-        let tileAbove = tile.world.walls.get(tile.gridX, tile.gridY + 1);
+        const WORLD = tile.world;
+        const RADIUS = 2;
+
+        let tileAbove = WORLD.walls.get(tile.gridX, tile.gridY + 1);
         if(Tile.isTile(tileAbove, TileRegistry.LOG)) {
             tileAbove.break();
         }
+        let leaves = WORLD.tiles.get(tile.gridX, tile.gridY);
+        if(Tile.isTile(leaves, TileRegistry.LEAVES) && leaves.tileData['generated'] == true) {
+            const connectedLeaves = leaves.getConnectedTiles();
+            const leavesToRemove = new Set();
+
+            // Check for logs of other trees within a radius of 2 around each leaf
+            connectedLeaves.forEach(leaf => {
+                let isTouchingOtherTree = false;
+
+                // Scan an area centered on the leaf
+                for (let dx = -RADIUS; dx <= RADIUS; dx++) {
+
+                    // Ignore the X coordinate of the tree we're breaking
+                    if(leaf.gridX + dx === tile.gridX) 
+                        continue; 
+
+                    for (let dy = -RADIUS; dy <= RADIUS; dy++) {
+                        const log = WORLD.walls.get(leaf.gridX + dx, leaf.gridY + dy);
+                        if (Tile.isTile(log, TileRegistry.LOG)) {
+                            isTouchingOtherTree = true;
+                            break;
+                        }
+                    }
+                    if (isTouchingOtherTree) break;
+                }
+
+                if (isTouchingOtherTree) {
+                    leavesToRemove.add(leaf);
+                }
+            });
+
+            // Remove only the leaves associated with this tree, excluding those connected to other trees
+            connectedLeaves.forEach(leaf => {
+                if (!leavesToRemove.has(leaf)) {
+                    leaf.break();
+                }
+            });
+        }
+
         super.removeFromWorld(tile);
     }
 
