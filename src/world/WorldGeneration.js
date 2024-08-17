@@ -7,35 +7,38 @@ import { World } from './World.js';
 import { Grid } from '../class/Grid.js';
 import { TileModel } from '../tile/tileModel.js';
 
-const worldGenConfig = {
-
-    NOISE_BLUR: 3,
-
-    MIN_DIRT_DEPTH: 2,
-    MAX_DIRT_DEPTH: 5,
-
-    // lower = more trees (1 in x)
-    TREE_FACTOR: 6, 
-    CLOTH_FACTOR: 20,
-
-    // if noise value for a tile is below the threshold, that tile becomes terrain.
-    // Higher values result in fewer caves
-    TERRAIN_NOISE_THRESHOLD: 53, 
-
-    STEP_CHANCE: [
-        [-4, 1],
-        [-3, 2],
-        [-2, 4],
-        [-1, 8],
-        [0, 10],
-        [1, 8],
-        [2, 4],
-        [3, 2],
-        [4, 1],
-    ],
-
-    ENABLE_HEIGHTMAP_SMOOTHING: true,
-}
+const GenConfigs = {
+    DEFAULT: {
+        NOISE_BLUR: 3,
+        MIN_DIRT_DEPTH: 2,
+        MAX_DIRT_DEPTH: 5,
+        TREE_FACTOR: 6, // 1 in x chance of spawning trees (WILL BE REMADE)
+        CLOTH_FACTOR: 20, // 1 in x chance of spawning cloth plants (WILL BE REMADE)
+        TERRAIN_NOISE_THRESHOLD: 53, // Higher values result in fewer caves
+        ENABLE_HEIGHTMAP_SMOOTHING: true, // Removes some weird terrain, like random pillars
+        STEP_CHANCE: [ // Elevation step chances [tiles, percent]
+            [-4, 1],
+            [-3, 2],
+            [-2, 4],
+            [-1, 8],
+            [0, 10],
+            [1, 8],
+            [2, 4],
+            [3, 2],
+            [4, 1],
+        ],
+    },
+    SUPERFLAT: {
+        NOISE_BLUR: 3,
+        MIN_DIRT_DEPTH: 1,
+        MAX_DIRT_DEPTH: 1,
+        TREE_FACTOR: 6, 
+        CLOTH_FACTOR: 20,
+        TERRAIN_NOISE_THRESHOLD: 90, 
+        STEP_CHANCE: [[0, 100]],
+        ENABLE_HEIGHTMAP_SMOOTHING: false,
+    }
+};
 
 export class WorldGeneration {
     constructor(world) {
@@ -50,6 +53,8 @@ export class WorldGeneration {
 
         /** @type {number[]} */
         this.dirtMap;
+
+        this.config = GenConfigs.SUPERFLAT;
     }
 
     async generate() {
@@ -60,15 +65,15 @@ export class WorldGeneration {
 
             this.heightmap = this.#generateHeightmap();
 
-            if(worldGenConfig.ENABLE_HEIGHTMAP_SMOOTHING) {
+            if(this.config.ENABLE_HEIGHTMAP_SMOOTHING) {
                 this.#smoothHeightmap(this.heightmap);
             }
 
             this.terrainNoise = new NoiseMap(this.world.width, this.world.height);
             this.terrainNoise.generate(0, 100);
-            this.terrainNoise.applyBlur(worldGenConfig.NOISE_BLUR);
+            this.terrainNoise.applyBlur(this.config.NOISE_BLUR);
 
-            this.dirtMap = this.#generateDirtDepth(worldGenConfig.MIN_DIRT_DEPTH, worldGenConfig.MAX_DIRT_DEPTH);
+            this.dirtMap = this.#generateDirtDepth(this.config.MIN_DIRT_DEPTH, this.config.MAX_DIRT_DEPTH);
 
             //#endregion
             //#region Pre-defined conditions
@@ -77,7 +82,7 @@ export class WorldGeneration {
                 y <= this.heightmap[x]);
 
             var withinThreshold = (x, y) => (
-                this.terrainNoise.get(x, y) >= worldGenConfig.TERRAIN_NOISE_THRESHOLD);
+                this.terrainNoise.get(x, y) >= this.config.TERRAIN_NOISE_THRESHOLD);
 
             var dirty = (x, y) => (
                 y > this.heightmap[x] - this.dirtMap[x]);
@@ -170,13 +175,13 @@ export class WorldGeneration {
             
             if(!Tile.isTile(tile, Tiles.GRASS)) continue;
 
-            if(roll(worldGenConfig.TREE_FACTOR) && (x - lastTree) > treeGap) {
+            if(roll(this.config.TREE_FACTOR) && (x - lastTree) > treeGap) {
                 this.world.structures.push(new structures.BasicTree(x, y + 1, this.world));
                 lastTree = x;
                 continue;
             }
 
-            if(roll(worldGenConfig.CLOTH_FACTOR)) {
+            if(roll(this.config.CLOTH_FACTOR)) {
                 this.world.setTile(x, y + 1, TileRegistry.CLOTH_PLANT);
             }
         }
@@ -187,7 +192,7 @@ export class WorldGeneration {
         const heightmap = [];
         heightmap.push(Math.ceil(this.world.height / 2));
 
-        const chanceValues = worldGenConfig.STEP_CHANCE.map(v => v[1]);
+        const chanceValues = this.config.STEP_CHANCE.map(v => v[1]);
         const chanceSum = sum(chanceValues);
 
         for(let x = 0; x < this.world.width; x++) {
@@ -197,10 +202,10 @@ export class WorldGeneration {
 
             // hopefully I remember how this works later
             let stepHeight = 0;
-            for(let i = 0; i < worldGenConfig.STEP_CHANCE.length; i++) {
-                rand -= worldGenConfig.STEP_CHANCE[i][1];
+            for(let i = 0; i < this.config.STEP_CHANCE.length; i++) {
+                rand -= this.config.STEP_CHANCE[i][1];
                 if(rand < 0) {
-                    stepHeight = worldGenConfig.STEP_CHANCE[i][0];
+                    stepHeight = this.config.STEP_CHANCE[i][0];
                     break;
                 } 
             }
