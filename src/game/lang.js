@@ -29,6 +29,8 @@ export const LANG = {
         tile_stone: "Stone",
         stone: "Stone",
 
+        coal: "Coal",
+
         wall_stone: "Stone wall",
         stone_wall: "Stone wall",
 
@@ -61,6 +63,7 @@ export const LANG = {
         wooden_axe_description: "A shoddy, improvised piece of equipment",
         wooden_shovel_description: "A shoddy, improvised piece of equipment",
         wooden_hammer_description: "A shoddy, improvised piece of equipment",
+        coal_description: "Burns really well",
 
         // Rarities
         rarity_0: "Common",

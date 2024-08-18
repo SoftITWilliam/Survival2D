@@ -33,7 +33,8 @@ export class ItemRegistry {
     // Basic items
     static WOOD = new item.Default("wood", rarity.COMMON);
     static BRANCH = new item.Default("branch", rarity.COMMON);
-    static PLANT_FIBER = new item.Default("plant_fiber", rarity.COMMON)
+    static PLANT_FIBER = new item.Default("plant_fiber", rarity.COMMON);
+    static COAL = new item.Default("coal", rarity.UNCOMMON);
 
     // Seeds
     static ACORN = new item.Acorn("acorn", rarity.COMMON);

@@ -57,6 +57,7 @@ export const sprites = {
         stone: loadImage("tiles/tileset_stone"),
         stone_wall: loadImage("tiles/tileset_stone_wall"),
         grass: loadImage("tiles/tileset_grass"),
+        coal_ore: loadImage("tiles/tileset_coal_ore")
     },
 
     placeables: {
@@ -72,6 +73,7 @@ export const sprites = {
         wood: loadImage("items/wood"),
         branch: loadImage("items/branch"),
         acorn: loadImage("items/acorn"),
+        coal: loadImage("items/coal"),
         grass_seeds: loadImage("items/grass_seeds"),
         plant_fiber: loadImage("items/plant_fiber"),
         cloth_seeds: loadImage("items/cloth_seeds"),

@@ -142,6 +142,7 @@ export class WorldGeneration {
                 (tile, x, y) => (belowHeightmap(x, y) && withinThreshold(x, y)));
 
             this.#generateVegetation();
+            this.#generateOres();
 
             //#endregion
 
@@ -198,6 +199,30 @@ export class WorldGeneration {
                 this.world.setTile(x, y + 1, TileRegistry.CLOTH_PLANT);
             }
         }
+    }
+
+    #generateOres() {
+        const noise = new FastNoiseLite();
+        noise.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
+        noise.SetFractalType(FastNoiseLite.FractalType.FBm);
+        noise.SetFrequency(0.1);        
+        noise.SetSeed()
+
+        const coalNoise = getNoiseData(noise, this.world.width, this.world.height);
+
+        let merged = [];
+
+        coalNoise.forEach(a => {
+            merged = merged.concat(a);
+        });
+        const avg = sum(merged) / merged.length;
+        const max = Math.max(...merged);
+        const min = Math.min(...merged);
+        console.log(avg, max, min);
+
+        this.fillGridWithTile(this.world.tiles, TileRegistry.COAL_ORE, (tile, x, y) => {
+            return Tile.isTile(tile, TileRegistry.STONE) && noise.GetNoise(x, y) > 0.3
+        });
     }
 
     #generateHeightmap() {
