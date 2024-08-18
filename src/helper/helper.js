@@ -5,6 +5,7 @@
  * A random collection of useful functions that don't really fit anywhere else
  */
 
+import FastNoiseLite from "fastnoise-lite";
 import { ctx } from "../game/global.js";
 
 /**
@@ -184,4 +185,24 @@ export function padRect(rect, padding) {
     rect.y -= padding;
     rect.width += padding * 2;
     rect.height += padding * 2;
+}
+
+/**
+ * @param {FastNoiseLite} noise 
+ * @param {number} height 
+ * @param {number} width 
+ * @returns {number[][]}
+ */
+export function getNoiseData(noise, height, width) {
+
+    let noiseData = [];
+
+    for (let x = 0; x < width; x++) {
+        noiseData[x] = [];
+
+        for (let y = 0; y < height; y++) {        
+            noiseData[x][y] = noise.GetNoise(x, y);
+        }
+    }
+    return noiseData;
 }

@@ -1,11 +1,12 @@
 import * as structures from '../structure/structureParent.js';
 import NoiseMap from './NoiseMap.js';
 import { Tile } from '../tile/Tile.js';
-import { rng, roll, sum } from '../helper/helper.js';
+import { getNoiseData, rng, roll, sum } from '../helper/helper.js';
 import { TileRegistry, TileRegistry as Tiles } from '../tile/tileRegistry.js';
 import { World } from './World.js';
 import { Grid } from '../class/Grid.js';
 import { TileModel } from '../tile/tileModel.js';
+import FastNoiseLite from 'fastnoise-lite';
 
 const GenConfigs = {
     DEFAULT: {
@@ -14,19 +15,18 @@ const GenConfigs = {
         MAX_DIRT_DEPTH: 5,
         TREE_FACTOR: 6, // 1 in x chance of spawning trees (WILL BE REMADE)
         CLOTH_FACTOR: 20, // 1 in x chance of spawning cloth plants (WILL BE REMADE)
-        TERRAIN_NOISE_THRESHOLD: 53, // Higher values result in fewer caves
         ENABLE_HEIGHTMAP_SMOOTHING: true, // Removes some weird terrain, like random pillars
         STEP_CHANCE: [ // Elevation step chances [tiles, percent]
-            [-4, 1],
             [-3, 2],
             [-2, 4],
             [-1, 8],
-            [0, 10],
+            [0, 12],
             [1, 8],
             [2, 4],
             [3, 2],
-            [4, 1],
         ],
+        NOISE_FREQUENCY: 0.05,
+        NOISE_THRESHOLD: 0.7, // Higher values result in fewer caves
     },
     SUPERFLAT: {
         NOISE_BLUR: 3,
@@ -48,13 +48,13 @@ export class WorldGeneration {
         /** @type {number[]} */
         this.heightmap;
 
-        /** @type {NoiseMap} */
+        /** @type {number[][]} */
         this.terrainNoise;
 
         /** @type {number[]} */
         this.dirtMap;
 
-        this.config = GenConfigs.SUPERFLAT;
+        this.config = GenConfigs.DEFAULT;
     }
 
     async generate() {
@@ -69,9 +69,22 @@ export class WorldGeneration {
                 this.#smoothHeightmap(this.heightmap);
             }
 
-            this.terrainNoise = new NoiseMap(this.world.width, this.world.height);
-            this.terrainNoise.generate(0, 100);
-            this.terrainNoise.applyBlur(this.config.NOISE_BLUR);
+            const noise = new FastNoiseLite();
+            noise.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
+            noise.SetFractalType(FastNoiseLite.FractalType.Ridged);
+            noise.SetFrequency(this.config.NOISE_FREQUENCY);        
+
+            this.terrainNoise = getNoiseData(noise, this.world.width, this.world.height);
+
+            /* let merged = [];
+
+            this.terrainNoise.forEach(a => {
+                merged = merged.concat(a);
+            });
+            const avg = sum(merged) / merged.length;
+            const max = Math.max(...merged);
+            const min = Math.min(...merged);
+            console.log(avg, max, min); */
 
             this.dirtMap = this.#generateDirtDepth(this.config.MIN_DIRT_DEPTH, this.config.MAX_DIRT_DEPTH);
 
@@ -82,7 +95,7 @@ export class WorldGeneration {
                 y <= this.heightmap[x]);
 
             var withinThreshold = (x, y) => (
-                this.terrainNoise.get(x, y) >= this.config.TERRAIN_NOISE_THRESHOLD);
+                this.terrainNoise[x][y] >= this.config.NOISE_THRESHOLD);
 
             var dirty = (x, y) => (
                 y > this.heightmap[x] - this.dirtMap[x]);
@@ -140,16 +153,16 @@ export class WorldGeneration {
      * @private
      * @param {Grid} grid 
      * @param {TileModel} model 
-     * @param {(value: (Tile|null), x: number, y: number) => boolean} conditionFn This is a predicate, thanks zoe <3
+     * @param {(value: (Tile|null), x: number, y: number) => boolean} predicate This is called a predicate, thanks zoe <3
      */
-    fillGridWithTile(grid, model, conditionFn = null) {
+    fillGridWithTile(grid, model, predicate = null) {
         
         // To avoid checking the types every time
-        let hasCondition = typeof conditionFn == "function";
+        let hasCondition = typeof predicate == "function";
         let isModel = model instanceof TileModel;
 
         grid.eachItem((tile, x, y) => {
-            if(hasCondition && conditionFn(tile, x, y)) {
+            if(hasCondition && predicate(tile, x, y)) {
                 return isModel ? new Tile(this.world, x, y, model) : null;
             } 
         })
