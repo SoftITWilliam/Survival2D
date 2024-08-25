@@ -9,6 +9,7 @@ export class LogModel extends WallBase {
     constructor(registryName) {
         super(registryName);
         this.transparent = true;
+        this.connectivity = Tile.connectTo.SELF;
         this.setMiningProperties(Item.toolTypes.AXE, 0, 1.5, false);
 
         this.tileDrops = [
