@@ -63,6 +63,7 @@ export const sprites = {
     placeables: {
         sapling: loadImage("tiles/sapling"),
         cloth_plant: loadImage("tiles/cloth_plant"),
+        torch: loadImage("tiles/torch"),
     },
 
     items: {
@@ -81,6 +82,7 @@ export const sprites = {
         wooden_axe: loadImage("items/wooden_axe"),
         wooden_shovel: loadImage("items/wooden_shovel"),
         wooden_hammer: loadImage("items/wooden_hammer"),
+        torch: loadImage("items/torch"),
     },
 
     entities: {

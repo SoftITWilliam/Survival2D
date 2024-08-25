@@ -91,7 +91,7 @@ export class Tile extends GameObject {
     /** @returns {number} */
     get miningTime() { return this.model.miningTime ?? 0 }
 
-    /** @returns {number} from Tile.toolTypes enum */
+    /** @returns {Item.toolTypes} */
     get toolType() { return this.model.toolType ?? null }
 
     /** @returns {number} from Tille.types enum */
@@ -107,6 +107,15 @@ export class Tile extends GameObject {
     get spriteVariantName() {
         let index = Object.values(Tileset.variants).indexOf(this.#spriteVariant);
         return index != null ? Object.keys(Tileset.variants)[index] : "";
+    }
+
+    get emitsLight() { return this.model.lightSource !== null }
+
+    getLightSource() {
+        if(!this.emitsLight)
+            throw new Error("This tile does not emit any light");
+
+        return this.model.lightSource;
     }
 
     //#endregion
@@ -149,7 +158,6 @@ export class Tile extends GameObject {
         });
 
         this.world.itemEntities.add(entities);
-        
         this.model.removeFromWorld(this);
     }
 

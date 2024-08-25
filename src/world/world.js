@@ -49,8 +49,15 @@ export class World {
 
         MiningAction.tileMinedSubject.subscribe(({ tile, item }) => {
             tile.break(item);
-            this.tileUpdateObservable.notify({ x: tile.gridX, y: tile.gridY });
         });
+
+        this.#tilemap.onChange.subscribe(({ x, y, value }) => {
+            this.tileUpdateObservable.notify({ x, y });
+        })
+
+        this.#wallmap.onChange.subscribe(({ x, y, value }) => {
+            this.tileUpdateObservable.notify({ x, y });
+        })
 
         this.tileUpdateObservable.subscribe(({ x, y }) => {
             this.updateNearbyTiles(x, y); 
@@ -234,7 +241,7 @@ export class World {
      * @param {Tile} tile 
      */
     handlePlacedTile(tile) {
-        this.tileUpdateObservable.notify({ x: tile.gridX, y: tile.gridY });
+        //this.tileUpdateObservable.notify({ x: tile.gridX, y: tile.gridY });
     }
     
     //#endregion

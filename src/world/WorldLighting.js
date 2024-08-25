@@ -1,10 +1,11 @@
 import { Grid } from "../class/Grid.js";
-import { TILE_SIZE, canvas } from "../game/global.js";
+import { TILE_SIZE } from "../game/global.js";
 import { rgba } from "../helper/canvashelper.js";
-import { clamp, padRect } from "../helper/helper.js";
+import { clamp } from "../helper/helper.js";
+import { Tile } from "../tile/Tile.js";
 import { World } from "./World.js";
 
-class LightSource {
+export class LightSource {
     constructor(radius, brightness, color) {
         this.radius = radius;
         this.brightness = brightness;
@@ -58,13 +59,22 @@ export class WorldLighting {
         this.artificialLight = new Grid(this.world.width, this.world.height);
 
         this.world.tileUpdateObservable.subscribe(({ x, y }) => {
-            this.updateLightAt(x, y);
+            try {
+                this.updateLightAt(x, y);
+            }
+            catch (error) {
+                console.warn(error)
+            }
         });
 
         // Track light changes between update() calls - and then redraw them all at once.
         this.changedLightSources = [];
 
         this.naturalLight.onChange.subscribe(({ x, y, value }) => {
+            this.changedLightSources.push({ x, y, value });
+        });
+
+        this.artificialLight.onChange.subscribe(({ x, y, value }) => {
             this.changedLightSources.push({ x, y, value });
         });
     }
@@ -90,8 +100,6 @@ export class WorldLighting {
     update() {
         if(this.changedLightSources.length === 0)
             return;
-        
-        console.log(`updating light sources in ${this.changedLightSources.length} tiles`);
 
         // area to update
         const minX = Math.min(...this.changedLightSources.map(s => s.x));
@@ -99,7 +107,18 @@ export class WorldLighting {
         const minY = Math.min(...this.changedLightSources.map(s => s.y));
         const maxY = Math.max(...this.changedLightSources.map(s => s.y));
 
-        const margin = 2;
+        // Calculate necessary margin based on the tile with the highest light radius
+        const radiuses = this.changedLightSources
+            .map(s => s.value?.radius)
+            .filter(r => typeof r == "number" && !isNaN(r));
+
+        const maxRadius = Math.max(...radiuses);
+        const margin = (isNaN(maxRadius) || maxRadius === 0) ? 2 : (Math.ceil(maxRadius / TILE_SIZE));
+
+        console.log(`Updating light sources in ${this.changedLightSources.length} tiles`, 
+                    `\nMax radius: ${maxRadius} px`, 
+                    `\nMargin: ${margin} tiles`);
+
         // pad the area and clamp to world size
         const pos = {
             x1: clamp(minX - margin, 0, this.world.width),
@@ -137,8 +156,11 @@ export class WorldLighting {
         // Redraw all light sources within the area
         for(let x = rect.x; x < rect.x + rect.width && x < this.world.width; x++) {
             for(let y = rect.y; y > rect.y - rect.height && y >= 0; y--) {
-                const source = this.naturalLight.get(x, y);
-                this.drawLightSource(x, y, source);
+                const naturalSource = this.naturalLight.get(x, y);
+                this.drawLightSource(x, y, naturalSource);
+
+                const artificialSource = this.artificialLight.get(x, y);
+                this.drawLightSource(x, y, artificialSource);
             }
         }
 
@@ -157,14 +179,23 @@ export class WorldLighting {
 
     updateLightAt(x, y) {
 
+        const tile = this.world.tiles.get(x, y);
         const level = this.getNaturalLightLevel(x, y);
 
         if(level > 0) {
             const source = new LightSource(this.config.NATURAL_LIGHT_RADIUS, level, this.config.NATURAL_LIGHT_COLOR_DAY);
-            this.setNaturalLightLevel(x, y, source);
+            this.setLightLevel(this.naturalLight, x, y, source);
         } 
         else {
-            this.setNaturalLightLevel(x, y, null);
+            this.setLightLevel(this.naturalLight, x, y, null);
+        }
+
+        if(Tile.isTile(tile) && tile.emitsLight) {
+            const source = tile.getLightSource();
+            this.setLightLevel(this.artificialLight, x, y, source)
+        } 
+        else {
+            this.setLightLevel(this.artificialLight, x, y, null);
         }
 
         if(!this.isOpaqueTile(x, y - 1) && this.isOpaqueWall(x, y - 1)) {
@@ -174,14 +205,17 @@ export class WorldLighting {
 
     // Make sure light level has actually changed before calling 'this.naturalLight.set'
     // (This is an optimization to prevent unnecessary redraws)
-    setNaturalLightLevel(x, y, source = null) {
-        const previous = this.naturalLight.get(x, y);
+    setLightLevel(grid, x, y, source = null) {
+        const previous = grid.get(x, y);
 
         if(source === null && previous !== null) {
-            this.naturalLight.set(x, y, null);
+            // Instead of removing the source, we set its brightness to 0.
+            // This is dumb, but it's currently the best way to reset the whole area at once
+            source = new LightSource(previous.radius, 0, previous.color);
+            grid.set(x, y, source);
         }
-        if(source !== null && !source.sameAs(previous)) {
-            this.naturalLight.set(x, y, source);
+        else if(source !== null && !source.sameAs(previous)) {
+            grid.set(x, y, source);
         }
     }
 
@@ -236,12 +270,6 @@ export class WorldLighting {
         return (wall && !wall.transparent);
     }
 
-    
-
-    updateNonNaturalLight() {
-        // TODO
-    }
-
     drawLightSource(gridX, gridY, source = null) {
         if(!source)
             return;
@@ -259,24 +287,10 @@ export class WorldLighting {
         this.ctx.fillRect(x - source.radius, y - source.radius, source.radius * 2, source.radius * 2)
     }
 
-    clearLightSource(gridX, gridY) {
-        
-    }
-
     render(ctx, camera) {
         ctx.save();
         ctx.globalCompositeOperation = "multiply";
         ctx.drawImage(this.canvas, 0, (-this.world.height + 1) * TILE_SIZE);
-
-        /*
-        ctx.globalCompositeOperation = "lighter";
-
-        const gradient = this.ctx.createLinearGradient(camera.x, 0, camera.x2, 0);
-        gradient.addColorStop(0, "rgb(50, 75, 100)");
-        gradient.addColorStop(1, "black");
-        ctx.fillStyle = gradient;
-        ctx.fillRectObj(camera);
-        */
         ctx.restore();
     }
 }

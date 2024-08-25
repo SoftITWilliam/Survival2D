@@ -49,6 +49,7 @@ export const LANG = {
         wooden_axe: "Wooden Axe",
         wooden_shovel: "Wooden Shovel",
         wooden_hammer: "Wooden Hammer",
+        torch: "Torch",
 
         // Item descriptions
         dev_pickaxe_description: "This item is for testing purposes only",
@@ -64,6 +65,7 @@ export const LANG = {
         wooden_shovel_description: "A shoddy, improvised piece of equipment",
         wooden_hammer_description: "A shoddy, improvised piece of equipment",
         coal_description: "Burns really well",
+        torch_description: 'Guaranteed to light up your day',
 
         // Rarities
         rarity_0: "Common",

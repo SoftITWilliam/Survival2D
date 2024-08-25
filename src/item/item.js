@@ -34,6 +34,10 @@ export default class Item {
 
     //#region Enums
 
+    /**
+     * @readonly
+     * @enum {number}
+     */
     static types = {
         DEFAULT: 0, // Normal item
         PLACEABLE: 1, // Can be placed. Cannot break tiles when holding. Each item has to specify what they place.
@@ -41,6 +45,10 @@ export default class Item {
         TOOL: 3, // Has special effects when used to break tiles.
     }
 
+    /**
+     * @readonly
+     * @enum {number}
+     */
     static toolTypes = {
         NONE: 0,
         PICKAXE: 1, // Stone-like tiles

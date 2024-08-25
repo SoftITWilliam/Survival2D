@@ -5,6 +5,7 @@ import Item from "../item/item.js";
 import { ItemStack } from "../item/itemStack.js";
 import { Player } from "../player/player.js";
 import { World } from "../world/World.js";
+import { LightSource } from "../world/WorldLighting.js";
 import { Tile } from "./Tile.js";
 import { Tileset } from "./Tileset.js";
 import { TileDrop } from "./tileDrop.js";
@@ -16,6 +17,12 @@ export class TileModel {
     connectivity = Tile.connectTo.NONE;
     /** @type {TileDrop[]} */
     tileDrops = [];
+
+    /** @type {Item.toolTypes} */
+    toolType = Item.toolTypes.NONE;
+
+    /** @type {null|LightSource} */
+    lightSource = null;
 
     constructor(registryName, width = TILE_SIZE, height) {
 
@@ -72,8 +79,8 @@ export class TileModel {
 
     /**
      * Set the mining properties of the tile model
-     * @param {int} toolType (toolTypes enum) Effective tool type
-     * @param {int} toolLevel Which level of tool is required to count as effective
+     * @param {Item.toolTypes} toolType Effective tool type
+     * @param {number} toolLevel Which level of tool is required to count as effective
      * @param {number} miningTime How long the tool takes to mine by hand, in seconds
      * @param {boolean} requireTool If a tool is required to mine the tile at all.
      */
@@ -100,6 +107,15 @@ export class TileModel {
         
         else 
             setSpriteImage(MISSING_TEXTURE);
+    }
+
+    /**
+     * @param {number} radius Radius in pixels 
+     * @param {number} brightness Light opacity (0-1)
+     * @param {{r: number, g: number, b: number}} color 
+     */
+    setLightEmission(radius, brightness, color) {
+        this.lightSource = new LightSource(radius, brightness, color);
     }
 
     /**

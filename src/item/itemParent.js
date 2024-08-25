@@ -9,3 +9,4 @@ export { WallItemBase as Wall } from './items/base/wallItemBase.js';
 export { ItemAcorn as Acorn } from './items/itemAcorn.js';
 export { ItemGrassSeeds as GrassSeeds } from './items/itemGrassSeeds.js';
 export { ItemClothSeeds as ClothSeeds } from './items/itemClothSeeds.js';
+export { ItemTorch as Torch } from './items/itemTorch.js';
