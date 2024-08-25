@@ -58,7 +58,8 @@ export class GUIRenderer {
                 .addInfoRow('player_state', 'Player State')
                 .addInfoRow('mouse_pos',    'Mouse Pos')
                 .addInfoRow('tile_type',    'Tile Type')
-                .addInfoRow('tile_variant', 'Tile variant');
+                .addInfoRow('tile_variant', 'Tile variant')
+                .addInfoRow('light_level', 'Light Level');
 
             const updateRow = (id, value) => this.debugInfo.updateRow(id, value);
 
@@ -75,6 +76,7 @@ export class GUIRenderer {
                 updateRow('mouse_pos', pos);
                 updateRow('tile_type', tile?.registryName);
                 updateRow('tile_variant', tile?.spriteVariantName);
+                updateRow('light_level', WORLD.lighting.naturalLight.get(pos.x, pos.y)?.brightness);
             });
         }
         //#endregion
