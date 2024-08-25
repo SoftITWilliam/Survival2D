@@ -8,6 +8,8 @@ import { Grid } from '../class/Grid.js';
 import { TileModel } from '../tile/tileModel.js';
 import FastNoiseLite from 'fastnoise-lite';
 
+const SEED_LENGTH = 9;
+
 const GenConfigs = {
     DEFAULT: {
         NOISE_BLUR: 3,
@@ -48,13 +50,23 @@ export class WorldGeneration {
         /** @type {number[]} */
         this.heightmap;
 
-        /** @type {number[][]} */
+        /** @type {FastNoiseLite} */
         this.terrainNoise;
 
         /** @type {number[]} */
         this.dirtMap;
 
         this.config = GenConfigs.DEFAULT;
+
+        this.seed = this.generateSeed();
+    }
+
+    generateSeed() {
+        let seed = "";
+        for(let i = 0; i < SEED_LENGTH; i++) {
+            seed += rng(0, 9);
+        }
+        return parseInt(seed);
     }
 
     async generate() {
@@ -69,22 +81,11 @@ export class WorldGeneration {
                 this.#smoothHeightmap(this.heightmap);
             }
 
-            const noise = new FastNoiseLite();
-            noise.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
-            noise.SetFractalType(FastNoiseLite.FractalType.Ridged);
-            noise.SetFrequency(this.config.NOISE_FREQUENCY);        
-
-            this.terrainNoise = getNoiseData(noise, this.world.width, this.world.height);
-
-            /* let merged = [];
-
-            this.terrainNoise.forEach(a => {
-                merged = merged.concat(a);
-            });
-            const avg = sum(merged) / merged.length;
-            const max = Math.max(...merged);
-            const min = Math.min(...merged);
-            console.log(avg, max, min); */
+            this.terrainNoise = new FastNoiseLite();
+            this.terrainNoise.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
+            this.terrainNoise.SetFractalType(FastNoiseLite.FractalType.Ridged);
+            this.terrainNoise.SetFrequency(this.config.NOISE_FREQUENCY);        
+            this.terrainNoise.SetSeed(this.seed);
 
             this.dirtMap = this.#generateDirtDepth(this.config.MIN_DIRT_DEPTH, this.config.MAX_DIRT_DEPTH);
 
@@ -95,7 +96,7 @@ export class WorldGeneration {
                 y <= this.heightmap[x]);
 
             var withinThreshold = (x, y) => (
-                this.terrainNoise[x][y] >= this.config.NOISE_THRESHOLD);
+                this.terrainNoise.GetNoise(x, y) >= this.config.NOISE_THRESHOLD);
 
             var dirty = (x, y) => (
                 y > this.heightmap[x] - this.dirtMap[x]);
@@ -206,19 +207,7 @@ export class WorldGeneration {
         noise.SetNoiseType(FastNoiseLite.NoiseType.Perlin);
         noise.SetFractalType(FastNoiseLite.FractalType.FBm);
         noise.SetFrequency(0.1);        
-        noise.SetSeed()
-
-        const coalNoise = getNoiseData(noise, this.world.width, this.world.height);
-
-        let merged = [];
-
-        coalNoise.forEach(a => {
-            merged = merged.concat(a);
-        });
-        const avg = sum(merged) / merged.length;
-        const max = Math.max(...merged);
-        const min = Math.min(...merged);
-        console.log(avg, max, min);
+        noise.SetSeed(this.seed);
 
         this.fillGridWithTile(this.world.tiles, TileRegistry.COAL_ORE, (tile, x, y) => {
             return Tile.isTile(tile, TileRegistry.STONE) && noise.GetNoise(x, y) > 0.3
