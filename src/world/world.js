@@ -41,11 +41,11 @@ export class World {
         /** @type {Game} */
         this.game = game; // todo: get rid of the need to store a reference to game
 
-        /** @type {WorldLighting} */
-        this.lighting = new WorldLighting(this);
-
         this.#tilemap = new Grid(width, height);
         this.#wallmap = new Grid(width, height);
+
+        /** @type {WorldLighting} */
+        this.lighting = new WorldLighting(this);
 
         MiningAction.tileMinedSubject.subscribe(({ tile, item }) => {
             tile.break(item);
