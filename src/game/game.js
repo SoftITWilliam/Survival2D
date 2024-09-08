@@ -56,7 +56,7 @@ export class Game {
 
         this.gameUpdateSubject.notify({ deltaTime, input: this.input });
 
-        this.world.tickCounter();
+        this.world.tickCounter(deltaTime);
         this.fpsCounter.increment();
         this.player.update(deltaTime, this.input);
         this.player.craftingMenu.ui.update();

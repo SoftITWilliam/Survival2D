@@ -141,6 +141,7 @@ export class TileModel {
      * @param {Tile} tile Tile being broken
      */
     removeFromWorld(tile) {
+        tile.destroyObservable.notify();
         let grid = (this.type == Tile.types.WALL) ? tile.world.walls : tile.world.tiles;
         grid.clear(tile.gridX, tile.gridY);
     }

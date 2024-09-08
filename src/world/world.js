@@ -26,10 +26,13 @@ export class World {
     /** @type {Structure[]} */
     structures = [];
 
-    frameCounter = 0;
     ticksPerSecond = 10;
+    tickInterval = 1000 / this.ticksPerSecond;
+    tickIntervalCounter = 0;
 
     itemEntities = new ItemEntityManager();
+
+    activeTiles = new Set(); // Active tiles that require tick updates
 
     /**
      * @param {Game} game 
@@ -175,11 +178,14 @@ export class World {
 
     //#region | Tick methods
 
-    // TODO use deltatime
-    tickCounter() {
-        this.frameCounter += 1;
-        if(this.frameCounter > 60 / this.ticksPerSecond) {
-            this.frameCounter = 0;
+    /**
+     * Increment tick counter, and runs a 'tick' once the tickInterval has been reached.
+     * @param {number} dt Delta Time (ms)
+     */
+    tickCounter(dt) {
+        this.tickIntervalCounter += dt;
+        if(this.tickIntervalCounter > this.tickInterval) {
+            this.tickIntervalCounter -= this.tickInterval;
             this.tick();
         }
     }
@@ -188,10 +194,22 @@ export class World {
      * Run .tickUpdate() method for all tiles in world
      */
     tick() {
-        // If performance becomes an issue, this should be optimized using world chunks
-        for(const tile of this.tiles) {
-            tile?.tickUpdate();
+        this.activeTiles.forEach((tile) => {
+            tile.tickUpdate();
+        });
+    }
+
+    /**
+     * @param {Tile} tile 
+     */
+    registerActiveTile(tile) {
+        if(!tile instanceof Tile) {
+            throw new TypeError('tile');
         }
+        this.activeTiles.add(tile);
+        tile.destroyObservable.subscribe(() => {
+            this.activeTiles.delete(tile);
+        })
     }
 
     //#endregion

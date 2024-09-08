@@ -33,6 +33,14 @@ export class GrassModel extends TileBase {
     }
 
     /**
+     * @param {Tile} tile
+     * @param {Player} placedBy
+     */
+    initializeTile(tile, placedBy) {
+        tile.world.registerActiveTile(tile);
+    }
+
+    /**
      * @override
      * @param {Tile} tile 
      * @param {World} world 

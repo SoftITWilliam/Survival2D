@@ -1,4 +1,5 @@
 import GameObject from "../class/GameObject.js";
+import { Observable } from "../class/Observable.js";
 import { TILE_SIZE } from "../game/global.js";
 import { InputHandler } from "../game/InputHandler.js";
 import Item from "../item/item.js";
@@ -20,6 +21,8 @@ export class Tile extends GameObject {
      * (This could be, for example, growth stages of plants)
      * */ 
     tileData = {};
+
+    destroyObservable = new Observable();
 
     /**
      * @param {World} world 

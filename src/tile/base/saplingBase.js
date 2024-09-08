@@ -70,6 +70,14 @@ export default class SaplingBase extends ObjectBase {
     }
 
     /**
+     * @param {Tile} tile
+     * @param {Player} placedBy
+     */
+    initializeTile(tile, placedBy) {
+        tile.world.registerActiveTile(tile);
+    }
+
+    /**
      * @param {Tile} tile 
      * @param {World} world 
      */
