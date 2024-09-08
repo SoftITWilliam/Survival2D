@@ -15,28 +15,33 @@ export async function loadGame(game, onCompleted) {
 
     $overlayText.text("Loading assets...");
 
-    await timer(100);
+    // These timers give the texts time to update. 
+    // Otherwise the 'await' starts and the text gets stuck. 
+    // Very strange bug!
+    await timer(50);
     await loadAssets();
-    await timer(100);
+    await timer(50);
 
     $overlayText.text("Generating world...");
+
+    await timer(50);
     await game.world.generate();
-
-    await timer(250);
-
+    await timer(50);
+    
     $overlayText.text("Let there be light...");
-    await game.world.lighting.initialize();
 
-    await timer(100);
+    await timer(50);
+    await game.world.lighting.initialize();
+    await timer(50);
 
     $overlayText.text("Loading complete!");
-
+    
     setTimeout(() => {
         $overlay.css('background-color', 'transparent');
         $overlay.css('color', 'transparent');
         $overlaySpinner.addClass('d-none');
 
-        setTimeout(() => { $overlay.css('display', 'none')}, 2000);
+        setTimeout(() => { $overlay.css('display', 'none') }, 2000);
         onCompleted();
     }, 500);
 }
