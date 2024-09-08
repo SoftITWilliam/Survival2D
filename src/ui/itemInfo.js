@@ -15,6 +15,8 @@ export const ItemInfoDisplay = {
     $attributes: $('.item-info-attributes'),
     $icon: $('.item-info-icon'),
 
+    isShowing: false,
+
     /**
      * Show information about an item
      * @param {Item} item 
@@ -22,6 +24,7 @@ export const ItemInfoDisplay = {
     show(item) {
         console.assert(Item.isItem(item));
 
+        this.isShowing = true;
         this.$.toggleClass('d-none', false);
 
         this.$name.text(item.displayName);
@@ -53,6 +56,7 @@ export const ItemInfoDisplay = {
      * Hide item information window
      */
     hide() {
+        this.isShowing = false;
         this.$.toggleClass('d-none', true);
     },
 

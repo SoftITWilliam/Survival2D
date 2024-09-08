@@ -67,7 +67,9 @@ export class Game {
         this.world.itemEntities.updatePickup(this.player);
         this.world.lighting.update();
 
-        ItemInfoDisplay.realignWithMouse(this.input);
+        if (ItemInfoDisplay.isShowing) {
+            ItemInfoDisplay.realignWithMouse(this.input);
+        }
     }
 
     render(ctx) {
