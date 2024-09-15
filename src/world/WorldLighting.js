@@ -2,6 +2,7 @@ import { Grid } from "../class/Grid.js";
 import { TILE_SIZE } from "../game/global.js";
 import { rgba } from "../helper/canvashelper.js";
 import { clamp } from "../helper/helper.js";
+import PlayerCamera from "../player/camera.js";
 import { Tile } from "../tile/Tile.js";
 import { World } from "./World.js";
 
@@ -287,10 +288,24 @@ export class WorldLighting {
         this.ctx.fillRect(x - source.radius, y - source.radius, source.radius * 2, source.radius * 2)
     }
 
+    /**
+     * Render lighting canvas onto primary canvas
+     * @param {CanvasRenderingContext2D} ctx 
+     * @param {PlayerCamera} camera 
+     */
     render(ctx, camera) {
         ctx.save();
         ctx.globalCompositeOperation = "multiply";
-        ctx.drawImage(this.canvas, 0, (-this.world.height + 1) * TILE_SIZE);
+
+        const w = camera.width;
+        const h = camera.height;
+
+        const ly = (this.world.height - 1) * TILE_SIZE + camera.y;
+        
+        ctx.drawImage(this.canvas, 
+            camera.x, ly, w, h, 
+            camera.x, camera.y, w, h);
+
         ctx.restore();
     }
 }
